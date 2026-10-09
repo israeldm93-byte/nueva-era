@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nueva Era</title>
+  <meta name="description" content="Una civilización simulada que vive sola: descubre, inventa su idioma, enseña y olvida.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='%23b4532a'/><path d='M10 21c2-6 4-9 6-11 2 2 4 5 6 11' stroke='%23fff' stroke-width='2.4' fill='none' stroke-linecap='round'/></svg>">
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+  <header class="cabecera">
+    <div class="contenedor">
+      <div class="titulo">
+        <h1>Nueva Era</h1>
+        <span class="chip" id="era">Era 1</span>
+      </div>
+      <p class="fecha" id="fecha">Cargando el mundo…</p>
+      <p class="sub" id="actualizado"></p>
+    </div>
+  </header>
+
+  <main class="contenedor">
+    <section class="kpis" aria-label="Resumen">
+      <div class="kpi kpi-hero"><span class="kpi-l">Población</span><span class="kpi-v" id="k-pob">–</span></div>
+      <div class="kpi"><span class="kpi-l">Aldeas</span><span class="kpi-v" id="k-aldeas">–</span></div>
+      <div class="kpi"><span class="kpi-l">Saberes</span><span class="kpi-v" id="k-saberes">–</span></div>
+      <div class="kpi"><span class="kpi-l">Años</span><span class="kpi-v" id="k-anios">–</span></div>
+    </section>
+
+    <section class="ultimo" aria-label="Lo último que ha pasado">
+      <h2>Lo último</h2>
+      <ol id="ultimo"></ol>
+    </section>
+
+    <nav class="pestanas" role="tablist" aria-label="Secciones">
+      <button role="tab" data-p="mapa" aria-selected="true">Mapa</button>
+      <button role="tab" data-p="cronica" aria-selected="false">Crónica</button>
+      <button role="tab" data-p="saberes" aria-selected="false">Saberes</button>
+      <button role="tab" data-p="idioma" aria-selected="false">Idioma</button>
+      <button role="tab" data-p="gente" aria-selected="false">Gente</button>
+      <button role="tab" data-p="evolucion" aria-selected="false">Evolución</button>
+      <button role="tab" data-p="como" aria-selected="false">Cómo funciona</button>
+    </nav>
+
+    <section class="panel" id="p-mapa" role="tabpanel">
+      <div class="mapa-marco">
+        <canvas id="mapa" aria-label="Mapa del mundo con las aldeas y su gente"></canvas>
+        <div class="zoom">
+          <button type="button" id="acercar" aria-label="Acercar">+</button>
+          <button type="button" id="alejar" aria-label="Alejar">−</button>
+        </div>
+        <div class="globo" id="globo" hidden></div>
+      </div>
+      <p class="nota">Cada punto es una persona yendo a trabajar y volviendo a su aldea. Toca una aldea o a alguien para ver más; acerca con + o con doble toque y arrastra para moverte.</p>
+      <div class="leyenda" id="leyenda-mapa"></div>
+      <div id="ficha-aldea"></div>
+    </section>
+
+    <section class="panel" id="p-cronica" role="tabpanel" hidden>
+      <div class="filtros" id="filtros-cronica"></div>
+      <div id="cronica"></div>
+    </section>
+
+    <section class="panel" id="p-saberes" role="tabpanel" hidden>
+      <div id="saberes"></div>
+    </section>
+
+    <section class="panel" id="p-idioma" role="tabpanel" hidden>
+      <div id="idioma"></div>
+    </section>
+
+    <section class="panel" id="p-gente" role="tabpanel" hidden>
+      <div id="gente"></div>
+    </section>
+
+    <section class="panel" id="p-evolucion" role="tabpanel" hidden>
+      <div id="evolucion"></div>
+    </section>
+
+    <section class="panel prosa" id="p-como" role="tabpanel" hidden>
+      <h2>¿Qué es esto?</h2>
+      <p>Un mundo pequeño que vive solo, día y noche. Empieza con una banda de unas quince personas sin palabras, sin fuego y sin herramientas. Nadie les dice qué hacer: cada cual decide cada día en qué trabajar, y lo que descubren, lo enseñan o lo olvidan es cosa suya. El mundo avanza <strong>un año cada hora</strong>, y esta página se actualiza sola.</p>
+
+      <h2>¿Aprenden de verdad?</h2>
+      <p>No es una inteligencia artificial que piense: no hay ningún modelo de lenguaje dentro. Aquí aprende la sociedad entera, con cuatro mecanismos reales y medibles.</p>
+      <ul>
+        <li><strong>Prueba y error.</strong> Quien tiene curiosidad y tiempo libre junta cosas que conoce con un gesto (golpear, frotar, atar, calentar…). Nadie sabe qué combinaciones funcionan. Si algo «parece prometer», lo recuerda y lo va variando hasta dar con ello. Así se descubren el fuego, la cuerda o el bronce.</li>
+        <li><strong>Aprender de la experiencia.</strong> Cada persona va ajustando cuánto espera sacar de cazar, pescar o recolectar según le ha ido. Si alguien inventa la red, sus redadas rinden más y pescar empieza a «compensar». Los hijos heredan esas expectativas de sus padres.</li>
+        <li><strong>Cultura.</strong> El saber pasa de unos a otros hablando, sobre todo de padres a hijos y al calor de la hoguera. Si muere la última persona que sabía algo sin haberlo enseñado, se pierde (salvo que esté escrito en tablillas).</li>
+        <li><strong>Evolución.</strong> Cada persona tiene genes (curiosidad, sociabilidad, fuerza, destreza, resistencia, fertilidad, longevidad) heredados de sus padres con pequeñas mutaciones. Quien sobrevive y tiene hijos los transmite.</li>
+      </ul>
+
+      <h2>Su propio idioma</h2>
+      <p>Cuando alguien quiere hablar de algo y no tiene palabra, se la inventa con los sonidos de su pueblo. Si el otro ya la usa, los dos la refuerzan; si no, la aprende. Así cada aldea acaba poniéndose de acuerdo sin que nadie lo decida. Los niños a veces oyen mal una palabra, y así el idioma cambia con las generaciones. Las aldeas que se separan acaban hablando lenguas distintas, y enseñarse cosas les cuesta más.</p>
+
+      <h2>Lo que no está escrito</h2>
+      <p>El orden de los descubrimientos, quién los hace, qué se pierde, cuándo se divide una aldea o si la especie se extingue: nada de eso está programado. Si se extingue, el mundo vuelve a empezar en una nueva era. Esta página no desvela lo que aún no han descubierto.</p>
+
+      <p class="nota">Código abierto en <a href="https://github.com/israeldm93-byte/nueva-era">github.com/israeldm93-byte/nueva-era</a>.</p>
+    </section>
+  </main>
+
+  <footer class="contenedor pie">
+    <p>Nueva Era · un experimento de vida artificial · <a href="https://github.com/israeldm93-byte/nueva-era">código</a></p>
+  </footer>
+
+  <div class="tooltip" id="tooltip" role="status" hidden></div>
+  <script src="app.js"></script>
+</body>
+</html>

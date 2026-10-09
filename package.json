@@ -1,0 +1,20 @@
+{
+  "name": "nueva-era",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Una civilización simulada que vive sola: descubre, habla, enseña y olvida.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "simular": "node src/cli.ts simular",
+    "avanzar": "node src/cli.ts avanzar --estado estado/mundo.json --web web/datos --crear",
+    "test": "node --test test/*.test.ts",
+    "tipos": "tsc"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.0",
+    "typescript": "~5.9.3"
+  }
+}

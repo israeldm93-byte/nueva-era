@@ -1,0 +1,4 @@
+node_modules/
+/estado/
+/web/datos/
+*.log

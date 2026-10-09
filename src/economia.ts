@@ -1,0 +1,639 @@
+// El trabajo de cada día, la comida y los edificios.
+//
+// Cada adulto elige qué hacer comparando lo que espera sacar de cada actividad
+// (lo aprende de su propia experiencia: si cazar le sale bien, caza más) con lo
+// que la aldea necesita ahora mismo (si falta comida, la comida vale más).
+
+import { azar, elegir, prob } from './azar.ts';
+import { EDAD_ADULTA, GANAS_EXPERIMENTAR, RADIO_TRABAJO } from './config.ts';
+import {
+  AGUA,
+  BOSQUE,
+  EDIFICIO,
+  MATERIAL,
+  MINERALES,
+  MONTANA,
+  OFICIOS,
+  ORDEN_COMER,
+  ORILLA,
+  PRADERA,
+  type TipoEdificio,
+} from './catalogo.ts';
+import { anotar } from './cronica.ts';
+import { hayCerca, mejorCasilla } from './mapa.ts';
+import { edad } from './mundo.ts';
+import { experimentar, sabe } from './saber.ts';
+import type { Aldea, Mundo, Persona } from './tipos.ts';
+
+const r2 = (x: number) => Math.round(x * 100) / 100;
+const clamp = (x: number, a: number, b: number) => Math.max(a, Math.min(b, x));
+const lejania = (d: number) => 1 / (1 + 0.07 * d);
+
+export interface Contexto {
+  a: Aldea;
+  gente: Persona[];
+  est: number;
+  precio: Record<string, number>;
+  escasez: number;
+  /** 0..1: cuánto margen de comida hay para dedicar tiempo a otras cosas. */
+  holgura: number;
+  radio: number;
+  herramienta: number;
+  agua: boolean;
+  rocas: boolean;
+  barro: boolean;
+  camposPorTrabajar: number;
+  corrales: number;
+  hoguera: boolean;
+}
+
+export function conoce(a: Aldea, id: string): boolean {
+  return a.conocidos.includes(id);
+}
+
+export function tiene(a: Aldea, tipo: string): boolean {
+  return a.edificios.some((e) => e.tipo === tipo);
+}
+
+export function cuantos(a: Aldea, tipo: string): number {
+  let n = 0;
+  for (const e of a.edificios) if (e.tipo === tipo) n++;
+  return n;
+}
+
+export function guardar(a: Aldea, mat: string, n: number): void {
+  if (n <= 0) return;
+  a.despensa[mat] = r2((a.despensa[mat] ?? 0) + n);
+  if (!a.vistos.includes(mat)) a.vistos.push(mat);
+}
+
+export function necesidad(m: Mundo, p: Persona): number {
+  const e = edad(m, p);
+  if (e < 2) return 0.3;
+  if (e < 12) return 0.6;
+  return e > 60 ? 0.8 : 1;
+}
+
+/** Lo que alimenta una unidad de cada comida en esta aldea (cocinar y moler ayudan). */
+export function alimento(a: Aldea, mat: string): number {
+  let v = MATERIAL[mat]?.comida ?? 0;
+  if (tiene(a, 'hoguera') && conoce(a, 'asado') && mat !== 'bayas') v *= 1.35;
+  if (conoce(a, 'harina') && (mat === 'cereal' || mat === 'semillas')) v *= 1.3;
+  return v;
+}
+
+export function comidaTotal(a: Aldea): number {
+  let s = 0;
+  for (const mat of ORDEN_COMER) s += (a.despensa[mat] ?? 0) * alimento(a, mat);
+  return s;
+}
+
+function herramienta(a: Aldea): number {
+  if (conoce(a, 'hierro')) return 1.6;
+  if (conoce(a, 'bronce')) return 1.4;
+  if (conoce(a, 'cobre')) return 1.2;
+  return 1;
+}
+
+export function contexto(m: Mundo, a: Aldea, gente: Persona[], est: number): Contexto {
+  let consumo = 0;
+  for (const p of gente) consumo += necesidad(m, p);
+  const dias = comidaTotal(a) / Math.max(1, consumo);
+  const objetivo = [30, 45, 75, 35][est];
+  const escasez = clamp(1 - dias / objetivo, 0.03, 1);
+  const precio: Record<string, number> = { comida: 0.25 + 1.5 * escasez };
+  const obra = a.obra && !a.obra.pagada ? EDIFICIO[a.obra.tipo].coste : {};
+  const hoguera = tiene(a, 'hoguera');
+  const fijar = (mat: string, base: number) => {
+    const quiere = base + (obra[mat] ?? 0);
+    precio[mat] = r2(MATERIAL[mat].peso * clamp(1 - (a.despensa[mat] ?? 0) / Math.max(quiere, 0.1), 0, 1));
+  };
+  fijar('madera', 10 + (hoguera ? (est >= 2 ? 30 : 12) : 0));
+  fijar('fibra', 6 + (conoce(a, 'cuerda') ? 4 : 0));
+  fijar('piedra', 6);
+  fijar('arcilla', conoce(a, 'vasija') ? 10 : 3);
+  fijar('piel', 2 + (conoce(a, 'ropa') ? gente.length * 0.4 : 0) + (conoce(a, 'tambor') ? 1 : 0));
+  fijar('hueso', 2 + (conoce(a, 'aguja') ? 2 : 0));
+  fijar('hierbas', conoce(a, 'remedio') ? 6 : 1.5);
+  // Antes de saber fundir, las piedras de colores solo se recogen por curiosidad.
+  for (const mineral of MINERALES) {
+    if (conoce(a, 'horno')) fijar(mineral, 8);
+    else precio[mineral] = 0.02;
+  }
+
+  const radio = RADIO_TRABAJO + (conoce(a, 'rueda') ? 2 : 0) + (conoce(a, 'carro') ? 2 : 0);
+  let camposPorTrabajar = 0;
+  const semillas = (a.despensa.cereal ?? 0) + (a.despensa.semillas ?? 0);
+  for (const e of a.edificios) {
+    if (e.tipo !== 'campo') continue;
+    if (est === 0 && e.fase === 0 && ((e.trabajo ?? 0) > 0 || semillas >= 4)) camposPorTrabajar++;
+    if (est === 1 && e.fase === 1 && (e.cuidado ?? 0) < 3) camposPorTrabajar++;
+    if (est === 2 && e.fase === 1) camposPorTrabajar++;
+  }
+  return {
+    a,
+    gente,
+    est,
+    precio,
+    escasez,
+    holgura: clamp(dias / 12, 0, 1),
+    radio,
+    herramienta: herramienta(a),
+    agua: hayCerca(m, a.x, a.y, radio, (i) => m.terreno[i] === AGUA),
+    // Piedras sueltas hay casi en cualquier parte; en colinas y montañas, muchas más.
+    rocas: hayCerca(m, a.x, a.y, radio, (i) => m.recursos.piedra[i] >= 1),
+    barro: hayCerca(m, a.x, a.y, radio, (i) => m.recursos.arcilla[i] > 1),
+    camposPorTrabajar,
+    corrales: cuantos(a, 'corral'),
+    hoguera,
+  };
+}
+
+/** Decide y hace el trabajo del día. */
+export function jornada(m: Mundo, p: Persona, c: Contexto): void {
+  const e = edad(m, p);
+  if (e < 6) {
+    p.actividad = 'jugar';
+    return;
+  }
+  if (e < EDAD_ADULTA) {
+    // Los niños mayores ayudan a recoger y así van aprendiendo qué rinde.
+    if (e >= 8 && prob(0.5)) hacer(m, p, c, 'recolectar', 0.5);
+    else p.actividad = 'jugar';
+    return;
+  }
+  if (e > 65 && prob(0.5)) {
+    p.actividad = 'descansar';
+    return;
+  }
+  hacer(m, p, c, elegirActividad(p, c, e), 1);
+}
+
+function elegirActividad(p: Persona, c: Contexto, e: number): string {
+  if (p.salud < 0.35 && p.causa !== 'hambre') return 'descansar';
+  const comida = c.precio.comida;
+  const v = p.valor;
+  const U: Record<string, number> = {
+    recolectar: v.recolectar * comida + 1.5 * (c.precio.fibra + c.precio.hierbas),
+    cazar: v.cazar * comida + c.precio.piel + 2 * c.precio.hueso,
+    lenar: v.lenar * c.precio.madera,
+  };
+  if (c.agua) U.pescar = v.pescar * comida;
+  if (c.rocas) U.picar = v.picar * Math.max(c.precio.piedra, ...MINERALES.map((x) => c.precio[x] * 0.5));
+  if (c.barro) U.barro = v.barro * c.precio.arcilla;
+  if (c.corrales) U.pastorear = v.pastorear * comida + c.precio.piel;
+  if (c.camposPorTrabajar) U.cultivar = 2.5 * (0.6 + comida);
+  if (c.a.obra) U.construir = obraLista(c.a) ? 2.2 : -1;
+  // En una aldea grande no experimenta todo el mundo: unos pocos curiosos lo hacen por los demás.
+  const reparto = Math.min(1, Math.sqrt(25 / Math.max(1, c.gente.length)));
+  const hambre = p.reservas < 3 ? 0.2 : 1;
+  U.experimentar = p.genes.curiosidad * GANAS_EXPERIMENTAR * c.holgura * hambre * (e > 45 ? 1.3 : 1) * reparto;
+
+  // A veces se prueba otra cosa: así se descubre que algo ha empezado a rendir.
+  if (prob(0.04 + 0.12 * p.genes.curiosidad)) {
+    const posibles = OFICIOS.filter((o) => (U[o] ?? -1) > 0);
+    if (posibles.length) return elegir(posibles);
+  }
+  let mejor = 'descansar';
+  let max = 0;
+  for (const k of Object.keys(U)) {
+    const u = U[k] * (0.85 + 0.3 * azar());
+    if (u > max) {
+      max = u;
+      mejor = k;
+    }
+  }
+  return mejor;
+}
+
+function hacer(m: Mundo, p: Persona, c: Contexto, act: string, eficiencia: number): void {
+  p.actividad = act;
+  let obtenido: number | null = null;
+  switch (act) {
+    case 'recolectar':
+      obtenido = recolectar(m, p, c, eficiencia);
+      break;
+    case 'cazar':
+      obtenido = cazar(m, p, c);
+      break;
+    case 'pescar':
+      obtenido = pescar(m, p, c);
+      break;
+    case 'lenar':
+      obtenido = lenar(m, p, c);
+      break;
+    case 'picar':
+      obtenido = picar(m, p, c);
+      break;
+    case 'barro':
+      obtenido = barro(m, p, c);
+      break;
+    case 'pastorear':
+      obtenido = pastorear(m, p, c);
+      break;
+    case 'cultivar':
+      cultivar(m, p, c);
+      break;
+    case 'construir':
+      construir(m, p, c);
+      break;
+    case 'experimentar': {
+      const rapidez = (conoce(c.a, 'tambor') ? 1.1 : 1) * (conoce(c.a, 'escritura') ? 1.2 : 1) * (conoce(c.a, 'numeros') ? 1.2 : 1);
+      experimentar(m, p, c.a, rapidez);
+      p.x = c.a.x;
+      p.y = c.a.y;
+      break;
+    }
+    default:
+      p.salud = Math.min(1, r2(p.salud + 0.01));
+      p.x = c.a.x;
+      p.y = c.a.y;
+  }
+  if (obtenido !== null && eficiencia === 1) {
+    // Aprendizaje por refuerzo: lo esperado se acerca a lo obtenido.
+    p.valor[act] = r2(p.valor[act] + 0.15 * (obtenido - p.valor[act]));
+  }
+}
+
+function situar(m: Mundo, p: Persona, i: number): void {
+  p.x = i % m.ancho;
+  p.y = Math.floor(i / m.ancho);
+}
+
+const distancia = (m: Mundo, a: Aldea, i: number) => Math.hypot((i % m.ancho) - a.x, Math.floor(i / m.ancho) - a.y);
+
+function recolectar(m: Mundo, p: Persona, c: Contexto, eficiencia: number): number {
+  const R = m.recursos;
+  const a = c.a;
+  const i = mejorCasilla(
+    m,
+    a.x,
+    a.y,
+    c.radio,
+    (j, d) => (R.bayas[j] * 0.5 + R.semillas[j] * 0.45 + (R.fibra[j] * c.precio.fibra + R.hierbas[j] * c.precio.hierbas) * 0.3) * lejania(d),
+  );
+  if (i < 0) return 0;
+  situar(m, p, i);
+  const cap = 5 * (0.6 + 0.6 * p.genes.destreza) * eficiencia * (sabe(p, 'cesta') ? 1.4 : 1) * lejania(distancia(m, a, i));
+  const total = R.bayas[i] + R.semillas[i];
+  let comida = 0;
+  if (total > 0.05) {
+    const toma = Math.min(total, cap);
+    const b = r2((toma * R.bayas[i]) / total);
+    const s = r2(toma - b);
+    R.bayas[i] = r2(Math.max(0, R.bayas[i] - b));
+    R.semillas[i] = r2(Math.max(0, R.semillas[i] - s));
+    guardar(a, 'bayas', b);
+    guardar(a, 'semillas', s);
+    comida = b * 0.5 + s * 0.45;
+  }
+  if (R.fibra[i] > 0.5 && c.precio.fibra > 0.05) {
+    const f = r2(Math.min(R.fibra[i], 2 * eficiencia));
+    R.fibra[i] = r2(R.fibra[i] - f);
+    guardar(a, 'fibra', f);
+  }
+  if (R.hierbas[i] > 0.5 && (c.precio.hierbas > 0.05 || prob(0.2))) {
+    const h = r2(Math.min(R.hierbas[i], 1));
+    R.hierbas[i] = r2(R.hierbas[i] - h);
+    guardar(a, 'hierbas', h);
+  }
+  return r2(comida);
+}
+
+function cazar(m: Mundo, p: Persona, c: Contexto): number {
+  const R = m.recursos;
+  const a = c.a;
+  const i = mejorCasilla(m, a.x, a.y, c.radio, (j, d) => R.caza[j] * lejania(d));
+  if (i < 0 || R.caza[i] < 0.5) return 0;
+  situar(m, p, i);
+  const lanza = sabe(p, 'lanza');
+  if (prob((lanza ? 0.012 : 0.025) * (1.2 - 0.4 * p.genes.fuerza))) {
+    p.salud = r2(p.salud - 0.35);
+    p.causa = 'herida';
+  }
+  if (sabe(p, 'trampa') && prob(0.12)) {
+    R.caza[i] = r2(R.caza[i] - 1);
+    guardar(a, 'cria', 1);
+    return 0;
+  }
+  const exito =
+    0.3 * (0.6 + 0.4 * p.genes.fuerza + 0.3 * p.genes.destreza) * (lanza ? 1.8 : 1) * (sabe(p, 'trampa') ? 1.15 : 1) * c.herramienta * Math.min(1, R.caza[i] / 2);
+  if (!prob(exito)) return 0;
+  R.caza[i] = r2(R.caza[i] - 1);
+  const carne = r2((6 + 6 * azar()) * (sabe(p, 'lasca') ? 1.3 : 1));
+  guardar(a, 'carne', carne);
+  guardar(a, 'piel', 1);
+  guardar(a, 'hueso', 2);
+  return carne;
+}
+
+function pescar(m: Mundo, p: Persona, c: Contexto): number {
+  const R = m.recursos;
+  const a = c.a;
+  const radio = c.radio + (sabe(p, 'canoa') ? 3 : 0) + (sabe(p, 'vela') ? 4 : 0);
+  const i = mejorCasilla(m, a.x, a.y, radio, (j, d) => (m.terreno[j] === AGUA ? R.peces[j] * lejania(d) : 0));
+  if (i < 0) return 0;
+  situar(m, p, i);
+  const cap =
+    1.6 * (0.6 + 0.6 * p.genes.destreza) * (sabe(p, 'red') ? 2.5 : 1) * (sabe(p, 'canoa') ? 1.3 : 1) * (sabe(p, 'vela') ? 1.3 : 1) * (c.est === 3 ? 0.6 : 1);
+  const n = r2(Math.min(R.peces[i] * 0.3, cap));
+  R.peces[i] = r2(R.peces[i] - n);
+  guardar(a, 'pescado', n);
+  return r2(n * 0.8);
+}
+
+function lenar(m: Mundo, p: Persona, c: Contexto): number {
+  const R = m.recursos;
+  const a = c.a;
+  const i = mejorCasilla(m, a.x, a.y, c.radio, (j, d) => Math.min(R.madera[j], 15) * lejania(d));
+  if (i < 0) return 0;
+  situar(m, p, i);
+  const n = r2(Math.min(R.madera[i], 3 * (0.6 + 0.6 * p.genes.fuerza) * (sabe(p, 'hacha') ? 2 : 1) * c.herramienta));
+  R.madera[i] = r2(R.madera[i] - n);
+  guardar(a, 'madera', n);
+  return n;
+}
+
+function picar(m: Mundo, p: Persona, c: Contexto): number {
+  const R = m.recursos;
+  const a = c.a;
+  const minerales = conoce(a, 'horno') || prob(0.3 * p.genes.curiosidad);
+  const i = mejorCasilla(m, a.x, a.y, c.radio, (j, d) => {
+    if (R.piedra[j] <= 0) return 0;
+    const mena = minerales ? (R.malaquita[j] + R.casiterita[j] + R.hematites[j]) * 0.5 : 0;
+    return (Math.min(R.piedra[j], 20) * Math.max(c.precio.piedra, 0.05) + mena) * lejania(d);
+  });
+  if (i < 0) return 0;
+  situar(m, p, i);
+  const fuerza = (0.6 + 0.6 * p.genes.fuerza) * c.herramienta;
+  const n = r2(Math.min(R.piedra[i], 3 * fuerza));
+  R.piedra[i] = r2(R.piedra[i] - n);
+  guardar(a, 'piedra', n);
+  for (const mineral of MINERALES) {
+    if (R[mineral][i] > 0 && (minerales || prob(0.25))) {
+      const k = r2(Math.min(R[mineral][i], 1.5 * fuerza));
+      R[mineral][i] = r2(R[mineral][i] - k);
+      guardar(a, mineral, k);
+    }
+  }
+  return n;
+}
+
+function barro(m: Mundo, p: Persona, c: Contexto): number {
+  const R = m.recursos;
+  const a = c.a;
+  const i = mejorCasilla(m, a.x, a.y, c.radio, (j, d) => Math.min(R.arcilla[j], 20) * lejania(d));
+  if (i < 0) return 0;
+  situar(m, p, i);
+  const n = r2(Math.min(R.arcilla[i], 4 * (0.6 + 0.6 * p.genes.fuerza)));
+  R.arcilla[i] = r2(R.arcilla[i] - n);
+  guardar(a, 'arcilla', n);
+  return n;
+}
+
+function pastorear(m: Mundo, p: Persona, c: Contexto): number {
+  const a = c.a;
+  let corral = null;
+  for (const e of a.edificios) if (e.tipo === 'corral' && (!corral || (e.animales ?? 0) > (corral.animales ?? 0))) corral = e;
+  if (!corral || (corral.animales ?? 0) < 1) return 0;
+  p.x = corral.x;
+  p.y = corral.y;
+  const animales = corral.animales ?? 0;
+  let carne = r2(Math.min(3, animales * 0.15) * (0.8 + 0.4 * p.genes.destreza));
+  if (prob(0.05)) guardar(a, 'piel', 1);
+  if (animales > 14 && prob(0.15)) {
+    corral.animales = r2(animales - 1);
+    carne = r2(carne + 8);
+    guardar(a, 'piel', 1);
+    guardar(a, 'hueso', 2);
+  }
+  guardar(a, 'carne', carne);
+  return carne;
+}
+
+function cultivar(m: Mundo, p: Persona, c: Contexto): void {
+  const a = c.a;
+  const fuerza = (0.6 + 0.6 * p.genes.fuerza) * c.herramienta;
+  const campos = a.edificios.filter((e) => e.tipo === 'campo');
+  if (c.est === 0) {
+    const campo = campos.find((e) => e.fase === 0 && (e.trabajo ?? 0) > 0) ?? campos.find((e) => e.fase === 0);
+    if (!campo) return;
+    if (!(campo.trabajo ?? 0)) {
+      // Sembrar gasta grano: primero del cultivado, si no, del silvestre.
+      const de = (a.despensa.cereal ?? 0) >= 4 ? 'cereal' : 'semillas';
+      if ((a.despensa[de] ?? 0) < 4) return;
+      a.despensa[de] = r2(a.despensa[de] - 4);
+    }
+    p.x = campo.x;
+    p.y = campo.y;
+    campo.trabajo = r2((campo.trabajo ?? 0) + fuerza);
+    if (campo.trabajo >= 4) {
+      campo.fase = 1;
+      campo.trabajo = 0;
+      campo.cuidado = 0;
+    }
+  } else if (c.est === 1) {
+    const campo = campos.find((e) => e.fase === 1 && (e.cuidado ?? 0) < 3);
+    if (!campo) return;
+    p.x = campo.x;
+    p.y = campo.y;
+    campo.cuidado = r2((campo.cuidado ?? 0) + fuerza);
+  } else if (c.est === 2) {
+    const campo = campos.find((e) => e.fase === 1);
+    if (!campo) return;
+    p.x = campo.x;
+    p.y = campo.y;
+    campo.trabajo = r2((campo.trabajo ?? 0) + fuerza);
+    if (campo.trabajo >= 4) {
+      const mejora =
+        (conoce(a, 'calendario') ? 1.25 : 1) * (conoce(a, 'acequia') ? 1.4 : 1) * (conoce(a, 'arado') ? 1.5 : 1) * (conoce(a, 'hierro') ? 1.15 : 1);
+      const cosecha = r2(240 * (0.5 + Math.min(3, campo.cuidado ?? 0) / 6) * m.clima * mejora);
+      guardar(a, 'cereal', cosecha);
+      campo.fase = 0;
+      campo.trabajo = 0;
+      campo.cuidado = 0;
+    }
+  }
+}
+
+function obraLista(a: Aldea): boolean {
+  if (!a.obra) return false;
+  if (a.obra.pagada) return true;
+  const coste = EDIFICIO[a.obra.tipo].coste;
+  return Object.keys(coste).every((k) => (a.despensa[k] ?? 0) >= coste[k]);
+}
+
+function construir(m: Mundo, p: Persona, c: Contexto): void {
+  const a = c.a;
+  const obra = a.obra;
+  if (!obra || !obraLista(a)) return;
+  const tipo = EDIFICIO[obra.tipo];
+  if (!obra.pagada) {
+    for (const [k, v] of Object.entries(tipo.coste)) a.despensa[k] = r2(a.despensa[k] - v);
+    obra.pagada = true;
+  }
+  p.x = obra.x;
+  p.y = obra.y;
+  const ritmo = (0.6 + 0.4 * p.genes.fuerza) * (sabe(p, 'hacha') ? 1.2 : 1) * c.herramienta * (conoce(a, 'numeros') ? 1.15 : 1);
+  obra.progreso = r2(obra.progreso + ritmo / tipo.trabajo);
+  if (obra.progreso >= 1) terminarObra(m, a);
+}
+
+function terminarObra(m: Mundo, a: Aldea): void {
+  const obra = a.obra;
+  if (!obra) return;
+  a.obra = null;
+  const e: Aldea['edificios'][number] = { tipo: obra.tipo, x: obra.x, y: obra.y };
+  if (obra.tipo === 'campo') {
+    e.fase = 0;
+    e.trabajo = 0;
+    e.cuidado = 0;
+    const i = obra.y * m.ancho + obra.x;
+    if (m.terreno[i] === BOSQUE) {
+      // Se tala el bosque para cultivar.
+      m.terreno[i] = PRADERA;
+      m.recursos.madera[i] = 0;
+    }
+  }
+  if (obra.tipo === 'corral') {
+    const n = Math.min(Math.floor(a.despensa.cria ?? 0), 6);
+    e.animales = n;
+    a.despensa.cria = r2((a.despensa.cria ?? 0) - n);
+  }
+  a.edificios.push(e);
+  const tipo = EDIFICIO[obra.tipo];
+  if (!m.construidos.includes(obra.tipo)) {
+    m.construidos.push(obra.tipo);
+    anotar(m, 'edificio', `En ${a.nombre} se levanta ${articulo(tipo)} por primera vez en el mundo.`, a.id);
+  } else if (['empalizada', 'archivo', 'mercado'].includes(obra.tipo) && cuantos(a, obra.tipo) === 1) {
+    anotar(m, 'edificio', `${a.nombre} ya tiene ${articulo(tipo)}.`, a.id);
+  }
+}
+
+function articulo(t: TipoEdificio): string {
+  const n = t.nombre.toLowerCase();
+  const fem = ['hoguera', 'choza', 'casa de adobe', 'empalizada', 'casa de las tablillas'].includes(n);
+  return `${fem ? 'una' : 'un'} ${n}`;
+}
+
+/** Cada pocos días la aldea decide qué construir después. */
+export function planificar(m: Mundo, a: Aldea, gente: Persona[]): void {
+  if (a.obra) return;
+  const n = gente.length;
+  const capacidad = cuantos(a, 'choza') * 5 + cuantos(a, 'casa') * 7;
+  const grano = (a.despensa.cereal ?? 0) + (a.despensa.semillas ?? 0);
+  const opciones: [string, number][] = [];
+  if (conoce(a, 'fuego') && !tiene(a, 'hoguera')) opciones.push(['hoguera', 1]);
+  if (capacidad < n) {
+    if (conoce(a, 'adobe')) opciones.push(['casa', 0.9]);
+    else if (conoce(a, 'choza')) opciones.push(['choza', 0.9]);
+  }
+  if (conoce(a, 'campo') && cuantos(a, 'campo') < Math.ceil(n * 0.6) + 2 && grano >= 4) opciones.push(['campo', 0.85]);
+  if (conoce(a, 'corral') && (a.despensa.cria ?? 0) >= 2 && cuantos(a, 'corral') < 1 + n / 25) opciones.push(['corral', 0.7]);
+  if (conoce(a, 'vasija') && !tiene(a, 'almacen')) opciones.push(['almacen', 0.6]);
+  if (conoce(a, 'horno') && !tiene(a, 'horno')) opciones.push(['horno', 0.6]);
+  if (conoce(a, 'empalizada') && !tiene(a, 'empalizada') && n >= 12) opciones.push(['empalizada', 0.5]);
+  if (conoce(a, 'escritura') && !tiene(a, 'archivo')) opciones.push(['archivo', 0.5]);
+  if (conoce(a, 'comercio') && !tiene(a, 'mercado')) opciones.push(['mercado', 0.4]);
+  opciones.sort((x, y) => y[1] - x[1]);
+  for (const [tipo] of opciones) {
+    const sitio = lugarPara(m, a, tipo);
+    if (sitio < 0) continue;
+    a.obra = { tipo, x: sitio % m.ancho, y: Math.floor(sitio / m.ancho), progreso: 0, pagada: false };
+    return;
+  }
+}
+
+function lugarPara(m: Mundo, a: Aldea, tipo: string): number {
+  if (tipo === 'empalizada') return a.y * m.ancho + a.x;
+  const ocupadas = new Set<number>();
+  for (const b of m.aldeas) {
+    for (const e of b.edificios) if (e.tipo !== 'empalizada') ocupadas.add(e.y * m.ancho + e.x);
+    if (b.obra && b.obra.tipo !== 'empalizada') ocupadas.add(b.obra.y * m.ancho + b.obra.x);
+  }
+  if (tipo === 'campo') {
+    return mejorCasilla(m, a.x, a.y, 4, (i, d) => {
+      if (ocupadas.has(i) || d < 1) return 0;
+      const t = m.terreno[i];
+      const apto = t === PRADERA ? 3 : t === BOSQUE ? 1.5 : t === ORILLA ? 1 : 0;
+      return apto / (1 + d * 0.2);
+    });
+  }
+  return mejorCasilla(m, a.x, a.y, 3, (i, d) => {
+    if (ocupadas.has(i)) return 0;
+    const t = m.terreno[i];
+    if (t === AGUA || t === MONTANA) return 0;
+    if (tipo === 'hoguera') return 2 / (1 + d);
+    return d < 1 ? 0 : 1 / (1 + d);
+  });
+}
+
+/** La comida se estropea, los animales crían y la hoguera quema leña. */
+export function mantener(m: Mundo, a: Aldea, est: number, diaDelAnio: number): boolean {
+  const conserva = (tiene(a, 'almacen') ? 0.4 : 1) * (conoce(a, 'numeros') ? 0.8 : 1);
+  for (const mat of ORDEN_COMER) {
+    const v = a.despensa[mat];
+    if (v) a.despensa[mat] = r2(v - v * (MATERIAL[mat].pudre ?? 0) * conserva);
+  }
+  const corrales = a.edificios.filter((e) => e.tipo === 'corral');
+  if (a.despensa.cria) {
+    for (const c of corrales) {
+      const hueco = Math.min(Math.floor(a.despensa.cria), 25 - (c.animales ?? 0));
+      if (hueco > 0) {
+        c.animales = (c.animales ?? 0) + hueco;
+        a.despensa.cria = r2(a.despensa.cria - hueco);
+      }
+    }
+    // Sin corral, las crías se escapan o se mueren.
+    a.despensa.cria = r2(a.despensa.cria * 0.99);
+  }
+  for (const c of corrales) {
+    const n = c.animales ?? 0;
+    if (n >= 2) c.animales = r2(n + n * 0.0025 * (1 - n / 25));
+  }
+  if (est === 3 && diaDelAnio === 90) {
+    // Llega el invierno: lo que no se cosechó se pierde.
+    for (const e of a.edificios) if (e.tipo === 'campo' && e.fase === 1) e.fase = 0;
+  }
+  let encendida = false;
+  if (tiene(a, 'hoguera')) {
+    const lena = est === 3 ? 0.5 : 0.1;
+    if ((a.despensa.madera ?? 0) >= lena) {
+      a.despensa.madera = r2(a.despensa.madera - lena);
+      encendida = true;
+    }
+  }
+  return encendida;
+}
+
+/** Se reparte la comida a partes iguales. Quien tiene reservas bajas come un poco más. */
+export function comer(m: Mundo, a: Aldea, gente: Persona[]): void {
+  if (!gente.length) return;
+  let quiere = 0;
+  const racion = gente.map((p) => {
+    const r = necesidad(m, p) * (p.reservas < 6 ? 1.3 : 1);
+    quiere += r;
+    return r;
+  });
+  let hay = 0;
+  for (const mat of ORDEN_COMER) {
+    const v = a.despensa[mat] ?? 0;
+    const n = alimento(a, mat);
+    if (v <= 0 || n <= 0) continue;
+    const toma = Math.min(v * n, quiere - hay);
+    a.despensa[mat] = r2(v - toma / n);
+    hay += toma;
+    if (hay >= quiere - 1e-9) break;
+  }
+  const f = quiere > 0 ? Math.min(1, hay / quiere) : 1;
+  gente.forEach((p, k) => {
+    const nec = necesidad(m, p);
+    let r = p.reservas + (f * racion[k]) / nec - 1;
+    if (r < 0) {
+      p.salud = r2(p.salud + 0.04 * r);
+      p.causa = 'hambre';
+      r = 0;
+    }
+    p.reservas = r2(Math.min(8, r));
+  });
+}
