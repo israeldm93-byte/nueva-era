@@ -8,7 +8,18 @@ export const PRADERA = 2;
 export const BOSQUE = 3;
 export const COLINA = 4;
 export const MONTANA = 5;
-export const TERRENOS = ['agua', 'orilla', 'pradera', 'bosque', 'colina', 'montaña'];
+/** Ríos: se vadean a pie, dan pesca, agua dulce y arcilla. */
+export const RIO = 6;
+/** Pantanos y marismas: juncos, hierbas, algo de pesca y fiebres. */
+export const PANTANO = 7;
+/** Estepa: hierba alta, grano silvestre y grandes manadas, pero poca agua y poca madera. */
+export const ESTEPA = 8;
+/** Desierto: casi nada, salvo piedra. */
+export const DESIERTO = 9;
+export const TERRENOS = ['agua', 'orilla', 'pradera', 'bosque', 'colina', 'montaña', 'río', 'pantano', 'estepa', 'desierto'];
+
+/** Agua donde se puede pescar (el mar y los lagos, los ríos y los pantanos). */
+export const PESCABLE = [true, false, false, false, false, false, true, true, false, false];
 
 export interface Material {
   id: string;
@@ -90,7 +101,7 @@ export const TECNICAS: Tecnica[] = [
   { id: 'corral', titulo: 'la ganadería', nombre: 'Ganadería', cosa: 'ganado', cosas: ['cria', 'cuerda'], verbo: 'atar', facilidad: 0.04, requiere: ['trampa'], efecto: 'Corrales con animales que dan carne y pieles sin cazar.' },
   { id: 'vasija', titulo: 'la alfarería', nombre: 'Alfarería', cosa: 'vasijas', cosas: ['arcilla', 'fuego'], verbo: 'calentar', facilidad: 0.05, efecto: 'Almacenes de vasijas: la comida se estropea mucho menos.' },
   { id: 'harina', titulo: 'la piedra de moler', nombre: 'Piedra de moler', cosa: 'harina', cosas: ['piedra', 'semillas'], verbo: 'machacar', facilidad: 0.06, efecto: 'El grano molido alimenta un 30 % más.' },
-  { id: 'canoa', titulo: 'la canoa', nombre: 'Canoa', cosa: 'canoas', cosas: ['fuego', 'madera'], verbo: 'tallar', facilidad: 0.05, requiere: ['hacha'], efecto: 'Se pesca más lejos y mejor.' },
+  { id: 'canoa', titulo: 'la canoa', nombre: 'Canoa', cosa: 'canoas', cosas: ['fuego', 'madera'], verbo: 'tallar', facilidad: 0.05, requiere: ['hacha'], efecto: 'Se cruza el agua: se llega a las islas, se pesca más lejos y mejor.' },
   { id: 'calendario', titulo: 'el calendario', nombre: 'Calendario', cosa: 'calendario', cosas: ['cielo', 'piedra'], verbo: 'observar', facilidad: 0.03, requiere: ['campo'], efecto: 'Se siembra en el momento justo: cosechas un 25 % mayores.' },
   { id: 'acequia', titulo: 'el regadío', nombre: 'Regadío', cosa: 'acequias', cosas: ['agua', 'tierra'], verbo: 'cavar', facilidad: 0.03, requiere: ['campo', 'hacha'], efecto: 'Acequias: cosechas un 40 % mayores.' },
   { id: 'horno', titulo: 'el horno', nombre: 'Horno', cosa: 'hornos', cosas: ['arcilla', 'fuego', 'piedra'], verbo: 'apilar', facilidad: 0.05, requiere: ['vasija'], efecto: 'Altas temperaturas: permite fundir.' },
@@ -107,7 +118,7 @@ export const TECNICAS: Tecnica[] = [
   { id: 'arado', titulo: 'el arado', nombre: 'Arado', cosa: 'arados', cosas: ['corral', 'madera'], verbo: 'atar', facilidad: 0.025, requiere: ['campo'], efecto: 'Bueyes que aran: cosechas un 50 % mayores.' },
   { id: 'cerveza', titulo: 'la fermentación', nombre: 'Fermentación', cosa: 'cerveza', cosas: ['semillas', 'vasija'], verbo: 'mezclar', facilidad: 0.04, efecto: 'Cerveza y fiestas: más alegría y más nacimientos.' },
   { id: 'medicina', titulo: 'la medicina', nombre: 'Medicina', cosa: 'medicinas', cosas: ['fuego', 'remedio', 'vasija'], verbo: 'calentar', facilidad: 0.025, efecto: 'Cocimientos de hierbas: enfermedades y partos aún menos mortales.' },
-  { id: 'vela', titulo: 'la navegación a vela', nombre: 'Navegación a vela', cosa: 'velas', cosas: ['canoa', 'tela'], verbo: 'atar', facilidad: 0.012, efecto: 'Barcos de vela: pesca lejana y contacto con aldeas lejanas.' },
+  { id: 'vela', titulo: 'la navegación a vela', nombre: 'Navegación a vela', cosa: 'velas', cosas: ['canoa', 'tela'], verbo: 'atar', facilidad: 0.012, efecto: 'Barcos de vela: viajes largos por agua, pesca lejana y contacto con aldeas lejanas.' },
   { id: 'numeros', titulo: 'los números', nombre: 'Números', cosa: 'números', cosas: ['escritura', 'semillas'], verbo: 'observar', facilidad: 0.012, efecto: 'Cuentas: se planifica mejor y se desperdicia menos.' },
   { id: 'comercio', titulo: 'el comercio', nombre: 'Comercio', cosa: 'mercancías', cosas: ['cobre', 'escritura'], verbo: 'marcar', facilidad: 0.012, efecto: 'Mercados: las aldeas intercambian comida y saberes.' },
 ];
@@ -169,20 +180,23 @@ export const EDIFICIO: Record<string, TipoEdificio> = Object.fromEntries(EDIFICI
 
 export const CAPAS = ['madera', 'bayas', 'semillas', 'fibra', 'hierbas', 'caza', 'peces', 'piedra', 'arcilla', 'malaquita', 'casiterita', 'hematites'];
 
-/** Máximo de cada recurso por casilla según el terreno [agua, orilla, pradera, bosque, colina, montaña]. */
+/**
+ * Máximo de cada recurso por casilla según el terreno
+ * [agua, orilla, pradera, bosque, colina, montaña, río, pantano, estepa, desierto].
+ */
 export const CAPACIDAD: Record<string, number[]> = {
-  madera: [0, 4, 3, 40, 10, 2],
-  bayas: [0, 2, 4, 10, 3, 1],
-  semillas: [0, 1, 12, 2, 2, 0],
-  fibra: [0, 8, 10, 3, 2, 0],
-  hierbas: [0, 3, 5, 4, 3, 1],
-  caza: [0, 1, 3, 4, 2, 1],
-  peces: [30, 0, 0, 0, 0, 0],
-  piedra: [0, 5, 2, 3, 80, 150],
-  arcilla: [0, 60, 4, 2, 6, 0],
-  malaquita: [0, 0, 0, 0, 0, 0],
-  casiterita: [0, 0, 0, 0, 0, 0],
-  hematites: [0, 0, 0, 0, 0, 0],
+  madera: [0, 4, 3, 40, 10, 2, 3, 6, 1, 0],
+  bayas: [0, 2, 4, 10, 3, 1, 4, 3, 1, 0],
+  semillas: [0, 1, 12, 2, 2, 0, 4, 2, 14, 1],
+  fibra: [0, 8, 10, 3, 2, 0, 9, 16, 6, 0],
+  hierbas: [0, 3, 5, 4, 3, 1, 4, 8, 2, 1],
+  caza: [0, 1, 3, 4, 2, 1, 2, 2, 5, 1],
+  peces: [30, 0, 0, 0, 0, 0, 16, 5, 0, 0],
+  piedra: [0, 5, 2, 3, 80, 150, 8, 0, 10, 25],
+  arcilla: [0, 60, 4, 2, 6, 0, 45, 35, 2, 1],
+  malaquita: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  casiterita: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  hematites: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 };
 
 /** Cuánto hay de bayas y semillas silvestres en cada estación respecto al máximo. */

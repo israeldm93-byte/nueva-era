@@ -6,7 +6,14 @@ El mundo avanza **un año cada hora** (un día cada 30 segundos), día y noche:
 
 **https://israeldm93-byte.github.io/nueva-era/**
 
-La web muestra el mundo en 3D (terreno, bosques, animales, chozas, campos, empalizadas y cada aldeano yendo a trabajar con su herramienta y volviendo de noche al fuego) y lo **simula en directo en el navegador** con el mismo motor que el servidor: como es determinista, el navegador calcula exactamente lo mismo que calculará el servidor en su siguiente ejecución. Toca a cualquiera para ver qué piensa y qué hay en su cabeza.
+La web muestra el mundo en 3D (relieve, ríos, lagos, bosques y animales; chozas, campos y empalizadas; y cada aldeano, con su cara, su peinado y la ropa de su época, yendo a trabajar con su herramienta y volviendo de noche al fuego) y lo **simula en directo en el navegador** con el mismo motor que el servidor: como es determinista, el navegador calcula exactamente lo mismo que calculará el servidor en su siguiente ejecución. Toca a cualquiera para ver qué piensa y qué hay en su cabeza.
+
+## Un mundo grande y peligroso
+
+- Un continente de 160 × 112 casillas con relieve real: bosques (coníferas al norte y en las alturas, frondosos en lo templado), praderas, estepas, desiertos, pantanos, cordilleras nevadas, ríos que bajan al mar y **grandes lagos con islas**.
+- Las **islas** guardan las vetas más ricas (sobre todo el estaño, imprescindible para el bronce), mucha pesca y colonias de aves. A pie no se llega: hace falta descubrir la **canoa**. Con ella se organizan viajes a las vetas, se pesca más lejos y un grupo puede irse a vivir a una isla, a salvo de las fieras y de los vecinos sin barcas.
+- **Fieras** que viven en el mapa y se ven en 3D: manadas de lobos que en los inviernos de hambre rondan las aldeas, entran en los corrales y a veces se llevan a alguien (el fuego, las empalizadas, los vigías y las lanzas los frenan, y los cazadores salen en batida), y osos que atacan a quien trabaja en el bosque, duermen en invierno y dan carne y pieles a quien los abate.
+- **Incendios** en los veranos secos (por un rayo o un descuido junto a la hoguera) que se propagan por bosques y estepas, arrasan casas y dejan cenizas; y **crecidas** de los ríos en las primaveras lluviosas.
 
 ## Cada aldeano tiene una mente
 
@@ -37,14 +44,16 @@ Nada de esto sigue un guion: ni el orden de los descubrimientos, ni quién manda
 ```
 src/
   catalogo.ts     materiales, saberes (con sus recetas), gestos y edificios
-  mapa.ts         terreno, recursos que se agotan y rebrotan
+  mapa.ts         el continente (relieve, biomas, ríos, lagos e islas), recursos, masas de tierra
   mundo.ts        creación del mundo y de las personas, genes
   mente.ts        la red neuronal de cada aldeano, su aprendizaje y las pruebas de sensatez
   economia.ts     el trabajo de cada día (lo decide la mente), comida, cultivos y obras
   politica.ts     opiniones, consejo, facciones, cismas, asaltos, alianzas
   saber.ts        experimentar, descubrir, enseñar, escribir y leer
   lenguaje.ts     palabras inventadas, juego de nombrar y deriva de las lenguas
-  sociedad.ts     charlas, parejas, nacimientos, salud, peligros, traslados y encuentros
+  sociedad.ts     charlas, parejas, nacimientos, salud, epidemias, traslados y encuentros
+  fauna.ts        lobos y osos: dónde viven, qué comen, cuándo atacan y cómo se les hace frente
+  desastres.ts    incendios forestales y crecidas de los ríos
   simulacion.ts   el paso de los días, la historia anual y la extinción
   matematicas.ts  funciones exactas (iguales en Node y en cualquier navegador)
   migrar.ts       pone al día mundos guardados con versiones anteriores
@@ -53,7 +62,11 @@ src/
   cli.ts          órdenes `simular` y `avanzar`
 web/
   index.html, app.js, estilo.css   la interfaz y los paneles
-  mundo3d.js                       el mundo en 3D (Three.js)
+  mundo3d.js                       el mundo en 3D (Three.js): cámara, luz del día, nubes, etiquetas
+  terreno3d.js, vegetacion3d.js    relieve, agua, ríos, crecidas, plantas de cada bioma
+  gente3d.js                       aldeanos articulados, ropa, herramientas y animaciones
+  fauna3d.js, edificios3d.js       animales; edificios, campos, hogueras e incendios
+  minimapa.js                      el minimapa
   vivo.js                          el trabajador que simula en directo
 tools/construir.mjs                monta la web: copia web/, empaqueta el motor y añade Three.js
 test/                              pruebas

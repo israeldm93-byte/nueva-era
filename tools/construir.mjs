@@ -3,7 +3,7 @@
 //   node tools/construir.mjs [carpeta]
 
 import { build } from 'esbuild';
-import { copyFileSync, cpSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { copyFileSync, cpSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const destino = process.argv[2] ?? 'sitio';
@@ -29,7 +29,8 @@ copyFileSync('node_modules/three/LICENSE', join(destino, 'vendor', 'LICENSE-thre
 
 // La versión del motor viaja en la página (y en las URL de sus ficheros) para saber
 // si hay que recargarla y para que el navegador no mezcle ficheros de versiones distintas.
-for (const nombre of ['index.html', 'app.js', 'mundo3d.js']) {
+for (const nombre of readdirSync(destino)) {
+  if (!/\.(html|js)$/.test(nombre) || nombre === 'motor.js') continue;
   const ruta = join(destino, nombre);
   writeFileSync(ruta, readFileSync(ruta, 'utf8').replaceAll('__MOTOR__', motor));
 }

@@ -6,6 +6,7 @@ import { OFICIOS, VALOR_INSTINTO } from './catalogo.ts';
 import { anotar } from './cronica.ts';
 import { crearFonologia, nombrePropio } from './lenguaje.ts';
 import { buscarSitio, generarTerreno } from './mapa.ts';
+import { poblarFauna } from './fauna.ts';
 import { heredarMente, menteNueva } from './mente.ts';
 import type { Aldea, Genes, Mundo, Persona } from './tipos.ts';
 
@@ -23,17 +24,22 @@ export function estacionDe(t: number): number {
 export interface Indices {
   porId: Map<number, Persona>;
   porAldea: Map<number, Persona[]>;
+  aldeas: Map<number, Aldea>;
 }
 
 export function indexar(m: Mundo): Indices {
   const porId = new Map<number, Persona>();
   const porAldea = new Map<number, Persona[]>();
-  for (const a of m.aldeas) if (a.abandonada === null) porAldea.set(a.id, []);
+  const aldeas = new Map<number, Aldea>();
+  for (const a of m.aldeas) {
+    aldeas.set(a.id, a);
+    if (a.abandonada === null) porAldea.set(a.id, []);
+  }
   for (const p of m.personas) {
     porId.set(p.id, p);
     porAldea.get(p.aldea)?.push(p);
   }
-  return { porId, porAldea };
+  return { porId, porAldea, aldeas };
 }
 
 export function aldeasVivas(m: Mundo): Aldea[] {
@@ -132,7 +138,7 @@ export function nuevaAldea(m: Mundo, x: number, y: number, fundador: string, ori
 
 export function crearMundo(semilla: number, previo?: Mundo): Mundo {
   fijarAzar(semilla);
-  const { terreno, recursos } = generarTerreno(ANCHO, ALTO);
+  const { terreno, recursos, relieve } = generarTerreno(ANCHO, ALTO);
   const m: Mundo = {
     version: VERSION_ESTADO,
     semilla,
@@ -142,6 +148,12 @@ export function crearMundo(semilla: number, previo?: Mundo): Mundo {
     ancho: ANCHO,
     alto: ALTO,
     terreno,
+    relieve,
+    fauna: [],
+    incendios: [],
+    cenizas: [],
+    inundadas: [],
+    avisos: {},
     recursos,
     clima: 1,
     fonologia: crearFonologia(),
@@ -200,6 +212,7 @@ export function crearMundo(semilla: number, previo?: Mundo): Mundo {
       `Su campamento acabará llamándose ${aldea.nombre}. No tienen palabras, ni fuego, ni herramientas: solo sus manos y su curiosidad.`,
     aldea.id,
   );
+  poblarFauna(m);
   m.azar = estadoAzar();
   return m;
 }
@@ -209,4 +222,7 @@ const LUGAR: Record<number, string> = {
   2: 'una pradera',
   3: 'un bosque',
   4: 'una colina',
+  7: 'un pantano',
+  8: 'la estepa',
+  9: 'el desierto',
 };

@@ -2,13 +2,13 @@
 // y se comparten ideas), parejas, nacimientos, salud, peligros, aldeas que se
 // dividen y encuentros entre aldeas.
 
-import { azar, barajar, elegir, elegirPeso, prob } from './azar.ts';
+import { azar, barajar, elegir, prob } from './azar.ts';
 import { DIAS_ANIO, EDAD_ADULTA } from './config.ts';
-import { BASICOS, CONCEPTOS_VIDA, TECNICA } from './catalogo.ts';
-import { anios, anotar } from './cronica.ts';
+import { BASICOS, CONCEPTOS_VIDA, PANTANO, TECNICA } from './catalogo.ts';
+import { anotar } from './cronica.ts';
 import { comidaTotal, conoce, guardar, necesidad, tiene } from './economia.ts';
 import { lexicoComun, nombrar, parecido } from './lenguaje.ts';
-import { buscarSitio, direccion, puntuarSitio } from './mapa.ts';
+import { buscarSitio, direccion, masas, puntuarSitio } from './mapa.ts';
 import { distancia, exponencial } from './matematicas.ts';
 import { aldeasVivas, edad, nuevaAldea, nuevaPersona, type Indices } from './mundo.ts';
 import { asaltar, boda, convivir, persuadir, quiereAsaltar } from './politica.ts';
@@ -163,7 +163,7 @@ export function morir(p: Persona, causa: string): void {
   if (!p.muerto) p.muerto = causa;
 }
 
-function danar(p: Persona, x: number, causa: string): void {
+export function danar(p: Persona, x: number, causa: string): void {
   p.salud = r2(p.salud - x);
   p.causa = causa;
 }
@@ -204,27 +204,13 @@ export function salud(m: Mundo, a: Aldea, gente: Persona[], est: number, hoguera
   }
 }
 
-/** Lobos en invierno y epidemias. */
-export function peligros(m: Mundo, a: Aldea, gente: Persona[], est: number, diaDelAnio: number, hogueraEncendida: boolean): void {
+/** Epidemias (las fieras viven ahora en el mapa: ver fauna.ts). Los pantanos traen fiebres. */
+export function peligros(m: Mundo, a: Aldea, gente: Persona[], diaDelAnio: number): void {
   if (!gente.length) return;
-  if (est === 3) {
-    const lanzas = gente.some((p) => p.saberes.includes('lanza'));
-    const p = 0.003 * (hogueraEncendida ? 0.5 : 1) * (lanzas ? 0.6 : 1) * (tiene(a, 'empalizada') ? 0.15 : 1);
-    if (prob(p)) {
-      a.amenaza = Math.min(1, a.amenaza + 0.04);
-      const victima = elegirPeso(gente, (q) => {
-        const e = edad(m, q);
-        return e < 10 || e > 60 ? 3 : 1;
-      });
-      if (victima) {
-        if (prob(0.45)) {
-          morir(victima, 'lobos');
-          anotar(m, 'lobos', `Los lobos atacaron ${a.nombre} y se llevaron a ${victima.nombre} (${anios(edad(m, victima))}).`, a.id);
-        } else {
-          danar(victima, 0.4, 'lobos');
-        }
-      }
-    }
+  if (m.terreno[a.y * m.ancho + a.x] === PANTANO && prob(0.0015)) {
+    const cura = (conoce(a, 'remedio') ? 0.6 : 1) * (conoce(a, 'medicina') ? 0.6 : 1);
+    const p = elegir(gente);
+    danar(p, 0.25 * cura * (1.25 - 0.5 * p.genes.resistencia), 'enfermedad');
   }
   if (diaDelAnio === 90 && prob(0.05 * Math.min(3, gente.length / 40))) {
     const cura = (conoce(a, 'remedio') ? 0.6 : 1) * (conoce(a, 'medicina') ? 0.6 : 1);
@@ -246,7 +232,7 @@ export function trasladar(m: Mundo, a: Aldea, gente: Persona[]): void {
   if (!gente.length || m.t - a.movida < DIAS_ANIO) return;
   if (a.edificios.some((e) => e.tipo === 'campo' || e.tipo === 'corral') || a.obra?.tipo === 'campo') return;
   if (diasDeComida(m, a, gente) > 15 && a.consejo?.prioridad !== 'expandir') return;
-  const sitio = buscarSitio(m, a, 4, 14, a.id);
+  const sitio = buscarSitio(m, a, 4, 14, a.id, conoce(a, 'canoa'));
   if (!sitio || puntuarSitio(m, sitio.x, sitio.y) < puntuarSitio(m, a.x, a.y) * 1.5) return;
   for (const e of a.edificios) m.ruinas.push({ tipo: e.tipo, x: e.x, y: e.y });
   if (m.ruinas.length > 400) m.ruinas.splice(0, m.ruinas.length - 400);
@@ -281,7 +267,8 @@ export function dividir(m: Mundo, a: Aldea, gente: Persona[], ix: Indices): void
       lider = p;
     }
   }
-  const sitio = buscarSitio(m, a, 8, 22);
+  // Con canoas, un grupo puede irse a vivir a una isla.
+  const sitio = buscarSitio(m, a, 8, 22, null, conoce(a, 'canoa'));
   if (!sitio) return;
   const grupo = new Set<Persona>();
   const familia = (p: Persona) => {
@@ -326,6 +313,7 @@ export function dividir(m: Mundo, a: Aldea, gente: Persona[], ix: Indices): void
 /** Aldeas cercanas se visitan (o se asaltan): se aprenden palabras y saberes, surgen parejas y rencores. */
 export function encuentros(m: Mundo, ix: Indices, escasez: Map<number, number>): void {
   const vivas = aldeasVivas(m);
+  const { masa } = masas(m);
   for (let i = 0; i < vivas.length; i++) {
     for (let j = i + 1; j < vivas.length; j++) {
       const a = vivas[i];
@@ -333,6 +321,8 @@ export function encuentros(m: Mundo, ix: Indices, escasez: Map<number, number>):
       const ga = ix.porAldea.get(a.id) ?? [];
       const gb = ix.porAldea.get(b.id) ?? [];
       if (!ga.length || !gb.length) continue;
+      // Sin barcas no se cruza el agua: la gente de las islas vive aparte.
+      if (masa[a.y * m.ancho + a.x] !== masa[b.y * m.ancho + b.x] && !conoce(a, 'canoa') && !conoce(b, 'canoa')) continue;
       const alcance = 18 + alcanceExtra(a) + alcanceExtra(b);
       const d = distancia(a.x - b.x, a.y - b.y);
       if (d > alcance || !prob(0.35 * (tiene(a, 'mercado') && tiene(b, 'mercado') ? 2 : 1))) continue;

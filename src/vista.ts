@@ -53,7 +53,13 @@ export function datosWeb(m: Mundo, ahora: Date) {
     ancho: m.ancho,
     alto: m.alto,
     terreno: m.terreno,
+    relieve: m.relieve,
+    fauna: m.fauna.map((f) => ({ id: f.id, tipo: f.tipo, x: f.x, y: f.y, px: f.px, py: f.py, n: f.n, estado: f.estado })),
+    incendios: m.incendios.map(([i]) => i),
+    cenizas: m.cenizas.map(([i, t]) => [i, m.t - t]),
+    inundadas: m.inundadas.map(([i]) => i),
     madera: R.madera.map((v) => Math.round(v)),
+    bayas: R.bayas.map((v) => Math.round(v)),
     caza: R.caza.map((v) => Math.round(v)),
     // 0 nada, 1 malaquita, 2 casiterita, 3 hematites
     minerales: R.malaquita.map((v, i) => (v > 1 ? 1 : R.casiterita[i] > 1 ? 2 : R.hematites[i] > 1 ? 3 : 0)),

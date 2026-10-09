@@ -91,7 +91,8 @@ const GENES = [
 ];
 
 const CAUSAS = {
-  vejez: 'Vejez', enfermedad: 'Enfermedad', hambre: 'Hambre', 'frío': 'Frío', lobos: 'Lobos', parto: 'Parto', herida: 'Heridas', combate: 'Combates',
+  vejez: 'Vejez', enfermedad: 'Enfermedad', hambre: 'Hambre', 'frío': 'Frío', lobos: 'Lobos', oso: 'Osos', parto: 'Parto', herida: 'Heridas',
+  combate: 'Combates', fuego: 'Incendios', ahogado: 'Ahogados',
 };
 
 const EDIFICIOS = {
@@ -111,7 +112,7 @@ const GRUPOS = {
   aldeas: ['Aldeas', ['inicio', 'fundacion', 'abandono', 'traslado', 'edificio', 'contacto', 'poblacion']],
   vidas: ['Vidas', ['muerte']],
   lenguas: ['Lenguas', ['lengua']],
-  desgracias: ['Desgracias', ['lobos', 'epidemia', 'sequia', 'hambre', 'extincion']],
+  desgracias: ['Desgracias', ['lobos', 'fieras', 'incendio', 'inundacion', 'epidemia', 'sequia', 'hambre', 'extincion']],
 };
 
 // ---------- utilidades ----------
@@ -171,12 +172,27 @@ function icono(nombre) {
 
 let mundo = null;
 try {
-  mundo = new Mundo3D($('#lienzo'), $('#capa'), { alTocar: tocado });
+  mundo = new Mundo3D($('#lienzo'), $('#capa'), { alTocar: tocado, minimapa: $('#minimapa') });
 } catch (e) {
   console.error(e);
   $('#cargando').textContent = 'Tu navegador no puede mostrar el mundo en 3D, pero puedes seguirlo desde las secciones de abajo.';
   $('#camara').hidden = true;
+  $('#minimapa-caja').hidden = true;
 }
+
+// El minimapa se puede plegar (y se recuerda en este navegador).
+function plegarMapa(plegado) {
+  $('#minimapa-caja').classList.toggle('plegado', plegado);
+  $('#plegar-mapa').setAttribute('aria-pressed', String(plegado));
+  $('#plegar-mapa').setAttribute('aria-label', plegado ? 'Mostrar el minimapa' : 'Plegar el minimapa');
+  try {
+    localStorage.setItem('nueva-era-minimapa', plegado ? 'plegado' : '');
+  } catch {}
+}
+$('#plegar-mapa').addEventListener('click', () => plegarMapa(!$('#minimapa-caja').classList.contains('plegado')));
+try {
+  if (localStorage.getItem('nueva-era-minimapa') === 'plegado') plegarMapa(true);
+} catch {}
 
 function tocado({ persona, aldea } = {}) {
   if (persona !== undefined) {
@@ -207,6 +223,9 @@ $('#acercar').addEventListener('click', () => mundo?.acercar(0.7));
 $('#alejar').addEventListener('click', () => mundo?.acercar(1 / 0.7));
 $('#girar').addEventListener('click', () => mundo?.girar(Math.PI / 4));
 
+// Para hacer pruebas: ?depurar deja el mundo a mano en la consola.
+if (new URLSearchParams(location.search).has('depurar')) window.nuevaEra = { get mundo() { return mundo; }, E };
+
 // ---------- lo que piensan ----------
 
 function pensamientoDe(p, elegido = false) {
@@ -218,6 +237,9 @@ function pensamientoDe(p, elegido = false) {
   if (p.salud < 0.4) urgentes.push('No me encuentro bien…');
   if (p.act === 'asaltar') urgentes.push('¡Necesitamos su comida!', '¡Que paguen por lo que nos hicieron!');
   if (p.act === 'defender') urgentes.push('¡Fuera de nuestra aldea!', '¡Defended a los niños!');
+  if (a && (d.incendios ?? []).some((i) => Math.hypot((i % d.ancho) - a.x, Math.floor(i / d.ancho) - a.y) < 7)) {
+    urgentes.push('¡El bosque arde! ¡Hay que salvar las casas!', 'Huele a humo… el fuego viene hacia aquí.');
+  }
   if (urgentes.length) return alAzar(urgentes);
   if (p.edad < 14) {
     return alAzar(['¡A jugar!', 'De mayor quiero cazar.', '¿Me enseñas a hacer eso?', p.act === 'jugar' ? '¡No me pillas!' : 'Ya casi soy mayor.']);
@@ -248,6 +270,10 @@ function pensamientoDe(p, elegido = false) {
   const f = faccionDe(p);
   if (f) ops.push(f.descontento > 0.6 ? 'Si el consejo no nos escucha, nos iremos.' : `Los ${f.nombre} tenemos razón.`);
   if (invierno) ops.push('Qué frío…');
+  const fieras = a ? (d.fauna ?? []).filter((f) => Math.hypot(f.x - a.x, f.y - a.y) < 7) : [];
+  if (fieras.some((f) => f.tipo === 'lobos')) ops.push('Esta noche se oyen lobos muy cerca.', 'No dejéis solos a los niños: hay lobos.');
+  if (fieras.some((f) => f.tipo === 'oso')) ops.push('He visto huellas de oso junto al arroyo.');
+  if (p.act === 'pescar' && p.saberes.includes('canoa')) ops.push('Con la canoa llegaremos a la isla.');
   if (p.edad > 60) ops.push('Cuando yo era joven, todo esto era distinto.');
   if (p.desc > 0) ops.push('Yo descubrí algo que nadie sabía.');
   if (p.pareja === null && p.edad > 18 && p.edad < 40) ops.push('Algún día formaré una familia.');

@@ -12,17 +12,21 @@ import {
   AGUA,
   BOSQUE,
   EDIFICIO,
+  ESTEPA,
   MATERIAL,
   MINERALES,
   MONTANA,
   OFICIOS,
   ORDEN_COMER,
   ORILLA,
+  PANTANO,
+  PESCABLE,
   PRADERA,
+  RIO,
   type TipoEdificio,
 } from './catalogo.ts';
 import { anotar } from './cronica.ts';
-import { hayCerca, mejorCasilla } from './mapa.ts';
+import { alcanzable, hayCerca, mejorCasilla } from './mapa.ts';
 import { distancia as distanciaXY } from './matematicas.ts';
 import { edad } from './mundo.ts';
 import { ACCIONES, ALINEADAS, aprender, entradas, pensar, type Pensamiento, type Situacion } from './mente.ts';
@@ -52,6 +56,8 @@ export interface Contexto {
   /** Prioridad que decidió anoche el consejo ('' si no hay consejo). */
   consejo: string;
   obraLista: boolean;
+  /** Cuántos montan guardia hoy (con uno o dos basta). */
+  vigias: number;
   /** Lo que cada cual hizo hoy y lo que aportó: con ello aprenden sus mentes al anochecer. */
   hoy: { p: Persona; pensado: Pensamiento; x: number[]; k: number; r: number }[];
 }
@@ -149,15 +155,16 @@ export function contexto(m: Mundo, a: Aldea, gente: Persona[], est: number): Con
     holgura: clamp(dias / 12, 0, 1),
     radio,
     herramienta: herramienta(a),
-    agua: hayCerca(m, a.x, a.y, radio, (i) => m.terreno[i] === AGUA),
+    agua: hayCerca(m, a.x, a.y, radio, (i) => PESCABLE[m.terreno[i]] && alcanzable(m, a, i, false)),
     // Piedras sueltas hay casi en cualquier parte; en colinas y montañas, muchas más.
-    rocas: hayCerca(m, a.x, a.y, radio, (i) => m.recursos.piedra[i] >= 1),
-    barro: hayCerca(m, a.x, a.y, radio, (i) => m.recursos.arcilla[i] > 1),
+    rocas: hayCerca(m, a.x, a.y, radio, (i) => m.recursos.piedra[i] >= 1 && alcanzable(m, a, i, false)),
+    barro: hayCerca(m, a.x, a.y, radio, (i) => m.recursos.arcilla[i] > 1 && alcanzable(m, a, i, false)),
     camposPorTrabajar,
     corrales: cuantos(a, 'corral'),
     hoguera,
     consejo: prioridad,
     obraLista: obraLista(a),
+    vigias: 0,
     hoy: [],
   };
 }
@@ -252,7 +259,8 @@ function elegirActividad(p: Persona, c: Contexto, e: number, mente: number[]): s
   const hambre = p.reservas < 3 ? 0.2 : 1;
   U.experimentar = p.genes.curiosidad * GANAS_EXPERIMENTAR * c.holgura * hambre * (e > 45 ? 1.3 : 1) * reparto;
   U.descansar = 0.2 + 2 * (1 - p.salud) * (1 - p.salud);
-  U.vigilar = 0.05 + 1.2 * c.a.amenaza * c.a.amenaza;
+  // Con uno de cada seis adultos de guardia es suficiente.
+  U.vigilar = c.vigias < Math.max(1, Math.floor(c.gente.length / 8)) ? 0.05 + 0.9 * c.a.amenaza * c.a.amenaza : 0;
 
   // A veces se prueba otra cosa: así se descubre que algo ha empezado a rendir.
   if (prob(0.04 + 0.12 * p.genes.curiosidad)) {
@@ -331,6 +339,7 @@ function hacer(m: Mundo, p: Persona, c: Contexto, act: string, eficiencia: numbe
     }
     case 'vigilar':
       // Montar guardia rinde lo que vale la seguridad cuando hay peligro.
+      c.vigias++;
       r = 0.05 + 1.2 * c.a.amenaza * c.a.amenaza;
       p.x = c.a.x;
       p.y = c.a.y;
@@ -360,12 +369,9 @@ const distancia = (m: Mundo, a: Aldea, i: number) => distanciaXY((i % m.ancho) -
 function recolectar(m: Mundo, p: Persona, c: Contexto, eficiencia: number): number {
   const R = m.recursos;
   const a = c.a;
-  const i = mejorCasilla(
-    m,
-    a.x,
-    a.y,
-    c.radio,
-    (j, d) => (R.bayas[j] * 0.5 + R.semillas[j] * 0.45 + (R.fibra[j] * c.precio.fibra + R.hierbas[j] * c.precio.hierbas) * 0.3) * lejania(d),
+  const barca = sabe(p, 'canoa');
+  const i = mejorCasilla(m, a.x, a.y, c.radio, (j, d) =>
+    alcanzable(m, a, j, barca) ? (R.bayas[j] * 0.5 + R.semillas[j] * 0.45 + (R.fibra[j] * c.precio.fibra + R.hierbas[j] * c.precio.hierbas) * 0.3) * lejania(d) : 0,
   );
   if (i < 0) return 0;
   situar(m, p, i);
@@ -398,7 +404,8 @@ function recolectar(m: Mundo, p: Persona, c: Contexto, eficiencia: number): numb
 function cazar(m: Mundo, p: Persona, c: Contexto): number {
   const R = m.recursos;
   const a = c.a;
-  const i = mejorCasilla(m, a.x, a.y, c.radio, (j, d) => R.caza[j] * lejania(d));
+  const barca = sabe(p, 'canoa');
+  const i = mejorCasilla(m, a.x, a.y, c.radio, (j, d) => (alcanzable(m, a, j, barca) ? R.caza[j] * lejania(d) : 0));
   if (i < 0 || R.caza[i] < 0.5) return 0;
   situar(m, p, i);
   const lanza = sabe(p, 'lanza');
@@ -425,8 +432,9 @@ function cazar(m: Mundo, p: Persona, c: Contexto): number {
 function pescar(m: Mundo, p: Persona, c: Contexto): number {
   const R = m.recursos;
   const a = c.a;
-  const radio = c.radio + (sabe(p, 'canoa') ? 3 : 0) + (sabe(p, 'vela') ? 4 : 0);
-  const i = mejorCasilla(m, a.x, a.y, radio, (j, d) => (m.terreno[j] === AGUA ? R.peces[j] * lejania(d) : 0));
+  const barca = sabe(p, 'canoa');
+  const radio = c.radio + (barca ? 3 : 0) + (sabe(p, 'vela') ? 4 : 0);
+  const i = mejorCasilla(m, a.x, a.y, radio, (j, d) => (PESCABLE[m.terreno[j]] && alcanzable(m, a, j, barca) ? R.peces[j] * lejania(d) : 0));
   if (i < 0) return 0;
   situar(m, p, i);
   const cap =
@@ -440,7 +448,8 @@ function pescar(m: Mundo, p: Persona, c: Contexto): number {
 function lenar(m: Mundo, p: Persona, c: Contexto): number {
   const R = m.recursos;
   const a = c.a;
-  const i = mejorCasilla(m, a.x, a.y, c.radio, (j, d) => Math.min(R.madera[j], 15) * lejania(d));
+  const barca = sabe(p, 'canoa');
+  const i = mejorCasilla(m, a.x, a.y, c.radio, (j, d) => (alcanzable(m, a, j, barca) ? Math.min(R.madera[j], 15) * lejania(d) : 0));
   if (i < 0) return 0;
   situar(m, p, i);
   const n = r2(Math.min(R.madera[i], 3 * (0.6 + 0.6 * p.genes.fuerza) * (sabe(p, 'hacha') ? 2 : 1) * c.herramienta));
@@ -453,8 +462,11 @@ function picar(m: Mundo, p: Persona, c: Contexto): number {
   const R = m.recursos;
   const a = c.a;
   const minerales = conoce(a, 'horno') || prob(0.3 * p.genes.curiosidad);
-  const i = mejorCasilla(m, a.x, a.y, c.radio, (j, d) => {
-    if (R.piedra[j] <= 0) return 0;
+  const barca = sabe(p, 'canoa');
+  // En barca se organizan viajes a las vetas de las islas.
+  const radio = c.radio + (barca ? 5 : 0) + (sabe(p, 'vela') ? 8 : 0);
+  const i = mejorCasilla(m, a.x, a.y, radio, (j, d) => {
+    if (R.piedra[j] <= 0 || !alcanzable(m, a, j, barca)) return 0;
     const mena = minerales ? (R.malaquita[j] + R.casiterita[j] + R.hematites[j]) * 0.5 : 0;
     return (Math.min(R.piedra[j], 20) * Math.max(c.precio.piedra, 0.05) + mena) * lejania(d);
   });
@@ -477,7 +489,8 @@ function picar(m: Mundo, p: Persona, c: Contexto): number {
 function barro(m: Mundo, p: Persona, c: Contexto): number {
   const R = m.recursos;
   const a = c.a;
-  const i = mejorCasilla(m, a.x, a.y, c.radio, (j, d) => Math.min(R.arcilla[j], 20) * lejania(d));
+  const barca = sabe(p, 'canoa');
+  const i = mejorCasilla(m, a.x, a.y, c.radio, (j, d) => (alcanzable(m, a, j, barca) ? Math.min(R.arcilla[j], 20) * lejania(d) : 0));
   if (i < 0) return 0;
   situar(m, p, i);
   const n = r2(Math.min(R.arcilla[i], 4 * (0.6 + 0.6 * p.genes.fuerza)));
@@ -653,16 +666,16 @@ function lugarPara(m: Mundo, a: Aldea, tipo: string): number {
   }
   if (tipo === 'campo') {
     return mejorCasilla(m, a.x, a.y, 4, (i, d) => {
-      if (ocupadas.has(i) || d < 1) return 0;
+      if (ocupadas.has(i) || d < 1 || !alcanzable(m, a, i, false)) return 0;
       const t = m.terreno[i];
-      const apto = t === PRADERA ? 3 : t === BOSQUE ? 1.5 : t === ORILLA ? 1 : 0;
+      const apto = t === PRADERA ? 3 : t === ESTEPA ? 2 : t === BOSQUE ? 1.5 : t === ORILLA ? 1 : t === PANTANO ? 0.5 : 0;
       return apto / (1 + d * 0.2);
     });
   }
   return mejorCasilla(m, a.x, a.y, 3, (i, d) => {
-    if (ocupadas.has(i)) return 0;
+    if (ocupadas.has(i) || !alcanzable(m, a, i, false)) return 0;
     const t = m.terreno[i];
-    if (t === AGUA || t === MONTANA) return 0;
+    if (t === AGUA || t === MONTANA || t === RIO) return 0;
     if (tipo === 'hoguera') return 2 / (1 + d);
     return d < 1 ? 0 : 1 / (1 + d);
   });

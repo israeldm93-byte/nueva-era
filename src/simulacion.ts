@@ -4,7 +4,9 @@ import { azar, barajar, estadoAzar, fijarAzar, prob } from './azar.ts';
 import { DIAS_ANIO } from './config.ts';
 import { TECNICA } from './catalogo.ts';
 import { anioDe, anios, anotar, fecha, listar } from './cronica.ts';
+import { desastres } from './desastres.ts';
 import { asentarAprendizaje, comer, contexto, jornada, mantener, planificar } from './economia.ts';
+import { fauna } from './fauna.ts';
 import { lexicoComun, parecido } from './lenguaje.ts';
 import { recrecer } from './mapa.ts';
 import { aldeasVivas, crearMundo, edad, estacionDe, indexar, mediaGenes, type Indices } from './mundo.ts';
@@ -40,12 +42,16 @@ function paso(m: Mundo): void {
     if (c) jornada(m, p, c);
   }
   for (const c of ctx.values()) asentarAprendizaje(m, c);
+  const encendidas = new Set<number>();
   for (const a of vivas) {
     const encendida = mantener(m, a, est, dia);
+    if (encendida) encendidas.add(a.id);
     comer(m, a, gente(a.id));
     salud(m, a, gente(a.id), est, encendida);
-    peligros(m, a, gente(a.id), est, dia, encendida);
+    peligros(m, a, gente(a.id), dia);
   }
+  fauna(m, ix, est, encendidas);
+  desastres(m, ix, est, dia);
   anochecer(m, ix);
   for (const a of vivas) {
     const c = ctx.get(a.id);

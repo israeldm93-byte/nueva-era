@@ -6,6 +6,8 @@ import { TECNICAS } from '../src/catalogo.ts';
 import { datosWeb } from '../src/vista.ts';
 import { migrar } from '../src/migrar.ts';
 import { ACCIONES, aprender, entradas, menteNueva, pensar } from '../src/mente.ts';
+import { AGUA, MONTANA, RIO } from '../src/catalogo.ts';
+import { alcanzable, masas } from '../src/mapa.ts';
 import { lexicoComun } from '../src/lenguaje.ts';
 import { aldeasVivas, crearMundo, indexar } from '../src/mundo.ts';
 import { avanzar } from '../src/simulacion.ts';
@@ -135,4 +137,47 @@ test('una mente aprende qué rinde según la situación', () => {
   const enInvierno = pensar(mente, invierno).salidas[lenar];
   const enVerano = pensar(mente, verano).salidas[lenar];
   assert.ok(enInvierno > 0.4 && enVerano < -0.3, `invierno ${enInvierno}, verano ${enVerano}`);
+});
+
+test('un mundo de la versión 3 pasa al mapa grande sin perder a su gente', () => {
+  const m = crearMundo(17);
+  avanzar(m, 3 * DIAS_ANIO);
+  const viejo = copiar(m) as unknown as Record<string, unknown> & Mundo;
+  viejo.version = 3;
+  for (const k of ['relieve', 'fauna', 'incendios', 'cenizas', 'inundadas', 'avisos']) delete (viejo as Record<string, unknown>)[k];
+  const personas = viejo.personas.map((p) => p.id).sort();
+  const nuevo = migrar(viejo);
+  assert.equal(nuevo.version, VERSION_ESTADO);
+  assert.deepEqual(nuevo.personas.map((p) => p.id).sort(), personas);
+  assert.equal(nuevo.relieve.length, nuevo.ancho * nuevo.alto);
+  assert.ok(nuevo.fauna.length > 0, 'debería haber fieras');
+  const { masa, continente } = masas(nuevo);
+  for (const a of aldeasVivas(nuevo)) {
+    const i = a.y * nuevo.ancho + a.x;
+    assert.equal(masa[i], continente, `${a.nombre} debería estar en el continente`);
+    assert.ok(![AGUA, RIO, MONTANA].includes(nuevo.terreno[i]));
+  }
+  for (const p of nuevo.personas) {
+    const a = nuevo.aldeas.find((x) => x.id === p.aldea)!;
+    assert.deepEqual([p.x, p.y], [a.x, a.y]);
+  }
+  avanzar(nuevo, DIAS_ANIO);
+  assert.ok(nuevo.personas.length > 0);
+});
+
+test('a las islas solo se llega en barca y las fieras no cruzan el agua', () => {
+  const m = crearMundo(7);
+  const { masa, continente } = masas(m);
+  const a = m.aldeas[0];
+  const isla = masa.findIndex((k) => k >= 0 && k !== continente);
+  assert.ok(isla >= 0, 'el mapa debería tener islas');
+  assert.equal(alcanzable(m, a, isla, false), false);
+  assert.equal(alcanzable(m, a, isla, true), true);
+  avanzar(m, 2 * DIAS_ANIO);
+  const { masa: ahora } = masas(m);
+  for (const f of m.fauna) {
+    const i = f.y * m.ancho + f.x;
+    assert.notEqual(m.terreno[i], AGUA, 'una fiera en el agua');
+    assert.equal(ahora[i], ahora[f.guarida], 'una fiera fuera de su tierra');
+  }
 });

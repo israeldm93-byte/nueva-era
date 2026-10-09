@@ -149,6 +149,9 @@ export type TipoSuceso =
   | 'traslado'
   | 'muerte'
   | 'lobos'
+  | 'fieras'
+  | 'incendio'
+  | 'inundacion'
   | 'epidemia'
   | 'sequia'
   | 'hambre'
@@ -217,6 +220,26 @@ export interface Fonologia {
   finales: string[];
 }
 
+/** Fieras que viven en el mapa: una manada de lobos o un oso. */
+export interface Fiera {
+  id: number;
+  tipo: 'lobos' | 'oso';
+  x: number;
+  y: number;
+  /** Dónde estaba ayer (la web los anima de un sitio a otro). */
+  px: number;
+  py: number;
+  /** Casilla de su guarida. */
+  guarida: number;
+  /** Cuántos son (una manada) o 1 (un oso). */
+  n: number;
+  hambre: number;
+  /** Qué hacen hoy: rondar, acechar una aldea, atacar, huir o hibernar. */
+  estado: 'ronda' | 'acecha' | 'ataca' | 'huye' | 'hiberna';
+  /** Días que esperan antes de volver a acercarse a una aldea. */
+  espera: number;
+}
+
 export interface Mundo {
   version: number;
   semilla: number;
@@ -226,6 +249,17 @@ export interface Mundo {
   ancho: number;
   alto: number;
   terreno: number[];
+  /** Altura de cada casilla en centésimas (negativa bajo el agua). */
+  relieve: number[];
+  fauna: Fiera[];
+  /** Casillas ardiendo: [casilla, días que le quedan]. */
+  incendios: [number, number][];
+  /** Casillas quemadas: [casilla, día en que ardieron]. */
+  cenizas: [number, number][];
+  /** Casillas anegadas por una crecida: [casilla, días que le quedan]. */
+  inundadas: [number, number][];
+  /** Último día en que se contó cada tipo de aviso (para no repetir la crónica). */
+  avisos: Record<string, number>;
   recursos: Record<string, number[]>;
   clima: number;
   fonologia: Fonologia;

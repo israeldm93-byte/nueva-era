@@ -43,6 +43,13 @@
     </button>
   </div>
 
+  <div class="minimapa" id="minimapa-caja">
+    <canvas id="minimapa" aria-label="Minimapa del mundo: tócalo para ir a ese lugar"></canvas>
+    <button type="button" class="plegar" id="plegar-mapa" aria-label="Plegar el minimapa" aria-pressed="false">
+      <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M4 6l5-2 6 2 5-2v14l-5 2-6-2-5 2Zm5-2v14m6-12v14" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+
   <section class="hoja" id="hoja" hidden aria-labelledby="hoja-titulo">
     <div class="hoja-cab">
       <h2 id="hoja-titulo"></h2>
@@ -76,6 +83,15 @@
       <p>Cada adulto se forma una opinión sobre qué debería ser lo prioritario (comida, prepararse para el invierno, construir, aprender, buscar tierras nuevas o defenderse) y la contagia al hablar con los demás. Cada noche se reúnen junto al fuego los más respetados (por edad, saber, descubrimientos e hijos) y votan. Lo que deciden empuja las mentes de todos al día siguiente, pero cada cual obedece a su manera.</p>
       <p>Cuando mucha gente piensa distinto que el consejo, se organiza una <strong>facción</strong>. Si el consejo la ignora demasiado tiempo, la facción se marcha con sus familias y funda su propia aldea.</p>
 
+      <h3>Un mundo grande, variado y peligroso</h3>
+      <p>Un continente con bosques, praderas, estepas, desiertos, pantanos y cordilleras nevadas, ríos que bajan al mar y <strong>grandes lagos con islas</strong>. En las islas están las mejores vetas (sobre todo el estaño, sin el que no hay bronce), mucha pesca y colonias de aves, pero solo se llega en <strong>canoa</strong>: quien la descubre puede ir a por ellas o irse a vivir allí, lejos de las fieras.</p>
+      <ul>
+        <li><strong>Lobos.</strong> Viven en manadas y cazan por su cuenta. En los inviernos de hambre rondan las aldeas, entran en los corrales y a veces se llevan a alguien. El fuego, las empalizadas, los vigías y las lanzas los frenan, y los cazadores salen en batida.</li>
+        <li><strong>Osos.</strong> Peligrosos para quien trabaja en el bosque. Duermen en invierno. Abatir uno da carne para semanas y una piel enorme.</li>
+        <li><strong>Incendios.</strong> En los veranos secos un rayo (o un descuido) prende el bosque; el fuego se extiende, arrasa casas y deja cenizas que tardan años en reverdecer.</li>
+        <li><strong>Crecidas.</strong> En las primaveras muy lluviosas los ríos se desbordan y se llevan campos y chozas, aunque dejan limo fértil.</li>
+      </ul>
+
       <h3>Vecinos, amigos y enemigos</h3>
       <p>Entre aldeas crecen la amistad (bodas, comercio, un origen común) o el rencor (competir por las mismas tierras, ataques). El hambre, el rencor y la agresividad de quienes mandan pueden llevar a <strong>asaltar</strong> al vecino. Los atacados aprenden a vigilar, levantan empalizadas y pueden aliarse con otros.</p>
 
@@ -91,7 +107,7 @@
       <p>El orden de los descubrimientos, quién manda, qué facciones nacen, quién ataca a quién, qué se olvida o si la especie se extingue: nada está programado. Si se extingue, el mundo vuelve a empezar en una nueva era. No hay ningún modelo de lenguaje dentro: todo son reglas sencillas y mentes pequeñas que aprenden. La página no desvela lo que aún no han descubierto.</p>
 
       <h3>Cómo moverse</h3>
-      <p>Arrastra para desplazarte, pellizca o usa la rueda para acercarte y gira con dos dedos (o con el botón derecho). Toca a cualquiera para ver qué piensa y qué hay en su cabeza, o toca el nombre de una aldea para ver su consejo, sus facciones y sus vecinos.</p>
+      <p>Arrastra para desplazarte, pellizca o usa la rueda para acercarte y gira con dos dedos (o con el botón derecho). El minimapa de la esquina muestra todo el mundo, las fieras que acechan y los incendios: tócalo para ir allí. Toca a cualquiera para ver qué piensa y qué hay en su cabeza, o toca el nombre de una aldea para ver su consejo, sus facciones y sus vecinos.</p>
 
       <p class="nota">Código abierto en <a href="https://github.com/israeldm93-byte/nueva-era">github.com/israeldm93-byte/nueva-era</a>.</p>
     </div>

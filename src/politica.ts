@@ -135,7 +135,8 @@ export function noche(m: Mundo, a: Aldea, gente: Persona[], c: Contexto): void {
     cs.anunciada = cs.prioridad;
     anotar(m, 'consejo', `El consejo de ${a.nombre} (${listar(miembros.slice(0, 3).map(([p]) => p.nombre))}) decide que ${FRASE[cs.prioridad]}.`, a.id);
   }
-  a.amenaza = r2(a.amenaza * 0.995);
+  // El miedo se va olvidando si no pasa nada.
+  a.amenaza = r2(a.amenaza * 0.99);
 }
 
 /** Al hablar, las opiniones se contagian; más si quien habla es respetado. */
@@ -202,7 +203,7 @@ export function facciones(m: Mundo, a: Aldea, gente: Persona[], ix: Indices): vo
 
 /** Una facción ignorada se marcha con sus familias y funda su propia aldea. */
 function cisma(m: Mundo, a: Aldea, f: Faccion, miembros: Persona[], ix: Indices): void {
-  const sitio = buscarSitio(m, a, 8, 22);
+  const sitio = buscarSitio(m, a, 8, 22, null, conoce(a, 'canoa'));
   if (!sitio) {
     f.descontento = 0.5;
     return;
