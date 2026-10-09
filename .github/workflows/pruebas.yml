@@ -23,3 +23,5 @@ jobs:
         run: npx tsc
       - name: Pruebas
         run: npm test
+      - name: Montar la web
+        run: node tools/construir.mjs "$RUNNER_TEMP/sitio"

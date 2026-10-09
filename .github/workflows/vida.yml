@@ -1,7 +1,8 @@
 name: Vida
 
 # Cada hora el mundo avanza hasta el momento real (un año simulado por hora),
-# se guarda en la rama `estado` y se publica la web en GitHub Pages.
+# se guarda en la rama `estado` y se publica la web en GitHub Pages. La web
+# lleva el mismo motor empaquetado y sigue simulando en directo en el navegador.
 # GitHub puede retrasar los cron; no pasa nada: cada ejecución recupera el
 # tiempo que haya pasado desde la anterior.
 
@@ -14,6 +15,8 @@ on:
     paths:
       - "src/**"
       - "web/**"
+      - "tools/**"
+      - "package-lock.json"
       - ".github/workflows/vida.yml"
 
 concurrency:
@@ -38,6 +41,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+
+      - run: npm ci
 
       - name: Recuperar el mundo
         id: recuperar
@@ -79,8 +85,8 @@ jobs:
           git commit -q -m "$(node -e 'const m=require("./mundo.json");console.log(`Era ${m.era}, día ${m.t}: ${m.personas.length} personas`)')"
           git push -q -f "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" estado
 
-      - name: Preparar la web
-        run: cp -r web/. sitio/
+      - name: Montar la web (motor para el navegador y Three.js)
+        run: node tools/construir.mjs sitio
 
       - uses: actions/configure-pages@v5
 

@@ -1,49 +1,66 @@
 # Nueva Era
 
-Una civilización simulada que vive sola. Empieza con una banda de unas quince personas sin palabras, sin fuego y sin herramientas, y a partir de ahí todo lo deciden ellas: en qué trabajan, qué descubren probando cosas, cómo llaman a cada cosa, qué enseñan a sus hijos y qué se pierde cuando alguien muere sin haberlo enseñado.
+Una civilización que vive sola, en 3D y en directo. Empieza con una banda de unas quince personas sin palabras, sin fuego y sin herramientas, y a partir de ahí todo lo deciden ellas: en qué trabajan, qué descubren probando cosas, cómo llaman a cada cosa, quién manda, qué facciones nacen, a quién atacan y de quién se defienden.
 
-El mundo avanza **un año cada hora**, día y noche, gracias a GitHub Actions, y se puede seguir en una web que se actualiza sola:
+El mundo avanza **un año cada hora** (un día cada 30 segundos), día y noche:
 
 **https://israeldm93-byte.github.io/nueva-era/**
 
-## Qué aprende y cómo
+La web muestra el mundo en 3D (terreno, bosques, animales, chozas, campos, empalizadas y cada aldeano yendo a trabajar con su herramienta y volviendo de noche al fuego) y lo **simula en directo en el navegador** con el mismo motor que el servidor: como es determinista, el navegador calcula exactamente lo mismo que calculará el servidor en su siguiente ejecución. Toca a cualquiera para ver qué piensa y qué hay en su cabeza.
 
-No hay ningún modelo de lenguaje ni red neuronal dentro: quien aprende es la sociedad entera, mediante cuatro mecanismos reales y medibles.
+## Cada aldeano tiene una mente
 
-- **Prueba y error.** Cada saber (el fuego, la cuerda, la agricultura, el bronce…) es una receta secreta: unas cosas y un gesto. Por ejemplo, el fuego sale de frotar madera con madera. Los aldeanos no conocen las recetas. Quien tiene curiosidad y tiempo libre combina cosas que tiene a mano con un gesto (golpear, atar, calentar…). Si el resultado se parece a algo que funcionaría, lo apunta como *idea prometedora* y la va variando. Es una búsqueda a tientas, y las ideas se comparten al hablar.
-- **Aprendizaje por refuerzo.** Cada persona estima cuánto rinde cazar, pescar, recolectar o cortar leña según lo que le ha ido saliendo, y elige su trabajo comparando esa estimación con lo que necesita la aldea. Los hijos heredan esas estimaciones de sus padres.
-- **Cultura.** El saber se transmite hablando: de padres a hijos y en las charlas junto a la hoguera. Muere con la última persona que lo sabía, salvo que esté escrito en tablillas.
-- **Evolución.** Siete genes (curiosidad, sociabilidad, fuerza, destreza, resistencia, fertilidad y longevidad) se heredan con pequeñas mutaciones, y la selección natural hace el resto.
+Cada persona decide con una **red neuronal** pequeña (18 entradas, 6 neuronas ocultas y 12 salidas, con pesos enteros para que todo sea exacto). Mira su hambre, su salud y su edad; la comida, la leña y los materiales de su aldea; si hay obras o campos por cosechar; si se sienten amenazados; la estación, y lo que ha decidido el consejo. Con eso da a cada actividad un empujón a favor o en contra.
 
-### El idioma
+- **Aprenden en vida** (aprendizaje por refuerzo): si lo que hicieron hoy les rindió más que a la media de su aldea, la red refuerza esa elección en esa situación; si les fue peor, la debilita.
+- **Lo heredan**: cada hijo nace con la mente del padre o la madre al que mejor le ha ido, con alguna mutación.
+- **Se mide sin trampas**: cada año se pone a todas las mentes ante situaciones típicas (llega el invierno sin leña, hay hambre, les acaban de atacar…) y se publica qué parte reacciona con sensatez. Nadie les dice qué es lo correcto, así que esa curva sube o baja según lo que vivan.
 
-Nadie empieza sabiendo hablar. Para nombrar algo sin palabra, cada uno se la inventa con los sonidos de su pueblo. Al hablar, si el otro ya usa esa palabra, ambos la refuerzan; si no, la aprende. Es el *juego de nombrar* de Luc Steels, y gracias a él cada aldea llega a un vocabulario común sin que nadie lo decida. Los niños a veces aprenden mal una palabra, y así el idioma deriva con las generaciones. Las aldeas que se separan acaban hablando lenguas distintas, y entonces enseñarse cosas les cuesta más.
+## Política: consejo, opiniones y facciones
 
-### Lo que no está programado
+- Cada adulto se forma una **opinión** sobre qué es lo prioritario (comida, invierno, obras, saber, buscar tierras nuevas o defensa) mirando con su propia mente lo que viene viviendo la aldea, y la contagia al hablar.
+- Cada noche se reúne junto al fuego el **consejo**: los más respetados (por edad, saber, descubrimientos e hijos). Votan y lo que deciden empuja las decisiones de todos al día siguiente, aunque cada cual obedece a su manera.
+- Cuando mucha gente piensa distinto que el consejo se organiza una **facción** con su líder. Si el consejo la ignora demasiado tiempo, hay un **cisma**: la facción se marcha con sus familias y funda su propia aldea.
+- Entre aldeas crece la **amistad** (bodas, comercio, origen común) o el **rencor** (competir por la misma tierra, ataques). El hambre, el rencor y la agresividad de quienes mandan pueden llevar a **asaltar** al vecino; los atacados vigilan, levantan empalizadas y pueden **aliarse**.
 
-Ni el orden de los descubrimientos, ni quién los hace, ni qué se olvida, ni cuándo una aldea se divide o se traslada, ni si la especie sobrevive. Si se extingue, empieza una nueva era en un mundo nuevo.
+## Saber, idioma y genes
+
+- **Prueba y error.** Cada saber (el fuego, la cuerda, la agricultura, el bronce…) es una receta secreta: unas cosas y un gesto. Los aldeanos no conocen las recetas: quien tiene curiosidad y tiempo combina cosas que conoce con un gesto (golpear, frotar, atar, calentar…) y, si algo parece prometer, lo va variando.
+- **Cultura.** El saber se transmite hablando. Muere con la última persona que lo sabía, salvo que esté escrito en tablillas.
+- **Idioma propio.** Para nombrar algo sin palabra, cada uno se la inventa con los sonidos de su pueblo (el *juego de nombrar* de Luc Steels). Cada aldea llega a un vocabulario común sin que nadie lo decida, y las que se separan acaban hablando lenguas distintas.
+- **Evolución.** Ocho genes (curiosidad, sociabilidad, fuerza, destreza, resistencia, fertilidad, longevidad y agresividad) se heredan con pequeñas mutaciones.
+
+Nada de esto sigue un guion: ni el orden de los descubrimientos, ni quién manda, ni qué facciones nacen, ni quién ataca a quién, ni si la especie sobrevive. Si se extingue, empieza una nueva era. No hay ningún modelo de lenguaje dentro.
 
 ## Cómo funciona por dentro
 
 ```
 src/
   catalogo.ts     materiales, saberes (con sus recetas), gestos y edificios
-  mapa.ts         generación del terreno, recursos que se agotan y rebrotan
+  mapa.ts         terreno, recursos que se agotan y rebrotan
   mundo.ts        creación del mundo y de las personas, genes
-  economia.ts     el trabajo de cada día, la comida, cultivos y obras
+  mente.ts        la red neuronal de cada aldeano, su aprendizaje y las pruebas de sensatez
+  economia.ts     el trabajo de cada día (lo decide la mente), comida, cultivos y obras
+  politica.ts     opiniones, consejo, facciones, cismas, asaltos, alianzas
   saber.ts        experimentar, descubrir, enseñar, escribir y leer
-  lenguaje.ts     palabras inventadas, juego de nombrar, deriva y parecido entre lenguas
-  sociedad.ts     charlas, parejas, nacimientos, salud, peligros, divisiones y encuentros
+  lenguaje.ts     palabras inventadas, juego de nombrar y deriva de las lenguas
+  sociedad.ts     charlas, parejas, nacimientos, salud, peligros, traslados y encuentros
   simulacion.ts   el paso de los días, la historia anual y la extinción
-  cronica.ts      la crónica en español
-  exportar.ts     los datos que lee la web (sin desvelar lo no descubierto)
+  matematicas.ts  funciones exactas (iguales en Node y en cualquier navegador)
+  migrar.ts       pone al día mundos guardados con versiones anteriores
+  vista.ts        lo que ve la web (sin desvelar lo no descubierto)
+  navegador.ts    el motor empaquetado para el navegador
   cli.ts          órdenes `simular` y `avanzar`
-web/              la web (HTML, CSS y JavaScript sin librerías)
-test/             pruebas
+web/
+  index.html, app.js, estilo.css   la interfaz y los paneles
+  mundo3d.js                       el mundo en 3D (Three.js)
+  vivo.js                          el trabajador que simula en directo
+tools/construir.mjs                monta la web: copia web/, empaqueta el motor y añade Three.js
+test/                              pruebas
 ```
 
-- La simulación es **determinista**: todo el azar sale de un generador con semilla cuyo estado se guarda con el mundo. Simular de una vez o en tramos, guardando y cargando entre medias, da exactamente el mismo resultado (hay una prueba que lo comprueba).
-- Cada hora, el flujo [`vida.yml`](.github/workflows/vida.yml) recupera el mundo de la rama `estado` y lo avanza hasta el momento real. Si GitHub se retrasa, recupera el tiempo perdido. Después guarda el mundo en esa misma rama, que tiene un único commit con `mundo.json` y una copia del estado anterior (`anterior.json`), y publica la web en GitHub Pages.
+- La simulación es **determinista**: todo el azar sale de un generador con semilla guardado con el mundo, y las funciones matemáticas son propias para dar el mismo resultado en Node y en cualquier navegador. Simular de una vez o en tramos, guardando y cargando entre medias, da exactamente lo mismo (hay pruebas que lo comprueban).
+- Cada hora, el flujo [`vida.yml`](.github/workflows/vida.yml) recupera el mundo de la rama `estado`, lo avanza hasta el momento real, lo guarda en esa rama (un único commit con `mundo.json` y una copia del estado anterior) y publica la web en GitHub Pages. Si el código cambia, el mundo no se reinicia: se pone al día con la versión nueva.
 
 ## Probarlo en local
 
@@ -55,12 +72,12 @@ npm run simular -- --anios 150 --semilla 7     # imprime la crónica de 150 año
 npm test                                        # pruebas
 npx tsc                                         # comprobación de tipos
 
-# Ver la web con un mundo de prueba:
-node src/cli.ts simular --anios 150 --semilla 7 --web web/datos
-python3 -m http.server -d web 8000              # y abrir http://localhost:8000
+# Ver la web con un mundo de prueba de 60 años:
+npm run prueba-web
+python3 -m http.server -d sitio 8000            # y abrir http://localhost:8000
 ```
 
-Opciones de `simular`: `--todo` muestra también muertes y sucesos menores, `--cada N` imprime un resumen cada N años y `--guardar archivo.json` guarda el mundo.
+Opciones de `simular`: `--todo` muestra también muertes y sucesos menores, `--cada N` imprime un resumen cada N años, `--guardar archivo.json` guarda el mundo y `--web carpeta` escribe los datos de la web.
 
 ## Ajustes
 
@@ -71,3 +88,5 @@ En [`src/config.ts`](src/config.ts):
 - `GANAS_EXPERIMENTAR`: cuánto tiempo dedican a probar cosas en vez de trabajar.
 
 **Reiniciar el mundo:** se borra la rama `estado` y se lanza a mano el flujo *Vida* (Actions → Vida → Run workflow). Nacerá un mundo nuevo con otra semilla.
+
+Three.js se distribuye con su licencia MIT (`vendor/LICENSE-three.txt` en la web publicada).

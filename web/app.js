@@ -1,8 +1,11 @@
-'use strict';
+// Visor de Nueva Era: el mundo en 3D a pantalla completa y, encima, los paneles.
+// Un trabajador (vivo.js) sigue simulando el mundo en el navegador, un día cada
+// 30 segundos; mientras arranca (o si no puede) se muestran los datos que publicó
+// el servidor en datos/*.json.
 
-// Visor de Nueva Era. Lee datos/mundo.json, datos/cronica.json y datos/historia.json,
-// que la simulación regenera cada hora, y los pinta. No usa librerías.
+import { Mundo3D } from './mundo3d.js?v=__MOTOR__';
 
+const MOTOR = '__MOTOR__';
 const $ = (s) => document.querySelector(s);
 const NUM = new Intl.NumberFormat('es-ES');
 
@@ -20,7 +23,6 @@ function h(tag, attrs, ...hijos) {
   return el;
 }
 
-/** Añade hijos ignorando los vacíos. */
 function poner(el, ...hijos) {
   for (const c of hijos.flat(Infinity)) {
     if (c === null || c === undefined || c === false) continue;
@@ -46,7 +48,8 @@ const E = {
   mundo: null,
   cronica: [],
   historia: [],
-  pestana: 'mapa',
+  pestana: null,
+  foco: null,
   aldea: null,
   persona: null,
   filtro: 'todo',
@@ -57,21 +60,38 @@ const E = {
   aldeaIdioma: null,
   porId: new Map(),
   aldeas: new Map(),
+  directo: false,
+  vistos: null,
+  historiaPintada: '',
+};
+
+const TITULOS = {
+  aldea: 'Aldea', cronica: 'Crónica', saberes: 'Saberes', idioma: 'Idioma', gente: 'Gente', evolucion: 'Gráficas', como: '¿Qué es esto?',
 };
 
 const ACTIVIDAD = {
   recolectar: 'recolecta', cazar: 'caza', pescar: 'pesca', lenar: 'corta leña', picar: 'pica piedra',
   barro: 'saca arcilla', cultivar: 'cultiva', pastorear: 'pastorea', construir: 'construye',
-  experimentar: 'experimenta', descansar: 'descansa', jugar: 'juega',
+  experimentar: 'experimenta', descansar: 'descansa', jugar: 'juega', vigilar: 'vigila',
+  asaltar: 'asalta otra aldea', defender: 'defiende la aldea',
+};
+
+const ACCION = {
+  recolectar: 'recolectar', cazar: 'cazar', pescar: 'pescar', lenar: 'cortar leña', picar: 'picar piedra', barro: 'sacar arcilla',
+  cultivar: 'cultivar', pastorear: 'pastorear', construir: 'construir', experimentar: 'experimentar', descansar: 'descansar', vigilar: 'vigilar',
+};
+
+const PRIORIDAD = {
+  comida: 'Comida', invierno: 'Invierno', obras: 'Obras', saber: 'Saber', expandir: 'Nuevas tierras', defensa: 'Defensa',
 };
 
 const GENES = [
   ['curiosidad', 'Curiosidad'], ['sociabilidad', 'Sociabilidad'], ['fuerza', 'Fuerza'], ['destreza', 'Destreza'],
-  ['resistencia', 'Resistencia'], ['fertilidad', 'Fertilidad'], ['longevidad', 'Longevidad'],
+  ['resistencia', 'Resistencia'], ['fertilidad', 'Fertilidad'], ['longevidad', 'Longevidad'], ['agresividad', 'Agresividad'],
 ];
 
 const CAUSAS = {
-  vejez: 'Vejez', enfermedad: 'Enfermedad', hambre: 'Hambre', 'frío': 'Frío', lobos: 'Lobos', parto: 'Parto', herida: 'Heridas',
+  vejez: 'Vejez', enfermedad: 'Enfermedad', hambre: 'Hambre', 'frío': 'Frío', lobos: 'Lobos', parto: 'Parto', herida: 'Heridas', combate: 'Combates',
 };
 
 const EDIFICIOS = {
@@ -79,8 +99,14 @@ const EDIFICIOS = {
   horno: 'horno', empalizada: 'empalizada', archivo: 'casa de las tablillas', mercado: 'mercado',
 };
 
+const UNA = {
+  hoguera: 'una hoguera', choza: 'una choza', casa: 'una casa de adobe', campo: 'un campo nuevo', corral: 'un corral', almacen: 'un almacén',
+  horno: 'un horno', empalizada: 'la empalizada', archivo: 'la casa de las tablillas', mercado: 'el mercado',
+};
+
 const GRUPOS = {
   todo: ['Todo', null],
+  politica: ['Política', ['consejo', 'faccion', 'cisma', 'asalto', 'alianza']],
   saber: ['Saber', ['descubrimiento', 'redescubrimiento', 'difusion', 'perdida', 'olvido']],
   aldeas: ['Aldeas', ['inicio', 'fundacion', 'abandono', 'traslado', 'edificio', 'contacto', 'poblacion']],
   vidas: ['Vidas', ['muerte']],
@@ -90,581 +116,507 @@ const GRUPOS = {
 
 // ---------- utilidades ----------
 
-const anioDe = (t) => Math.floor(t / 120) + 1;
+const DIAS_ANIO = 120;
+const anioDe = (t) => Math.floor(t / DIAS_ANIO) + 1;
 const ESTACIONES = ['primavera', 'verano', 'otoño', 'invierno'];
-const fechaDe = (t) => `Año ${anioDe(t)}, ${ESTACIONES[Math.floor((t % 120) / 30)]}`;
-const frac = (x) => x - Math.floor(x);
+const fechaDe = (t) => `Año ${anioDe(t)}, ${ESTACIONES[Math.floor((t % DIAS_ANIO) / 30)]}`;
 const pct = (x) => `${Math.round(x * 100)} %`;
-
-function haceCuanto(iso) {
-  const min = Math.round((Date.now() - Date.parse(iso)) / 60000);
-  if (!Number.isFinite(min)) return '';
-  if (min < 1) return 'hace un momento';
-  if (min < 60) return `hace ${min} min`;
-  const horas = Math.round(min / 60);
-  return horas === 1 ? 'hace 1 hora' : `hace ${horas} horas`;
-}
+const mayus = (t) => t.charAt(0).toUpperCase() + t.slice(1);
+const alAzar = (lista) => lista[Math.floor(Math.random() * lista.length)];
+const reducido = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 function anios(n) {
   const k = Math.floor(n);
   return k === 1 ? '1 año' : `${k} años`;
 }
 
+function listar(xs) {
+  if (xs.length <= 1) return xs.join('');
+  return `${xs.slice(0, -1).join(', ')} y ${xs[xs.length - 1]}`;
+}
+
 function vivas() {
   return E.mundo.aldeas.filter((a) => a.abandonada === null);
-}
-
-function css(nombre) {
-  return getComputedStyle(document.documentElement).getPropertyValue(nombre).trim();
-}
-
-function mezclar(c1, c2, t) {
-  const a = parseInt(c1.slice(1), 16);
-  const b = parseInt(c2.slice(1), 16);
-  const r = Math.round(((a >> 16) & 255) * (1 - t) + ((b >> 16) & 255) * t);
-  const g = Math.round(((a >> 8) & 255) * (1 - t) + ((b >> 8) & 255) * t);
-  const bl = Math.round((a & 255) * (1 - t) + (b & 255) * t);
-  return `rgb(${r},${g},${bl})`;
 }
 
 function nombreSaber(id) {
   return E.mundo.tecnicas.find((t) => t.id === id)?.nombre ?? E.mundo.nombres[id] ?? id;
 }
 
-// ---------- carga ----------
+function frase(prioridad) {
+  return E.mundo?.frases?.[prioridad] ?? prioridad;
+}
 
-async function cargar() {
+function faccionDe(p) {
+  if (p.faccion === null || p.faccion === undefined) return null;
+  return E.aldeas.get(p.aldea)?.facciones?.find((f) => f.id === p.faccion) ?? null;
+}
+
+const ICONOS = {
+  gente: 'M12 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm-6.5 9a6.5 6.5 0 0 1 13 0',
+  comida: 'M12 8c-2-2-7-1.5-7 3.5 0 4.5 3.5 8.5 7 8.5s7-4 7-8.5C19 6.5 14 6 12 8Zm0 0c0-2 1-3.5 3-4.5',
+  madera: 'M6 8h10a4 4 0 0 1 0 8H6a4 4 0 0 1 0-8Zm10 2.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z',
+  piedra: 'M4 18l2.5-7L11 6l6 2 3 10Zm7-12 1 5 5 2',
+  saber: 'M12 3a6 6 0 0 0-3.5 10.9V17h7v-3.1A6 6 0 0 0 12 3Zm-2.5 17h5',
+  peligro: 'M12 3l9 16H3Zm0 6v4m0 3v.5',
+};
+
+function icono(nombre) {
+  const svg = s('svg', { viewBox: '0 0 24 24', width: 16, height: 16, 'aria-hidden': 'true' });
+  svg.append(s('path', { d: ICONOS[nombre], fill: 'none', stroke: 'currentColor', 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
+  return svg;
+}
+
+// ---------- el mundo en 3D ----------
+
+let mundo = null;
+try {
+  mundo = new Mundo3D($('#lienzo'), $('#capa'), { alTocar: tocado });
+} catch (e) {
+  console.error(e);
+  $('#cargando').textContent = 'Tu navegador no puede mostrar el mundo en 3D, pero puedes seguirlo desde las secciones de abajo.';
+  $('#camara').hidden = true;
+}
+
+function tocado({ persona, aldea } = {}) {
+  if (persona !== undefined) {
+    E.persona = persona;
+    E.aldea = aldea;
+    seleccionar();
+    mundo?.enfocarPersona(persona, reducido.matches);
+    abrir('aldea');
+  } else if (aldea !== undefined) {
+    E.aldea = aldea;
+    E.persona = null;
+    seleccionar();
+    mundo?.enfocar(aldea, reducido.matches);
+    abrir('aldea');
+  } else {
+    E.persona = null;
+    seleccionar();
+    if (E.pestana === 'aldea') pintarPestana();
+  }
+}
+
+function seleccionar() {
+  const p = E.persona !== null ? E.porId.get(E.persona) : null;
+  mundo?.elegir(p ? { persona: p.id, aldea: p.aldea } : E.aldea !== null ? { aldea: E.aldea } : null, p ? pensamientoDe(p, true) : null);
+}
+
+$('#acercar').addEventListener('click', () => mundo?.acercar(0.7));
+$('#alejar').addEventListener('click', () => mundo?.acercar(1 / 0.7));
+$('#girar').addEventListener('click', () => mundo?.girar(Math.PI / 4));
+
+// ---------- lo que piensan ----------
+
+function pensamientoDe(p, elegido = false) {
+  const d = E.mundo;
+  const a = E.aldeas.get(p.aldea);
+  if (p.edad < 5) return alAzar(['¡Mamá!', '¿Por qué quema el fuego?', 'Tengo sueño…', '¡Mira, un pájaro!']);
+  const urgentes = [];
+  if (p.reservas < 1.5) urgentes.push('Tengo hambre…', 'Hoy apenas he comido.');
+  if (p.salud < 0.4) urgentes.push('No me encuentro bien…');
+  if (p.act === 'asaltar') urgentes.push('¡Necesitamos su comida!', '¡Que paguen por lo que nos hicieron!');
+  if (p.act === 'defender') urgentes.push('¡Fuera de nuestra aldea!', '¡Defended a los niños!');
+  if (urgentes.length) return alAzar(urgentes);
+  if (p.edad < 14) {
+    return alAzar(['¡A jugar!', 'De mayor quiero cazar.', '¿Me enseñas a hacer eso?', p.act === 'jugar' ? '¡No me pillas!' : 'Ya casi soy mayor.']);
+  }
+  const otono = d.estacion === 'otoño';
+  const invierno = d.estacion === 'invierno';
+  const idea = p.idea;
+  const trabajo = {
+    recolectar: ['Estas bayas están en su punto.', 'Hay que llenar la cesta antes de que oscurezca.'],
+    cazar: ['Silencio… hay un ciervo cerca.', 'Hoy volveré con carne.'],
+    pescar: ['Hoy pican.', 'El agua da de comer a quien tiene paciencia.'],
+    lenar: [otono || invierno ? 'Sin leña no pasaremos el invierno.' : 'Buena madera, esta.'],
+    picar: ['Esta piedra servirá.', 'Más piedra para las obras.'],
+    barro: ['Buen barro, este.'],
+    cultivar: otono ? ['¡Qué cosecha!', 'Hay que recogerlo todo antes del frío.'] : ['Si llueve, este año comeremos bien.'],
+    pastorear: ['Las ovejas están tranquilas.'],
+    construir: [a?.obra ? `Estamos levantando ${UNA[a.obra.tipo] ?? 'algo nuevo'}.` : 'Un poco más y está.'],
+    experimentar: idea ? [`¿Y si pruebo a ${idea.verbo} ${listar(idea.cosas)}?`] : ['Tiene que haber otra manera…', '¿Qué pasará si…?'],
+    descansar: ['Necesito descansar.', 'Qué bien se está aquí.'],
+    vigilar: [(a?.amenaza ?? 0) > 0.3 ? 'No volverán a pillarnos desprevenidos.' : 'Todo tranquilo por ahora.'],
+  }[p.act] ?? [];
+  if (elegido && trabajo.length) return alAzar(trabajo);
+  const ops = [...trabajo, ...trabajo];
+  if (a?.consejo && p.opinion) {
+    if (p.opinion === a.consejo.prioridad) ops.push(`El consejo acierta: ${frase(p.opinion)}.`);
+    else ops.push(`Yo creo que ${frase(p.opinion)}.`, 'El consejo se equivoca.');
+  }
+  const f = faccionDe(p);
+  if (f) ops.push(f.descontento > 0.6 ? 'Si el consejo no nos escucha, nos iremos.' : `Los ${f.nombre} tenemos razón.`);
+  if (invierno) ops.push('Qué frío…');
+  if (p.edad > 60) ops.push('Cuando yo era joven, todo esto era distinto.');
+  if (p.desc > 0) ops.push('Yo descubrí algo que nadie sabía.');
+  if (p.pareja === null && p.edad > 18 && p.edad < 40) ops.push('Algún día formaré una familia.');
+  const rencor = (d.relaciones ?? []).filter((r) => (r.a === p.aldea || r.b === p.aldea) && r.rencor > 0.4 && !r.alianza);
+  if (rencor.length) {
+    const otra = E.aldeas.get(rencor[0].a === p.aldea ? rencor[0].b : rencor[0].a);
+    if (otra) ops.push(`No me fío de los de ${otra.nombre}.`);
+  }
+  return ops.length ? alAzar(ops) : 'Un día más.';
+}
+
+setInterval(() => {
+  if (!mundo || !E.mundo || document.hidden) return;
+  const cerca = mundo.visiblesCerca(40).filter((p) => p.id !== E.persona);
+  if (!cerca.length) return;
+  const p = alAzar(cerca);
+  mundo.pensamiento(p.id, pensamientoDe(E.porId.get(p.id) ?? p));
+}, 6500);
+
+// ---------- datos ----------
+
+function recibir(datos, cronica, historia, inicioDia, msPorDia) {
+  const primero = !E.mundo;
+  const antes = E.cronica;
+  E.mundo = datos;
+  E.cronica = cronica;
+  E.historia = historia;
+  E.porId = new Map(datos.personas.map((p) => [p.id, p]));
+  E.aldeas = new Map(datos.aldeas.map((a) => [a.id, a]));
+  if (E.persona !== null && !E.porId.has(E.persona)) E.persona = null;
+  if (E.aldea !== null && !E.aldeas.has(E.aldea)) E.aldea = null;
+  $('#cargando').hidden = true;
+  if (mundo) {
+    mundo.inicioDia = inicioDia;
+    mundo.msPorDia = msPorDia;
+    mundo.actualizar(datos);
+    E.foco = mundo.aldeaCercana() ?? E.foco;
+    seleccionar();
+  } else if (E.foco === null || !E.aldeas.has(E.foco)) {
+    const v = vivas();
+    E.foco = v.length ? v.reduce((x, y) => (y.poblacion > x.poblacion ? y : x)).id : null;
+  }
+  avisarNovedades(primero, antes);
+  pintarHud();
+  pintarPestana(true);
+}
+
+/** Lo que ha pasado desde la última vez sale como aviso. */
+function avisarNovedades(primero, antes) {
+  const era = E.mundo.era;
+  const interesa = (x) => x.era === era && x.tipo !== 'sequia' && x.tipo !== 'difusion';
+  if (primero) {
+    const ultimo = E.cronica.filter(interesa).at(-1);
+    if (ultimo) avisar(ultimo);
+  } else {
+    const clave = (x) => `${x.era}-${x.t}-${x.texto}`;
+    const viejos = new Set(antes.slice(-200).map(clave));
+    const nuevos = E.cronica.slice(-30).filter((x) => interesa(x) && !viejos.has(clave(x)));
+    for (const x of nuevos.slice(-3)) avisar(x);
+  }
+}
+
+const cola = [];
+let avisando = false;
+function avisar(suceso) {
+  cola.push(suceso);
+  if (!avisando) siguienteAviso();
+}
+
+function siguienteAviso() {
+  const x = cola.shift();
+  if (!x) {
+    avisando = false;
+    return;
+  }
+  avisando = true;
+  const el = h(
+    'button',
+    { class: 'aviso', 'data-tipo': x.tipo, type: 'button', onclick: () => {
+      if (x.aldea !== undefined && E.aldeas.has(x.aldea)) tocado({ aldea: x.aldea });
+      else abrir('cronica');
+    } },
+    h('span', { class: `punto t-${x.tipo}` }),
+    h('span', {}, h('time', {}, fechaDe(x.t)), x.texto),
+  );
+  $('#avisos').append(el);
+  setTimeout(() => {
+    el.classList.add('fuera');
+    setTimeout(() => {
+      el.remove();
+      siguienteAviso();
+    }, 400);
+  }, 7000);
+}
+
+let worker = null;
+let respaldo = null;
+
+function arrancarDirecto() {
+  try {
+    worker = new Worker(new URL(`vivo.js?v=${MOTOR}`, import.meta.url), { type: 'module' });
+  } catch (e) {
+    console.warn('Sin simulación en directo:', e);
+    return;
+  }
+  worker.onmessage = (e) => {
+    const m = e.data;
+    if (m.tipo === 'dia') {
+      if (!E.directo) {
+        E.directo = true;
+        $('#directo').hidden = false;
+        clearInterval(respaldo);
+      }
+      recibir(m.datos, m.cronica, m.historia, m.inicioDia, m.msPorDia);
+    } else if (m.tipo === 'recargar') {
+      recargar();
+    } else if (m.tipo === 'error') {
+      console.warn('El trabajador no pudo simular:', m.mensaje);
+    }
+  };
+  worker.onerror = (e) => {
+    console.warn('El trabajador falló:', e.message);
+    E.directo = false;
+    $('#directo').hidden = true;
+  };
+  worker.postMessage({ tipo: 'empezar' });
+}
+
+/** Hay una versión nueva del motor: se recarga (como mucho una vez cada 15 minutos). */
+function recargar() {
+  let ultima = 0;
+  try {
+    ultima = Number(sessionStorage.getItem('nueva-era-recarga') || 0);
+  } catch {}
+  if (Date.now() - ultima < 15 * 60 * 1000) return;
+  try {
+    sessionStorage.setItem('nueva-era-recarga', String(Date.now()));
+  } catch {}
+  location.reload();
+}
+
+async function cargarPublicado() {
   const leer = (n) =>
     fetch(`datos/${n}.json?v=${Date.now()}`, { cache: 'no-store' }).then((r) => {
       if (!r.ok) throw new Error(`${n}: ${r.status}`);
       return r.json();
     });
   try {
-    const [mundo, cronica, historia] = await Promise.all([leer('mundo'), leer('cronica'), leer('historia')]);
-    E.mundo = mundo;
-    E.cronica = cronica;
-    E.historia = historia;
-    E.porId = new Map(mundo.personas.map((p) => [p.id, p]));
-    E.aldeas = new Map(mundo.aldeas.map((a) => [a.id, a]));
-    if (E.aldea !== null && !E.aldeas.has(E.aldea)) E.aldea = null;
-    if (E.persona !== null && !E.porId.has(E.persona)) E.persona = null;
-    pintarCabecera();
-    prepararMapa();
-    pintarPestana();
+    const [datos, cronica, historia] = await Promise.all([leer('mundo'), leer('cronica'), leer('historia')]);
+    if (E.directo) return;
+    recibir(datos, cronica, historia, Date.parse(datos.reloj) || Date.now(), 30000);
   } catch (e) {
     console.error(e);
-    if (!E.mundo) $('#fecha').textContent = 'El mundo aún no ha despertado. Vuelve en unos minutos.';
+    if (!E.mundo) $('#cargando').textContent = 'El mundo aún no ha despertado. Vuelve en unos minutos.';
   }
 }
 
-// ---------- cabecera ----------
+// ---------- barra superior ----------
 
-function pintarCabecera() {
+function pintarHud() {
   const m = E.mundo;
   $('#era').textContent = `Era ${m.era}`;
+  $('#era').classList.toggle('primera', m.era === 1);
   $('#era').title = m.eras.length ? `La especie se ha extinguido ${m.eras.length} ${m.eras.length === 1 ? 'vez' : 'veces'}` : 'Primera era';
-  const sequia = m.clima < 0.7 ? ' · año de sequía' : '';
+  const sequia = m.clima < 0.7 ? ' · sequía' : '';
   $('#fecha').textContent = `Año ${m.anio} · ${m.estacion}${sequia}`;
-  $('#actualizado').textContent = `Actualizado ${haceCuanto(m.generado)} · el mundo avanza un año cada hora`;
-  $('#k-pob').textContent = NUM.format(m.poblacion);
-  $('#k-aldeas').textContent = NUM.format(vivas().length);
-  $('#k-saberes').textContent = `${m.tecnicas.length}/${m.totalSaberes}`;
-  $('#k-anios').textContent = NUM.format(Math.max(0, m.anio - 1));
-
-  const ultimos = E.cronica.filter((x) => x.era === m.era && x.tipo !== 'muerte' && x.tipo !== 'sequia').slice(-3).reverse();
-  rellenar($('#ultimo'), ultimos.map((x) => h('li', {}, h('time', {}, fechaDe(x.t)), x.texto)));
+  const a = E.foco !== null ? E.aldeas.get(E.foco) : null;
+  const rec = $('#recursos');
+  if (!a || a.abandonada !== null) {
+    rellenar(rec, h('span', { class: 'recurso' }, icono('gente'), `${NUM.format(m.poblacion)} personas`), h('span', { class: 'recurso' }, icono('saber'), `${m.tecnicas.length}/${m.totalSaberes} saberes`));
+    $('#consejo').hidden = true;
+    return;
+  }
+  const comida = a.diasComida;
+  rellenar(
+    rec,
+    h('button', { class: 'recurso aldea', type: 'button', onclick: () => tocado({ aldea: a.id }) }, a.nombre),
+    h('span', { class: 'recurso', title: 'Habitantes de la aldea' }, icono('gente'), `${a.poblacion}`),
+    h('span', { class: `recurso${comida < 10 ? ' mal' : ''}`, title: 'Días de comida guardada' }, icono('comida'), `${comida} d`),
+    h('span', { class: 'recurso', title: 'Madera guardada' }, icono('madera'), NUM.format(a.despensa.madera ?? 0)),
+    h('span', { class: 'recurso', title: 'Piedra guardada' }, icono('piedra'), NUM.format(a.despensa.piedra ?? 0)),
+    h('span', { class: 'recurso', title: 'Saberes de la aldea' }, icono('saber'), `${a.conocidos.length}`),
+    a.amenaza > 0.3 ? h('span', { class: 'recurso mal', title: 'Se sienten amenazados' }, icono('peligro'), 'alerta') : null,
+  );
+  const c = $('#consejo');
+  if (a.consejo) {
+    const f = a.facciones.filter((x) => x.opinion !== a.consejo.prioridad);
+    rellenar(
+      c,
+      h('span', { class: 'consejo-l' }, 'Consejo'),
+      h('span', { class: 'consejo-t' }, mayus(frase(a.consejo.prioridad))),
+      f.length ? h('span', { class: 'consejo-f' }, f.length === 1 ? `· los ${f[0].nombre} no están de acuerdo` : `· ${f.length} facciones en contra`) : null,
+    );
+    c.hidden = false;
+    c.onclick = () => tocado({ aldea: a.id });
+  } else {
+    c.hidden = true;
+  }
 }
 
-// ---------- pestañas ----------
+/** La barra de arriba muestra la aldea más cercana al centro de la vista. */
+setInterval(() => {
+  if (!mundo || !E.mundo) return;
+  const f = mundo.aldeaCercana();
+  if (f !== null && f !== E.foco) {
+    E.foco = f;
+    pintarHud();
+    if (E.pestana === 'aldea' && E.aldea === null && E.persona === null) pintarPestana(true);
+  }
+}, 700);
 
-function irA(p) {
+new ResizeObserver(() => {
+  document.documentElement.style.setProperty('--alto-hud', `${$('#hud').offsetHeight}px`);
+  encuadrar(true);
+}).observe($('#hud'));
+
+// ---------- paneles ----------
+
+const hoja = $('#hoja');
+const cuerpo = $('#cuerpo');
+
+/** Que lo que se mira quede en el centro de la parte del mundo que no tapan los paneles. */
+function encuadrar(inmediato = false) {
+  if (!mundo) return;
+  const w = window.innerWidth;
+  const alto = window.innerHeight;
+  const arriba = $('#hud').getBoundingClientRect().bottom;
+  let abajo = $('#barra').getBoundingClientRect().top;
+  let derecha = w;
+  if (!hoja.hidden) {
+    const r = hoja.getBoundingClientRect();
+    if (r.left > w * 0.3) derecha = r.left;
+    else abajo = r.top;
+  }
+  mundo.desplazarVista(w / 2 - derecha / 2, alto / 2 - (arriba + abajo) / 2, inmediato || reducido.matches);
+}
+
+function abrir(p) {
   E.pestana = p;
-  for (const b of document.querySelectorAll('.pestanas button')) b.setAttribute('aria-selected', String(b.dataset.p === p));
-  for (const panel of document.querySelectorAll('.panel')) panel.hidden = panel.id !== `p-${p}`;
-  if (location.hash !== `#${p}`) history.replaceState(null, '', `#${p}`);
-  if (p === 'mapa' && E.mundo) ajustarLienzo();
+  hoja.hidden = false;
+  document.body.classList.add('con-hoja');
+  encuadrar();
+  $('#hoja-titulo').textContent = TITULOS[p];
+  for (const b of document.querySelectorAll('[data-p]')) b.setAttribute('aria-pressed', String(b.dataset.p === p));
+  E.historiaPintada = '';
+  cuerpo.scrollTop = 0;
   pintarPestana();
 }
 
-function pintarPestana() {
-  if (!E.mundo) return;
+function cerrar() {
+  E.pestana = null;
+  hoja.hidden = true;
+  document.body.classList.remove('con-hoja');
+  encuadrar();
+  for (const b of document.querySelectorAll('[data-p]')) b.setAttribute('aria-pressed', 'false');
+}
+
+for (const b of document.querySelectorAll('[data-p]')) {
+  b.addEventListener('click', () => (E.pestana === b.dataset.p ? cerrar() : abrir(b.dataset.p)));
+}
+$('#cerrar').addEventListener('click', cerrar);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && E.pestana) cerrar();
+});
+
+/** Repinta la sección abierta. Con «auto» (llegó un día nuevo) se respeta lo que se está haciendo. */
+function pintarPestana(auto = false) {
   const p = E.pestana;
-  if (p === 'mapa') pintarFichas();
+  if (!p) return;
+  if (p === 'como') {
+    if (!cuerpo.querySelector('.prosa')) rellenar(cuerpo, $('#t-como').content.cloneNode(true));
+    return;
+  }
+  if (!E.mundo) {
+    rellenar(cuerpo, h('p', { class: 'vacio' }, 'Cargando…'));
+    return;
+  }
+  if (auto && cuerpo.contains(document.activeElement) && document.activeElement.tagName === 'INPUT') return;
+  if (auto && p === 'evolucion' && E.historiaPintada === `${E.historia.length}-${cuerpo.clientWidth}`) return;
+  const arriba = cuerpo.scrollTop;
+  if (p === 'aldea') pintarAldea();
   if (p === 'cronica') pintarCronica();
   if (p === 'saberes') pintarSaberes();
   if (p === 'idioma') pintarIdioma();
   if (p === 'gente') pintarGente();
   if (p === 'evolucion') pintarEvolucion();
+  if (auto) cuerpo.scrollTop = arriba;
 }
 
-for (const b of document.querySelectorAll('.pestanas button')) b.addEventListener('click', () => irA(b.dataset.p));
+// ---------- aldea y persona ----------
 
-// ---------- mapa ----------
-
-const ESC = 12; // píxeles por casilla en el dibujo del terreno
-let terreno = null;
-let animando = false;
-let dpr = 1;
-const vista = { z: 1, cx: null, cy: null };
-const lienzo = $('#mapa');
-
-function prepararMapa() {
-  const m = E.mundo;
-  terreno = document.createElement('canvas');
-  terreno.width = m.ancho * ESC;
-  terreno.height = m.alto * ESC;
-  const g = terreno.getContext('2d');
-  const col = {
-    agua: css('--m-agua'), orilla: css('--m-orilla'), pradera: css('--m-pradera'), bosqueClaro: css('--m-bosque-claro'),
-    bosque: css('--m-bosque'), colina: css('--m-colina'), montana: css('--m-montana'),
-  };
-  for (let i = 0; i < m.terreno.length; i++) {
-    const x = i % m.ancho;
-    const y = Math.floor(i / m.ancho);
-    const t = m.terreno[i];
-    let color = [col.agua, col.orilla, col.pradera, col.bosque, col.colina, col.montana][t];
-    if (t === 3) color = mezclar(col.bosqueClaro, col.bosque, Math.min(1, m.madera[i] / 30));
-    g.fillStyle = color;
-    g.fillRect(x * ESC, y * ESC, ESC, ESC);
-    // Un poco de textura para que no parezca una cuadrícula plana.
-    const n = frac(Math.sin(i * 12.9898) * 43758.5453);
-    g.fillStyle = n > 0.5 ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
-    g.fillRect(x * ESC, y * ESC, ESC, ESC);
-    if (t === 5) {
-      g.fillStyle = 'rgba(255,255,255,0.35)';
-      g.beginPath();
-      g.moveTo(x * ESC + 3, y * ESC + ESC - 3);
-      g.lineTo(x * ESC + ESC / 2, y * ESC + 3);
-      g.lineTo(x * ESC + ESC - 3, y * ESC + ESC - 3);
-      g.fill();
-    }
-  }
-  if (vista.cx === null) {
-    vista.cx = m.ancho / 2;
-    vista.cy = m.alto / 2;
-  }
-  ajustarLienzo();
-  pintarLeyendaMapa();
-  if (!animando) {
-    animando = true;
-    requestAnimationFrame(cuadro);
-  }
+function enlacePersona(id, texto) {
+  const p = E.porId.get(id);
+  if (!p) return texto ?? 'ya fallecido';
+  return h('button', { class: 'enlace', type: 'button', onclick: () => elegirPersona(p.id) }, texto ?? p.nombre);
 }
 
-function ajustarLienzo() {
-  const m = E.mundo;
-  const ancho = lienzo.parentElement.clientWidth || 800;
-  dpr = Math.min(2, window.devicePixelRatio || 1);
-  lienzo.width = Math.round(ancho * dpr);
-  lienzo.height = Math.round(((ancho * m.alto) / m.ancho) * dpr);
+function elegirPersona(id) {
+  const p = E.porId.get(id);
+  if (!p) return;
+  E.persona = id;
+  E.aldea = p.aldea;
+  seleccionar();
+  mundo?.enfocarPersona(id, reducido.matches);
+  abrir('aldea');
 }
 
-/** Qué parte del mundo se ve: origen en casillas y píxeles (CSS) por casilla. */
-function encuadre() {
-  const m = E.mundo;
-  const anchoCss = lienzo.width / dpr;
-  const k = (anchoCss / m.ancho) * vista.z;
-  const w = m.ancho / vista.z;
-  const hh = m.alto / vista.z;
-  vista.cx = Math.min(m.ancho - w / 2, Math.max(w / 2, vista.cx));
-  vista.cy = Math.min(m.alto - hh / 2, Math.max(hh / 2, vista.cy));
-  return { x0: vista.cx - w / 2, y0: vista.cy - hh / 2, k };
+function medidor(valor, clase = '') {
+  return h('div', { class: `pista ${clase}` }, h('div', { style: `width:${Math.round(Math.max(0, Math.min(1, valor)) * 100)}%` }));
 }
-
-function aPantalla(f, x, y) {
-  return [(x - f.x0) * f.k, (y - f.y0) * f.k];
-}
-
-function zoom(factor, cx, cy) {
-  const z = Math.min(6, Math.max(1, vista.z * factor));
-  if (cx !== undefined) {
-    vista.cx = cx;
-    vista.cy = cy;
-  }
-  vista.z = z;
-  $('.mapa-marco').classList.toggle('ampliado', z > 1);
-  $('#alejar').disabled = z <= 1;
-  $('#acercar').disabled = z >= 6;
-}
-
-$('#acercar').addEventListener('click', () => {
-  const a = E.aldea !== null ? E.aldeas.get(E.aldea) : null;
-  zoom(2, a ? a.x + 0.5 : undefined, a ? a.y + 0.5 : undefined);
-});
-$('#alejar').addEventListener('click', () => zoom(0.5));
-$('#alejar').disabled = true;
-
-function dibujarEdificio(g, e, ruina, aldea) {
-  const cx = e.x * ESC + ESC / 2;
-  const cy = e.y * ESC + ESC / 2;
-  g.save();
-  if (ruina) g.globalAlpha = 0.45;
-  const gris = '#7d776c';
-  switch (e.tipo) {
-    case 'campo':
-      g.fillStyle = ruina ? gris : e.fase === 1 ? '#d8b444' : '#9c7a4f';
-      g.fillRect(e.x * ESC + 1, e.y * ESC + 1, ESC - 2, ESC - 2);
-      g.strokeStyle = 'rgba(0,0,0,0.18)';
-      g.lineWidth = 1;
-      for (let k = 3; k < ESC; k += 3) {
-        g.beginPath();
-        g.moveTo(e.x * ESC + 1, e.y * ESC + k);
-        g.lineTo(e.x * ESC + ESC - 1, e.y * ESC + k);
-        g.stroke();
-      }
-      break;
-    case 'empalizada': {
-      const a = aldea || e;
-      g.strokeStyle = ruina ? gris : '#6b4a2b';
-      g.lineWidth = 2.5;
-      g.setLineDash([3, 2]);
-      g.beginPath();
-      g.arc(a.x * ESC + ESC / 2, a.y * ESC + ESC / 2, ESC * 2.6, 0, Math.PI * 2);
-      g.stroke();
-      break;
-    }
-    case 'hoguera':
-      if (!ruina) {
-        g.fillStyle = 'rgba(255,190,90,0.35)';
-        g.beginPath();
-        g.arc(cx, cy, 6, 0, Math.PI * 2);
-        g.fill();
-      }
-      g.fillStyle = ruina ? gris : '#f08a24';
-      g.beginPath();
-      g.arc(cx, cy, 3.2, 0, Math.PI * 2);
-      g.fill();
-      break;
-    case 'choza':
-      g.fillStyle = ruina ? gris : '#8a5a33';
-      g.beginPath();
-      g.moveTo(cx - 5, cy + 4);
-      g.lineTo(cx, cy - 5);
-      g.lineTo(cx + 5, cy + 4);
-      g.closePath();
-      g.fill();
-      break;
-    case 'casa':
-      g.fillStyle = ruina ? gris : '#c0673d';
-      g.fillRect(cx - 4.5, cy - 3, 9, 7);
-      g.fillStyle = ruina ? gris : '#8e4526';
-      g.fillRect(cx - 5.5, cy - 5, 11, 2.5);
-      break;
-    case 'corral':
-      g.strokeStyle = ruina ? gris : '#6b4a2b';
-      g.lineWidth = 1.5;
-      g.strokeRect(e.x * ESC + 1.5, e.y * ESC + 1.5, ESC - 3, ESC - 3);
-      if (!ruina && e.animales) {
-        g.fillStyle = '#f7f1e3';
-        const n = Math.min(4, Math.ceil(e.animales / 5));
-        for (let k = 0; k < n; k++) {
-          g.beginPath();
-          g.arc(e.x * ESC + 3.5 + (k % 2) * 5, e.y * ESC + 3.5 + Math.floor(k / 2) * 5, 1.6, 0, Math.PI * 2);
-          g.fill();
-        }
-      }
-      break;
-    case 'almacen':
-      g.fillStyle = ruina ? gris : '#c79a5b';
-      g.beginPath();
-      g.ellipse(cx, cy + 1, 4, 5, 0, 0, Math.PI * 2);
-      g.fill();
-      break;
-    case 'horno':
-      g.fillStyle = ruina ? gris : '#7a2e1f';
-      g.beginPath();
-      g.arc(cx, cy + 3, 5, Math.PI, 0);
-      g.fill();
-      break;
-    case 'archivo':
-      g.fillStyle = ruina ? gris : '#e8dcc0';
-      g.fillRect(cx - 5, cy - 4, 10, 8);
-      g.strokeStyle = '#7a6a4f';
-      g.lineWidth = 1;
-      g.strokeRect(cx - 5, cy - 4, 10, 8);
-      break;
-    case 'mercado':
-      g.fillStyle = ruina ? gris : '#5a6fb0';
-      g.fillRect(cx - 5, cy - 5, 10, 10);
-      g.fillStyle = '#f2c14e';
-      g.fillRect(cx - 2, cy - 2, 4, 4);
-      break;
-    default:
-      g.fillStyle = gris;
-      g.fillRect(cx - 2, cy - 2, 4, 4);
-  }
-  g.restore();
-}
-
-function dibujarObra(g, o) {
-  g.save();
-  g.strokeStyle = 'rgba(0,0,0,0.5)';
-  g.setLineDash([2, 2]);
-  g.lineWidth = 1;
-  if (o.tipo === 'empalizada') {
-    g.beginPath();
-    g.arc(o.x * ESC + ESC / 2, o.y * ESC + ESC / 2, ESC * 2.6, 0, Math.PI * 2 * o.progreso);
-    g.stroke();
-  } else {
-    g.strokeRect(o.x * ESC + 1.5, o.y * ESC + 1.5, ESC - 3, ESC - 3);
-  }
-  g.restore();
-}
-
-function pintarLeyendaMapa() {
-  const items = [
-    ['var(--m-agua)', 'agua'], ['var(--m-pradera)', 'pradera'], ['var(--m-bosque)', 'bosque'], ['var(--m-colina)', 'colina'],
-    ['var(--m-montana)', 'montaña'], ['#d8b444', 'campo sembrado'], ['#8a5a33', 'choza'], ['#c0673d', 'casa'], ['#f08a24', 'hoguera'],
-    ['#7d776c', 'ruinas'],
-  ];
-  rellenar($('#leyenda-mapa'), items.map(([c, t]) => h('span', {}, h('i', { style: `background:${c}` }), t)));
-}
-
-/** Dónde está cada persona en este instante: va al trabajo y vuelve. */
-function posicion(p, t) {
-  const a = E.aldeas.get(p.aldea);
-  if (!a) return [p.x + 0.5, p.y + 0.5];
-  const jx = (frac(p.id * 0.3713) - 0.5) * 1.6;
-  const jy = (frac(p.id * 0.7137) - 0.5) * 1.6;
-  const ax = a.x + 0.5 + jx;
-  const ay = a.y + 0.5 + jy;
-  if (p.act === 'jugar' || p.act === 'descansar' || p.act === 'experimentar' || (p.x === a.x && p.y === a.y)) {
-    return [ax + Math.sin(t / 1400 + p.id) * 0.35, ay + Math.cos(t / 1700 + p.id * 1.3) * 0.35];
-  }
-  const fase = frac(t / 10000 + frac(p.id * 0.618));
-  const suave = (u) => u * u * (3 - 2 * u);
-  const k = fase < 0.35 ? suave(fase / 0.35) : fase < 0.65 ? 1 : 1 - suave((fase - 0.65) / 0.35);
-  const bx = p.x + 0.5 + jx * 0.3;
-  const by = p.y + 0.5 + jy * 0.3;
-  return [ax + (bx - ax) * k, ay + (by - ay) * k];
-}
-
-function cuadro(t) {
-  if (E.mundo && E.pestana === 'mapa' && !document.hidden) dibujarMapa(t);
-  requestAnimationFrame(cuadro);
-}
-
-function dibujarMapa(t) {
-  const m = E.mundo;
-  const g = lienzo.getContext('2d');
-  const f = encuadre();
-  const escala = (dpr * f.k) / ESC;
-
-  // Mundo (en píxeles del dibujo del terreno).
-  g.setTransform(escala, 0, 0, escala, -f.x0 * ESC * escala, -f.y0 * ESC * escala);
-  g.imageSmoothingEnabled = false;
-  g.drawImage(terreno, 0, 0);
-  for (const r of m.ruinas || []) dibujarEdificio(g, r, true);
-  for (const a of m.aldeas) {
-    const ruina = a.abandonada !== null;
-    for (const e of a.edificios) dibujarEdificio(g, e, ruina, a);
-    if (a.obra && !ruina) dibujarObra(g, a.obra);
-  }
-
-  // Pantalla (en píxeles CSS).
-  g.setTransform(dpr, 0, 0, dpr, 0, 0);
-  const ancho = lienzo.width / dpr;
-  const alto = lienzo.height / dpr;
-  if (m.estacion === 'invierno') {
-    g.fillStyle = 'rgba(235,242,255,0.16)';
-    g.fillRect(0, 0, ancho, alto);
-  } else if (m.estacion === 'otoño') {
-    g.fillStyle = 'rgba(214,140,60,0.07)';
-    g.fillRect(0, 0, ancho, alto);
-  }
-  const gente = css('--m-gente');
-  const acento = css('--acento');
-  const crece = 1 + 0.35 * (vista.z - 1);
-  for (const p of m.personas) {
-    const [tx, ty] = posicion(p, t);
-    const [x, y] = aPantalla(f, tx, ty);
-    if (x < -10 || y < -10 || x > ancho + 10 || y > alto + 10) continue;
-    const r = (p.edad < 12 ? 1.3 : 2) * crece;
-    if (p.act === 'experimentar') {
-      g.fillStyle = 'rgba(255,215,120,0.4)';
-      g.beginPath();
-      g.arc(x, y, r + 2.5 + Math.sin(t / 300 + p.id) * 0.8, 0, Math.PI * 2);
-      g.fill();
-      g.fillStyle = acento;
-    } else {
-      g.fillStyle = gente;
-    }
-    g.beginPath();
-    g.arc(x, y, r, 0, Math.PI * 2);
-    g.fill();
-    if (E.persona === p.id) {
-      g.strokeStyle = acento;
-      g.lineWidth = 2;
-      g.beginPath();
-      g.arc(x, y, r + 4, 0, Math.PI * 2);
-      g.stroke();
-    }
-  }
-  g.font = '600 12px system-ui, -apple-system, sans-serif';
-  g.textAlign = 'center';
-  g.lineJoin = 'round';
-  const borde = css('--m-borde');
-  const tinta = css('--tinta');
-  for (const a of m.aldeas) {
-    const ruina = a.abandonada !== null;
-    if (ruina && vista.z < 2) continue;
-    const [x, y] = aPantalla(f, a.x + 0.5, a.y);
-    const texto = ruina ? `${a.nombre} (ruinas)` : `${a.nombre} · ${a.poblacion}`;
-    g.strokeStyle = borde;
-    g.lineWidth = 4;
-    g.strokeText(texto, x, y - 6);
-    g.fillStyle = ruina ? '#7d776c' : tinta;
-    g.fillText(texto, x, y - 6);
-    if (E.aldea === a.id) {
-      const [cx, cy] = aPantalla(f, a.x + 0.5, a.y + 0.5);
-      g.strokeStyle = acento;
-      g.lineWidth = 2;
-      g.setLineDash([4, 3]);
-      g.beginPath();
-      g.arc(cx, cy, 3.2 * f.k, 0, Math.PI * 2);
-      g.stroke();
-      g.setLineDash([]);
-    }
-  }
-}
-
-function puntoDelMapa(ev) {
-  const r = lienzo.getBoundingClientRect();
-  const f = encuadre();
-  const k = r.width / (E.mundo.ancho / vista.z);
-  return [f.x0 + (ev.clientX - r.left) / k, f.y0 + (ev.clientY - r.top) / k, r, k];
-}
-
-function buscarEnMapa(x, y, k) {
-  const t = performance.now();
-  let mejor = null;
-  let dmin = Math.max(0.6, 10 / k);
-  for (const p of E.mundo.personas) {
-    const [px, py] = posicion(p, t);
-    const d = Math.hypot(px - x, py - y);
-    if (d < dmin) {
-      dmin = d;
-      mejor = { persona: p };
-    }
-  }
-  if (mejor) return mejor;
-  dmin = Math.max(3, 20 / k);
-  for (const a of E.mundo.aldeas) {
-    if (a.abandonada !== null && vista.z < 2) continue;
-    const d = Math.hypot(a.x + 0.5 - x, a.y + 0.5 - y);
-    if (d < dmin) {
-      dmin = d;
-      mejor = { aldea: a };
-    }
-  }
-  return mejor;
-}
-
-function mostrarGlobo(ev) {
-  if (!E.mundo) return;
-  const [x, y, r, k] = puntoDelMapa(ev);
-  const hallado = buscarEnMapa(x, y, k);
-  const globo = $('#globo');
-  if (!hallado) {
-    globo.hidden = true;
-    return;
-  }
-  let texto;
-  if (hallado.persona) {
-    const p = hallado.persona;
-    texto = `${p.nombre}, ${anios(p.edad)} · ${ACTIVIDAD[p.act] || p.act}`;
-  } else {
-    const a = hallado.aldea;
-    texto = a.abandonada !== null ? `${a.nombre}: abandonada en el año ${a.abandonada}` : `${a.nombre}: ${a.poblacion} personas`;
-  }
-  globo.textContent = texto;
-  globo.style.left = `${Math.min(r.width - 80, Math.max(80, ev.clientX - r.left))}px`;
-  globo.style.top = `${ev.clientY - r.top}px`;
-  globo.hidden = false;
-}
-
-let arrastre = null;
-lienzo.addEventListener('pointerdown', (ev) => {
-  arrastre = { x: ev.clientX, y: ev.clientY, cx: vista.cx, cy: vista.cy, movido: false };
-  if (vista.z > 1) lienzo.setPointerCapture(ev.pointerId);
-});
-lienzo.addEventListener('pointermove', (ev) => {
-  if (arrastre && vista.z > 1 && (ev.buttons || ev.pointerType === 'touch')) {
-    const dx = ev.clientX - arrastre.x;
-    const dy = ev.clientY - arrastre.y;
-    if (Math.hypot(dx, dy) > 4) arrastre.movido = true;
-    if (arrastre.movido) {
-      const k = lienzo.getBoundingClientRect().width / (E.mundo.ancho / vista.z);
-      vista.cx = arrastre.cx - dx / k;
-      vista.cy = arrastre.cy - dy / k;
-      $('#globo').hidden = true;
-      return;
-    }
-  }
-  if (ev.pointerType === 'mouse') mostrarGlobo(ev);
-});
-lienzo.addEventListener('pointerup', (ev) => {
-  const movido = arrastre?.movido;
-  arrastre = null;
-  if (movido || !E.mundo) return;
-  const [x, y, , k] = puntoDelMapa(ev);
-  const hallado = buscarEnMapa(x, y, k);
-  if (hallado?.persona) {
-    E.persona = hallado.persona.id;
-    E.aldea = hallado.persona.aldea;
-  } else if (hallado?.aldea) {
-    E.aldea = hallado.aldea.id;
-    E.persona = null;
-  } else {
-    E.aldea = null;
-    E.persona = null;
-  }
-  mostrarGlobo(ev);
-  pintarFichas();
-});
-lienzo.addEventListener('dblclick', (ev) => {
-  if (!E.mundo) return;
-  const [x, y] = puntoDelMapa(ev);
-  zoom(2, x, y);
-});
-lienzo.addEventListener('pointerleave', () => {
-  $('#globo').hidden = true;
-});
 
 function fichaPersona(p) {
   const m = E.mundo;
-  const nombre = (id) => (id === null ? null : E.porId.get(id)?.nombre ?? 'ya fallecido');
   const vivos = m.personas.filter((q) => q.padre === p.id || q.madre === p.id).length;
-  const padres = [nombre(p.madre), nombre(p.padre)].filter(Boolean);
-  return h(
-    'div',
-    { class: 'tarjeta' },
-    h('h3', {}, `${p.nombre} `, h('span', { class: 'etiqueta' }, p.sexo === 'M' ? 'mujer' : 'hombre')),
+  const pariente = (id) => (E.porId.has(id) ? enlacePersona(id) : 'ya murió');
+  const a = E.aldeas.get(p.aldea);
+  const f = faccionDe(p);
+  const hijos = [
+    h('h3', {}, `${p.nombre} `, h('span', { class: 'etiqueta' }, p.sexo === 'M' ? 'mujer' : 'hombre'), f ? h('span', { class: 'etiqueta faccion' }, `de los ${f.nombre}`) : null),
+    h('p', { class: 'cita' }, `«${pensamientoDe(p, true)}»`),
     h(
       'dl',
       { class: 'datos' },
       h('div', {}, h('dt', {}, 'Edad'), h('dd', {}, anios(p.edad))),
-      h('div', {}, h('dt', {}, 'Aldea'), h('dd', {}, E.aldeas.get(p.aldea)?.nombre ?? '–')),
+      h('div', {}, h('dt', {}, 'Aldea'), h('dd', {}, a?.nombre ?? '–')),
       h('div', {}, h('dt', {}, 'Ahora'), h('dd', {}, ACTIVIDAD[p.act] || p.act)),
       h('div', {}, h('dt', {}, 'Salud'), h('dd', {}, pct(p.salud))),
-      h('div', {}, h('dt', {}, 'Padres'), h('dd', {}, padres.length ? padres.join(' y ') : 'de los primeros')),
-      h('div', {}, h('dt', {}, 'Pareja'), h('dd', {}, nombre(p.pareja) ?? '—')),
+      p.madre === null && p.padre === null
+        ? h('div', {}, h('dt', {}, 'Padres'), h('dd', {}, 'de los primeros'))
+        : [h('div', {}, h('dt', {}, 'Madre'), h('dd', {}, p.madre !== null ? pariente(p.madre) : '—')), h('div', {}, h('dt', {}, 'Padre'), h('dd', {}, p.padre !== null ? pariente(p.padre) : '—'))],
+      h('div', {}, h('dt', {}, 'Pareja'), h('dd', {}, p.pareja !== null ? enlacePersona(p.pareja) : '—')),
       h('div', {}, h('dt', {}, 'Hijos'), h('dd', {}, `${p.hijos}${vivos !== p.hijos ? ` (${vivos} vivos)` : ''}`)),
       h('div', {}, h('dt', {}, 'Descubrimientos'), h('dd', {}, String(p.desc))),
     ),
-    h('h3', {}, 'Genes'),
-    h(
-      'div',
-      { class: 'genes' },
-      GENES.map(([k, t]) =>
-        h('div', { class: 'gen' }, h('span', {}, t), h('div', { class: 'pista' }, h('div', { style: `width:${Math.round(p.genes[k] * 100)}%` })), h('span', {}, pct(p.genes[k]))),
+  ];
+  if (p.opinion) {
+    const deAcuerdo = a?.consejo?.prioridad === p.opinion;
+    hijos.push(
+      h('h3', {}, 'Qué opina'),
+      h('p', {}, `Cree que ${frase(p.opinion)}${a?.consejo ? (deAcuerdo ? ', como el consejo.' : '; el consejo no piensa igual.') : '.'}`),
+    );
+  }
+  if (p.gustos) {
+    const orden = m.acciones.map((k, i) => [k, p.gustos[i]]).sort((x, y) => y[1] - x[1]);
+    hijos.push(
+      h('h3', {}, 'Su mente'),
+      h('p', { class: 'nota' }, 'Lo que su red neuronal empuja a hacer en un día normal. Lo ha aprendido viviendo y lo heredó de sus padres.'),
+      h(
+        'div',
+        { class: 'mente' },
+        orden.slice(0, 5).map(([k, v]) => h('div', { class: 'gen' }, h('span', {}, mayus(ACCION[k] ?? k)), medidor((v + 1) / 2), h('span', {}, `${v > 0 ? '+' : ''}${Math.round(v * 100)}`))),
       ),
-    ),
+    );
+  }
+  hijos.push(
+    h('h3', {}, 'Genes'),
+    h('div', { class: 'genes' }, GENES.map(([k, t]) => h('div', { class: 'gen' }, h('span', {}, t), medidor(p.genes[k] ?? 0), h('span', {}, pct(p.genes[k] ?? 0))))),
     h('h3', {}, `Sabe hacer (${p.saberes.length})`),
-    p.saberes.length
-      ? h('div', { class: 'fila' }, p.saberes.map((id) => h('span', { class: 'etiqueta' }, nombreSaber(id))))
-      : h('p', { class: 'nota' }, 'Todavía nada.'),
+    p.saberes.length ? h('div', { class: 'fila' }, p.saberes.map((id) => h('span', { class: 'etiqueta' }, nombreSaber(id)))) : h('p', { class: 'nota' }, 'Todavía nada.'),
   );
+  return h('div', { class: 'tarjeta' }, hijos);
+}
+
+function relacionTexto(r) {
+  if (r.alianza) return ['Aliados', 'bien'];
+  if (r.rencor > 0.5) return ['Enemistad', 'mal'];
+  if (r.rencor > 0.2) return ['Recelo', 'mal'];
+  if (r.afinidad > 0.5) return ['Amistad', 'bien'];
+  return ['Trato normal', ''];
 }
 
 function fichaAldea(a) {
@@ -676,10 +628,14 @@ function fichaAldea(a) {
     .filter(([x, y]) => x === a.id || y === a.id)
     .map(([x, y, v]) => [E.aldeas.get(x === a.id ? y : x)?.nombre, v])
     .sort((p, q) => q[1] - p[1]);
-  return h(
-    'div',
-    { class: 'tarjeta' },
-    h('h3', {}, a.nombre, a.abandonada !== null ? h('span', { class: 'etiqueta perdido', style: 'margin-left:8px' }, `abandonada en el año ${a.abandonada}`) : null),
+  const ruina = a.abandonada !== null;
+  const hijos = [
+    h(
+      'div',
+      { class: 'cab-aldea' },
+      h('h3', {}, a.nombre, ruina ? h('span', { class: 'etiqueta perdido' }, `abandonada en el año ${a.abandonada}`) : null),
+      mundo ? h('button', { class: 'ir', type: 'button', onclick: () => mundo.enfocar(a.id, reducido.matches) }, 'Ver en el mapa') : null,
+    ),
     h(
       'p',
       { class: 'nota' },
@@ -691,40 +647,107 @@ function fichaAldea(a) {
       'dl',
       { class: 'datos' },
       h('div', {}, h('dt', {}, 'Habitantes'), h('dd', {}, `${a.poblacion} (máximo ${a.poblacionMax})`)),
-      h('div', {}, h('dt', {}, 'Comida guardada'), h('dd', {}, a.abandonada !== null ? '—' : `${a.diasComida} días`)),
+      h('div', {}, h('dt', {}, 'Comida guardada'), h('dd', {}, ruina ? '—' : `${a.diasComida} días`)),
       h('div', {}, h('dt', {}, 'Construyendo'), h('dd', {}, a.obra ? `${EDIFICIOS[a.obra.tipo] || a.obra.tipo} (${pct(a.obra.progreso)})` : 'nada')),
+      h('div', {}, h('dt', {}, 'Sensación de peligro'), h('dd', {}, a.amenaza > 0.3 ? 'alta' : a.amenaza > 0.1 ? 'algo' : 'tranquilos')),
     ),
-    Object.keys(cuenta).length ? h('div', { class: 'fila' }, Object.entries(cuenta).map(([k, n]) => h('span', { class: 'etiqueta' }, `${n} × ${EDIFICIOS[k] || k}`))) : null,
-    h('h3', { style: 'margin-top:10px' }, `Saberes de la aldea (${a.conocidos.length})`),
+  ];
+  if (a.consejo && !ruina) {
+    const c = a.consejo;
+    const total = Object.values(c.votos).reduce((x, y) => x + y, 0) || 1;
+    hijos.push(
+      h('h3', {}, 'El consejo'),
+      h('p', { class: 'cita' }, `«${mayus(frase(c.prioridad))}»`),
+      h('p', { class: 'nota' }, `Lo deciden desde el año ${c.desde}. Se reúnen cada noche junto al fuego: `, c.miembros.flatMap((x, i) => [i ? (i === c.miembros.length - 1 ? ' y ' : ', ') : '', enlacePersona(x.id, x.nombre ?? '¿?')]), '.'),
+      h(
+        'div',
+        { class: 'genes' },
+        Object.entries(c.votos)
+          .sort((x, y) => y[1] - x[1])
+          .map(([k, v]) => h('div', { class: 'gen' }, h('span', {}, PRIORIDAD[k] ?? k), medidor(v / total), h('span', {}, pct(v / total)))),
+      ),
+    );
+  }
+  if (a.facciones?.length && !ruina) {
+    hijos.push(
+      h('h3', {}, 'Facciones'),
+      a.facciones.map((f) =>
+        h(
+          'div',
+          { class: 'faccion-caja' },
+          h('strong', {}, `Los ${f.nombre}`),
+          h('p', {}, `Creen que ${frase(f.opinion)}. Son ${f.miembros}${f.lider ? ', guiados por ' : ''}`, f.lider ? enlacePersona(f.liderId, f.lider) : null, '.'),
+          h('div', { class: 'gen' }, h('span', {}, 'Descontento'), medidor(f.descontento, 'naranja'), h('span', {}, pct(f.descontento))),
+        ),
+      ),
+    );
+  }
+  const vecinos = (m.relaciones ?? []).filter((r) => r.a === a.id || r.b === a.id);
+  if (vecinos.length && !ruina) {
+    hijos.push(
+      h('h3', {}, 'Vecinos'),
+      h(
+        'div',
+        { class: 'vecinos' },
+        vecinos
+          .map((r) => [r, E.aldeas.get(r.a === a.id ? r.b : r.a)])
+          .filter(([, b]) => b)
+          .sort((x, y) => y[0].rencor + y[0].afinidad - (x[0].rencor + x[0].afinidad))
+          .map(([r, b]) => {
+            const [t, clase] = relacionTexto(r);
+            return h(
+              'div',
+              { class: 'vecino' },
+              h('button', { class: 'enlace', type: 'button', onclick: () => tocado({ aldea: b.id }) }, b.nombre),
+              h('span', { class: `etiqueta ${clase}` }, t),
+              h('div', { class: 'gen' }, h('span', {}, 'Amistad'), medidor(r.afinidad), h('span', {}, pct(r.afinidad))),
+              h('div', { class: 'gen' }, h('span', {}, 'Rencor'), medidor(r.rencor, 'naranja'), h('span', {}, pct(r.rencor))),
+            );
+          }),
+      ),
+    );
+  }
+  hijos.push(
+    Object.keys(cuenta).length ? [h('h3', {}, 'Edificios'), h('div', { class: 'fila' }, Object.entries(cuenta).map(([k, n]) => h('span', { class: 'etiqueta' }, `${n} × ${EDIFICIOS[k] || k}`)))] : null,
+    h('h3', {}, `Saberes de la aldea (${a.conocidos.length})`),
     a.conocidos.length ? h('div', { class: 'fila' }, a.conocidos.map((id) => h('span', { class: 'etiqueta' }, nombreSaber(id)))) : h('p', { class: 'nota' }, 'Ninguno todavía.'),
     a.archivo.length ? h('p', { class: 'nota' }, `Escrito en tablillas: ${a.archivo.map(nombreSaber).join(', ')}.`) : null,
     parecidos.length ? h('p', { class: 'nota' }, `Su lengua se parece a la de ${parecidos.map(([n, v]) => `${n} (${pct(v)})`).join(', ')}.`) : null,
   );
+  return h('div', { class: 'tarjeta' }, hijos);
 }
 
-function pintarFichas() {
+function pintarAldea() {
   const hijos = [];
   if (E.persona !== null && E.porId.has(E.persona)) hijos.push(fichaPersona(E.porId.get(E.persona)));
-  const a = E.aldea !== null ? E.aldeas.get(E.aldea) : null;
+  const id = E.aldea ?? E.foco;
+  const a = id !== null ? E.aldeas.get(id) : null;
   if (a) hijos.push(fichaAldea(a));
-  if (!hijos.length) hijos.push(h('p', { class: 'nota' }, 'Toca una aldea en el mapa para ver qué saben, qué construyen y cuánta comida guardan.'));
-  rellenar($('#ficha-aldea'), hijos);
+  const otras = vivas().filter((x) => x.id !== id);
+  if (otras.length) {
+    hijos.push(
+      h('h3', { class: 'sub' }, 'Otras aldeas'),
+      h('div', { class: 'filtros' }, otras.map((x) => h('button', { type: 'button', onclick: () => tocado({ aldea: x.id }) }, `${x.nombre} · ${x.poblacion}`))),
+    );
+  }
+  if (!hijos.length) hijos.push(h('p', { class: 'vacio' }, 'No queda nadie.'));
+  rellenar(cuerpo, hijos);
 }
 
 // ---------- crónica ----------
 
 function pintarCronica() {
-  rellenar(
-    $('#filtros-cronica'),
+  const filtros = h(
+    'div',
+    { class: 'filtros' },
     Object.entries(GRUPOS).map(([k, [t]]) =>
-      h('button', { 'aria-pressed': String(E.filtro === k), onclick: () => ((E.filtro = k), (E.cuantosCronica = 120), pintarCronica()) }, t),
+      h('button', { type: 'button', 'aria-pressed': String(E.filtro === k), onclick: () => ((E.filtro = k), (E.cuantosCronica = 120), pintarCronica()) }, t),
     ),
   );
   const tipos = GRUPOS[E.filtro][1];
   const lista = E.cronica.filter((x) => !tipos || tipos.includes(x.tipo)).slice().reverse();
-  const cont = $('#cronica');
   if (!lista.length) {
-    rellenar(cont, h('p', { class: 'vacio' }, 'Nada por aquí todavía.'));
+    rellenar(cuerpo, filtros, h('p', { class: 'vacio' }, 'Nada por aquí todavía.'));
     return;
   }
   const out = [];
@@ -735,12 +758,12 @@ function pintarCronica() {
       clave = k;
       out.push(h('div', { class: 'cronica-anio' }, E.mundo.eras.length ? `Era ${x.era} · año ${anioDe(x.t)}` : `Año ${anioDe(x.t)}`));
     }
-    out.push(h('div', { class: 'suceso' }, h('span', { class: `punto ${x.tipo}` }), h('div', {}, h('time', {}, ESTACIONES[Math.floor((x.t % 120) / 30)]), h('div', {}, x.texto))));
+    out.push(h('div', { class: 'suceso' }, h('span', { class: `punto t-${x.tipo}` }), h('div', {}, h('time', {}, ESTACIONES[Math.floor((x.t % DIAS_ANIO) / 30)]), h('div', {}, x.texto))));
   }
   if (lista.length > E.cuantosCronica) {
-    out.push(h('button', { class: 'mas', onclick: () => ((E.cuantosCronica += 200), pintarCronica()) }, `Ver más (${lista.length - E.cuantosCronica} restantes)`));
+    out.push(h('button', { class: 'mas', type: 'button', onclick: () => ((E.cuantosCronica += 200), pintarCronica()) }, `Ver más (${lista.length - E.cuantosCronica} restantes)`));
   }
-  rellenar(cont, out);
+  rellenar(cuerpo, filtros, out);
 }
 
 // ---------- saberes ----------
@@ -761,17 +784,18 @@ function pintarSaberes() {
         'div',
         { class: 'fila' },
         t.olvidado ? h('span', { class: 'etiqueta perdido' }, 'olvidado: nadie lo sabe ya') : h('span', { class: 'etiqueta' }, `lo saben ${NUM.format(t.saben)} personas`),
-        vivo ? h('span', { class: 'etiqueta' }, `${t.por} sigue con vida`) : null,
+        vivo ? h('button', { class: 'etiqueta enlace-etiqueta', type: 'button', onclick: () => elegirPersona(vivo.id) }, `${t.por} sigue con vida`) : null,
       ),
     );
   });
-  const bloqueadas = Array.from({ length: Math.min(quedan, 6) }, () => h('div', { class: 'tarjeta bloqueado', 'aria-hidden': 'true' }, '???'));
+  const bloqueadas = Array.from({ length: Math.min(quedan, 4) }, () => h('div', { class: 'tarjeta bloqueado', 'aria-hidden': 'true' }, '???'));
   rellenar(
-    $('#saberes'),
+    cuerpo,
     h('p', {}, `Han descubierto ${ts.length} de ${m.totalSaberes} saberes. Lo que no han descubierto no se muestra: ni ellos lo saben.`),
     h('div', { class: 'medidor', role: 'meter', 'aria-valuemin': '0', 'aria-valuemax': String(m.totalSaberes), 'aria-valuenow': String(ts.length) }, h('div', { style: `width:${(ts.length / m.totalSaberes) * 100}%` })),
-    h('div', { class: 'rejilla' }, tarjetas, bloqueadas),
-    quedan > 6 ? h('p', { class: 'nota' }, `…y ${quedan - 6} más por descubrir.`) : null,
+    tarjetas,
+    bloqueadas,
+    quedan > 4 ? h('p', { class: 'nota' }, `…y ${quedan - 4} más por descubrir.`) : null,
   );
 }
 
@@ -780,12 +804,11 @@ function pintarSaberes() {
 function pintarIdioma() {
   const m = E.mundo;
   const aldeas = vivas().filter((a) => m.diccionario[a.id] && a.poblacion >= 3);
-  const cont = $('#idioma');
   if (!aldeas.length) {
-    rellenar(cont, h('p', { class: 'vacio' }, 'Aún no hay palabras.'));
+    rellenar(cuerpo, h('p', { class: 'vacio' }, 'Aún no hay palabras.'));
     return;
   }
-  if (!aldeas.some((a) => a.id === E.aldeaIdioma)) E.aldeaIdioma = aldeas[0].id;
+  if (!aldeas.some((a) => a.id === E.aldeaIdioma)) E.aldeaIdioma = aldeas.some((a) => a.id === E.foco) ? E.foco : aldeas[0].id;
   const dic = m.diccionario[E.aldeaIdioma] || {};
   const orden = (c) => (m.conceptos.includes(c) ? 0 : m.tecnicas.some((t) => t.id === c) ? 2 : 1);
   const filas = Object.entries(dic)
@@ -796,7 +819,7 @@ function pintarIdioma() {
         {},
         h('td', {}, m.nombres[c] || c),
         h('td', {}, h('span', { class: 'palabra' }, w)),
-        h('td', { class: 'num' }, h('span', { class: 'barrita', style: `width:${Math.round(acuerdo * 60)}px` }), ' ', pct(acuerdo)),
+        h('td', { class: 'num' }, h('span', { class: 'barrita', style: `width:${Math.round(acuerdo * 50)}px` }), ' ', pct(acuerdo)),
       ),
     );
   const pares = m.parecidos
@@ -812,10 +835,10 @@ function pintarIdioma() {
       ),
     );
   rellenar(
-    cont,
+    cuerpo,
     h('p', {}, 'Nadie les enseñó a hablar. Cada palabra la inventó alguien y se extendió de boca en boca. «Acuerdo» es la parte de la aldea que usa esa palabra.'),
     aldeas.length > 1
-      ? h('div', { class: 'filtros' }, aldeas.map((a) => h('button', { 'aria-pressed': String(a.id === E.aldeaIdioma), onclick: () => ((E.aldeaIdioma = a.id), pintarIdioma()) }, a.nombre)))
+      ? h('div', { class: 'filtros' }, aldeas.map((a) => h('button', { type: 'button', 'aria-pressed': String(a.id === E.aldeaIdioma), onclick: () => ((E.aldeaIdioma = a.id), pintarIdioma()) }, a.nombre)))
       : null,
     h('div', { class: 'tarjeta tabla-scroll' }, h('table', {}, h('thead', {}, h('tr', {}, h('th', {}, 'Significa'), h('th', {}, 'Dicen'), h('th', { class: 'num' }, 'Acuerdo'))), h('tbody', {}, filas))),
     pares.length
@@ -836,7 +859,7 @@ function pintarGente() {
   const inventores = new Map();
   for (const t of m.tecnicas) {
     const k = String(t.porId);
-    const e = inventores.get(k) || { nombre: t.por, aldea: t.aldea, cosas: [], vivo: E.porId.has(t.porId) };
+    const e = inventores.get(k) || { id: t.porId, nombre: t.por, aldea: t.aldea, cosas: [], vivo: E.porId.has(t.porId) };
     e.cosas.push(t.nombre);
     inventores.set(k, e);
   }
@@ -848,21 +871,20 @@ function pintarGente() {
     pintarListaGente();
   });
   rellenar(
-    $('#gente'),
-    E.persona !== null && E.porId.has(E.persona) ? fichaPersona(E.porId.get(E.persona)) : null,
+    cuerpo,
     top.length
       ? h(
           'div',
           { class: 'tarjeta' },
           h('h3', {}, 'Grandes inventores'),
-          h('ol', { style: 'margin:0;padding-left:20px' }, top.map((x) => h('li', {}, h('strong', {}, x.nombre), ` (${x.aldea}${x.vivo ? ', vive' : ''}): ${x.cosas.join(', ')}`))),
+          h('ol', { class: 'inventores' }, top.map((x) => h('li', {}, x.vivo ? enlacePersona(x.id, x.nombre) : h('strong', {}, x.nombre), ` (${x.aldea}${x.vivo ? ', vive' : ''}): ${x.cosas.join(', ')}`))),
         )
       : null,
     h(
       'div',
       { class: 'filtros' },
       [['todas', 'Todas'], ...vivas().map((a) => [String(a.id), a.nombre])].map(([k, t]) =>
-        h('button', { 'aria-pressed': String(String(E.aldeaGente) === k), onclick: () => ((E.aldeaGente = k), (E.cuantosGente = 120), pintarGente()) }, t),
+        h('button', { type: 'button', 'aria-pressed': String(String(E.aldeaGente) === k), onclick: () => ((E.aldeaGente = k), (E.cuantosGente = 120), pintarGente()) }, t),
       ),
     ),
     buscador,
@@ -879,29 +901,18 @@ function pintarListaGente() {
     .sort((a, b) => b.saberes.length - a.saberes.length || b.edad - a.edad);
   const cont = $('#lista-gente');
   if (!cont) return;
-  const filas = lista.slice(0, E.cuantosGente).map((p) =>
-    h(
-      'div',
-      {
-        class: 'persona',
-        tabindex: '0',
-        role: 'button',
-        onclick: () => {
-          E.persona = p.id;
-          pintarGente();
-          window.scrollTo({ top: $('#p-gente').offsetTop - 60, behavior: 'smooth' });
-        },
-        onkeydown: (ev) => {
-          if (ev.key === 'Enter') ev.currentTarget.click();
-        },
-      },
+  const filas = lista.slice(0, E.cuantosGente).map((p) => {
+    const f = faccionDe(p);
+    return h(
+      'button',
+      { class: 'persona', type: 'button', onclick: () => elegirPersona(p.id) },
       h('strong', {}, `${p.nombre}, ${anios(p.edad)}`),
       h('span', {}, E.aldeas.get(p.aldea)?.nombre ?? ''),
-      h('small', {}, `${ACTIVIDAD[p.act] || p.act} · sabe ${p.saberes.length} ${p.saberes.length === 1 ? 'cosa' : 'cosas'}${p.desc ? ` · ${p.desc} descubrimiento${p.desc > 1 ? 's' : ''}` : ''}`),
-    ),
-  );
+      h('small', {}, `${ACTIVIDAD[p.act] || p.act} · sabe ${p.saberes.length} ${p.saberes.length === 1 ? 'cosa' : 'cosas'}${p.desc ? ` · ${p.desc} descubrimiento${p.desc > 1 ? 's' : ''}` : ''}${f ? ` · de los ${f.nombre}` : ''}`),
+    );
+  });
   if (lista.length > E.cuantosGente) {
-    filas.push(h('button', { class: 'mas', onclick: () => ((E.cuantosGente += 200), pintarListaGente()) }, `Ver más (${lista.length - E.cuantosGente})`));
+    filas.push(h('button', { class: 'mas', type: 'button', onclick: () => ((E.cuantosGente += 200), pintarListaGente()) }, `Ver más (${lista.length - E.cuantosGente})`));
   }
   rellenar(cont, filas.length ? filas : h('p', { class: 'vacio' }, 'Nadie con ese nombre.'));
 }
@@ -919,7 +930,7 @@ function mostrarTooltip(ev, titulo, filas) {
   tooltip.hidden = false;
   const w = tooltip.offsetWidth;
   tooltip.style.left = `${Math.max(8, Math.min(window.innerWidth - w - 8, ev.clientX + 14))}px`;
-  tooltip.style.top = `${ev.clientY + 14}px`;
+  tooltip.style.top = `${Math.max(8, ev.clientY - tooltip.offsetHeight - 14)}px`;
 }
 
 function ocultarTooltip() {
@@ -963,8 +974,8 @@ function botonTabla(fig, cabeceras, filas) {
  * Líneas sobre los años. Una serie: área suave y sin leyenda (el título la nombra).
  * Varias: leyenda y etiqueta al final de cada línea. Cruceta con todos los valores.
  */
-function grafLinea({ titulo, nota, series, formato = (v) => NUM.format(v), yMax = null, alto = 170, ancho, mini = false, tabla = true }) {
-  const fig = h('figure', { class: mini ? '' : 'grafica', style: 'margin:0 0 14px' });
+function grafLinea({ titulo, nota, series, formato = (v) => NUM.format(v), yMax = null, alto = 160, ancho, mini = false, tabla = true }) {
+  const fig = h('figure', { class: mini ? 'mini' : 'grafica' });
   fig.append(mini ? h('h4', {}, titulo) : h('h3', {}, titulo));
   if (nota) fig.append(h('p', {}, nota));
   const puntos = series[0].puntos;
@@ -977,8 +988,8 @@ function grafLinea({ titulo, nota, series, formato = (v) => NUM.format(v), yMax 
   }
   const W = Math.max(140, ancho);
   const H = alto;
-  const ml = mini ? 34 : 44;
-  const mr = mini ? 34 : 44;
+  const ml = mini ? 34 : 40;
+  const mr = mini ? 34 : 40;
   const mt = 10;
   const mb = 22;
   const x0 = puntos[0].x;
@@ -993,7 +1004,7 @@ function grafLinea({ titulo, nota, series, formato = (v) => NUM.format(v), yMax 
     svg.append(s('line', { x1: ml, x2: W - mr, y1: Y(v), y2: Y(v), stroke: 'var(--g-rejilla)', 'stroke-width': 1 }));
     svg.append(s('text', { x: ml - 6, y: Y(v) + 4, 'text-anchor': 'end', 'font-size': 11, fill: 'var(--g-texto)' }, formato(v)));
   }
-  const marcas = mini ? 1 : Math.max(2, Math.min(5, Math.floor((W - ml - mr) / 90)));
+  const marcas = mini ? 1 : Math.max(2, Math.min(4, Math.floor((W - ml - mr) / 90)));
   for (let k = 0; k <= marcas; k++) {
     const v = Math.round(x0 + ((x1 - x0) * k) / marcas);
     svg.append(s('text', { x: X(v), y: H - 5, 'text-anchor': k === 0 ? 'start' : k === marcas ? 'end' : 'middle', 'font-size': 11, fill: 'var(--g-texto)' }, `año ${v}`));
@@ -1051,8 +1062,8 @@ function grafLinea({ titulo, nota, series, formato = (v) => NUM.format(v), yMax 
 }
 
 /** Barras horizontales de una sola serie. */
-function grafBarras({ titulo, nota, items, ancho }) {
-  const fig = h('figure', { class: 'grafica', style: 'margin:0 0 14px' });
+function grafBarras({ titulo, nota, items, ancho, unidad }) {
+  const fig = h('figure', { class: 'grafica' });
   fig.append(h('h3', {}, titulo));
   if (nota) fig.append(h('p', {}, nota));
   if (!items.length) {
@@ -1077,7 +1088,7 @@ function grafBarras({ titulo, nota, items, ancho }) {
     const zona = s('rect', { x: 0, y: y - 6, width: W, height: fila, fill: 'transparent' });
     zona.addEventListener('pointermove', (ev) => {
       barra.setAttribute('fill-opacity', '0.8');
-      mostrarTooltip(ev, it.etiqueta, [[NUM.format(it.valor), 'muertes', null]]);
+      mostrarTooltip(ev, it.etiqueta, [[NUM.format(it.valor), unidad, null]]);
     });
     zona.addEventListener('pointerleave', () => {
       barra.setAttribute('fill-opacity', '1');
@@ -1091,60 +1102,102 @@ function grafBarras({ titulo, nota, items, ancho }) {
     );
   });
   fig.append(svg);
-  botonTabla(fig, ['Causa', 'Muertes'], items.map((i) => [i.etiqueta, NUM.format(i.valor)]));
+  botonTabla(fig, ['Causa', mayus(unidad)], items.map((i) => [i.etiqueta, NUM.format(i.valor)]));
+  return fig;
+}
+
+/** Pequeños múltiplos: una línea por rasgo, todas en la misma escala, y una sola tabla. */
+function multiples({ titulo, nota, filas, rasgos, ancho, valor }) {
+  const columnas = Math.max(1, Math.floor((ancho + 10) / 160));
+  const anchoMini = (ancho - (columnas - 1) * 10) / columnas;
+  const cont = h('div', { class: 'multiples', style: `grid-template-columns:repeat(${columnas}, minmax(0, 1fr))` });
+  for (const [k, t] of rasgos) {
+    cont.append(grafLinea({ titulo: t, series: [{ color: 'var(--g-serie)', puntos: filas.map((x) => ({ x: x.anio, y: valor(x, k) })) }], formato: pct, yMax: 1, alto: 104, ancho: anchoMini, mini: true, tabla: false }));
+  }
+  const fig = h('div', { class: 'grafica' }, h('h3', {}, titulo), h('p', {}, nota), cont);
+  botonTabla(fig, ['Año', ...rasgos.map(([, t]) => t)], filas.map((f) => [String(f.anio), ...rasgos.map(([k]) => pct(valor(f, k)))]));
   return fig;
 }
 
 function pintarEvolucion() {
   const m = E.mundo;
-  const cont = $('#evolucion');
   const filas = E.historia.filter((f) => f.era === m.era);
+  E.historiaPintada = `${E.historia.length}-${cuerpo.clientWidth}`;
   if (filas.length < 2) {
-    rellenar(cont, h('p', { class: 'vacio' }, 'La historia acaba de empezar. Vuelve en unas horas para ver cómo cambia.'));
+    rellenar(cuerpo, h('p', { class: 'vacio' }, 'La historia acaba de empezar. Vuelve en unas horas para ver cómo cambia.'));
     return;
   }
-  const ancho = Math.min(cont.clientWidth || 600, 1048) - 30;
-  const serie = (f) => filas.map((x) => ({ x: x.anio, y: f(x) }));
+  const ancho = Math.max(240, cuerpo.clientWidth - 30);
+  const serie = (f, xs = filas) => xs.map((x) => ({ x: x.anio, y: f(x) }));
   const azul = 'var(--g-serie)';
   const naranja = 'var(--g-serie-2)';
   const muertes = {};
   for (const f of filas) for (const [k, v] of Object.entries(f.muertes)) muertes[k] = (muertes[k] || 0) + v;
-
-  // Genes: pequeños múltiplos, una línea por rasgo y una sola tabla.
-  const columnas = Math.max(1, Math.floor((ancho + 10) / 170));
-  const anchoMini = (ancho - (columnas - 1) * 10) / columnas;
-  const mini = h('div', { class: 'multiples', style: `grid-template-columns:repeat(${columnas}, minmax(0, 1fr))` });
-  for (const [k, t] of GENES) {
-    mini.append(grafLinea({ titulo: t, series: [{ color: azul, puntos: serie((x) => x.genes[k]) }], formato: pct, yMax: 1, alto: 110, ancho: anchoMini, mini: true, tabla: false }));
-  }
-  const genes = h('div', { class: 'grafica' }, h('h3', {}, 'Genes medios'), h('p', {}, 'La selección natural en marcha: cómo cambia la media de cada rasgo.'), mini);
-  botonTabla(genes, ['Año', ...GENES.map(([, t]) => t)], filas.map((f) => [String(f.anio), ...GENES.map(([k]) => pct(f.genes[k]))]));
-
+  const conMente = filas.filter((x) => x.sensatez !== undefined);
+  const conPolitica = filas.filter((x) => x.asaltos !== undefined);
   const parecido = filas.filter((x) => x.aldeas > 1);
   rellenar(
-    cont,
+    cuerpo,
     grafLinea({ titulo: 'Población', nota: 'Personas vivas al final de cada año.', series: [{ color: azul, puntos: serie((x) => x.poblacion) }], ancho }),
+    conMente.length > 1
+      ? grafLinea({
+          titulo: 'Cómo reaccionan sus mentes',
+          nota: 'Parte de las mentes que, ante situaciones típicas, se inclinan por una reacción sensata (media de las pruebas de abajo). Nadie se lo enseña: lo aprenden viviendo y lo heredan. No siempre sube.',
+          series: [{ color: azul, puntos: serie((x) => x.sensatez, conMente) }],
+          formato: pct,
+          yMax: 1,
+          ancho,
+        })
+      : null,
+    conMente.length > 1 && m.pruebas?.length
+      ? multiples({
+          titulo: 'Cada prueba por separado',
+          nota: 'Qué parte de los adultos reacciona bien en cada situación.',
+          filas: conMente,
+          rasgos: m.pruebas.map((t, i) => [i, t]),
+          ancho,
+          valor: (x, i) => x.pruebas?.[i] ?? 0,
+        })
+      : null,
     grafLinea({
       titulo: 'Nacimientos y muertes',
-      nota: 'Por año. Las epidemias, las hambrunas y los inviernos duros se ven como picos de muertes.',
+      nota: 'Por año. Las epidemias, las hambrunas, los inviernos duros y las guerras se ven como picos de muertes.',
       series: [
         { nombre: 'Nacimientos', color: azul, puntos: serie((x) => x.nacimientos) },
         { nombre: 'Muertes', color: naranja, puntos: serie((x) => Object.values(x.muertes).reduce((a, b) => a + b, 0)) },
       ],
       ancho,
     }),
+    conPolitica.length > 1
+      ? grafLinea({
+          titulo: 'Asaltos y facciones',
+          nota: 'Asaltos entre aldeas cada año y facciones organizadas al final del año.',
+          series: [
+            { nombre: 'Asaltos', color: naranja, puntos: serie((x) => x.asaltos ?? 0, conPolitica) },
+            { nombre: 'Facciones', color: azul, puntos: serie((x) => x.facciones ?? 0, conPolitica) },
+          ],
+          ancho,
+        })
+      : null,
     grafLinea({ titulo: 'Saberes vivos', nota: 'Cuántos saberes conoce al menos una persona viva. Si baja, algo se ha olvidado.', series: [{ color: azul, puntos: serie((x) => x.saberes) }], ancho }),
     parecido.length > 1
       ? grafLinea({
           titulo: 'Parecido entre lenguas',
           nota: 'Media del parecido entre los idiomas de las aldeas. Si baja, se están separando.',
-          series: [{ color: azul, puntos: parecido.map((x) => ({ x: x.anio, y: x.parecido })) }],
+          series: [{ color: azul, puntos: serie((x) => x.parecido, parecido) }],
           formato: pct,
           yMax: 1,
           ancho,
         })
       : null,
-    genes,
+    multiples({
+      titulo: 'Genes medios',
+      nota: 'La selección natural en marcha: cómo cambia la media de cada rasgo.',
+      filas,
+      rasgos: GENES.filter(([k]) => filas.some((f) => f.genes[k] !== undefined)),
+      ancho,
+      valor: (x, k) => x.genes[k] ?? 0,
+    }),
     grafBarras({
       titulo: 'De qué se muere',
       nota: 'Muertes por causa en toda esta era.',
@@ -1152,6 +1205,7 @@ function pintarEvolucion() {
         .map(([k, v]) => ({ etiqueta: CAUSAS[k] || k, valor: v }))
         .sort((a, b) => b.valor - a.valor),
       ancho,
+      unidad: 'muertes',
     }),
   );
 }
@@ -1160,22 +1214,17 @@ let temporizador = null;
 window.addEventListener('resize', () => {
   clearTimeout(temporizador);
   temporizador = setTimeout(() => {
-    if (!E.mundo) return;
-    ajustarLienzo();
-    if (E.pestana === 'evolucion') pintarEvolucion();
-  }, 200);
-});
-
-window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-  if (E.mundo) prepararMapa();
+    encuadrar(true);
+    if (E.mundo && E.pestana === 'evolucion') pintarPestana(true);
+  }, 250);
 });
 
 // ---------- arranque ----------
 
+cargarPublicado();
+arrancarDirecto();
+respaldo = setInterval(() => {
+  if (!E.directo) cargarPublicado();
+}, 5 * 60 * 1000);
 const inicial = location.hash.slice(1);
-if (document.querySelector(`.pestanas button[data-p="${inicial}"]`)) irA(inicial);
-cargar();
-setInterval(cargar, 5 * 60 * 1000);
-setInterval(() => {
-  if (E.mundo) $('#actualizado').textContent = `Actualizado ${haceCuanto(E.mundo.generado)} · el mundo avanza un año cada hora`;
-}, 60 * 1000);
+if (TITULOS[inicial]) abrir(inicial);

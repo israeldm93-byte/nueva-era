@@ -86,8 +86,9 @@ export function recordarIdea(p: Persona, idea: Idea): void {
   if (p.ideas.length > 3) p.ideas.length = 3;
 }
 
-/** Un día probando cosas. Devuelve lo descubierto, si algo. */
-export function experimentar(m: Mundo, p: Persona, a: Aldea, rapidez: number): Tecnica | null {
+/** Un día probando cosas: si descubre algo y si ha dado con una idea prometedora. */
+export function experimentar(m: Mundo, p: Persona, a: Aldea, rapidez: number): { descubierto: Tecnica | null; idea: boolean } {
+  const nada = { descubierto: null, idea: false };
   const fam = cosasFamiliares(p, a);
   const verbos = verbosDe(p);
   let cosas: string[];
@@ -107,7 +108,7 @@ export function experimentar(m: Mundo, p: Persona, a: Aldea, rapidez: number): T
   }
 
   // Se prueba con cosas reales: hay que tenerlas y algo se gasta.
-  for (const c of cosas) if (MATERIAL[c] && (a.despensa[c] ?? 0) < 1) return null;
+  for (const c of cosas) if (MATERIAL[c] && (a.despensa[c] ?? 0) < 1) return nada;
   for (const c of cosas) if (MATERIAL[c]) a.despensa[c] = r2(a.despensa[c] - 0.3);
 
   let mejor = 0;
@@ -125,16 +126,17 @@ export function experimentar(m: Mundo, p: Persona, a: Aldea, rapidez: number): T
     origen.puntos = r2(origen.puntos - 0.15);
     p.ideas = p.ideas.filter((i) => i.puntos >= 0.5);
   }
-  if (!objetivo || mejor < 0.5) return null;
+  if (!objetivo || mejor < 0.5) return nada;
   if (mejor >= 0.999) {
     const exito = objetivo.facilidad * RITMO_SABER * (0.5 + p.genes.destreza) * rapidez;
     if (prob(exito)) {
       descubrir(m, p, a, objetivo, cosas, verbo);
-      return objetivo;
+      return { descubierto: objetivo, idea: true };
     }
   }
+  const nueva = !origen || mejor > origen.puntos;
   recordarIdea(p, { cosas, verbo, puntos: r2(mejor) });
-  return null;
+  return { descubierto: null, idea: nueva };
 }
 
 const PRONOMBRE: Record<string, string> = { el: 'lo', la: 'la', los: 'los', las: 'las' };

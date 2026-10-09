@@ -6,13 +6,16 @@
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { DIAS_ANIO, MS_POR_DIA, VERSION_ESTADO } from './config.ts';
+import { DIAS_ANIO, MS_POR_DIA } from './config.ts';
 import { fecha } from './cronica.ts';
 import { exportar } from './exportar.ts';
+import { fijarMotor } from './vista.ts';
+import { migrar } from './migrar.ts';
 import { aldeasVivas, crearMundo, indexar } from './mundo.ts';
 import { avanzar } from './simulacion.ts';
 import type { Mundo } from './tipos.ts';
 
+fijarMotor((process.env.GITHUB_SHA ?? 'dev').slice(0, 8));
 const orden = process.argv[2];
 const args: Record<string, string> = {};
 for (let i = 3; i < process.argv.length; i++) {
@@ -59,6 +62,8 @@ function simular(): void {
     if (y % cada === 0) console.log(resumen(m));
   }
   console.log(`(${((Date.now() - t0) / 1000).toFixed(1)} s)`);
+  // El reloj arranca ahora: así la web lo sigue simulando en directo desde este momento.
+  m.reloj ??= new Date().toISOString();
   if (args.guardar) writeFileSync(args.guardar, JSON.stringify(m));
   if (args.web) exportar(m, args.web, new Date());
 }
@@ -68,8 +73,7 @@ function avanzarHastaAhora(): void {
   const ahora = args.ahora ? new Date(args.ahora) : new Date();
   let m: Mundo;
   if (existsSync(ruta)) {
-    m = JSON.parse(readFileSync(ruta, 'utf8')) as Mundo;
-    if (m.version !== VERSION_ESTADO) throw new Error(`Estado con versión ${m.version}; este código espera ${VERSION_ESTADO}.`);
+    m = migrar(JSON.parse(readFileSync(ruta, 'utf8')) as Mundo);
   } else {
     // Nunca se crea un mundo nuevo por accidente (por ejemplo, si falló la descarga del estado).
     if (!args.crear) throw new Error(`No existe ${ruta}. Usa --crear para que nazca un mundo nuevo.`);

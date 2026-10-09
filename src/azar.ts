@@ -31,10 +31,11 @@ export function elegir<T>(lista: readonly T[]): T {
   return lista[entero(lista.length)];
 }
 
+/** Aproximadamente normal(0, 1): suma de doce uniformes (sin funciones trascendentes). */
 export function normal(): number {
-  const u = 1 - azar();
-  const v = azar();
-  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+  let s = -6;
+  for (let i = 0; i < 12; i++) s += azar();
+  return s;
 }
 
 export function barajar<T>(lista: T[]): T[] {

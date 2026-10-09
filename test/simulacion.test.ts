@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { DIAS_ANIO } from '../src/config.ts';
 import { TECNICAS } from '../src/catalogo.ts';
-import { datosWeb } from '../src/exportar.ts';
+import { datosWeb } from '../src/vista.ts';
+import { migrar } from '../src/migrar.ts';
 import { lexicoComun } from '../src/lenguaje.ts';
 import { aldeasVivas, crearMundo, indexar } from '../src/mundo.ts';
 import { avanzar } from '../src/simulacion.ts';
@@ -71,4 +72,33 @@ test('cada saber se puede llegar a descubrir', () => {
     assert.ok(!firmas.has(firma), `receta repetida: ${firma}`);
     firmas.add(firma);
   }
+});
+
+test('un mundo de la versión 1 se pone al día y sigue vivo', () => {
+  const m = crearMundo(5);
+  avanzar(m, 2 * DIAS_ANIO);
+  // Lo convertimos en un mundo antiguo, sin mentes ni política.
+  const viejo = copiar(m) as unknown as Record<string, unknown> & Mundo;
+  viejo.version = 1;
+  for (const p of viejo.personas) {
+    delete (p as Partial<typeof p>).mente;
+    delete (p.genes as Partial<typeof p.genes>).agresividad;
+  }
+  for (const a of viejo.aldeas) delete (a as Partial<typeof a>).consejo;
+  delete (viejo as Partial<Mundo>).relaciones;
+  const nuevo = migrar(viejo);
+  assert.equal(nuevo.version, 2);
+  assert.ok(nuevo.personas.every((p) => p.mente.length > 0 && p.genes.agresividad > 0));
+  avanzar(nuevo, DIAS_ANIO);
+  assert.ok(nuevo.personas.length > 0);
+});
+
+test('el consejo decide y las mentes aprenden', () => {
+  const m = crearMundo(9);
+  const antes = JSON.stringify(m.personas[0].mente);
+  avanzar(m, 5 * DIAS_ANIO);
+  assert.ok(m.aldeas.some((a) => a.consejo !== null), 'debería haber consejo');
+  const p = m.personas.find((q) => q.id === 1);
+  if (p) assert.notEqual(JSON.stringify(p.mente), antes, 'la mente debería haber cambiado al aprender');
+  assert.ok(m.historia.every((f) => Array.isArray(f.pruebas)));
 });

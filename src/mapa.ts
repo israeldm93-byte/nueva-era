@@ -3,6 +3,7 @@
 
 import { azar, entero } from './azar.ts';
 import { AGUA, BOSQUE, CAPACIDAD, CAPAS, COLINA, MONTANA, ORILLA, PRADERA, TEMPORADA } from './catalogo.ts';
+import { distancia } from './matematicas.ts';
 import type { Aldea, Mundo } from './tipos.ts';
 
 const suave = (t: number) => t * t * (3 - 2 * t);
@@ -215,10 +216,10 @@ export function buscarSitio(
   for (let y = 2; y < m.alto - 2; y++) {
     for (let x = 2; x < m.ancho - 2; x++) {
       if (desde) {
-        const d = Math.hypot(x - desde.x, y - desde.y);
+        const d = distancia(x - desde.x, y - desde.y);
         if (d < min || d > max) continue;
       }
-      if (vivas.some((a) => Math.hypot(a.x - x, a.y - y) < min)) continue;
+      if (vivas.some((a) => distancia(a.x - x, a.y - y) < min)) continue;
       const p = puntuarSitio(m, x, y);
       if (p > mejorP) {
         mejorP = p;
@@ -229,10 +230,13 @@ export function buscarSitio(
   return mejor;
 }
 
-const DIRECCIONES = ['el este', 'el sureste', 'el sur', 'el suroeste', 'el oeste', 'el noroeste', 'el norte', 'el noreste'];
-
+/** Hacia dónde queda un punto (la y crece hacia el sur). */
 export function direccion(desde: Aldea, x: number, y: number): string {
-  const ang = Math.atan2(y - desde.y, x - desde.x);
-  const k = (Math.round(ang / (Math.PI / 4)) + 8) % 8;
-  return DIRECCIONES[k];
+  const dx = x - desde.x;
+  const dy = y - desde.y;
+  const ax = Math.abs(dx);
+  const ay = Math.abs(dy);
+  if (ay <= ax * 0.4142) return dx >= 0 ? 'el este' : 'el oeste';
+  if (ax <= ay * 0.4142) return dy >= 0 ? 'el sur' : 'el norte';
+  return (dy >= 0 ? 'el sur' : 'el nor') + (dx >= 0 ? 'este' : 'oeste');
 }

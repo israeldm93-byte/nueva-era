@@ -6,6 +6,7 @@ import { OFICIOS, VALOR_INSTINTO } from './catalogo.ts';
 import { anotar } from './cronica.ts';
 import { crearFonologia, nombrePropio } from './lenguaje.ts';
 import { buscarSitio, generarTerreno } from './mapa.ts';
+import { heredarMente, menteNueva } from './mente.ts';
 import type { Aldea, Genes, Mundo, Persona } from './tipos.ts';
 
 const r2 = (x: number) => Math.round(x * 100) / 100;
@@ -39,7 +40,7 @@ export function aldeasVivas(m: Mundo): Aldea[] {
   return m.aldeas.filter((a) => a.abandonada === null);
 }
 
-const GENES: (keyof Genes)[] = ['curiosidad', 'sociabilidad', 'fuerza', 'destreza', 'resistencia', 'fertilidad', 'longevidad'];
+const GENES: (keyof Genes)[] = ['curiosidad', 'sociabilidad', 'fuerza', 'destreza', 'resistencia', 'fertilidad', 'longevidad', 'agresividad'];
 
 export function genesAlAzar(): Genes {
   const g = {} as Genes;
@@ -81,6 +82,10 @@ export function nuevaPersona(
     pareja: null,
     aldea: aldea.id,
     genes: datos.genes ?? (padre && madre ? heredarGenes(padre.genes, madre.genes) : genesAlAzar()),
+    mente: padre && madre ? heredarMente(padre.recompensa >= madre.recompensa ? padre.mente : madre.mente) : menteNueva(),
+    recompensa: 0.5,
+    opinion: madre?.opinion ?? 'comida',
+    faccion: null,
     salud: 1,
     reservas: 6,
     causa: '',
@@ -117,6 +122,9 @@ export function nuevaAldea(m: Mundo, x: number, y: number, fundador: string, ori
     abandonada: null,
     poblacionMax: 0,
     movida: m.t,
+    consejo: null,
+    facciones: [],
+    amenaza: 0,
   };
   m.aldeas.push(a);
   return a;
@@ -143,13 +151,14 @@ export function crearMundo(semilla: number, previo?: Mundo): Mundo {
     hallazgos: {},
     olvidados: [],
     contactos: [],
+    relaciones: {},
     construidos: [],
     ruinas: [],
     lenguasSeparadas: [],
     hitos: [],
     cronica: previo?.cronica ?? [],
     historia: previo?.historia ?? [],
-    anual: { nacimientos: 0, muertes: {} },
+    anual: { nacimientos: 0, muertes: {}, asaltos: 0 },
     poblacionMax: 0,
     eras: previo?.eras ?? [],
     reloj: previo?.reloj ?? null,

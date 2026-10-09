@@ -2,110 +2,102 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Nueva Era</title>
-  <meta name="description" content="Una civilización simulada que vive sola: descubre, inventa su idioma, enseña y olvida.">
+  <meta name="description" content="Una civilización que vive sola, en 3D y en directo: cada aldeano piensa con su propia red neuronal, el consejo decide, nacen facciones y se defienden.">
+  <meta name="theme-color" content="#2a1d12">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='%23b4532a'/><path d='M10 21c2-6 4-9 6-11 2 2 4 5 6 11' stroke='%23fff' stroke-width='2.4' fill='none' stroke-linecap='round'/></svg>">
-  <link rel="stylesheet" href="estilo.css">
+  <link rel="stylesheet" href="estilo.css?v=__MOTOR__">
+  <script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
 </head>
 <body>
-  <header class="cabecera">
-    <div class="contenedor">
-      <div class="titulo">
+  <div class="escena" id="escena">
+    <canvas id="lienzo" aria-label="El mundo en 3D. Arrastra para moverte, pellizca o usa la rueda para acercarte y toca a alguien para saber qué piensa."></canvas>
+    <div class="capa" id="capa"></div>
+    <p class="cargando" id="cargando">Despertando el mundo…</p>
+  </div>
+
+  <header class="hud" id="hud">
+    <div class="hud-fila">
+      <div class="marca">
         <h1>Nueva Era</h1>
         <span class="chip" id="era">Era 1</span>
       </div>
-      <p class="fecha" id="fecha">Cargando el mundo…</p>
-      <p class="sub" id="actualizado"></p>
+      <div class="fecha">
+        <span id="fecha"></span>
+        <span class="directo" id="directo" hidden title="El mundo se está simulando ahora mismo en tu navegador"><i></i><span class="directo-t">en directo</span></span>
+        <button type="button" class="ayuda" data-p="como" aria-pressed="false" aria-label="¿Qué es esto?">?</button>
+      </div>
     </div>
+    <div class="recursos" id="recursos" aria-label="La aldea que estás mirando"></div>
+    <button class="consejo-hud" id="consejo" type="button" hidden></button>
   </header>
 
-  <main class="contenedor">
-    <section class="kpis" aria-label="Resumen">
-      <div class="kpi kpi-hero"><span class="kpi-l">Población</span><span class="kpi-v" id="k-pob">–</span></div>
-      <div class="kpi"><span class="kpi-l">Aldeas</span><span class="kpi-v" id="k-aldeas">–</span></div>
-      <div class="kpi"><span class="kpi-l">Saberes</span><span class="kpi-v" id="k-saberes">–</span></div>
-      <div class="kpi"><span class="kpi-l">Años</span><span class="kpi-v" id="k-anios">–</span></div>
-    </section>
+  <div class="avisos" id="avisos" aria-live="polite"></div>
 
-    <section class="ultimo" aria-label="Lo último que ha pasado">
-      <h2>Lo último</h2>
-      <ol id="ultimo"></ol>
-    </section>
+  <div class="camara" id="camara">
+    <button type="button" id="acercar" aria-label="Acercar">+</button>
+    <button type="button" id="alejar" aria-label="Alejar">−</button>
+    <button type="button" id="girar" aria-label="Girar la vista">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
 
-    <nav class="pestanas" role="tablist" aria-label="Secciones">
-      <button role="tab" data-p="mapa" aria-selected="true">Mapa</button>
-      <button role="tab" data-p="cronica" aria-selected="false">Crónica</button>
-      <button role="tab" data-p="saberes" aria-selected="false">Saberes</button>
-      <button role="tab" data-p="idioma" aria-selected="false">Idioma</button>
-      <button role="tab" data-p="gente" aria-selected="false">Gente</button>
-      <button role="tab" data-p="evolucion" aria-selected="false">Evolución</button>
-      <button role="tab" data-p="como" aria-selected="false">Cómo funciona</button>
-    </nav>
+  <section class="hoja" id="hoja" hidden aria-labelledby="hoja-titulo">
+    <div class="hoja-cab">
+      <h2 id="hoja-titulo"></h2>
+      <button type="button" class="cerrar" id="cerrar" aria-label="Cerrar">×</button>
+    </div>
+    <div class="hoja-cuerpo" id="cuerpo"></div>
+  </section>
 
-    <section class="panel" id="p-mapa" role="tabpanel">
-      <div class="mapa-marco">
-        <canvas id="mapa" aria-label="Mapa del mundo con las aldeas y su gente"></canvas>
-        <div class="zoom">
-          <button type="button" id="acercar" aria-label="Acercar">+</button>
-          <button type="button" id="alejar" aria-label="Alejar">−</button>
-        </div>
-        <div class="globo" id="globo" hidden></div>
-      </div>
-      <p class="nota">Cada punto es una persona yendo a trabajar y volviendo a su aldea. Toca una aldea o a alguien para ver más; acerca con + o con doble toque y arrastra para moverte.</p>
-      <div class="leyenda" id="leyenda-mapa"></div>
-      <div id="ficha-aldea"></div>
-    </section>
+  <nav class="barra" id="barra" aria-label="Secciones">
+    <button type="button" data-p="aldea" aria-pressed="false">Aldea</button>
+    <button type="button" data-p="cronica" aria-pressed="false">Crónica</button>
+    <button type="button" data-p="saberes" aria-pressed="false">Saberes</button>
+    <button type="button" data-p="idioma" aria-pressed="false">Idioma</button>
+    <button type="button" data-p="gente" aria-pressed="false">Gente</button>
+    <button type="button" data-p="evolucion" aria-pressed="false">Gráficas</button>
+  </nav>
 
-    <section class="panel" id="p-cronica" role="tabpanel" hidden>
-      <div class="filtros" id="filtros-cronica"></div>
-      <div id="cronica"></div>
-    </section>
+  <template id="t-como">
+    <div class="prosa">
+      <p>Un mundo pequeño que vive solo, día y noche. Empezó con una banda de unas quince personas sin palabras, sin fuego y sin herramientas. Nadie les dice qué hacer. El mundo avanza <strong>un año cada hora</strong> (un día cada 30 segundos) y lo que ves está pasando ahora: tu navegador simula el mismo mundo que el servidor, paso a paso, y llega exactamente al mismo resultado.</p>
 
-    <section class="panel" id="p-saberes" role="tabpanel" hidden>
-      <div id="saberes"></div>
-    </section>
-
-    <section class="panel" id="p-idioma" role="tabpanel" hidden>
-      <div id="idioma"></div>
-    </section>
-
-    <section class="panel" id="p-gente" role="tabpanel" hidden>
-      <div id="gente"></div>
-    </section>
-
-    <section class="panel" id="p-evolucion" role="tabpanel" hidden>
-      <div id="evolucion"></div>
-    </section>
-
-    <section class="panel prosa" id="p-como" role="tabpanel" hidden>
-      <h2>¿Qué es esto?</h2>
-      <p>Un mundo pequeño que vive solo, día y noche. Empieza con una banda de unas quince personas sin palabras, sin fuego y sin herramientas. Nadie les dice qué hacer: cada cual decide cada día en qué trabajar, y lo que descubren, lo enseñan o lo olvidan es cosa suya. El mundo avanza <strong>un año cada hora</strong>, y esta página se actualiza sola.</p>
-
-      <h2>¿Aprenden de verdad?</h2>
-      <p>No es una inteligencia artificial que piense: no hay ningún modelo de lenguaje dentro. Aquí aprende la sociedad entera, con cuatro mecanismos reales y medibles.</p>
+      <h3>Cada aldeano tiene su propia mente</h3>
+      <p>Cada persona piensa con una <strong>red neuronal</strong> pequeña (18 entradas, 6 neuronas ocultas y 12 salidas). Mira cómo está (hambre, salud, edad), cómo está su aldea (comida, leña, materiales, obras, peligro), la estación y lo que ha decidido el consejo, y con eso elige en qué trabajar.</p>
       <ul>
-        <li><strong>Prueba y error.</strong> Quien tiene curiosidad y tiempo libre junta cosas que conoce con un gesto (golpear, frotar, atar, calentar…). Nadie sabe qué combinaciones funcionan. Si algo «parece prometer», lo recuerda y lo va variando hasta dar con ello. Así se descubren el fuego, la cuerda o el bronce.</li>
-        <li><strong>Aprender de la experiencia.</strong> Cada persona va ajustando cuánto espera sacar de cazar, pescar o recolectar según le ha ido. Si alguien inventa la red, sus redadas rinden más y pescar empieza a «compensar». Los hijos heredan esas expectativas de sus padres.</li>
-        <li><strong>Cultura.</strong> El saber pasa de unos a otros hablando, sobre todo de padres a hijos y al calor de la hoguera. Si muere la última persona que sabía algo sin haberlo enseñado, se pierde (salvo que esté escrito en tablillas).</li>
-        <li><strong>Evolución.</strong> Cada persona tiene genes (curiosidad, sociabilidad, fuerza, destreza, resistencia, fertilidad, longevidad) heredados de sus padres con pequeñas mutaciones. Quien sobrevive y tiene hijos los transmite.</li>
+        <li><strong>Aprenden en vida.</strong> Si lo que hicieron hoy les rindió más que a la media de su aldea, su red refuerza esa elección en esa situación. Si les fue peor, la debilita.</li>
+        <li><strong>Lo heredan.</strong> Cada hijo nace con la mente del padre o la madre al que mejor le ha ido, con alguna mutación. Las familias que deciden mejor prosperan.</li>
+        <li><strong>Nadie les dice qué es lo correcto.</strong> En «Gráficas» se ve cómo reaccionan sus mentes ante situaciones típicas (llega el invierno sin leña, hay hambre, les han atacado). No siempre aciertan: lo que aprenden depende de lo que viven.</li>
       </ul>
 
-      <h2>Su propio idioma</h2>
-      <p>Cuando alguien quiere hablar de algo y no tiene palabra, se la inventa con los sonidos de su pueblo. Si el otro ya la usa, los dos la refuerzan; si no, la aprende. Así cada aldea acaba poniéndose de acuerdo sin que nadie lo decida. Los niños a veces oyen mal una palabra, y así el idioma cambia con las generaciones. Las aldeas que se separan acaban hablando lenguas distintas, y enseñarse cosas les cuesta más.</p>
+      <h3>El consejo, las opiniones y las facciones</h3>
+      <p>Cada adulto se forma una opinión sobre qué debería ser lo prioritario (comida, prepararse para el invierno, construir, aprender, buscar tierras nuevas o defenderse) y la contagia al hablar con los demás. Cada noche se reúnen junto al fuego los más respetados (por edad, saber, descubrimientos e hijos) y votan. Lo que deciden empuja las mentes de todos al día siguiente, pero cada cual obedece a su manera.</p>
+      <p>Cuando mucha gente piensa distinto que el consejo, se organiza una <strong>facción</strong>. Si el consejo la ignora demasiado tiempo, la facción se marcha con sus familias y funda su propia aldea.</p>
 
-      <h2>Lo que no está escrito</h2>
-      <p>El orden de los descubrimientos, quién los hace, qué se pierde, cuándo se divide una aldea o si la especie se extingue: nada de eso está programado. Si se extingue, el mundo vuelve a empezar en una nueva era. Esta página no desvela lo que aún no han descubierto.</p>
+      <h3>Vecinos, amigos y enemigos</h3>
+      <p>Entre aldeas crecen la amistad (bodas, comercio, un origen común) o el rencor (competir por las mismas tierras, ataques). El hambre, el rencor y la agresividad de quienes mandan pueden llevar a <strong>asaltar</strong> al vecino. Los atacados aprenden a vigilar, levantan empalizadas y pueden aliarse con otros.</p>
+
+      <h3>Saber, idioma y genes</h3>
+      <ul>
+        <li><strong>Prueba y error.</strong> Quien tiene curiosidad y tiempo junta cosas que conoce con un gesto (golpear, frotar, atar, calentar…). Nadie sabe qué combinaciones funcionan. Así se descubren el fuego, la cuerda o el bronce.</li>
+        <li><strong>Cultura.</strong> El saber pasa de unos a otros hablando. Si muere la última persona que sabía algo sin haberlo enseñado, se pierde (salvo que esté escrito en tablillas).</li>
+        <li><strong>Su propio idioma.</strong> Cuando alguien quiere nombrar algo y no tiene palabra, se la inventa. Las aldeas que se separan acaban hablando lenguas distintas.</li>
+        <li><strong>Evolución.</strong> Curiosidad, sociabilidad, fuerza, agresividad… se heredan con pequeñas mutaciones.</li>
+      </ul>
+
+      <h3>Lo que no está escrito</h3>
+      <p>El orden de los descubrimientos, quién manda, qué facciones nacen, quién ataca a quién, qué se olvida o si la especie se extingue: nada está programado. Si se extingue, el mundo vuelve a empezar en una nueva era. No hay ningún modelo de lenguaje dentro: todo son reglas sencillas y mentes pequeñas que aprenden. La página no desvela lo que aún no han descubierto.</p>
+
+      <h3>Cómo moverse</h3>
+      <p>Arrastra para desplazarte, pellizca o usa la rueda para acercarte y gira con dos dedos (o con el botón derecho). Toca a cualquiera para ver qué piensa y qué hay en su cabeza, o toca el nombre de una aldea para ver su consejo, sus facciones y sus vecinos.</p>
 
       <p class="nota">Código abierto en <a href="https://github.com/israeldm93-byte/nueva-era">github.com/israeldm93-byte/nueva-era</a>.</p>
-    </section>
-  </main>
-
-  <footer class="contenedor pie">
-    <p>Nueva Era · un experimento de vida artificial · <a href="https://github.com/israeldm93-byte/nueva-era">código</a></p>
-  </footer>
+    </div>
+  </template>
 
   <div class="tooltip" id="tooltip" role="status" hidden></div>
-  <script src="app.js"></script>
+  <script type="module" src="app.js?v=__MOTOR__"></script>
 </body>
 </html>

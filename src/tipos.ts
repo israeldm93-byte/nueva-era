@@ -9,6 +9,7 @@ export interface Genes {
   resistencia: number;
   fertilidad: number;
   longevidad: number;
+  agresividad: number;
 }
 
 /** Combinación probada que pareció acercarse a algo. */
@@ -40,6 +41,13 @@ export interface Persona {
   lexico: Record<string, [string, number][]>;
   /** Rendimiento que espera de cada actividad, aprendido de su experiencia. */
   valor: Record<string, number>;
+  /** Pesos de su red neuronal (en centésimas). */
+  mente: number[];
+  /** Lo que suele rendirle un día de trabajo: la vara con que su mente mide si hoy fue bien. */
+  recompensa: number;
+  /** Lo que cree que debería ser la prioridad de su aldea. */
+  opinion: string;
+  faccion: number | null;
   x: number;
   y: number;
   actividad: string;
@@ -90,6 +98,43 @@ export interface Aldea {
   poblacionMax: number;
   /** Último día en que trasladó el campamento. */
   movida: number;
+  consejo: Consejo | null;
+  facciones: Faccion[];
+  /** 0..1: lo amenazados que se sienten (asaltos, lobos). */
+  amenaza: number;
+  /** Necesidades recordadas de los últimos meses, por prioridad. */
+  memoria?: Record<string, number>;
+}
+
+export interface Consejo {
+  prioridad: string;
+  desde: number;
+  anunciado: number;
+  /** Última prioridad que se anunció en la crónica. */
+  anunciada: string;
+  miembros: number[];
+  votos: Record<string, number>;
+}
+
+export interface Faccion {
+  id: number;
+  nombre: string;
+  opinion: string;
+  lider: number;
+  nacida: number;
+  miembros: number;
+  /** Crece mientras el consejo decide otra cosa; si se colma, se van. */
+  descontento: number;
+  anunciada: boolean;
+  /** Revisiones seguidas con pocos apoyos. */
+  debil?: number;
+}
+
+export interface Relacion {
+  afinidad: number;
+  rencor: number;
+  ultimoAsalto: number;
+  alianza: boolean;
 }
 
 export type TipoSuceso =
@@ -110,6 +155,11 @@ export type TipoSuceso =
   | 'edificio'
   | 'contacto'
   | 'lengua'
+  | 'consejo'
+  | 'faccion'
+  | 'cisma'
+  | 'asalto'
+  | 'alianza'
   | 'poblacion'
   | 'extincion';
 
@@ -144,6 +194,10 @@ export interface FilaHistoria {
   genes: Genes;
   parecido: number;
   clima: number;
+  sensatez?: number;
+  pruebas?: number[];
+  asaltos?: number;
+  facciones?: number;
 }
 
 export interface Era {
@@ -179,6 +233,8 @@ export interface Mundo {
   hallazgos: Record<string, Hallazgo>;
   olvidados: string[];
   contactos: string[];
+  /** Afinidad y rencor entre aldeas, por pares «a-b» (a < b). */
+  relaciones: Record<string, Relacion>;
   /** Restos de campamentos abandonados al trasladarse. */
   ruinas: { tipo: string; x: number; y: number }[];
   /** Tipos de edificio que ya se han levantado alguna vez en esta era. */
@@ -187,7 +243,7 @@ export interface Mundo {
   hitos: number[];
   cronica: Suceso[];
   historia: FilaHistoria[];
-  anual: { nacimientos: number; muertes: Record<string, number> };
+  anual: { nacimientos: number; muertes: Record<string, number>; asaltos: number };
   poblacionMax: number;
   eras: Era[];
   /** Instante real (ISO) hasta el que está simulado el mundo. */

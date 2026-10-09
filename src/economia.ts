@@ -1,8 +1,10 @@
 // El trabajo de cada día, la comida y los edificios.
 //
-// Cada adulto elige qué hacer comparando lo que espera sacar de cada actividad
-// (lo aprende de su propia experiencia: si cazar le sale bien, caza más) con lo
-// que la aldea necesita ahora mismo (si falta comida, la comida vale más).
+// Cada adulto elige qué hacer combinando tres cosas:
+//   - lo que espera sacar de cada actividad (lo aprende de su experiencia),
+//   - lo que la aldea necesita ahora mismo (si falta comida, la comida vale más),
+//   - lo que le dice su mente (red neuronal heredada y entrenada día a día), que ve
+//     también la estación, el peligro y lo que ha decidido el consejo.
 
 import { azar, elegir, prob } from './azar.ts';
 import { EDAD_ADULTA, GANAS_EXPERIMENTAR, RADIO_TRABAJO } from './config.ts';
@@ -21,7 +23,9 @@ import {
 } from './catalogo.ts';
 import { anotar } from './cronica.ts';
 import { hayCerca, mejorCasilla } from './mapa.ts';
+import { distancia as distanciaXY } from './matematicas.ts';
 import { edad } from './mundo.ts';
+import { ACCIONES, ALINEADAS, aprender, entradas, pensar, type Pensamiento, type Situacion } from './mente.ts';
 import { experimentar, sabe } from './saber.ts';
 import type { Aldea, Mundo, Persona } from './tipos.ts';
 
@@ -45,6 +49,11 @@ export interface Contexto {
   camposPorTrabajar: number;
   corrales: number;
   hoguera: boolean;
+  /** Prioridad que decidió anoche el consejo ('' si no hay consejo). */
+  consejo: string;
+  obraLista: boolean;
+  /** Lo que cada cual hizo hoy y lo que aportó: con ello aprenden sus mentes al anochecer. */
+  hoy: { p: Persona; pensado: Pensamiento; x: number[]; k: number; r: number }[];
 }
 
 export function conoce(a: Aldea, id: string): boolean {
@@ -108,7 +117,8 @@ export function contexto(m: Mundo, a: Aldea, gente: Persona[], est: number): Con
     const quiere = base + (obra[mat] ?? 0);
     precio[mat] = r2(MATERIAL[mat].peso * clamp(1 - (a.despensa[mat] ?? 0) / Math.max(quiere, 0.1), 0, 1));
   };
-  fijar('madera', 10 + (hoguera ? (est >= 2 ? 30 : 12) : 0));
+  const prioridad = a.consejo?.prioridad ?? '';
+  fijar('madera', 10 + (hoguera ? (est >= 2 ? 30 : 12) : 0) + (prioridad === 'invierno' ? 20 : 0));
   fijar('fibra', 6 + (conoce(a, 'cuerda') ? 4 : 0));
   fijar('piedra', 6);
   fijar('arcilla', conoce(a, 'vasija') ? 10 : 3);
@@ -146,6 +156,50 @@ export function contexto(m: Mundo, a: Aldea, gente: Persona[], est: number): Con
     camposPorTrabajar,
     corrales: cuantos(a, 'corral'),
     hoguera,
+    consejo: prioridad,
+    obraLista: obraLista(a),
+    hoy: [],
+  };
+}
+
+/** Acciones cuyo valor se ve el mismo día; experimentar o descansar rinden a la larga y los moldea la evolución. */
+const APRENDIBLES = new Set(['recolectar', 'cazar', 'pescar', 'lenar', 'picar', 'barro', 'cultivar', 'pastorear', 'construir', 'vigilar']);
+
+/**
+ * Al final del día cada mente se compara con su aldea: si su elección aportó más que
+ * la media de lo que aportaron los demás hoy (con los mismos precios), la refuerza.
+ */
+export function asentarAprendizaje(c: Contexto): void {
+  if (c.hoy.length < 2) return;
+  let media = 0;
+  for (const h of c.hoy) media += h.r;
+  media /= c.hoy.length;
+  for (const h of c.hoy) {
+    aprender(h.p.mente, h.pensado, h.k, (h.r - media) / (media + 0.5), h.x);
+    h.p.recompensa = r2(h.p.recompensa + 0.05 * (h.r - h.p.recompensa));
+  }
+  c.hoy = [];
+}
+
+const FRIO = [0, 0, 0.5, 1];
+const COSECHA = [0, 0.5, 1, 0];
+
+/** Lo que ve la mente de una persona: su estado, el de su aldea y la decisión del consejo. */
+export function situacion(p: Persona, c: Contexto, e: number, conConsejo = true): Situacion {
+  const pr = c.precio;
+  return {
+    hambre: 1 - p.reservas / 8,
+    debilidad: 1 - p.salud,
+    edad: e / 60,
+    escasez: c.escasez,
+    frio: FRIO[c.est],
+    cosecha: COSECHA[c.est],
+    madera: Math.min(1, pr.madera * 2),
+    materiales: Math.min(1, Math.max(pr.piedra, pr.arcilla, pr.fibra, pr.piel) / 1.5),
+    obra: c.obraLista ? 1 : 0,
+    campos: Math.min(1, c.camposPorTrabajar / 4),
+    amenaza: c.a.amenaza,
+    consejo: conConsejo ? c.consejo : undefined,
   };
 }
 
@@ -166,11 +220,14 @@ export function jornada(m: Mundo, p: Persona, c: Contexto): void {
     p.actividad = 'descansar';
     return;
   }
-  hacer(m, p, c, elegirActividad(p, c, e), 1);
+  const x = entradas(situacion(p, c, e));
+  const pensado = pensar(p.mente, x);
+  const accion = elegirActividad(p, c, e, pensado.salidas);
+  const r = hacer(m, p, c, accion, 1);
+  if (APRENDIBLES.has(accion)) c.hoy.push({ p, pensado, x, k: ACCIONES.indexOf(accion), r });
 }
 
-function elegirActividad(p: Persona, c: Contexto, e: number): string {
-  if (p.salud < 0.35 && p.causa !== 'hambre') return 'descansar';
+function elegirActividad(p: Persona, c: Contexto, e: number, mente: number[]): string {
   const comida = c.precio.comida;
   const v = p.valor;
   const U: Record<string, number> = {
@@ -188,16 +245,26 @@ function elegirActividad(p: Persona, c: Contexto, e: number): string {
   const reparto = Math.min(1, Math.sqrt(25 / Math.max(1, c.gente.length)));
   const hambre = p.reservas < 3 ? 0.2 : 1;
   U.experimentar = p.genes.curiosidad * GANAS_EXPERIMENTAR * c.holgura * hambre * (e > 45 ? 1.3 : 1) * reparto;
+  U.descansar = 0.2 + 2 * (1 - p.salud) * (1 - p.salud);
+  U.vigilar = 0.05 + 1.2 * c.a.amenaza * c.a.amenaza;
 
   // A veces se prueba otra cosa: así se descubre que algo ha empezado a rendir.
   if (prob(0.04 + 0.12 * p.genes.curiosidad)) {
     const posibles = OFICIOS.filter((o) => (U[o] ?? -1) > 0);
     if (posibles.length) return elegir(posibles);
   }
+  // La mente (intuición aprendida) empuja cada opción entre un 75 % y un 125 %, y el
+  // consejo añade su peso (más en los sociables, que le hacen más caso).
+  const alineadas = ALINEADAS[c.consejo] ?? [];
+  const obediencia = 0.1 + 0.2 * p.genes.sociabilidad;
   let mejor = 'descansar';
   let max = 0;
   for (const k of Object.keys(U)) {
-    const u = U[k] * (0.85 + 0.3 * azar());
+    if (U[k] <= 0) continue;
+    const i = ACCIONES.indexOf(k);
+    const empuje = i >= 0 ? 1 + 0.25 * mente[i] : 1;
+    const consejo = alineadas.includes(k) ? 1 + obediencia : 1;
+    const u = U[k] * empuje * consejo * (0.85 + 0.3 * azar());
     if (u > max) {
       max = u;
       mejor = k;
@@ -206,53 +273,75 @@ function elegirActividad(p: Persona, c: Contexto, e: number): string {
   return mejor;
 }
 
-function hacer(m: Mundo, p: Persona, c: Contexto, act: string, eficiencia: number): void {
+/** Hace la actividad y devuelve lo que ha aportado (la recompensa con que aprende su mente). */
+function hacer(m: Mundo, p: Persona, c: Contexto, act: string, eficiencia: number): number {
   p.actividad = act;
+  const pr = c.precio;
   let obtenido: number | null = null;
+  let r = 0;
   switch (act) {
     case 'recolectar':
       obtenido = recolectar(m, p, c, eficiencia);
+      r = obtenido * pr.comida + 0.3 * (pr.fibra + pr.hierbas);
       break;
     case 'cazar':
       obtenido = cazar(m, p, c);
+      r = obtenido * pr.comida + (obtenido > 0 ? pr.piel + 2 * pr.hueso : 0);
       break;
     case 'pescar':
       obtenido = pescar(m, p, c);
+      r = obtenido * pr.comida;
       break;
     case 'lenar':
       obtenido = lenar(m, p, c);
+      r = obtenido * pr.madera;
       break;
     case 'picar':
       obtenido = picar(m, p, c);
+      r = obtenido * Math.max(pr.piedra, 0.02);
       break;
     case 'barro':
       obtenido = barro(m, p, c);
+      r = obtenido * pr.arcilla;
       break;
     case 'pastorear':
       obtenido = pastorear(m, p, c);
+      r = obtenido * pr.comida;
       break;
     case 'cultivar':
-      cultivar(m, p, c);
+      r = cultivar(m, p, c) * 1.2;
       break;
     case 'construir':
-      construir(m, p, c);
+      r = construir(m, p, c) * 1.5;
       break;
     case 'experimentar': {
       const rapidez = (conoce(c.a, 'tambor') ? 1.1 : 1) * (conoce(c.a, 'escritura') ? 1.2 : 1) * (conoce(c.a, 'numeros') ? 1.2 : 1);
-      experimentar(m, p, c.a, rapidez);
+      const res = experimentar(m, p, c.a, rapidez);
+      // La curiosidad satisfecha también cuenta; descubrir algo, muchísimo.
+      r = 0.3 + 0.6 * p.genes.curiosidad + (res.idea ? 0.4 : 0) + (res.descubierto ? 8 : 0);
       p.x = c.a.x;
       p.y = c.a.y;
       break;
     }
-    default:
-      p.salud = Math.min(1, r2(p.salud + 0.01));
+    case 'vigilar':
+      // Montar guardia rinde lo que vale la seguridad cuando hay peligro.
+      r = 0.05 + 1.2 * c.a.amenaza * c.a.amenaza;
       p.x = c.a.x;
       p.y = c.a.y;
+      break;
+    default: {
+      const antes = p.salud;
+      p.salud = Math.min(1, r2(p.salud + 0.01));
+      r = (p.salud - antes) * 40;
+      p.x = c.a.x;
+      p.y = c.a.y;
+    }
   }
   if (obtenido !== null && eficiencia === 1) {
     // Aprendizaje por refuerzo: lo esperado se acerca a lo obtenido.
     p.valor[act] = r2(p.valor[act] + 0.15 * (obtenido - p.valor[act]));
   }
+  return r;
 }
 
 function situar(m: Mundo, p: Persona, i: number): void {
@@ -260,7 +349,7 @@ function situar(m: Mundo, p: Persona, i: number): void {
   p.y = Math.floor(i / m.ancho);
 }
 
-const distancia = (m: Mundo, a: Aldea, i: number) => Math.hypot((i % m.ancho) - a.x, Math.floor(i / m.ancho) - a.y);
+const distancia = (m: Mundo, a: Aldea, i: number) => distanciaXY((i % m.ancho) - a.x, Math.floor(i / m.ancho) - a.y);
 
 function recolectar(m: Mundo, p: Persona, c: Contexto, eficiencia: number): number {
   const R = m.recursos;
@@ -411,17 +500,17 @@ function pastorear(m: Mundo, p: Persona, c: Contexto): number {
   return carne;
 }
 
-function cultivar(m: Mundo, p: Persona, c: Contexto): void {
+function cultivar(m: Mundo, p: Persona, c: Contexto): number {
   const a = c.a;
   const fuerza = (0.6 + 0.6 * p.genes.fuerza) * c.herramienta;
   const campos = a.edificios.filter((e) => e.tipo === 'campo');
   if (c.est === 0) {
     const campo = campos.find((e) => e.fase === 0 && (e.trabajo ?? 0) > 0) ?? campos.find((e) => e.fase === 0);
-    if (!campo) return;
+    if (!campo) return 0;
     if (!(campo.trabajo ?? 0)) {
       // Sembrar gasta grano: primero del cultivado, si no, del silvestre.
       const de = (a.despensa.cereal ?? 0) >= 4 ? 'cereal' : 'semillas';
-      if ((a.despensa[de] ?? 0) < 4) return;
+      if ((a.despensa[de] ?? 0) < 4) return 0;
       a.despensa[de] = r2(a.despensa[de] - 4);
     }
     p.x = campo.x;
@@ -432,15 +521,17 @@ function cultivar(m: Mundo, p: Persona, c: Contexto): void {
       campo.trabajo = 0;
       campo.cuidado = 0;
     }
+    return fuerza;
   } else if (c.est === 1) {
     const campo = campos.find((e) => e.fase === 1 && (e.cuidado ?? 0) < 3);
-    if (!campo) return;
+    if (!campo) return 0;
     p.x = campo.x;
     p.y = campo.y;
     campo.cuidado = r2((campo.cuidado ?? 0) + fuerza);
+    return fuerza;
   } else if (c.est === 2) {
     const campo = campos.find((e) => e.fase === 1);
-    if (!campo) return;
+    if (!campo) return 0;
     p.x = campo.x;
     p.y = campo.y;
     campo.trabajo = r2((campo.trabajo ?? 0) + fuerza);
@@ -453,7 +544,9 @@ function cultivar(m: Mundo, p: Persona, c: Contexto): void {
       campo.trabajo = 0;
       campo.cuidado = 0;
     }
+    return fuerza;
   }
+  return 0;
 }
 
 function obraLista(a: Aldea): boolean {
@@ -463,10 +556,10 @@ function obraLista(a: Aldea): boolean {
   return Object.keys(coste).every((k) => (a.despensa[k] ?? 0) >= coste[k]);
 }
 
-function construir(m: Mundo, p: Persona, c: Contexto): void {
+function construir(m: Mundo, p: Persona, c: Contexto): number {
   const a = c.a;
   const obra = a.obra;
-  if (!obra || !obraLista(a)) return;
+  if (!obra || !obraLista(a)) return 0;
   const tipo = EDIFICIO[obra.tipo];
   if (!obra.pagada) {
     for (const [k, v] of Object.entries(tipo.coste)) a.despensa[k] = r2(a.despensa[k] - v);
@@ -477,6 +570,7 @@ function construir(m: Mundo, p: Persona, c: Contexto): void {
   const ritmo = (0.6 + 0.4 * p.genes.fuerza) * (sabe(p, 'hacha') ? 1.2 : 1) * c.herramienta * (conoce(a, 'numeros') ? 1.15 : 1);
   obra.progreso = r2(obra.progreso + ritmo / tipo.trabajo);
   if (obra.progreso >= 1) terminarObra(m, a);
+  return ritmo;
 }
 
 function terminarObra(m: Mundo, a: Aldea): void {
@@ -532,7 +626,7 @@ export function planificar(m: Mundo, a: Aldea, gente: Persona[]): void {
   if (conoce(a, 'corral') && (a.despensa.cria ?? 0) >= 2 && cuantos(a, 'corral') < 1 + n / 25) opciones.push(['corral', 0.7]);
   if (conoce(a, 'vasija') && !tiene(a, 'almacen')) opciones.push(['almacen', 0.6]);
   if (conoce(a, 'horno') && !tiene(a, 'horno')) opciones.push(['horno', 0.6]);
-  if (conoce(a, 'empalizada') && !tiene(a, 'empalizada') && n >= 12) opciones.push(['empalizada', 0.5]);
+  if (conoce(a, 'empalizada') && !tiene(a, 'empalizada') && n >= 12) opciones.push(['empalizada', a.consejo?.prioridad === 'defensa' || a.amenaza > 0.3 ? 1.1 : 0.5]);
   if (conoce(a, 'escritura') && !tiene(a, 'archivo')) opciones.push(['archivo', 0.5]);
   if (conoce(a, 'comercio') && !tiene(a, 'mercado')) opciones.push(['mercado', 0.4]);
   opciones.sort((x, y) => y[1] - x[1]);

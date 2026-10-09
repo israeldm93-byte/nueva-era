@@ -9,7 +9,9 @@ import { anios, anotar } from './cronica.ts';
 import { comidaTotal, conoce, guardar, necesidad, tiene } from './economia.ts';
 import { lexicoComun, nombrar, parecido } from './lenguaje.ts';
 import { buscarSitio, direccion, puntuarSitio } from './mapa.ts';
+import { distancia, exponencial } from './matematicas.ts';
 import { aldeasVivas, edad, nuevaAldea, nuevaPersona, type Indices } from './mundo.ts';
+import { asaltar, boda, convivir, persuadir, quiereAsaltar } from './politica.ts';
 import { compartirIdea, ensenar, escribir, leer } from './saber.ts';
 import type { Aldea, Mundo, Persona } from './tipos.ts';
 
@@ -55,10 +57,6 @@ function parientes(a: Persona, b: Persona): boolean {
   );
 }
 
-function cultura(a: Aldea): number {
-  return (conoce(a, 'tambor') ? 1.2 : 1) * (conoce(a, 'pintura') ? 1.15 : 1) * (conoce(a, 'escritura') ? 1.2 : 1);
-}
-
 function conversar(m: Mundo, p: Persona, q: Persona, ap: Aldea, aq: Aldea, ix: Indices): string | null {
   const eq = edad(m, q);
   nombrar(m.fonologia, p, q, tema(p, ap), eq < 10);
@@ -69,6 +67,7 @@ function conversar(m: Mundo, p: Persona, q: Persona, ap: Aldea, aq: Aldea, ix: I
   }
   const ep = edad(m, p);
   if (ep >= EDAD_ADULTA && eq >= EDAD_ADULTA && prob(0.15)) compartirIdea(p, q, aq);
+  persuadir(m, p, q);
   if (prob(0.1)) escribir(p, ap);
   if (
     p.pareja === null &&
@@ -83,6 +82,7 @@ function conversar(m: Mundo, p: Persona, q: Persona, ap: Aldea, aq: Aldea, ix: I
     p.pareja = q.id;
     q.pareja = p.id;
     if (p.aldea !== q.aldea) {
+      boda(m, ap.id, aq.id);
       // Uno de los dos se muda a la aldea del otro, y se lleva lo que sabe.
       const [quien, destino, origen] = prob(0.5) ? [p, aq, ap] : [q, ap, aq];
       quien.aldea = destino.id;
@@ -122,8 +122,8 @@ export function anochecer(m: Mundo, ix: Indices): void {
   }
 }
 
-function limiteAldea(a: Aldea): number {
-  return (
+export function limiteAldea(a: Aldea): number {
+  return (a.consejo?.prioridad === 'expandir' ? 0.75 : 1) * (
     32 +
     (conoce(a, 'campo') ? 25 : 0) +
     (tiene(a, 'casa') ? 10 : 0) +
@@ -133,6 +133,9 @@ function limiteAldea(a: Aldea): number {
     (conoce(a, 'comercio') ? 10 : 0)
   );
 }
+
+const cultura = (a: Aldea) =>
+  (conoce(a, 'tambor') ? 1.2 : 1) * (conoce(a, 'pintura') ? 1.15 : 1) * (conoce(a, 'escritura') ? 1.2 : 1) * (a.consejo?.prioridad === 'saber' ? 1.4 : 1);
 
 function nacimientos(m: Mundo, a: Aldea, gente: Persona[], ix: Indices): void {
   const densidad = Math.max(0.03, 1 - gente.length / (limiteAldea(a) * 1.4));
@@ -193,7 +196,7 @@ export function salud(m: Mundo, a: Aldea, gente: Persona[], est: number, hoguera
       if (expuesto > 0) danar(p, 0.005 * expuesto * vulnerable, 'frío');
     }
     if (prob(0.0005 * (1 + n / 80))) danar(p, (0.15 + 0.2 * azar()) * cura * (1.25 - 0.5 * p.genes.resistencia), 'enfermedad');
-    let riesgo = 0.0006 * Math.exp(0.085 * e * (1.25 - 0.5 * p.genes.longevidad));
+    let riesgo = 0.0006 * exponencial(0.085 * e * (1.25 - 0.5 * p.genes.longevidad));
     if (e < 3) riesgo += 0.1 * (remedio ? 0.7 : 1) * (medicina ? 0.7 : 1) * (hogueraEncendida ? 0.85 : 1);
     if (prob(riesgo / DIAS_ANIO)) morir(p, e > 50 ? 'vejez' : 'enfermedad');
     if (p.reservas > 1 && p.salud < 1) p.salud = r2(Math.min(1, p.salud + 0.01 + (remedio ? 0.004 : 0) + (medicina ? 0.004 : 0)));
@@ -208,6 +211,7 @@ export function peligros(m: Mundo, a: Aldea, gente: Persona[], est: number, diaD
     const lanzas = gente.some((p) => p.saberes.includes('lanza'));
     const p = 0.003 * (hogueraEncendida ? 0.5 : 1) * (lanzas ? 0.6 : 1) * (tiene(a, 'empalizada') ? 0.15 : 1);
     if (prob(p)) {
+      a.amenaza = Math.min(1, a.amenaza + 0.04);
       const victima = elegirPeso(gente, (q) => {
         const e = edad(m, q);
         return e < 10 || e > 60 ? 3 : 1;
@@ -241,7 +245,7 @@ function diasDeComida(m: Mundo, a: Aldea, gente: Persona[]): number {
 export function trasladar(m: Mundo, a: Aldea, gente: Persona[]): void {
   if (!gente.length || m.t - a.movida < DIAS_ANIO) return;
   if (a.edificios.some((e) => e.tipo === 'campo' || e.tipo === 'corral') || a.obra?.tipo === 'campo') return;
-  if (diasDeComida(m, a, gente) > 15) return;
+  if (diasDeComida(m, a, gente) > 15 && a.consejo?.prioridad !== 'expandir') return;
   const sitio = buscarSitio(m, a, 4, 14, a.id);
   if (!sitio || puntuarSitio(m, sitio.x, sitio.y) < puntuarSitio(m, a.x, a.y) * 1.5) return;
   for (const e of a.edificios) m.ruinas.push({ tipo: e.tipo, x: e.x, y: e.y });
@@ -319,8 +323,8 @@ export function dividir(m: Mundo, a: Aldea, gente: Persona[], ix: Indices): void
   );
 }
 
-/** Aldeas cercanas se visitan: se aprenden palabras y saberes, y surgen parejas. */
-export function encuentros(m: Mundo, ix: Indices): void {
+/** Aldeas cercanas se visitan (o se asaltan): se aprenden palabras y saberes, surgen parejas y rencores. */
+export function encuentros(m: Mundo, ix: Indices, escasez: Map<number, number>): void {
   const vivas = aldeasVivas(m);
   for (let i = 0; i < vivas.length; i++) {
     for (let j = i + 1; j < vivas.length; j++) {
@@ -330,8 +334,18 @@ export function encuentros(m: Mundo, ix: Indices): void {
       const gb = ix.porAldea.get(b.id) ?? [];
       if (!ga.length || !gb.length) continue;
       const alcance = 18 + alcanceExtra(a) + alcanceExtra(b);
-      const d = Math.hypot(a.x - b.x, a.y - b.y);
+      const d = distancia(a.x - b.x, a.y - b.y);
       if (d > alcance || !prob(0.35 * (tiene(a, 'mercado') && tiene(b, 'mercado') ? 2 : 1))) continue;
+      const ea = escasez.get(a.id) ?? 0;
+      const eb = escasez.get(b.id) ?? 0;
+      if (quiereAsaltar(m, a, b, ga, gb, ea, ix.porId)) {
+        asaltar(m, a, b, ga, gb);
+        continue;
+      }
+      if (quiereAsaltar(m, b, a, gb, ga, eb, ix.porId)) {
+        asaltar(m, b, a, gb, ga);
+        continue;
+      }
       const clave = `${Math.min(a.id, b.id)}-${Math.max(a.id, b.id)}`;
       if (!m.contactos.includes(clave)) {
         m.contactos.push(clave);
@@ -342,6 +356,7 @@ export function encuentros(m: Mundo, ix: Indices): void {
         if (ga.length && gb.length) visita(m, elegir(gb), elegir(ga), b, a, ix);
       }
       truequear(a, b);
+      convivir(m, a, b, ea, eb);
       if (conoce(a, 'comercio') && conoce(b, 'comercio')) comerciar(a, b, ga.length, gb.length);
     }
   }

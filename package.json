@@ -9,12 +9,16 @@
   },
   "scripts": {
     "simular": "node src/cli.ts simular",
-    "avanzar": "node src/cli.ts avanzar --estado estado/mundo.json --web web/datos --crear",
+    "avanzar": "node src/cli.ts avanzar --estado estado/mundo.json --web sitio/datos --crear",
+    "web": "node tools/construir.mjs sitio",
+    "prueba-web": "node src/cli.ts simular --anios 60 --semilla 7 --web sitio/datos && node tools/construir.mjs sitio",
     "test": "node --test test/*.test.ts",
     "tipos": "tsc"
   },
   "devDependencies": {
     "@types/node": "^22.18.0",
+    "esbuild": "^0.24.2",
+    "three": "^0.170.0",
     "typescript": "~5.9.3"
   }
 }

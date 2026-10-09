@@ -4,10 +4,12 @@ import { azar, barajar, estadoAzar, fijarAzar, prob } from './azar.ts';
 import { DIAS_ANIO } from './config.ts';
 import { TECNICA } from './catalogo.ts';
 import { anioDe, anios, anotar, fecha, listar } from './cronica.ts';
-import { comer, contexto, jornada, mantener, planificar } from './economia.ts';
+import { asentarAprendizaje, comer, contexto, jornada, mantener, planificar } from './economia.ts';
 import { lexicoComun, parecido } from './lenguaje.ts';
 import { recrecer } from './mapa.ts';
 import { aldeasVivas, crearMundo, edad, estacionDe, indexar, mediaGenes, type Indices } from './mundo.ts';
+import { examinar } from './mente.ts';
+import { facciones, noche } from './politica.ts';
 import { anochecer, dividir, encuentros, peligros, salud, trasladar, vigilarLenguas } from './sociedad.ts';
 import type { FilaHistoria, Mundo, Persona } from './tipos.ts';
 
@@ -30,13 +32,14 @@ function paso(m: Mundo): void {
   const ix = indexar(m);
   const vivas = aldeasVivas(m);
   const gente = (id: number) => ix.porAldea.get(id) ?? [];
-  if (m.t % 10 === 0) for (const a of vivas) planificar(m, a, gente(a.id));
+  for (const a of vivas) if (m.t % 10 === 0 || a.consejo?.prioridad === 'obras') planificar(m, a, gente(a.id));
 
   const ctx = new Map(vivas.map((a) => [a.id, contexto(m, a, gente(a.id), est)]));
   for (const p of barajar(m.personas.slice())) {
     const c = ctx.get(p.aldea);
     if (c) jornada(m, p, c);
   }
+  for (const c of ctx.values()) asentarAprendizaje(c);
   for (const a of vivas) {
     const encendida = mantener(m, a, est, dia);
     comer(m, a, gente(a.id));
@@ -44,7 +47,12 @@ function paso(m: Mundo): void {
     peligros(m, a, gente(a.id), est, dia, encendida);
   }
   anochecer(m, ix);
-  if (m.t % 15 === 7) encuentros(m, ix);
+  for (const a of vivas) {
+    const c = ctx.get(a.id);
+    if (c) noche(m, a, gente(a.id), c);
+  }
+  if (m.t % 10 === 5) for (const a of vivas) if (a.abandonada === null) facciones(m, a, gente(a.id), ix);
+  if (m.t % 15 === 7) encuentros(m, ix, new Map(vivas.map((a) => [a.id, ctx.get(a.id)?.escasez ?? 0])));
   if (m.t % 30 === 0) {
     for (const a of vivas) dividir(m, a, gente(a.id).filter((p) => !p.muerto && p.aldea === a.id), ix);
   }
@@ -122,7 +130,7 @@ function finAnio(m: Mundo): void {
 
 function inicioAnio(m: Mundo): void {
   const ix = indexar(m);
-  m.anual = { nacimientos: 0, muertes: {} };
+  m.anual = { nacimientos: 0, muertes: {}, asaltos: 0 };
 
   m.clima = r2(prob(0.07) ? 0.5 + 0.15 * azar() : Math.min(1.25, Math.max(0.7, 0.6 * m.clima + 0.4 * (0.75 + 0.5 * azar()))));
   if (m.clima < 0.7) anotar(m, 'sequia', `Llega un año de sequía: las plantas apenas darán fruto.`);
@@ -166,6 +174,8 @@ function filaHistoria(m: Mundo, ix: Indices): FilaHistoria {
       pares++;
     }
   }
+  const mentes = m.personas.filter((p) => edad(m, p) >= 16).map((p) => p.mente);
+  const pruebas = examinar(mentes);
   return {
     era: m.era,
     anio: anioDe(m.t - 1),
@@ -179,6 +189,10 @@ function filaHistoria(m: Mundo, ix: Indices): FilaHistoria {
     genes: mediaGenes(m.personas),
     parecido: pares ? r2(suma / pares) : 1,
     clima: m.clima,
+    sensatez: pruebas.length ? r2(pruebas.reduce((s, x) => s + x, 0) / pruebas.length) : 0,
+    pruebas,
+    asaltos: m.anual.asaltos,
+    facciones: vivas.reduce((s, a) => s + a.facciones.length, 0),
   };
 }
 
