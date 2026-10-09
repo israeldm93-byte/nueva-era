@@ -39,7 +39,7 @@ function paso(m: Mundo): void {
     const c = ctx.get(p.aldea);
     if (c) jornada(m, p, c);
   }
-  for (const c of ctx.values()) asentarAprendizaje(c);
+  for (const c of ctx.values()) asentarAprendizaje(m, c);
   for (const a of vivas) {
     const encendida = mantener(m, a, est, dia);
     comer(m, a, gente(a.id));
@@ -130,7 +130,7 @@ function finAnio(m: Mundo): void {
 
 function inicioAnio(m: Mundo): void {
   const ix = indexar(m);
-  m.anual = { nacimientos: 0, muertes: {}, asaltos: 0 };
+  m.anual = { nacimientos: 0, muertes: {}, asaltos: 0, aciertos: 0, predicciones: 0 };
 
   m.clima = r2(prob(0.07) ? 0.5 + 0.15 * azar() : Math.min(1.25, Math.max(0.7, 0.6 * m.clima + 0.4 * (0.75 + 0.5 * azar()))));
   if (m.clima < 0.7) anotar(m, 'sequia', `Llega un año de sequía: las plantas apenas darán fruto.`);
@@ -191,6 +191,7 @@ function filaHistoria(m: Mundo, ix: Indices): FilaHistoria {
     clima: m.clima,
     sensatez: pruebas.length ? r2(pruebas.reduce((s, x) => s + x, 0) / pruebas.length) : 0,
     pruebas,
+    ...(m.anual.predicciones >= 20 ? { acierto: r2(m.anual.aciertos / m.anual.predicciones) } : {}),
     asaltos: m.anual.asaltos,
     facciones: vivas.reduce((s, a) => s + a.facciones.length, 0),
   };

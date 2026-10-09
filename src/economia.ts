@@ -166,16 +166,22 @@ export function contexto(m: Mundo, a: Aldea, gente: Persona[], est: number): Con
 const APRENDIBLES = new Set(['recolectar', 'cazar', 'pescar', 'lenar', 'picar', 'barro', 'cultivar', 'pastorear', 'construir', 'vigilar']);
 
 /**
- * Al final del día cada mente se compara con su aldea: si su elección aportó más que
- * la media de lo que aportaron los demás hoy (con los mismos precios), la refuerza.
+ * Al final del día cada mente compara lo que esperaba de su trabajo con lo que de
+ * verdad aportó respecto a la media de su aldea (con los mismos precios) y aprende
+ * de su error. También se anota si lo había previsto bien.
  */
-export function asentarAprendizaje(c: Contexto): void {
+export function asentarAprendizaje(m: Mundo, c: Contexto): void {
   if (c.hoy.length < 2) return;
   let media = 0;
   for (const h of c.hoy) media += h.r;
   media /= c.hoy.length;
   for (const h of c.hoy) {
-    aprender(h.p.mente, h.pensado, h.k, (h.r - media) / (media + 0.5), h.x);
+    const ventaja = (h.r - media) / (media + 0.5);
+    if (ventaja >= 0.05 || ventaja <= -0.05) {
+      m.anual.predicciones++;
+      if (ventaja > 0 === h.pensado.salidas[h.k] > 0) m.anual.aciertos++;
+    }
+    aprender(h.p.mente, h.pensado, h.k, ventaja, h.x);
     h.p.recompensa = r2(h.p.recompensa + 0.05 * (h.r - h.p.recompensa));
   }
   c.hoy = [];

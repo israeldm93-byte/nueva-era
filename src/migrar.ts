@@ -2,7 +2,7 @@
 
 import { azar, estadoAzar, fijarAzar } from './azar.ts';
 import { VERSION_ESTADO } from './config.ts';
-import { menteNueva } from './mente.ts';
+import { ESCALA, menteNueva } from './mente.ts';
 import type { Mundo } from './tipos.ts';
 
 export function migrar(m: Mundo): Mundo {
@@ -23,8 +23,19 @@ export function migrar(m: Mundo): Mundo {
     }
     m.relaciones = {};
     m.anual.asaltos = 0;
-    m.version = 2;
+    m.anual.aciertos = 0;
+    m.anual.predicciones = 0;
+    // Las mentes nuevas ya nacen con los pesos de la versión 3.
+    m.version = 3;
     m.azar = estadoAzar();
+  }
+  if (m.version === 2) {
+    // Versión 3: los pesos de las mentes pasan de centésimas a milésimas (piensan
+    // exactamente igual, pero ahora aprenden con más finura) y se miden sus aciertos.
+    for (const p of m.personas) p.mente = p.mente.map((w) => w * (ESCALA / 100));
+    m.anual.aciertos ??= 0;
+    m.anual.predicciones ??= 0;
+    m.version = 3;
   }
   if (m.version !== VERSION_ESTADO) throw new Error(`No sé migrar un mundo de la versión ${m.version}.`);
   return m;

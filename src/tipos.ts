@@ -196,6 +196,8 @@ export interface FilaHistoria {
   clima: number;
   sensatez?: number;
   pruebas?: number[];
+  /** Parte de los días en que sus mentes previeron bien lo que rendiría su trabajo. */
+  acierto?: number;
   asaltos?: number;
   facciones?: number;
 }
@@ -243,7 +245,14 @@ export interface Mundo {
   hitos: number[];
   cronica: Suceso[];
   historia: FilaHistoria[];
-  anual: { nacimientos: number; muertes: Record<string, number>; asaltos: number };
+  anual: {
+    nacimientos: number;
+    muertes: Record<string, number>;
+    asaltos: number;
+    /** Días de trabajo en que la mente previó bien si le iría mejor o peor que a su aldea. */
+    aciertos: number;
+    predicciones: number;
+  };
   poblacionMax: number;
   eras: Era[];
   /** Instante real (ISO) hasta el que está simulado el mundo. */

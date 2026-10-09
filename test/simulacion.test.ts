@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { DIAS_ANIO } from '../src/config.ts';
+import { fijarAzar } from '../src/azar.ts';
+import { DIAS_ANIO, VERSION_ESTADO } from '../src/config.ts';
 import { TECNICAS } from '../src/catalogo.ts';
 import { datosWeb } from '../src/vista.ts';
 import { migrar } from '../src/migrar.ts';
+import { ACCIONES, aprender, entradas, menteNueva, pensar } from '../src/mente.ts';
 import { lexicoComun } from '../src/lenguaje.ts';
 import { aldeasVivas, crearMundo, indexar } from '../src/mundo.ts';
 import { avanzar } from '../src/simulacion.ts';
@@ -87,7 +89,7 @@ test('un mundo de la versión 1 se pone al día y sigue vivo', () => {
   for (const a of viejo.aldeas) delete (a as Partial<typeof a>).consejo;
   delete (viejo as Partial<Mundo>).relaciones;
   const nuevo = migrar(viejo);
-  assert.equal(nuevo.version, 2);
+  assert.equal(nuevo.version, VERSION_ESTADO);
   assert.ok(nuevo.personas.every((p) => p.mente.length > 0 && p.genes.agresividad > 0));
   avanzar(nuevo, DIAS_ANIO);
   assert.ok(nuevo.personas.length > 0);
@@ -101,4 +103,36 @@ test('el consejo decide y las mentes aprenden', () => {
   const p = m.personas.find((q) => q.id === 1);
   if (p) assert.notEqual(JSON.stringify(p.mente), antes, 'la mente debería haber cambiado al aprender');
   assert.ok(m.historia.every((f) => Array.isArray(f.pruebas)));
+});
+
+test('un mundo de la versión 2 se pone al día y sus mentes piensan igual', () => {
+  const m = crearMundo(13);
+  avanzar(m, 3 * DIAS_ANIO);
+  const viejo = copiar(m);
+  // En la versión 2 los pesos eran centésimas.
+  viejo.version = 2;
+  for (const p of viejo.personas) p.mente = p.mente.map((w) => Math.round(w / 10));
+  const x = entradas({ hambre: 0.4, escasez: 0.3, frio: 1, edad: 0.5 });
+  const antes = viejo.personas.map((p) => pensar(p.mente.map((w) => w * 10), x).salidas);
+  const nuevo = migrar(viejo);
+  assert.equal(nuevo.version, VERSION_ESTADO);
+  nuevo.personas.forEach((p, i) => assert.deepEqual(pensar(p.mente, x).salidas, antes[i]));
+  avanzar(nuevo, DIAS_ANIO);
+  assert.ok(nuevo.historia.at(-1)!.acierto !== undefined, 'debería medirse cuánto aciertan');
+});
+
+test('una mente aprende qué rinde según la situación', () => {
+  // Cortar leña rinde en invierno y no en verano: la mente tiene que distinguirlo.
+  fijarAzar(12345);
+  const mente = menteNueva();
+  const lenar = ACCIONES.indexOf('lenar');
+  const invierno = entradas({ frio: 1, madera: 0.8, edad: 0.5 });
+  const verano = entradas({ frio: 0, cosecha: 0.5, madera: 0.1, edad: 0.5 });
+  for (let dia = 0; dia < 600; dia++) {
+    const x = dia % 2 ? invierno : verano;
+    aprender(mente, pensar(mente, x), lenar, dia % 2 ? 0.6 : -0.5, x);
+  }
+  const enInvierno = pensar(mente, invierno).salidas[lenar];
+  const enVerano = pensar(mente, verano).salidas[lenar];
+  assert.ok(enInvierno > 0.4 && enVerano < -0.3, `invierno ${enInvierno}, verano ${enVerano}`);
 });

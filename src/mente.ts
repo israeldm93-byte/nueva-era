@@ -3,14 +3,16 @@
 // (comida, leña, materiales, obras, campos), la estación y lo que ha decidido el
 // consejo, y da a cada actividad un empujón a favor o en contra.
 //
-// Aprende de dos maneras:
-//   - Durante su vida: si lo que hizo hoy le rindió más de lo que suele rendirle,
-//     refuerza esa elección en esa situación (aprendizaje por refuerzo).
-//   - Entre generaciones: cada hijo hereda una mezcla de las mentes de sus padres
-//     (con lo que ellos aprendieron) y alguna mutación. Las familias y aldeas que
-//     deciden mejor prosperan, así que la especie entera va pensando mejor.
+// Cada salida es lo que esa persona espera que le rinda cada actividad en la
+// situación que vive, comparado con lo que suele aportar su aldea. Aprende de dos
+// maneras:
+//   - Durante su vida: al anochecer compara lo que esperaba de lo que hizo con lo
+//     que de verdad aportó y corrige su error (aprendizaje por refuerzo). Cuando
+//     acierta, deja de cambiar; si las cosas cambian, vuelve a aprender.
+//   - Entre generaciones: cada hijo hereda la mente del padre o la madre al que
+//     mejor le ha ido (con lo que aprendió) y alguna mutación.
 //
-// Los pesos se guardan en centésimas (enteros entre -400 y 400) para que el
+// Los pesos se guardan en milésimas (enteros entre -4000 y 4000) para que el
 // mundo guardado ocupe poco y todo sea exacto.
 
 import { normal, prob } from './azar.ts';
@@ -38,13 +40,18 @@ const NO = 6;
 const NS = ACCIONES.length;
 const BASE = NE * NO;
 export const NPESOS = BASE + (NO + 1) * NS;
-const LIMITE = 400;
+/** Los pesos son enteros: milésimas. */
+export const ESCALA = 1000;
+const LIMITE = 4 * ESCALA;
+/** Ritmo de aprendizaje de la capa de salida y de las neuronas ocultas. */
+const RITMO_SALIDA = 0.08;
+const RITMO_OCULTA = 0.025;
 
 const acotar = (w: number) => (w > LIMITE ? LIMITE : w < -LIMITE ? -LIMITE : w);
 
 export function menteNueva(): number[] {
   const m: number[] = [];
-  for (let i = 0; i < NPESOS; i++) m.push(acotar(Math.round(normal() * 30)));
+  for (let i = 0; i < NPESOS; i++) m.push(acotar(Math.round(normal() * 0.3 * ESCALA)));
   return m;
 }
 
@@ -56,7 +63,7 @@ export function heredarMente(modelo: number[]): number[] {
   const h: number[] = [];
   for (let i = 0; i < NPESOS; i++) {
     let w = modelo[i];
-    if (prob(0.06)) w += Math.round(normal() * 40);
+    if (prob(0.06)) w += Math.round(normal() * 0.4 * ESCALA);
     h.push(acotar(w));
   }
   return h;
@@ -72,36 +79,39 @@ export function pensar(mente: number[], x: number[]): Pensamiento {
   for (let j = 0; j < NO; j++) {
     let s = 0;
     for (let i = 0; i < NE; i++) s += x[i] * mente[j * NE + i];
-    ocultas.push(tanh(s / 100));
+    ocultas.push(tanh(s / ESCALA));
   }
   const salidas: number[] = [];
   for (let k = 0; k < NS; k++) {
     const fila = BASE + k * (NO + 1);
     let s = mente[fila + NO];
     for (let j = 0; j < NO; j++) s += ocultas[j] * mente[fila + j];
-    salidas.push(tanh(s / 100));
+    salidas.push(tanh(s / ESCALA));
   }
   return { ocultas, salidas };
 }
 
 /**
- * Refuerza (o debilita) la acción elegida en la situación que vivió. Ajusta la capa
- * de salida y, más despacio, las neuronas ocultas: así aprenden a reconocer
- * situaciones (por ejemplo, «invierno y poca leña»), no solo gustos generales.
+ * Corrige lo que esperaba de la acción que eligió con lo que de verdad le rindió
+ * (su ventaja sobre la media de la aldea ese día). Ajusta la capa de salida y, más
+ * despacio, las neuronas ocultas: así aprenden a reconocer situaciones (por
+ * ejemplo, «invierno y poca leña»), no solo gustos generales. Como corrige un
+ * error, no se dispara: lo que ya predice bien deja de moverse.
  */
 export function aprender(mente: number[], p: Pensamiento, accion: number, ventaja: number, x: number[]): void {
-  const v = ventaja > 2 ? 2 : ventaja < -2 ? -2 : ventaja;
+  const objetivo = ventaja > 0.9 ? 0.9 : ventaja < -0.9 ? -0.9 : ventaja;
+  const error = objetivo - p.salidas[accion];
   const fila = BASE + accion * (NO + 1);
   for (let j = 0; j < NO; j++) {
-    const salida = mente[fila + j] / 100;
-    const pendiente = 1 - p.ocultas[j] * p.ocultas[j];
+    // Cuánto contribuyó cada neurona oculta (con el peso de antes de corregirlo).
+    const culpa = error * (mente[fila + j] / ESCALA) * (1 - p.ocultas[j] * p.ocultas[j]);
     for (let i = 0; i < NE; i++) {
       if (x[i] === 0) continue;
-      mente[j * NE + i] = acotar(mente[j * NE + i] + Math.round(8 * v * salida * pendiente * x[i]));
+      mente[j * NE + i] = acotar(mente[j * NE + i] + Math.round(RITMO_OCULTA * culpa * x[i] * ESCALA));
     }
-    mente[fila + j] = acotar(mente[fila + j] + Math.round(20 * v * p.ocultas[j]));
+    mente[fila + j] = acotar(mente[fila + j] + Math.round(RITMO_SALIDA * error * p.ocultas[j] * ESCALA));
   }
-  mente[fila + NO] = acotar(mente[fila + NO] + Math.round(20 * v));
+  mente[fila + NO] = acotar(mente[fila + NO] + Math.round(RITMO_SALIDA * error * ESCALA));
 }
 
 export interface Situacion {

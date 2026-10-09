@@ -158,7 +158,7 @@ export function crearMundo(semilla: number, previo?: Mundo): Mundo {
     hitos: [],
     cronica: previo?.cronica ?? [],
     historia: previo?.historia ?? [],
-    anual: { nacimientos: 0, muertes: {}, asaltos: 0 },
+    anual: { nacimientos: 0, muertes: {}, asaltos: 0, aciertos: 0, predicciones: 0 },
     poblacionMax: 0,
     eras: previo?.eras ?? [],
     reloj: previo?.reloj ?? null,

@@ -328,6 +328,11 @@ h3.sub { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; c
 .pista { height: 8px; background: var(--g-rejilla); border-radius: 4px; overflow: hidden; }
 .pista div { height: 100%; background: var(--g-serie); border-radius: 0 4px 4px 0; }
 .pista.naranja div { background: var(--g-serie-2); }
+.pista.divergente { position: relative; background: var(--g-rejilla); }
+.pista.divergente::after { content: ""; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--g-eje); }
+.pista.divergente div { position: absolute; top: 0; height: 100%; border-radius: 0; }
+.pista.divergente .pos { left: 50%; background: var(--g-serie); border-radius: 0 4px 4px 0; }
+.pista.divergente .neg { right: 50%; background: var(--g-serie-2); border-radius: 4px 0 0 4px; }
 
 .faccion-caja { border-left: 3px solid var(--acento); padding: 4px 0 4px 10px; margin: 8px 0 12px; }
 .faccion-caja p { margin: 2px 0 6px; font-size: 0.9rem; }

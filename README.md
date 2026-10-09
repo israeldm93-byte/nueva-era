@@ -10,11 +10,11 @@ La web muestra el mundo en 3D (terreno, bosques, animales, chozas, campos, empal
 
 ## Cada aldeano tiene una mente
 
-Cada persona decide con una **red neuronal** pequeña (18 entradas, 6 neuronas ocultas y 12 salidas, con pesos enteros para que todo sea exacto). Mira su hambre, su salud y su edad; la comida, la leña y los materiales de su aldea; si hay obras o campos por cosechar; si se sienten amenazados; la estación, y lo que ha decidido el consejo. Con eso da a cada actividad un empujón a favor o en contra.
+Cada persona decide con una **red neuronal** pequeña (18 entradas, 6 neuronas ocultas y 12 salidas, con pesos enteros para que todo sea exacto). Mira su hambre, su salud y su edad; la comida, la leña y los materiales de su aldea; si hay obras o campos por cosechar; si se sienten amenazados; la estación, y lo que ha decidido el consejo. Con eso estima cuánto le rendirá cada actividad comparada con la media de su aldea, y esa estimación empuja su decisión a favor o en contra.
 
-- **Aprenden en vida** (aprendizaje por refuerzo): si lo que hicieron hoy les rindió más que a la media de su aldea, la red refuerza esa elección en esa situación; si les fue peor, la debilita.
+- **Aprenden en vida** (aprendizaje por refuerzo): cada noche comparan lo que esperaban de su trabajo con lo que de verdad aportó y corrigen su error en esa situación. Lo que ya prevén bien deja de cambiar; si el mundo cambia, vuelven a aprender.
 - **Lo heredan**: cada hijo nace con la mente del padre o la madre al que mejor le ha ido, con alguna mutación.
-- **Se mide sin trampas**: cada año se pone a todas las mentes ante situaciones típicas (llega el invierno sin leña, hay hambre, les acaban de atacar…) y se publica qué parte reacciona con sensatez. Nadie les dice qué es lo correcto, así que esa curva sube o baja según lo que vivan.
+- **Se mide si aprenden**: cada mañana su mente prevé si el trabajo que elige le rendirá más o menos que a la media de su aldea, y cada año se publica qué parte de los días acierta. A ciegas sería la mitad; con lo que aprenden llegan al 65–90 %, y cuando el mundo cambia (un saber nuevo, otra tierra) fallan más hasta que vuelven a aprender. Además se les pone ante situaciones de prueba (¿y si falta leña en invierno?, ¿y si les atacan?): solo saben reaccionar a lo que han vivido.
 
 ## Política: consejo, opiniones y facciones
 

@@ -555,6 +555,12 @@ function elegirPersona(id) {
   abrir('aldea');
 }
 
+/** Barra que crece hacia la derecha (positivo) o la izquierda (negativo) desde el centro. */
+function divergente(v) {
+  const ancho = Math.round(Math.min(1, Math.abs(v) / 0.6) * 50);
+  return h('div', { class: 'pista divergente' }, h('div', { class: v < 0 ? 'neg' : 'pos', style: `width:${ancho}%` }));
+}
+
 function medidor(valor, clase = '') {
   return h('div', { class: `pista ${clase}` }, h('div', { style: `width:${Math.round(Math.max(0, Math.min(1, valor)) * 100)}%` }));
 }
@@ -594,11 +600,11 @@ function fichaPersona(p) {
     const orden = m.acciones.map((k, i) => [k, p.gustos[i]]).sort((x, y) => y[1] - x[1]);
     hijos.push(
       h('h3', {}, 'Su mente'),
-      h('p', { class: 'nota' }, 'Lo que su red neuronal empuja a hacer en un día normal. Lo ha aprendido viviendo y lo heredó de sus padres.'),
+      h('p', { class: 'nota' }, 'Lo que su red neuronal espera de cada actividad en un día normal: más que la media de su aldea (+) o menos (−). Lo ha aprendido viviendo y lo heredó de sus padres.'),
       h(
         'div',
         { class: 'mente' },
-        orden.slice(0, 5).map(([k, v]) => h('div', { class: 'gen' }, h('span', {}, mayus(ACCION[k] ?? k)), medidor((v + 1) / 2), h('span', {}, `${v > 0 ? '+' : ''}${Math.round(v * 100)}`))),
+        orden.map(([k, v]) => h('div', { class: 'gen' }, h('span', {}, mayus(ACCION[k] ?? k)), divergente(v), h('span', {}, `${v > 0 ? '+' : ''}${Math.round(v * 100)}`))),
       ),
     );
   }
@@ -974,7 +980,7 @@ function botonTabla(fig, cabeceras, filas) {
  * Líneas sobre los años. Una serie: área suave y sin leyenda (el título la nombra).
  * Varias: leyenda y etiqueta al final de cada línea. Cruceta con todos los valores.
  */
-function grafLinea({ titulo, nota, series, formato = (v) => NUM.format(v), yMax = null, alto = 160, ancho, mini = false, tabla = true }) {
+function grafLinea({ titulo, nota, series, formato = (v) => NUM.format(v), yMax = null, alto = 160, ancho, mini = false, tabla = true, referencia = null }) {
   const fig = h('figure', { class: mini ? 'mini' : 'grafica' });
   fig.append(mini ? h('h4', {}, titulo) : h('h3', {}, titulo));
   if (nota) fig.append(h('p', {}, nota));
@@ -1010,6 +1016,10 @@ function grafLinea({ titulo, nota, series, formato = (v) => NUM.format(v), yMax 
     svg.append(s('text', { x: X(v), y: H - 5, 'text-anchor': k === 0 ? 'start' : k === marcas ? 'end' : 'middle', 'font-size': 11, fill: 'var(--g-texto)' }, `año ${v}`));
   }
   svg.append(s('line', { x1: ml, x2: W - mr, y1: Y(0), y2: Y(0), stroke: 'var(--g-eje)', 'stroke-width': 1 }));
+  if (referencia) {
+    svg.append(s('line', { x1: ml, x2: W - mr, y1: Y(referencia.y), y2: Y(referencia.y), stroke: 'var(--g-texto)', 'stroke-width': 1, 'stroke-dasharray': '4 4' }));
+    svg.append(s('text', { x: ml + 4, y: Y(referencia.y) - 5, 'font-size': 11, fill: 'var(--g-texto)' }, referencia.texto));
+  }
   for (const se of series) {
     const d = se.puntos.map((p, i) => `${i ? 'L' : 'M'}${X(p.x).toFixed(1)},${Y(p.y).toFixed(1)}`).join('');
     if (series.length === 1) svg.append(s('path', { d: `${d}L${X(x1)},${Y(0)}L${X(x0)},${Y(0)}Z`, fill: se.color, 'fill-opacity': 0.1 }));
@@ -1134,25 +1144,27 @@ function pintarEvolucion() {
   const muertes = {};
   for (const f of filas) for (const [k, v] of Object.entries(f.muertes)) muertes[k] = (muertes[k] || 0) + v;
   const conMente = filas.filter((x) => x.sensatez !== undefined);
+  const conAcierto = filas.filter((x) => x.acierto !== undefined);
   const conPolitica = filas.filter((x) => x.asaltos !== undefined);
   const parecido = filas.filter((x) => x.aldeas > 1);
   rellenar(
     cuerpo,
     grafLinea({ titulo: 'Población', nota: 'Personas vivas al final de cada año.', series: [{ color: azul, puntos: serie((x) => x.poblacion) }], ancho }),
-    conMente.length > 1
+    conAcierto.length > 1
       ? grafLinea({
-          titulo: 'Cómo reaccionan sus mentes',
-          nota: 'Parte de las mentes que, ante situaciones típicas, se inclinan por una reacción sensata (media de las pruebas de abajo). Nadie se lo enseña: lo aprenden viviendo y lo heredan. No siempre sube.',
-          series: [{ color: azul, puntos: serie((x) => x.sensatez, conMente) }],
+          titulo: 'Lo que aprenden sus mentes',
+          nota: 'Cada mañana, la mente de cada uno prevé si el trabajo que elige le rendirá más o menos que a la media de su aldea. Esta es la parte de los días en que acierta. A ciegas acertarían la mitad. Cuando el mundo cambia (un saber nuevo, otra tierra) fallan más, hasta que vuelven a aprender.',
+          series: [{ color: azul, puntos: serie((x) => x.acierto, conAcierto) }],
           formato: pct,
           yMax: 1,
           ancho,
+          referencia: { y: 0.5, texto: 'a ciegas' },
         })
       : null,
     conMente.length > 1 && m.pruebas?.length
       ? multiples({
-          titulo: 'Cada prueba por separado',
-          nota: 'Qué parte de los adultos reacciona bien en cada situación.',
+          titulo: '¿Y si…?',
+          nota: 'Situaciones de prueba: qué parte de los adultos se inclinaría por la reacción sensata. Solo saben reaccionar a lo que han vivido: si nunca les ha faltado leña o comida, no lo saben.',
           filas: conMente,
           rasgos: m.pruebas.map((t, i) => [i, t]),
           ancho,
