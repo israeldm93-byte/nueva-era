@@ -15,6 +15,14 @@ La web muestra el mundo en 3D (relieve, ríos, lagos, bosques y animales; chozas
 - **Fieras** que viven en el mapa y se ven en 3D: manadas de lobos que en los inviernos de hambre rondan las aldeas, entran en los corrales y a veces se llevan a alguien (el fuego, las empalizadas, los vigías y las lanzas los frenan, y los cazadores salen en batida), y osos que atacan a quien trabaja en el bosque, duermen en invierno y dan carne y pieles a quien los abate.
 - **Incendios** en los veranos secos (por un rayo o un descuido junto a la hoguera) que se propagan por bosques y estepas, arrasan casas y dejan cenizas; y **crecidas** de los ríos en las primaveras lluviosas.
 
+## Fauna y flora en 3D
+
+- **Plantas de cada sitio**: abetos de pisos dentados en el norte y en las alturas; robles, abedules de corteza blanca y pinos de copa en parasol en lo templado, agrupados en bosquetes; sauces llorones y álamos junto a ríos y lagos; frutales que florecen en primavera; palmeras en las playas cálidas y en los oasis; cactus y matorral en el desierto y la estepa; rocas con musgo en el bosque. Cerca de la cámara crecen hierba, amapolas, margaritas, lavanda, botones de oro, helechos, setas en otoño, juncos y eneas en las orillas, nenúfares en los lagos y guijarros en las playas.
+- **Las estaciones se ven**: brotes en primavera, otoño de ocres y dorados, árboles desnudos en invierno y nieve sobre los pisos de las coníferas. Todo **se mece con el viento**, con rachas que cruzan el mapa (y también se mecen sus sombras).
+- **Animales con esqueleto**: cuerpo, cabeza con cuello, cola y cuatro patas de dos tramos, con andares distintos (paso, trote, galope, el salto de la liebre). Las manadas de lobos rondan al trote, acechan agazapadas (de noche con los ojos brillando), atacan al galope, se tumban, se sientan y aúllan de noche; el oso se yergue al atacar y en invierno hiberna.
+- **Rebaños donde hay caza**: ciervos (el macho con cuernas, alguna cría), jabalíes, liebres, caballos salvajes en la estepa y cabras monteses en las alturas. Pastan, pasean, alzan la cabeza alerta y **huyen al galope** de la gente y de las fieras; si se caza demasiado en un sitio, su rebaño desaparece. Además, ovejas en los corrales, gaviotas sobre islas y lagos, águilas sobre las cumbres, patos que se zambullen en las orillas, garzas al acecho en los pantanos y peces que saltan.
+- Para que vaya fluido, lo cercano se dibuja con detalle y lo lejano con modelos ligeros; lo que no se ve, ni se prepara.
+
 ## Cada aldeano tiene una mente
 
 Cada persona decide con una **red neuronal** pequeña (18 entradas, 6 neuronas ocultas y 12 salidas, con pesos enteros para que todo sea exacto). Mira su hambre, su salud y su edad; la comida, la leña y los materiales de su aldea; si hay obras o campos por cosechar; si se sienten amenazados; la estación, y lo que ha decidido el consejo. Con eso estima cuánto le rendirá cada actividad comparada con la media de su aldea, y esa estimación empuja su decisión a favor o en contra.
@@ -63,9 +71,11 @@ src/
 web/
   index.html, app.js, estilo.css   la interfaz y los paneles
   mundo3d.js                       el mundo en 3D (Three.js): cámara, luz del día, nubes, etiquetas
-  terreno3d.js, vegetacion3d.js    relieve, agua, ríos, crecidas, plantas de cada bioma
+  terreno3d.js                     relieve, agua, ríos y crecidas
+  plantas3d.js, vegetacion3d.js    modelos de cada planta (cerca y lejos); qué crece dónde y cuándo
   gente3d.js                       aldeanos articulados, ropa, herramientas y animaciones
-  fauna3d.js, edificios3d.js       animales; edificios, campos, hogueras e incendios
+  animales3d.js, fauna3d.js        modelos y medidas de los animales; su esqueleto, andares y conducta
+  edificios3d.js                   edificios, campos, hogueras e incendios
   minimapa.js                      el minimapa
   vivo.js                          el trabajador que simula en directo
 tools/construir.mjs                monta la web: copia web/, empaqueta el motor y añade Three.js

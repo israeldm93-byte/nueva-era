@@ -10,7 +10,7 @@ import { Fauna3D } from './fauna3d.js?v=__MOTOR__';
 import { Gente3D } from './gente3d.js?v=__MOTOR__';
 import { Minimapa } from './minimapa.js?v=__MOTOR__';
 import { Terreno3D } from './terreno3d.js?v=__MOTOR__';
-import { Ic, T, azar, entre, fundir, suave } from './util3d.js?v=__MOTOR__';
+import { Ic, T, VIENTO, azar, entre, fundir, suave } from './util3d.js?v=__MOTOR__';
 import { Vegetacion3D } from './vegetacion3d.js?v=__MOTOR__';
 
 export class Mundo3D {
@@ -141,7 +141,8 @@ export class Mundo3D {
     ]);
     this.matNube = new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, transparent: true, opacity: 0.92, roughness: 1 });
     this.nubes = new THREE.InstancedMesh(geo, this.matNube, 26);
-    this.nubes.castShadow = true;
+    // Las nubes no dan sombra: su sombra se cortaría en seco en el borde de la zona con sombras.
+    this.nubes.castShadow = false;
     this.nubes.frustumCulled = false;
     this.escena.add(this.nubes);
     this.datosNubes = Array.from({ length: 26 }, (_, k) => ({
@@ -427,10 +428,12 @@ export class Mundo3D {
     this.luz(fase);
     const noche = this.noche > 0.5;
     this.terreno.animarAgua(t);
-    this.vegetacion.cercania(this.controles.target);
+    VIENTO.value = t;
+    this.vegetacion.repartir(lim, distancia, this.camara);
+    this.vegetacion.cercania(lim, distancia);
     this.edificios.animar(t, this.noche);
     this.animarLuces(t);
-    this.fauna.animar(t, fase, noche);
+    this.fauna.animar(t, dt, fase, noche, this.gente.lista, lim, distancia, this.camara);
     this.gente.animar(t, fase, this.aldeas, this.controles.target, this.hablante(t));
     this.animarNubes(t);
     this.moverEtiquetas();
