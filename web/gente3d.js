@@ -5,7 +5,7 @@
 // trabaja a su manera y por la noche vuelve al fuego. Todo se dibuja con instancias.
 
 import * as THREE from 'three';
-import { B, C, Co, Cup, Es, azar, entre, fundir, instancias, suave } from './util3d.js?v=__MOTOR__';
+import { AGUA, B, C, Co, Cup, Do, Es, RIO, acotar, azar, entre, fundir, instancias, suave } from './util3d.js?v=__MOTOR__';
 
 const PIELES = [0xf1c8a0, 0xe3b088, 0xc98f62, 0x9a6845, 0x734a2e, 0xf6d6b6, 0xd6a77c];
 const PELOS = [0x2b1b10, 0x4a2f1b, 0x161616, 0x7a4a1e, 0xb88a4a, 0x5a3825, 0x8c5a2b];
@@ -105,8 +105,65 @@ function modelos() {
       { geo: Co(0.055, 0.15, 6), color: 0xffffff, y: mano - 0.46, rx: Math.PI },
       { geo: Co(0.032, 0.09, 5), color: 0xfff1a0, y: mano - 0.49, rx: Math.PI },
     ]),
+    // Lo que traen a casa al volver del trabajo: al hombro o a la espalda (sobre el
+    // torso), o colgando de la mano izquierda.
+    tronco: fundir([
+      { geo: C(0.056, 0.064, 0.8, 7), color: 0x7a5534, x: 0.11, y: 0.31, z: -0.06, rx: Math.PI / 2 - 0.15 },
+      { geo: C(0.016, 0.022, 0.12, 4), color: 0x6a4a2e, x: 0.16, y: 0.36, z: -0.3, rz: -0.7 },
+    ]),
+    presa: fundir([
+      { geo: Es(1, 7, 5), color: 0x8a5a33, y: 0.33, z: -0.07, sx: 0.3, sy: 0.075, sz: 0.085 },
+      { geo: Es(0.045, 6, 4), color: 0x7a4e2c, x: 0.31, y: 0.27, z: -0.03 },
+      { geo: C(0.012, 0.009, 0.22, 4), color: 0x4a3020, x: -0.25, y: 0.24, z: 0.04, rx: 0.5 },
+      { geo: C(0.012, 0.009, 0.22, 4), color: 0x4a3020, x: 0.21, y: 0.24, z: 0.05, rx: 0.5 },
+    ]),
+    sarta: fundir([
+      { geo: C(0.003, 0.003, 0.1, 3), color: 0x8a7a5a, y: mano - 0.05 },
+      { geo: Es(1, 6, 4), color: 0xaebcc2, y: mano - 0.16, sx: 0.016, sy: 0.065, sz: 0.026 },
+      { geo: Es(1, 6, 4), color: 0x9aaab0, x: 0.03, y: mano - 0.14, z: 0.01, sx: 0.016, sy: 0.055, sz: 0.024, rz: 0.3 },
+      { geo: Es(1, 6, 4), color: 0xb8c4c8, x: -0.03, y: mano - 0.15, z: -0.01, sx: 0.016, sy: 0.06, sz: 0.024, rz: -0.25 },
+    ]),
+    frutos: fundir(
+      [0xc0263a, 0xe07a1e, 0x6a3a8a, 0xc0263a, 0xd8a020, 0x8a2a3a].map((color, k) => ({
+        geo: Es(0.03, 5, 4),
+        color,
+        x: Math.cos(k * 2.3) * 0.05,
+        y: 0.235 + (k % 3) * 0.018,
+        z: -0.13 + Math.sin(k * 2.3) * 0.05,
+      })),
+    ),
+    piedras: fundir(
+      [0, 1, 2, 3].map((k) => ({ geo: Do(0.042), color: [0x8b867d, 0x9a948a, 0x7a756d, 0xa09a90][k], x: Math.cos(k * 1.9) * 0.045, y: 0.245 + (k % 2) * 0.03, z: -0.13 + Math.sin(k * 1.9) * 0.045, rx: k })),
+    ),
+    gavilla: fundir([
+      ...[0, 1, 2, 3, 4, 5, 6].map((k) => ({ geo: C(0.007, 0.007, 0.62, 3), color: 0xd8b850, x: 0.11 + Math.cos(k * 2.4) * 0.025, y: 0.31 + Math.sin(k * 2.4) * 0.025, z: -0.06, rx: Math.PI / 2 - 0.15 + (k - 3) * 0.03 })),
+      ...[0, 1, 2, 3].map((k) => ({ geo: Es(0.022, 4, 3), color: 0xc8a040, x: 0.11 + Math.cos(k * 1.7) * 0.03, y: 0.27 + Math.sin(k * 1.7) * 0.02, z: -0.36, sz: 2.2 })),
+      { geo: C(0.034, 0.034, 0.03, 6), color: 0x8a6a3a, x: 0.11, y: 0.31, z: -0.06, rx: Math.PI / 2 - 0.15 },
+    ]),
+    // El bastón de los mayores (en la mano derecha, hasta el suelo).
+    baston: fundir([
+      { geo: C(0.011, 0.014, 0.5, 5), color: 0x6b4a2e, y: mano - 0.24 },
+      { geo: Es(0.02, 5, 4), color: 0x5a3a22, y: mano + 0.02 },
+    ]),
+    // La boya del pescador y el pez cuando pica (sueltos en el mundo).
+    boya: fundir([
+      { geo: Es(0.03, 6, 4), color: 0xd8302a },
+      { geo: C(0.031, 0.031, 0.014, 6), color: 0xf4f4f0, y: -0.006 },
+    ]),
+    pezCana: fundir([
+      { geo: Es(1, 6, 4), color: 0xb8c4c8, sx: 0.018, sy: 0.03, sz: 0.075 },
+      { geo: Co(0.03, 0.05, 4), color: 0x8a9aa0, z: -0.09, rx: -Math.PI / 2, sx: 0.4 },
+    ]),
   };
 }
+
+/** Lo que trae a casa cada oficio. */
+const CARGA = { lenar: 'tronco', cazar: 'presa', pescar: 'sarta', recolectar: 'frutos', picar: 'piedras', barro: 'piedras', cultivar: 'gavilla' };
+const CARGAS = ['tronco', 'presa', 'sarta', 'frutos', 'piedras', 'gavilla', 'baston', 'boya', 'pezCana'];
+/** Cargas que se llevan al hombro o a cuestas (y dejan la herramienta en el cinto). */
+const PESADAS = new Set(['tronco', 'presa', 'gavilla']);
+/** Ángulo de a a b por el camino corto. */
+const giroHacia = (a, b) => ((((b - a + Math.PI) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI)) - Math.PI;
 
 /** Qué lleva en la mano cada oficio. */
 const HERRAMIENTA = {
@@ -126,6 +183,7 @@ const L = new THREE.Matrix4();
 const E = new THREE.Euler();
 const Q = new THREE.Quaternion();
 const V = new THREE.Vector3();
+const PUNTA = new THREE.Vector3();
 const ESC = new THREE.Vector3();
 const UNO = new THREE.Vector3(1, 1, 1);
 
@@ -151,7 +209,7 @@ export class Gente3D {
     this.im = {};
     this.lista = [];
     this.M = {};
-    for (const k of ['raiz', 'pelvis', 'torso', 'cabeza', 'musloI', 'musloD', 'piernaI', 'piernaD', 'pieI', 'pieD', 'brazoI', 'brazoD', 'antebrazoI', 'antebrazoD', 'mano']) this.M[k] = new THREE.Matrix4();
+    for (const k of ['raiz', 'pelvis', 'torso', 'cabeza', 'musloI', 'musloD', 'piernaI', 'piernaD', 'pieI', 'pieD', 'brazoI', 'brazoD', 'antebrazoI', 'antebrazoD', 'mano', 'manoI', 'suelto']) this.M[k] = new THREE.Matrix4();
   }
 
   /** Prepara a la gente de un día: aspecto, casa, sitio de trabajo y herramienta. */
@@ -161,6 +219,12 @@ export class Gente3D {
     for (const k of PARES) instancias(this.escena, im, k, this.geo[k], this.mat, max * 2);
     for (const k of SUELTAS) instancias(this.escena, im, k, this.geo[k], this.mat, max);
     for (const k of HERRAMIENTAS) instancias(this.escena, im, k, this.geo[k], k === 'llama' ? this.matLlama : this.mat, max, { sombra: k !== 'llama' });
+    for (const k of CARGAS) {
+      instancias(this.escena, im, k, this.geo[k], this.mat, max, { sombra: k !== 'boya' && k !== 'pezCana' });
+      im[k].instanceColor.array.fill(1);
+    }
+    this.d = d;
+    this.estacion = d.estacion;
     const conocen = new Map(d.aldeas.map((a) => [a.id, new Set(a.conocidos)]));
     const tr = this.terreno;
     const color = new THREE.Color();
@@ -233,7 +297,7 @@ export class Gente3D {
         largoFaldon,
         capa,
         consejero,
-        cesta: p.act === 'recolectar' && p.edad >= 12,
+        cesta: (p.act === 'recolectar' || p.act === 'picar' || p.act === 'barro') && p.edad >= 12,
         viejo,
         nino,
         x: casa[0],
@@ -292,6 +356,9 @@ export class Gente3D {
     if (!im.torso || !this.lista.length) return;
     const tr = this.terreno;
     const herr = Object.fromEntries(HERRAMIENTAS.map((k) => [k, 0]));
+    const carg = Object.fromEntries(CARGAS.map((k) => [k, 0]));
+    const dt = Math.min(0.1, Math.max(0, t - (this.tAnterior ?? t)));
+    this.tAnterior = t;
     const lejos2 = 120 * 120;
     const muchos = this.lista.length > 600;
     const cuadro = Math.floor(t * 60);
@@ -345,16 +412,35 @@ export class Gente3D {
       const dx = x - per.x;
       const dz = z - per.z;
       const mov = Math.hypot(dx, dz);
-      if (mira) per.ang = Math.atan2(mira[0] - x, mira[1] - z);
-      else if (mov > 0.002) per.ang = Math.atan2(dx, dz);
-      else if (k === 1 && p.act === 'pescar') per.ang = Math.atan2(per.trabajo[0] - per.casa[0], per.trabajo[1] - per.casa[1]);
+      // Las piernas, al ritmo de lo que de verdad avanza; con prisa, a la carrera.
+      if (dt > 0) per.vel = (per.vel ?? 0) + (mov / dt - (per.vel ?? 0)) * Math.min(1, dt * 6);
+      if (pose === 'andar' && per.vel > 1.9 * per.escala) pose = 'correr';
+      // Quien no se mueve no corre en el sitio: los que defienden esperan alerta.
+      if ((pose === 'andar' || pose === 'correr') && mov < 0.0005 && p.act !== 'jugar') pose = p.act === 'defender' ? 'vigilar' : 'pie';
+      const zancada = (pose === 'correr' ? 1.3 : 0.85) * per.escala * (per.viejo ? 0.8 : 1);
+      if (mov < 3) per.fasePaso = ((per.fasePaso ?? 0) + (2 * Math.PI * mov) / zancada) % 6283.1853;
+      // Giran poco a poco hacia donde van (o hacia el fuego, o hacia el agua).
+      let rumbo = per.ang;
+      if (mira) rumbo = Math.atan2(mira[0] - x, mira[1] - z);
+      else if (mov > 0.002) rumbo = Math.atan2(dx, dz);
+      else if (k === 1 && p.act === 'pescar') rumbo = Math.atan2(per.trabajo[0] - per.casa[0], per.trabajo[1] - per.casa[1]);
+      per.ang += mov > 2 ? giroHacia(per.ang, rumbo) : acotar(giroHacia(per.ang, rumbo), -8 * dt, 8 * dt);
       per.x = x;
       per.z = z;
+      // De vuelta a casa traen lo que han conseguido; los mayores andan con bastón.
+      let carga = null;
+      if ((pose === 'andar' || pose === 'correr') && f >= 0.68 && f < 0.86 && !quieto && p.edad >= 12) carga = CARGA[p.act] ?? null;
+      if (carga === 'gavilla' && this.estacion !== 'verano' && this.estacion !== 'otoño') carga = null;
+      per.carga = carga;
+      per.baston = per.viejo && !carga && (pose === 'andar' || pose === 'pie');
       const y = tr.alturaEn(x, z);
       this.postura(per, pose, t, x, y, z);
+      if (carga) this.dejar(carg, carga, carga === 'sarta' ? this.M.manoI : this.M.torso);
+      if (per.baston) this.dejar(carg, 'baston', this.M.mano);
+      if (pose === 'pescar') this.pesca(per, t, carg);
       // Herramienta en la mano derecha (o antorcha de noche).
       const h = pose === 'vigilarNoche' ? 'antorcha' : per.herramienta;
-      const visible = h && (pose !== 'sentado' && pose !== 'experimentar') && (k > 0 || p.act === 'vigilar' || p.act === 'defender');
+      const visible = h && !per.baston && !PESADAS.has(carga) && pose !== 'sentado' && pose !== 'experimentar' && (k > 0 || p.act === 'vigilar' || p.act === 'defender');
       if (visible) {
         const j = herr[h]++;
         im[h].setMatrixAt(j, this.M.mano);
@@ -368,7 +454,54 @@ export class Gente3D {
       im[k].instanceMatrix.needsUpdate = true;
       if (im[k].instanceColor) im[k].instanceColor.needsUpdate = true;
     }
+    for (const k of CARGAS) {
+      im[k].count = Math.min(carg[k], im[k].instanceMatrix.count);
+      im[k].instanceMatrix.needsUpdate = true;
+      im[k].instanceColor.needsUpdate = true;
+    }
     this.matLlama.color.setRGB(1, 0.62 + 0.08 * Math.sin(t * 13), 0.25);
+  }
+
+  /** Pone una carga (o la boya, o el pez) en su sitio. */
+  dejar(cuenta, nombre, m) {
+    const im = this.im[nombre];
+    const j = cuenta[nombre]++;
+    if (j < im.instanceMatrix.count) im.setMatrixAt(j, m);
+  }
+
+  /** Altura del agua (o del suelo, si no hay agua) en un punto. */
+  nivelAgua(x, z, t) {
+    const tr = this.terreno;
+    const d = this.d;
+    const [tx, ty] = tr.aCasilla(x, z);
+    const ter = d && tx >= 0 && ty >= 0 && tx < d.ancho && ty < d.alto ? d.terreno[ty * d.ancho + tx] : AGUA;
+    if (ter === RIO) return tr.alturaEn(x, z, false) + 0.25;
+    if (ter === AGUA) return -0.05 + Math.sin(x * 0.12 + t * 0.9) * 0.07 + Math.cos(z * 0.1 + t * 0.7) * 0.07;
+    return tr.alturaEn(x, z) + 0.02;
+  }
+
+  /** La boya del pescador sobre el agua y, de vez en cuando, un pez que pica y sale coleando. */
+  pesca(per, t, cuenta) {
+    const M = this.M;
+    PUNTA.set(0, -0.16 - 1.56, 0.05).applyMatrix4(M.mano);
+    const fx = Math.sin(per.ang);
+    const fz = Math.cos(per.ang);
+    const bx = PUNTA.x + fx * 0.3;
+    const bz = PUNTA.z + fz * 0.3;
+    const nivel = this.nivelAgua(bx, bz, t);
+    const c = (t * 0.06 + per.p.id * 0.37) % 1;
+    if (c > 0.93) {
+      const u = (c - 0.93) / 0.07;
+      E.set(0.4 * Math.sin(t * 17), per.ang, Math.sin(t * 28) * 0.7, 'YXZ');
+      Q.setFromEuler(E);
+      M.suelto.compose(V.set(bx - fx * 0.2 * u, nivel + 0.12 + 0.4 * Math.sin(Math.PI * Math.min(1, u * 1.4)), bz - fz * 0.2 * u), Q, ESC.set(1, 1, 1));
+      this.dejar(cuenta, 'pezCana', M.suelto);
+    } else {
+      // Cuando está a punto de picar, la boya se hunde a tirones.
+      const tiron = c > 0.88 ? 0.035 * Math.abs(Math.sin(t * 22)) : 0;
+      M.suelto.compose(V.set(bx, nivel + 0.01 + Math.sin(t * 2.6 + per.p.id) * 0.012 - tiron, bz), Q.identity(), ESC.set(1, 1, 1));
+      this.dejar(cuenta, 'boya', M.suelto);
+    }
   }
 
   colorMetal(hex) {
@@ -403,11 +536,12 @@ export class Gente3D {
     let bote = 0;
     let herrX = 0;
     const ritmo = per.nino ? 1.25 : per.viejo ? 0.75 : 1;
+    let w = 0;
     switch (pose) {
       case 'andar':
       case 'correr': {
         const corre = pose === 'correr';
-        const w = t * (corre ? 13 : 8.5) * ritmo + id;
+        w = (per.fasePaso ?? t * (corre ? 13 : 8.5) * ritmo) + id;
         const amp = corre ? 0.85 : 0.5;
         const sw = Math.sin(w);
         caderaI = -amp * sw;
@@ -519,7 +653,8 @@ export class Gente3D {
         hombroI = -0.7;
         codoI = -0.8;
         separaI = -0.15;
-        if ((t * 0.35 + id) % 1 < 0.06) hombroD -= 0.5;
+        // Al picar, tirón de la caña (a la vez que el pez sale del agua).
+        if ((t * 0.06 + id * 0.37) % 1 > 0.93) hombroD -= 0.6;
         break;
       }
       case 'cazar': {
@@ -536,6 +671,14 @@ export class Gente3D {
         hombroI = -0.7;
         codoI = -0.6;
         cabezaY = 0.4 * Math.sin(t * 0.6 + id);
+        // De vez en cuando, lanza: echa el brazo atrás y lo suelta hacia delante.
+        const c = (t * 0.08 + id * 0.29) % 1;
+        if (c > 0.9) {
+          const u = (c - 0.9) / 0.1;
+          hombroD = u < 0.55 ? entre(-1.45, -2.9, suave(u / 0.55)) : entre(-2.9, -0.35, suave((u - 0.55) / 0.45));
+          inclina = u < 0.55 ? 0.28 : 0.55;
+          cabezaY = 0;
+        }
         break;
       }
       case 'pastorear': {
@@ -562,6 +705,30 @@ export class Gente3D {
         cabezaY = 0.3 * Math.sin(t * 0.3 + id * 2.1);
       }
     }
+    // Con carga, los brazos la sujetan; con bastón, el brazo derecho se apoya en él.
+    const carga = per.carga;
+    if (carga === 'tronco' || carga === 'gavilla') {
+      hombroD = -2.7;
+      codoD = -1.95;
+      separaD = 0.12;
+    } else if (carga === 'presa') {
+      hombroI = hombroD = -2.75;
+      codoI = codoD = -1.9;
+      separaI = separaD = 0.15;
+      inclina += 0.08;
+    } else if (carga === 'sarta') {
+      hombroI = -0.12 + 0.08 * Math.sin(w);
+      codoI = -0.2;
+    } else if (carga === 'frutos' || carga === 'piedras') {
+      hombroI = hombroD = -0.5;
+      codoI = codoD = -1.7;
+      separaI = separaD = 0.2;
+      inclina += 0.12;
+    }
+    if (per.baston) {
+      hombroD = -0.38 + (pose === 'andar' ? 0.15 * Math.sin(w) : 0);
+      codoD = -0.3;
+    }
     // Raíz: posición, orientación y tamaño.
     E.set(0, per.ang, 0);
     Q.setFromEuler(E);
@@ -580,6 +747,8 @@ export class Gente3D {
     articular(M.brazoD, M.torso, 0.137, 0.235, 0, hombroD, separaD);
     articular(M.antebrazoI, M.brazoI, 0, -0.16, 0, codoI);
     articular(M.antebrazoD, M.brazoD, 0, -0.16, 0, codoD);
+    articular(R, M.antebrazoI, 0, -0.16, 0);
+    articular(M.manoI, R, 0, 0.16, 0);
     // La herramienta gira en la mano, no en el codo.
     articular(R, M.antebrazoD, 0, -0.16, 0, herrX);
     articular(M.mano, R, 0, 0.16, 0);

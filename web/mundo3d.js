@@ -431,6 +431,7 @@ export class Mundo3D {
     VIENTO.value = t;
     this.vegetacion.repartir(lim, distancia, this.camara);
     this.vegetacion.cercania(lim, distancia);
+    this.vegetacion.particulas(t, lim, distancia);
     this.edificios.animar(t, this.noche);
     this.animarLuces(t);
     this.fauna.animar(t, dt, fase, noche, this.gente.lista, lim, distancia, this.camara);

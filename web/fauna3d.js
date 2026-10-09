@@ -57,6 +57,7 @@ const COLORES = {
   caballo: [0xc49a5c, 0xb8905a, 0xd0a868, 0xa87a48],
   cabra: [0x8a7a62, 0x9a8a70, 0x7a6a56],
   oveja: [0xf2efe4, 0xf2efe4, 0xece4d2, 0xf2efe4, 0xd8cdb8, 0x3a3430],
+  perro: [0x8a6a48, 0x3a3430, 0xc8a070, 0xe0d8c8, 0x6a5a48, 0xa07850],
 };
 
 // Andares: desfase de cada pata [delantera izq., delantera der., trasera izq., trasera der.],
@@ -124,6 +125,7 @@ export class Fauna3D {
     this.fieras = new Map();
     this.rebanos = [];
     this.ovejas = new Map();
+    this.perros = new Map();
     this.aves = [];
     this.patos = [];
     this.garzas = [];
@@ -197,6 +199,32 @@ export class Fauna3D {
       }
     }
     for (const id of this.ovejas.keys()) if (!enCorral.has(id)) this.ovejas.delete(id);
+    // Perros: cada aldea los suyos, cada uno con su dueño (cazadores y pastores primero).
+    const conPerro = new Set();
+    for (const a of aldeas) {
+      if (a.poblacion < 6) continue;
+      const gente = d.personas.filter((p) => p.aldea === a.id && p.edad >= 10);
+      if (!gente.length) continue;
+      const preferidos = gente.filter((p) => p.act === 'pastorear' || p.act === 'cazar');
+      const [hx, hz] = tr.aMundo(a.x, a.y);
+      const n = Math.min(3, 1 + Math.floor(a.poblacion / 30));
+      for (let k = 0; k < n; k++) {
+        const id = `${a.id}-${k}`;
+        conPerro.add(id);
+        let perro = this.perros.get(id);
+        if (!perro) {
+          perro = this.nuevo('perro', hx + k * 0.6, hz + 0.6, a.id * 31 + k);
+          perro.escala = 0.72 + azar(a.id + k * 3) * 0.12;
+          this.perros.set(id, perro);
+        }
+        Object.assign(perro, { hx, hz, k });
+        if (!gente.some((p) => p.id === perro.dueno)) {
+          const lista = preferidos.length > k ? preferidos : gente;
+          perro.dueno = lista[Math.floor(azar(a.id * 7 + k * 13 + gente.length) * lista.length)].id;
+        }
+      }
+    }
+    for (const id of this.perros.keys()) if (!conPerro.has(id)) this.perros.delete(id);
     this.dimensionar();
   }
 
@@ -399,6 +427,7 @@ export class Fauna3D {
     for (const a of this.fieras.values()) contar(a.esp, 1);
     for (const r of this.rebanos) contar(r.esp, r.miembros.length);
     contar('oveja', this.ovejas.size);
+    contar('perro', this.perros.size);
     cuenta.ojos = 80;
     cuenta.gaviota = this.aves.length;
     cuenta.ala = this.aves.length * 2;
@@ -607,6 +636,35 @@ export class Fauna3D {
     }
   }
 
+  /** Un perro va a un paso de su dueño, a su lado; parado, olfatea, se sienta o se tumba. */
+  pensarPerro(a, dt, q, noche) {
+    let tx = a.hx;
+    let tz = a.hz;
+    if (q) {
+      const lado = a.k % 2 ? 1 : -1;
+      tx = q.x - Math.sin(q.ang) * 0.7 + Math.cos(q.ang) * 0.45 * lado;
+      tz = q.z - Math.cos(q.ang) * 0.7 - Math.sin(q.ang) * 0.45 * lado;
+    }
+    const dx = tx - a.x;
+    const dz = tz - a.z;
+    const d = Math.hypot(dx, dz);
+    // Si se ha quedado muy atrás (el dueño cambió de sitio de golpe), aparece a su lado.
+    if (d > 25) {
+      a.x = tx;
+      a.z = tz;
+    }
+    if (d > 0.4) {
+      this.moverLibre(a, dt, dx, dz, Math.min(ESPECIES.perro.vel[2], d * 2.2));
+      a.quieto = 0;
+      a.estado = 'pie';
+    } else {
+      this.moverLibre(a, dt, 0, 0, 0);
+      a.quieto = (a.quieto ?? 0) + dt;
+      if (q) a.ang += acotar(giroHacia(a.ang, q.ang), -2 * dt, 2 * dt);
+      a.estado = noche || a.quieto > 14 ? 'echado' : a.quieto > 4 ? 'sentado' : a.quieto % 6 < 1.6 ? 'olfatear' : 'pie';
+    }
+  }
+
   // ---------- posturas ----------
 
   /** El andar que toca a esta velocidad. */
@@ -632,7 +690,8 @@ export class Fauna3D {
     P.cab = esp.cabeza0;
     P.cabY = 0;
     P.colaX = esp.cola0;
-    P.colaY = Math.sin(t * 1.3 + a.id) * 0.15;
+    // El perro menea la cola; el resto la mueve un poco.
+    P.colaY = esp.menea ? Math.sin(t * 11 + a.id) * 0.5 : Math.sin(t * 1.3 + a.id) * 0.15;
     if (a.v > 0.06) {
       const g = this.andar(a, esp);
       const f = a.fase * Math.PI * 2;
@@ -821,6 +880,20 @@ export class Fauna3D {
       this.avanzar(a, esp, dt);
       this.postura(a, esp, t);
       this.cuadrupedo(a, esp, a.esp === 'lobo' && noche && (a.f.estado === 'acecha' || a.f.estado === 'ataca'));
+    }
+    // Perros, con su dueño (y los ciervos también se asustan de ellos).
+    if (this.perros.size) {
+      const porId = new Map();
+      for (const q of gente) porId.set(q.p.id, q);
+      const perro = ESPECIES.perro;
+      for (const a of this.perros.values()) {
+        this.pensarPerro(a, dt, porId.get(a.dueno), noche);
+        meter(a.x, a.z, true);
+        if ((a.x - objetivo.x) ** 2 + (a.z - objetivo.z) ** 2 > RADIO_VIDA * RADIO_VIDA) continue;
+        this.avanzar(a, perro, dt);
+        this.postura(a, perro, t);
+        this.cuadrupedo(a, perro, false);
+      }
     }
     this.rejilla = rejilla;
     // Lo de adorno, solo cerca de lo que se mira.

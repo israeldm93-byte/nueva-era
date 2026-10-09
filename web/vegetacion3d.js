@@ -178,6 +178,12 @@ export class Vegetacion3D {
       flotante: materialPlanta({ flota: 1, side: THREE.DoubleSide }),
       brillo: new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.25, metalness: 0.35, emissive: 0x111111 }),
     };
+    // Hojas que caen en otoño y copos de nieve en invierno.
+    this.geoHoja = new THREE.PlaneGeometry(0.12, 0.12).rotateZ(Math.PI / 4).scale(1, 0.6, 1);
+    this.matHoja = new THREE.MeshStandardMaterial({ side: THREE.DoubleSide, roughness: 1 });
+    this.geoCopo = new THREE.CircleGeometry(0.05, 6);
+    this.matCopo = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
+    this.colorParticula = new THREE.Color();
     // Mallas que no se ven: solo dan sombra.
     this.matSombra = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false });
     this.matSombraDoble = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false, side: THREE.DoubleSide });
@@ -422,6 +428,51 @@ export class Vegetacion3D {
       if (def.sombra !== false) llenar(`s-${sp}`, def.lejos, lote, sombra, Math.ceil(sombra.length * 1.3) + 16, true);
     }
     for (const [nombre, im] of Object.entries(this.mallas)) if (!usadas.has(nombre) && im.visible) cerrar(im, 0);
+  }
+
+  /** Hojas que caen en otoño y nieve que cae en invierno (en el norte), alrededor de lo que se mira. */
+  particulas(t, objetivo, distancia) {
+    const d = this.datos;
+    if (!d) return;
+    const tr = this.terreno;
+    const [cx, cy] = tr.aCasilla(objetivo.x, objetivo.z);
+    const ty = acotar(cy, 0, d.alto - 1);
+    const ter = d.terreno[ty * d.ancho + acotar(cx, 0, d.ancho - 1)];
+    const nieva = d.estacion === 'invierno' && ty / (d.alto - 1) < 0.5;
+    const hojas = d.estacion === 'otoño' && (ter === BOSQUE || ter === COLINA || ter === PRADERA || ter === PANTANO || ter === RIO);
+    const n = distancia > 110 ? 0 : nieva ? 260 : hojas ? 130 : 0;
+    const copos = instancias(this.escena, this.suelo, 'copos', this.geoCopo, this.matCopo, 260, { sombra: false });
+    const caen = instancias(this.escena, this.suelo, 'hojas', this.geoHoja, this.matHoja, 130, { sombra: false });
+    const im = nieva ? copos : caen;
+    const otra = nieva ? caen : copos;
+    if (otra.visible) cerrar(otra, 0);
+    if (!n) {
+      if (im.visible) cerrar(im, 0);
+      return;
+    }
+    // La caja donde caen se ajusta a lo que se ve: de cerca, más densas.
+    const caja = acotar(distancia * 0.8, 12, 40);
+    const alto = Math.min(nieva ? 10 : 6, 3 + distancia * 0.4);
+    const col = this.colorParticula;
+    for (let k = 0; k < n; k++) {
+      const a = azar(k * 1.37);
+      const b = azar(k * 2.11);
+      const c = azar(k * 3.71);
+      const ciclo = alto / (nieva ? 0.55 + c * 0.35 : 0.45 + c * 0.45);
+      const u = ((t + a * ciclo) % ciclo) / ciclo;
+      // Quietas en el mundo (no viajan con la cámara), en una caja que sigue a la vista.
+      const deriva = t * (nieva ? 0.5 : 0.9);
+      const vaiven = nieva ? 0.2 : 0.5;
+      const x = objetivo.x + ((((b * caja + deriva - objetivo.x) % caja) + caja) % caja) - caja / 2 + Math.sin(t * 1.1 + k) * vaiven;
+      const z = objetivo.z + ((((c * caja + deriva * 0.6 - objetivo.z) % caja) + caja) % caja) - caja / 2 + Math.cos(t * 0.9 + k * 1.3) * vaiven;
+      E.set(t * (nieva ? 0.5 : 2.3) + k, t * 1.1 + k * 2, t * (nieva ? 0.3 : 1.7));
+      Q.setFromEuler(E);
+      const s = nieva ? 0.9 + c * 0.5 : 0.9 + c * 0.5;
+      M.compose(V.set(x, tr.alturaEn(x, z) + alto * (1 - u), z), Q, ESC.set(s, s, s));
+      im.setMatrixAt(k, M);
+      im.setColorAt(k, nieva ? col.setRGB(1, 1, 1) : col.set([0xd8902a, 0xe8b830, 0xc0561e, 0xa8401a][k % 4]));
+    }
+    cerrar(im, n);
   }
 
   /** Hierba, flores, helechos, setas, juncos, nenúfares y guijarros alrededor de lo que se mira. */

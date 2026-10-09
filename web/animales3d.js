@@ -233,6 +233,9 @@ export const ESPECIES = {
   },
 };
 
+/** El perro: un lobo domesticado, algo más pequeño, con la cola enroscada hacia arriba que menea. */
+ESPECIES.perro = { ...ESPECIES.lobo, cabeza0: -0.05, cola0: -0.7, vel: [1.1, 2.6, 6.5], menea: true };
+
 /** Todas las geometrías de los animales. */
 export function modelosAnimales() {
   const m = {};
