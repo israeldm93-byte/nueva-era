@@ -58,7 +58,12 @@ const COLORES = {
   cabra: [0x8a7a62, 0x9a8a70, 0x7a6a56],
   oveja: [0xf2efe4, 0xf2efe4, 0xece4d2, 0xf2efe4, 0xd8cdb8, 0x3a3430],
   perro: [0x8a6a48, 0x3a3430, 0xc8a070, 0xe0d8c8, 0x6a5a48, 0xa07850],
+  vaca: [0x7a5236, 0x2a2420, 0x9a7050, 0xd8cfc0, 0x6a3a26],
+  cerdo: [0xe2a594, 0xd8968a, 0xeab4a4, 0x6a5a50],
+  gallina: [0xffffff, 0xc8884a, 0x9a5a30, 0x2a2622, 0xe8d8b8, 0xffffff],
 };
+/** Los animales grandes caben de dos en dos en un corral. */
+const GRANDES = new Set(['vaca', 'caballo']);
 
 // Andares: desfase de cada pata [delantera izq., delantera der., trasera izq., trasera der.],
 // amplitud del paso, cuánto se dobla la pata al levantarla, largo de la zancada (en largos
@@ -71,6 +76,7 @@ const SALTO = { desfase: [0.5, 0.56, 0, 0.03], amp: 0.95, dobla: 1.2, zancada: 1
 const PIEZAS = [
   ...new Set(Object.values(ESPECIES).flatMap((e) => [e.cuerpo, e.cabeza, e.cola])),
   'cabezaCiervo',
+  'gallina',
   'muslo',
   'canilla',
   'ojos',
@@ -201,21 +207,54 @@ export class Fauna3D {
       }
     }
     for (const id of this.fieras.keys()) if (!vivos.has(id)) this.fieras.delete(id);
-    // Ovejas en los corrales (cada corral con las suyas).
+    // El ganado en sus corrales (cada corral, su especie) y las gallinas en su corralito.
     const enCorral = new Set();
+    const gallinas = [];
     for (const c of corrales) {
-      const n = Math.min(5, Math.ceil(c.animales / 3));
+      const esp = c.especie ?? 'oveja';
+      if (esp === 'gallina') {
+        const n = Math.min(9, Math.ceil(c.animales / 3));
+        // El corralito queda delante de la casita.
+        const yx = c.pos[0] + Math.sin(c.ry ?? 0) * 0.5;
+        const yz = c.pos[2] + Math.cos(c.ry ?? 0) * 0.5;
+        for (let k = 0; k < n; k++) {
+          const g = this.gallinas?.find((x) => x.clave === `${c.pos[0]},${c.pos[2]}-${k}`);
+          gallinas.push(
+            g ?? {
+              clave: `${c.pos[0]},${c.pos[2]}-${k}`,
+              x: yx + (azar(k * 3.3 + c.pos[0]) - 0.5) * 0.8,
+              z: yz + (azar(k * 5.1 + c.pos[2]) - 0.5) * 0.6,
+              hx: yx,
+              hz: yz,
+              ang: azar(k * 7.7) * 6.28,
+              t: 0,
+              pica: 0,
+              color: new THREE.Color(COLORES.gallina[Math.floor(azar(k * 9.1 + c.pos[0]) * COLORES.gallina.length)]),
+              aldea: c.aldea,
+              n: c.animales,
+            },
+          );
+        }
+        continue;
+      }
+      const grande = GRANDES.has(esp);
+      const n = Math.min(grande ? 2 : 5, Math.ceil(c.animales / (grande ? 6 : 3)));
       for (let k = 0; k < n; k++) {
-        const id = `${Math.round(c.pos[0] * 10)},${Math.round(c.pos[2] * 10)}-${k}`;
+        const id = `${Math.round(c.pos[0] * 10)},${Math.round(c.pos[2] * 10)}-${esp}-${k}`;
         enCorral.add(id);
-        if (this.ovejas.has(id)) continue;
-        const o = this.nuevo('oveja', c.pos[0] + (azar(k * 3.1 + c.pos[0]) - 0.5) * 0.6, c.pos[2] + (azar(k * 4.7 + c.pos[2]) - 0.5) * 0.6, c.pos[0] * 7 + k);
-        o.hx = c.pos[0];
-        o.hz = c.pos[2];
-        o.escala = 0.72 + azar(k + c.pos[2]) * 0.1;
-        this.ovejas.set(id, o);
+        let o = this.ovejas.get(id);
+        if (!o) {
+          o = this.nuevo(esp, c.pos[0] + (azar(k * 3.1 + c.pos[0]) - 0.5) * 0.6, c.pos[2] + (azar(k * 4.7 + c.pos[2]) - 0.5) * 0.6, c.pos[0] * 7 + k);
+          o.hx = c.pos[0];
+          o.hz = c.pos[2];
+          o.escala = (grande ? 0.58 : 0.72) + azar(k + c.pos[2]) * 0.1;
+          o.domestico = true;
+          this.ovejas.set(id, o);
+        }
+        Object.assign(o, { aldea: c.aldea, n: c.animales });
       }
     }
+    this.gallinas = gallinas;
     for (const id of this.ovejas.keys()) if (!enCorral.has(id)) this.ovejas.delete(id);
     // Perros: cada aldea los suyos, cada uno con su dueño (cazadores y pastores primero).
     const conPerro = new Set();
@@ -524,8 +563,10 @@ export class Fauna3D {
     };
     for (const a of this.fieras.values()) contar(a.esp, 1);
     contar('lobo', 12);
+    contar('caballo', 24);
     for (const r of this.rebanos) contar(r.esp, r.miembros.length + 3);
-    contar('oveja', this.ovejas.size);
+    for (const a of this.ovejas.values()) contar(a.esp, 1);
+    cuenta.gallina = this.gallinas?.length ?? 0;
     contar('perro', this.perros.size);
     cuenta.ojos = 80;
     cuenta.gaviota = this.aves.length;
@@ -631,7 +672,7 @@ export class Fauna3D {
   /** Un animal de rebaño: pasta, pasea, se alerta, descansa y huye. */
   pensar(a, dt, noche) {
     a.t -= dt;
-    const amenaza = a.esp === 'oveja' ? null : this.amenazaDe(a.x, a.z, MIEDO[a.esp]);
+    const amenaza = a.domestico ? null : this.amenazaDe(a.x, a.z, MIEDO[a.esp]);
     if (amenaza) {
       if (a.estado !== 'huir') a.t = 2.2 + azar(a.id + a.t) * 1.6;
       a.estado = 'huir';
@@ -680,7 +721,7 @@ export class Fauna3D {
         } else if (r < 0.6) {
           // A pasear, sin alejarse de los suyos.
           const ang = azar(a.id + a.z * 2.3) * Math.PI * 2;
-          const rr = RADIO[a.esp] * Math.sqrt(azar(a.id * 2 + a.x));
+          const rr = (a.domestico ? 0.45 : RADIO[a.esp]) * Math.sqrt(azar(a.id * 2 + a.x));
           const dest = [a.hx + Math.cos(ang) * rr, a.hz + Math.sin(ang) * rr];
           if (this.pisable(a.esp, dest[0], dest[1])) {
             a.estado = 'andar';
@@ -1046,6 +1087,30 @@ export class Fauna3D {
       this.postura(a, esp, t);
       this.cuadrupedo(a, esp, a.esp === 'lobo' && noche && (a.f.estado === 'acecha' || a.f.estado === 'ataca'));
     }
+    // Los caballos de los jinetes, bajo cada uno, al paso que lleve.
+    this.monturas ??= new Map();
+    const caballo = ESPECIES.caballo;
+    for (const q of gente) {
+      if (!q.montando) continue;
+      let c = this.monturas.get(q.p.id);
+      if (!c) {
+        c = this.nuevo('caballo', q.x, q.z, q.p.id * 3.7 + 11);
+        c.escala = 1;
+        this.monturas.set(q.p.id, c);
+      }
+      c.visto = t;
+      if ((q.x - objetivo.x) ** 2 + (q.z - objetivo.z) ** 2 > RADIO_VIDA * RADIO_VIDA) continue;
+      c.x = q.x;
+      c.z = q.z;
+      c.ang = q.ang;
+      c.v = q.vel ?? 0;
+      c.estado = 'pie';
+      c.jinete = q.p;
+      this.avanzar(c, caballo, dt);
+      this.postura(c, caballo, t);
+      this.cuadrupedo(c, caballo, false);
+    }
+    for (const [id, c] of this.monturas) if (t - c.visto > 5) this.monturas.delete(id);
     // Perros, con su dueño (y los ciervos también se asustan de ellos).
     if (this.perros.size) {
       const porId = new Map();
@@ -1077,22 +1142,32 @@ export class Fauna3D {
           this.cuadrupedo(a, esp, false);
         }
       }
-      const oveja = ESPECIES.oveja;
+      const porCorral = new Map();
       for (const a of this.ovejas.values()) {
         if ((a.x - objetivo.x) ** 2 + (a.z - objetivo.z) ** 2 > vida2) continue;
         this.pensar(a, dt, noche);
-        // Que no se salgan del corral.
-        const dx = a.x - a.hx;
-        const dz = a.z - a.hz;
-        const dd = Math.hypot(dx, dz);
-        if (dd > 0.55) {
-          a.x = a.hx + (dx / dd) * 0.55;
-          a.z = a.hz + (dz / dd) * 0.55;
-        }
-        this.avanzar(a, oveja, dt);
-        this.postura(a, oveja, t);
-        this.cuadrupedo(a, oveja, false);
+        const k = `${a.hx},${a.hz}`;
+        if (!porCorral.has(k)) porCorral.set(k, []);
+        porCorral.get(k).push(a);
       }
+      for (const lista of porCorral.values()) {
+        if (lista.length > 1) this.separar(lista, lista[0].esp);
+        for (const a of lista) {
+          // Que no se salgan del corral.
+          const dx = a.x - a.hx;
+          const dz = a.z - a.hz;
+          const dd = Math.hypot(dx, dz);
+          if (dd > 0.55) {
+            a.x = a.hx + (dx / dd) * 0.55;
+            a.z = a.hz + (dz / dd) * 0.55;
+          }
+          const esp = ESPECIES[a.esp];
+          this.avanzar(a, esp, dt);
+          this.postura(a, esp, t);
+          this.cuadrupedo(a, esp, false);
+        }
+      }
+      this.animarGallinas(t, dt, objetivo, vida2);
       this.animarPatos(t, dt, objetivo, vida2);
       this.animarGarzas(t, objetivo, vida2);
       if (distancia < 90) this.animarPeces(t, objetivo);
@@ -1133,6 +1208,44 @@ export class Fauna3D {
       articular(PIEZA, RAIZ, -0.035, 0.02, 0.02, 0, 0, -ala);
       PIEZA.scale(ESC.set(-1, 1, 1));
       this.poner('ala', PIEZA, color);
+    }
+  }
+
+  /** Las gallinas: van a saltitos por su corralito y picotean el suelo. */
+  animarGallinas(t, dt, objetivo, vida2) {
+    const tr = this.terreno;
+    for (const g of this.gallinas ?? []) {
+      if ((g.x - objetivo.x) ** 2 + (g.z - objetivo.z) ** 2 > vida2) continue;
+      g.t -= dt;
+      if (g.t <= 0) {
+        // Otro sitio cerca del gallinero, o a picotear un rato.
+        const r = azar(g.x * 3.7 + g.z + t);
+        if (r < 0.5) {
+          g.dest = [g.hx + (azar(g.z * 5.3 + t) - 0.5) * 0.9, g.hz + (azar(g.x * 2.9 + t) - 0.5) * 0.7];
+          g.pica = 0;
+        } else {
+          g.dest = null;
+          g.pica = 1;
+        }
+        g.t = 1 + r * 3;
+      }
+      let salto = 0;
+      if (g.dest) {
+        const dx = g.dest[0] - g.x;
+        const dz = g.dest[1] - g.z;
+        const d = Math.hypot(dx, dz);
+        if (d > 0.04) {
+          g.ang += acotar(giroHacia(g.ang, Math.atan2(dx, dz)), -6 * dt, 6 * dt);
+          g.x += Math.sin(g.ang) * Math.min(d, 0.5 * dt);
+          g.z += Math.cos(g.ang) * Math.min(d, 0.5 * dt);
+          salto = Math.abs(Math.sin(t * 14 + g.hx)) * 0.02;
+        } else g.dest = null;
+      }
+      const picotazo = g.pica ? Math.max(0, Math.sin(t * 9 + g.x * 5)) * 0.7 : 0;
+      E.set(picotazo, g.ang, 0, 'YXZ');
+      Q.setFromEuler(E);
+      PIEZA.compose(V.set(g.x, tr.alturaEn(g.x, g.z) + salto, g.z), Q, ESC.set(1, 1, 1));
+      this.poner('gallina', PIEZA, g.color);
     }
   }
 

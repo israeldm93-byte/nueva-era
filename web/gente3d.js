@@ -189,6 +189,8 @@ const HERRAMIENTA = {
   pescar: 'cana', recolectar: 'cesta', cultivar: 'azada', barro: 'cesta', pastorear: 'lanza',
 };
 const QUIETOS = new Set(['jugar', 'descansar', 'experimentar']);
+/** Oficios que se hacen a caballo cuando la aldea tiene caballos domados. */
+const JINETES = new Set(['cazar', 'vigilar', 'asaltar', 'defender', 'pastorear']);
 const PARES = ['muslo', 'pierna', 'pie', 'brazo', 'antebrazo'];
 const SUELTAS = ['pelvis', 'torso', 'cabeza', 'peloCorto', 'peloLargo', 'peloMono', 'peloTrenza', 'barba', 'faldon', 'capa', 'diadema', 'cestaEspalda'];
 const HERRAMIENTAS = ['hacha', 'lanza', 'cesta', 'cana', 'azada', 'martillo', 'antorcha', 'llama', 'espada', 'arco'];
@@ -253,6 +255,10 @@ export class Gente3D {
     this.d = d;
     this.estacion = d.estacion;
     const conocen = new Map(d.aldeas.map((a) => [a.id, new Set(a.conocidos)]));
+    // Caballos domados de cada aldea: uno de cada dos sale montado.
+    const sillas = new Map(
+      d.aldeas.map((a) => [a.id, a.conocidos.includes('doma') ? Math.min(10, Math.floor(a.edificios.reduce((s, e) => s + (e.tipo === 'corral' && e.especie === 'caballo' ? e.animales ?? 0 : 0), 0) / 2)) : 0]),
+    );
     const tr = this.terreno;
     const color = new THREE.Color();
     const cuenta = Object.fromEntries([...SUELTAS, ...HERRAMIENTAS].map((k) => [k, 0]));
@@ -325,6 +331,7 @@ export class Gente3D {
         capa,
         consejero,
         escudo: p.edad >= 14 && p.act !== 'cazar' && ARMADOS.has(p.act) && herramienta !== 'arco' && sabe.has('escudo'),
+        montado: p.edad >= 14 && JINETES.has(p.act) && (sillas.get(p.aldea) ?? 0) > 0 && (sillas.set(p.aldea, sillas.get(p.aldea) - 1), true),
         cesta: (p.act === 'recolectar' || p.act === 'picar' || p.act === 'barro') && p.edad >= 12,
         viejo,
         nino,
@@ -445,6 +452,9 @@ export class Gente3D {
       if (pose === 'andar' && per.vel > 1.9 * per.escala) pose = 'correr';
       // Quien no se mueve no corre en el sitio: los que defienden esperan alerta.
       if ((pose === 'andar' || pose === 'correr') && mov < 0.0005 && p.act !== 'jugar') pose = p.act === 'defender' ? 'vigilar' : 'pie';
+      // A caballo: el jinete va sentado y el caballo pone el paso (lo dibuja la fauna).
+      if (per.montado && (pose === 'andar' || pose === 'correr' || pose === 'pie' || pose === 'vigilar')) pose = 'montar';
+      per.montando = pose === 'montar';
       const zancada = (pose === 'correr' ? 1.3 : 0.85) * per.escala * (per.viejo ? 0.8 : 1);
       if (mov < 3) per.fasePaso = ((per.fasePaso ?? 0) + (2 * Math.PI * mov) / zancada) % 6283.1853;
       // Giran poco a poco hacia donde van (o hacia el fuego, o hacia el agua).
@@ -589,6 +599,19 @@ export class Gente3D {
           codoD = -1.5;
           herrX = 1.4;
         }
+        break;
+      }
+      case 'montar': {
+        // Sentado en el lomo, piernas abiertas a los lados, riendas en las manos.
+        const galope = Math.min(1, (per.vel ?? 0) / 4);
+        alto = 1.22 / s + Math.abs(Math.sin(t * 9 + id)) * 0.04 * galope;
+        caderaI = caderaD = -1.25;
+        abreI = abreD = 0.55;
+        rodI = rodD = 1.35;
+        hombroI = hombroD = -0.55;
+        codoI = codoD = -0.95;
+        separaI = separaD = 0.12;
+        inclina = 0.08 + 0.18 * galope;
         break;
       }
       case 'sentado': {

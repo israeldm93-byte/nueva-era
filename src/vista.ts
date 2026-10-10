@@ -100,6 +100,7 @@ export function datosWeb(m: Mundo, ahora: Date) {
           y: e.y,
           ...(e.fase !== undefined ? { fase: e.fase } : {}),
           ...(e.animales !== undefined ? { animales: Math.round(e.animales) } : {}),
+          ...(e.especie ? { especie: e.especie } : {}),
         })),
         obra: a.obra ? { tipo: a.obra.tipo, x: a.obra.x, y: a.obra.y, progreso: r2(a.obra.progreso) } : null,
         conocidos: a.conocidos,

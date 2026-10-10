@@ -141,6 +141,33 @@ function modelos() {
       { geo: B(0.8, 0.08, 0.8), color: 0x7a5534, y: 1.9 },
       { geo: Co(0.62, 0.5, 4), color: 0xc9a24f, y: 2.45, ry: Math.PI / 4 },
     ]),
+    // El gallinero: una casita sobre patas con su rampa y un corralito delante.
+    gallinero: fundir([
+      ...[[-0.3, -0.25], [0.3, -0.25], [-0.3, 0.2], [0.3, 0.2]].map(([x, z]) => ({ geo: B(0.06, 0.4, 0.06), color: 0x6a4a2e, x, y: 0.2, z: z - 0.3 })),
+      { geo: B(0.75, 0.42, 0.6), color: 0x9a7448, y: 0.6, z: -0.3 },
+      { geo: B(0.85, 0.05, 0.72), color: 0x7a5534, y: 0.85, z: -0.3, rz: 0.18 },
+      { geo: B(0.85, 0.05, 0.72), color: 0x7a5534, y: 0.85, z: -0.3, rz: -0.18, x: 0 },
+      { geo: B(0.14, 0.16, 0.02), color: 0x2a2018, y: 0.55, z: 0.01 },
+      { geo: B(0.14, 0.03, 0.5), color: 0x8a6440, y: 0.22, z: 0.18, rx: 0.75 },
+      ...[-0.65, 0.65].map((x) => ({ geo: B(0.04, 0.32, 1.1), color: 0x8a6a44, x, y: 0.16, z: 0.45 })),
+      { geo: B(1.34, 0.32, 0.04), color: 0x8a6a44, y: 0.16, z: 1.0 },
+      { geo: B(1.3, 0.02, 1.0), color: 0xb89a62, y: 0.01, z: 0.5 },
+    ]),
+    // La granja: un establo grande de madera con tejado a dos aguas, pajar y abrevadero.
+    granja: fundir([
+      { geo: B(1.6, 0.9, 1.1), color: 0x8a4a32, y: 0.45 },
+      { geo: B(1.7, 0.08, 0.7), color: 0x5a3a26, y: 1.05, z: -0.27, rx: 0.62 },
+      { geo: B(1.7, 0.08, 0.7), color: 0x5a3a26, y: 1.05, z: 0.27, rx: -0.62 },
+      { geo: Co(0.56, 0.4, 3), color: 0x8a4a32, x: 0.8, y: 1.08, ry: Math.PI / 2, rz: Math.PI / 2, sz: 0.25 },
+      { geo: Co(0.56, 0.4, 3), color: 0x8a4a32, x: -0.8, y: 1.08, ry: -Math.PI / 2, rz: -Math.PI / 2, sz: 0.25 },
+      { geo: B(0.5, 0.6, 0.04), color: 0x3a2418, y: 0.3, z: 0.56 },
+      { geo: B(0.04, 0.6, 0.04), color: 0xe8dcc0, x: -0.13, y: 0.3, z: 0.58, rz: 0.75 },
+      { geo: B(0.04, 0.6, 0.04), color: 0xe8dcc0, x: 0.13, y: 0.3, z: 0.58, rz: -0.75 },
+      { geo: C(0.32, 0.36, 0.5, 8), color: 0xd8b850, x: 1.15, y: 0.25, z: 0.3 },
+      { geo: Co(0.33, 0.25, 8), color: 0xc8a840, x: 1.15, y: 0.62, z: 0.3 },
+      { geo: B(0.5, 0.14, 0.18), color: 0x6a4a2e, x: -1.05, y: 0.07, z: 0.4 },
+      { geo: B(0.44, 0.03, 0.12), color: 0x5a8ab0, x: -1.05, y: 0.13, z: 0.4 },
+    ]),
     // La cerca de estacas: un poste y dos travesaños atados hasta el siguiente.
     estaca: fundir([
       { geo: C(0.05, 0.06, 1.05, 5), color: 0x7a5a3a, y: 0.52 },
@@ -192,7 +219,7 @@ function modelos() {
   };
 }
 
-const TIPOS = ['choza', 'casa', 'hoguera', 'campo', 'corral', 'almacen', 'horno', 'archivo', 'mercado', 'ruina', 'obra'];
+const TIPOS = ['choza', 'casa', 'hoguera', 'campo', 'corral', 'gallinero', 'granja', 'almacen', 'horno', 'archivo', 'mercado', 'ruina', 'obra'];
 
 export class Edificios3D {
   constructor(escena, terreno) {
@@ -258,7 +285,7 @@ export class Edificios3D {
         if (!pos) continue;
         if (tipo === 'hoguera' && !ruina) this.hogueras.push(pos);
         if (tipo === 'horno' && !ruina) this.hornos.push(pos);
-        if (tipo === 'corral' && !ruina) this.corrales.push({ pos, animales: e.animales ?? 0 });
+        if ((tipo === 'corral' || tipo === 'gallinero') && !ruina) this.corrales.push({ pos, ry: mira, animales: e.animales ?? 0, especie: e.especie ?? (tipo === 'gallinero' ? 'gallina' : 'oveja'), aldea: a.id });
         if (tipo === 'campo' && e.fase === 1 && !ruina && d.estacion !== 'invierno') {
           const alto = d.estacion === 'primavera' ? 0.45 : d.estacion === 'verano' ? 0.9 : 1.05;
           color.set(colorCultivo[d.estacion]);

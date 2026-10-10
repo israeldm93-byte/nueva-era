@@ -233,6 +233,26 @@ export const ESPECIES = {
   },
 };
 
+/** La vaca: grande y pesada, de patas cortas para su cuerpo. */
+ESPECIES.vaca = {
+  ...ESPECIES.caballo,
+  color: 0x7a5236,
+  cuerpo: 'cuerpoVaca',
+  cabeza: 'cabezaVaca',
+  cola: 'colaVaca',
+  alto: 0.86,
+  del: [0.15, 0.36, 0.07, 0.38],
+  tras: [0.17, 0.36, 0.07, 0.4],
+  cuello: [0, 0.1, 0.44],
+  cabeza0: 0.3,
+  cola0: 0.05,
+  pata: 0x3a2e24,
+  vel: [0.5, 1.3, 3.5],
+  pastar: 0.9,
+};
+/** El cerdo: el jabalí domesticado, rosado y sin colmillos. */
+ESPECIES.cerdo = { ...ESPECIES.jabali, color: 0xe2a594, cuerpo: 'cuerpoCerdo', cabeza: 'cabezaCerdo', cola: 'colaCerdo', pata: 0xb57a6a, alto: 0.42, vel: [0.45, 1.2, 3.2] };
+
 /** El perro: un lobo domesticado, algo más pequeño, con la cola enroscada hacia arriba que menea. */
 ESPECIES.perro = { ...ESPECIES.lobo, cabeza0: -0.05, cola0: -0.7, vel: [1.1, 2.6, 6.5], menea: true };
 
@@ -481,6 +501,77 @@ export function modelosAnimales() {
     ...ojos(0.058, 0.37, 0.28),
   ]);
   m.colaCaballo = fundir([{ geo: tubo([[0.02, 0, 0.03, 0.03], [-0.07, -0.08, 0.045, 0.05], [-0.11, -0.25, 0.05, 0.05], [-0.12, -0.44, 0.025, 0.025]], 6), color: crin }]);
+
+  // ---------- vaca ----------
+  const vaca = 0x7a5236;
+  m.cuerpoVaca = fundir([
+    {
+      geo: tubo([
+        [-0.6, 0.06, 0.07, 0.07],
+        [-0.5, 0.04, 0.22, 0.25],
+        [-0.25, 0.0, 0.25, 0.28],
+        [0.05, -0.02, 0.25, 0.29],
+        [0.32, 0.02, 0.22, 0.27],
+        [0.47, 0.06, 0.14, 0.17],
+      ], 8),
+      color: vaca,
+      bajo: 0xe8dcc8,
+    },
+    // Las manchas claras y la ubre.
+    { geo: Es(0.16, 6, 4), color: 0xeee6d6, x: 0.14, y: 0.12, z: -0.18, sx: 0.8, sy: 0.6, sz: 1.2 },
+    { geo: Es(0.12, 6, 4), color: 0xeee6d6, x: -0.16, y: 0.1, z: 0.18, sx: 0.8, sy: 0.6, sz: 1.1 },
+    { geo: Es(0.075, 6, 4), color: 0xe8a8a0, y: -0.27, z: -0.28, sy: 0.7 },
+  ]);
+  m.cabezaVaca = fundir([
+    { geo: tubo([[0, 0, 0.13, 0.15], [0.16, -0.06, 0.11, 0.12], [0.3, -0.13, 0.1, 0.09]], 7), color: vaca },
+    { geo: B(0.17, 0.1, 0.08), color: 0x6a5048, y: -0.15, z: 0.32 },
+    { geo: CA(0.022, 0.012, 0.16, 5), color: 0xe8e0c8, x: -0.13, y: 0.1, z: 0.02, rz: 1.1, rx: -0.3 },
+    { geo: CA(0.022, 0.012, 0.16, 5), color: 0xe8e0c8, x: 0.13, y: 0.1, z: 0.02, rz: -1.1, rx: -0.3 },
+    ...orejas(0.14, 0.04, 0.0, 0.035, 0.09, vaca, 1.4, 0.1),
+    ...ojos(0.09, 0.03, 0.14),
+  ]);
+  m.colaVaca = fundir([
+    { geo: tubo([[0.02, 0, 0.02, 0.02], [-0.03, -0.2, 0.015, 0.015], [-0.04, -0.4, 0.012, 0.012]], 5), color: vaca },
+    { geo: Es(0.04, 5, 4), color: 0x2a2018, y: -0.44, z: -0.04, sy: 1.6 },
+  ]);
+
+  // ---------- cerdo ----------
+  const cerdo = 0xe2a594;
+  m.cuerpoCerdo = fundir([
+    {
+      geo: tubo([
+        [-0.36, 0.0, 0.06, 0.06],
+        [-0.3, 0.0, 0.15, 0.16],
+        [-0.08, 0.0, 0.18, 0.18],
+        [0.14, 0.01, 0.18, 0.18],
+        [0.28, 0.02, 0.14, 0.15],
+        [0.34, 0.02, 0.08, 0.09],
+      ]),
+      color: cerdo,
+      bajo: 0xd8988a,
+    },
+  ]);
+  m.cabezaCerdo = fundir([
+    { geo: tubo([[0, 0, 0.11, 0.12], [0.12, -0.02, 0.09, 0.09], [0.2, -0.03, 0.065, 0.06]], 7), color: cerdo },
+    { geo: C(0.058, 0.058, 0.03, 8), color: 0xd0807a, y: -0.035, z: 0.22, rx: Math.PI / 2 },
+    { geo: B(0.012, 0.012, 0.01), color: NEGRO, x: -0.02, y: -0.035, z: 0.236 },
+    { geo: B(0.012, 0.012, 0.01), color: NEGRO, x: 0.02, y: -0.035, z: 0.236 },
+    ...orejas(0.07, 0.09, 0.04, 0.045, 0.09, cerdo, 0.5, 0.6),
+    ...ojos(0.06, 0.03, 0.12),
+  ]);
+  m.colaCerdo = fundir([{ geo: new THREE.TorusGeometry(0.035, 0.009, 4, 8, 5), color: cerdo, y: -0.02, z: -0.02, ry: Math.PI / 2 }]);
+
+  // ---------- gallina (entera; la anima su propio paso) ----------
+  m.gallina = fundir([
+    { geo: Es(0.07, 7, 5), color: 0xffffff, y: 0.12, sx: 0.78, sy: 0.85, sz: 1.1 },
+    { geo: Co(0.05, 0.1, 5), color: 0xffffff, y: 0.16, z: -0.08, rx: -0.9, sx: 0.5 },
+    { geo: Es(0.035, 6, 4), color: 0xffffff, y: 0.2, z: 0.06 },
+    { geo: B(0.008, 0.03, 0.04), color: 0xd0302a, y: 0.235, z: 0.065 },
+    { geo: B(0.012, 0.022, 0.012), color: 0xd0302a, y: 0.175, z: 0.085 },
+    { geo: Co(0.012, 0.03, 4), color: 0xe8b030, y: 0.198, z: 0.098, rx: Math.PI / 2 },
+    { geo: C(0.006, 0.006, 0.08, 3), color: 0xe8b030, x: -0.025, y: 0.04 },
+    { geo: C(0.006, 0.006, 0.08, 3), color: 0xe8b030, x: 0.025, y: 0.04 },
+  ]);
 
   // ---------- cabra montés ----------
   const cabra = 0x8a7a62;
