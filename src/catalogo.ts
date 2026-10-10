@@ -194,6 +194,8 @@ export interface TipoEdificio {
   nombre: string;
   requiere: string;
   coste: Record<string, number>;
+  /** Con qué otra cosa se puede hacer si falta lo de siempre (y de qué queda hecho). */
+  alternativa?: { coste: Record<string, number>; material: string };
   trabajo: number;
   aloja?: number;
 }
@@ -206,7 +208,7 @@ export const EDIFICIOS: TipoEdificio[] = [
   { id: 'corral', nombre: 'Corral', requiere: 'corral', coste: { madera: 15 }, trabajo: 6 },
   { id: 'almacen', nombre: 'Almacén de vasijas', requiere: 'vasija', coste: { arcilla: 15, madera: 4 }, trabajo: 6 },
   { id: 'horno', nombre: 'Horno', requiere: 'horno', coste: { arcilla: 10, piedra: 10 }, trabajo: 6 },
-  { id: 'cerca', nombre: 'Cerca', requiere: 'cuerda', coste: { madera: 14 }, trabajo: 6 },
+  { id: 'cerca', nombre: 'Cerca', requiere: 'cuerda', coste: { madera: 14 }, alternativa: { coste: { piedra: 30 }, material: 'piedra' }, trabajo: 6 },
   { id: 'puente', nombre: 'Puente', requiere: 'puente', coste: { madera: 20, piedra: 6 }, trabajo: 8 },
   { id: 'gallinero', nombre: 'Gallinero', requiere: 'gallinero', coste: { madera: 8 }, trabajo: 3 },
   { id: 'granja', nombre: 'Granja', requiere: 'granja', coste: { madera: 30, piedra: 10 }, trabajo: 12 },
@@ -225,7 +227,7 @@ export const CAPAS = ['madera', 'bayas', 'semillas', 'fibra', 'hierbas', 'caza',
  * [agua, orilla, pradera, bosque, colina, montaña, río, pantano, estepa, desierto].
  */
 export const CAPACIDAD: Record<string, number[]> = {
-  madera: [0, 4, 3, 40, 10, 2, 3, 6, 1, 0],
+  madera: [0, 4, 3, 40, 10, 2, 3, 6, 2, 0.3],
   bayas: [0, 2, 4, 10, 3, 1, 4, 3, 1, 0],
   semillas: [0, 1, 12, 2, 2, 0, 4, 2, 14, 1],
   fibra: [0, 8, 10, 3, 2, 0, 9, 16, 6, 0],

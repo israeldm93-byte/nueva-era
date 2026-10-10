@@ -638,6 +638,35 @@ export class Mundo3D {
     });
   }
 
+  /** El edificio (u obra) bajo un punto del suelo; las cercas y murallas, por su contorno. */
+  edificioEn(px, pz) {
+    let mejor = null;
+    let dmin = (T * 0.55) ** 2;
+    const RODEA = ['cerca', 'empalizada', 'muralla'];
+    for (const a of this.datos.aldeas) {
+      const [cx, cz] = this.aMundo(a.x, a.y);
+      const lista = a.obra ? [...a.edificios, { ...a.obra, obra: true }] : a.edificios;
+      for (const e of lista) {
+        if (RODEA.includes(e.tipo)) {
+          const r = T * ((e.tipo === 'muralla' ? (a.poblacion > 40 ? 3.9 : 3.0) : a.poblacion > 40 ? 3.6 : 2.7) + (e.obra && a.edificios.some((x) => RODEA.includes(x.tipo)) ? 0.35 : 0));
+          const dd = Math.abs(Math.hypot(px - cx, pz - cz) - r);
+          if (dd < 0.7 && dd * dd < dmin) {
+            dmin = dd * dd;
+            mejor = { ...e, aldea: a.id };
+          }
+          continue;
+        }
+        const [x, z] = this.aMundo(e.x, e.y);
+        const d2 = (x - px) ** 2 + (z - pz) ** 2;
+        if (d2 < dmin) {
+          dmin = d2;
+          mejor = { ...e, aldea: a.id };
+        }
+      }
+    }
+    return mejor;
+  }
+
   tocar(e) {
     const r = this.lienzo.getBoundingClientRect();
     const v = new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
@@ -660,6 +689,12 @@ export class Mundo3D {
         }
       }
       if (g.object === this.terreno.malla) {
+        // ¿Un edificio, una obra o la cerca de alguna aldea?
+        const edificio = this.edificioEn(g.point.x, g.point.z);
+        if (edificio) {
+          this.alTocar?.({ edificio });
+          return;
+        }
         // ¿Cerca de una aldea?
         let mejor = null;
         let dmin = (T * 3) ** 2;

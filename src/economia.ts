@@ -416,6 +416,12 @@ function recolectar(m: Mundo, p: Persona, c: Contexto, eficiencia: number): numb
     R.fibra[i] = r2(R.fibra[i] - f);
     guardar(a, 'fibra', f);
   }
+  // Ramas secas y matorral para el fuego, si hace falta leña (en la estepa no hay otra).
+  if (R.madera[i] > 0.3 && c.precio.madera > 0.15) {
+    const w = r2(Math.min(R.madera[i], 0.8 * eficiencia));
+    R.madera[i] = r2(R.madera[i] - w);
+    guardar(a, 'madera', w);
+  }
   if (R.hierbas[i] > 0.5 && (c.precio.hierbas > 0.05 || prob(0.2))) {
     const h = r2(Math.min(R.hierbas[i], 1));
     R.hierbas[i] = r2(R.hierbas[i] - h);
@@ -594,11 +600,19 @@ function cultivar(m: Mundo, p: Persona, c: Contexto): number {
   return 0;
 }
 
+/** Con qué se paga la obra: lo de siempre o, si no llega, la alternativa (o nada). */
+function costeObra(a: Aldea): { coste: Record<string, number>; material?: string } | null {
+  if (!a.obra) return null;
+  const tipo = EDIFICIO[a.obra.tipo];
+  const llega = (c: Record<string, number>) => Object.keys(c).every((k) => (a.despensa[k] ?? 0) >= c[k]);
+  if (llega(tipo.coste)) return { coste: tipo.coste };
+  if (tipo.alternativa && llega(tipo.alternativa.coste)) return tipo.alternativa;
+  return null;
+}
+
 function obraLista(a: Aldea): boolean {
   if (!a.obra) return false;
-  if (a.obra.pagada) return true;
-  const coste = EDIFICIO[a.obra.tipo].coste;
-  return Object.keys(coste).every((k) => (a.despensa[k] ?? 0) >= coste[k]);
+  return a.obra.pagada || costeObra(a) !== null;
 }
 
 function construir(m: Mundo, p: Persona, c: Contexto): number {
@@ -607,7 +621,10 @@ function construir(m: Mundo, p: Persona, c: Contexto): number {
   if (!obra || !obraLista(a)) return 0;
   const tipo = EDIFICIO[obra.tipo];
   if (!obra.pagada) {
-    for (const [k, v] of Object.entries(tipo.coste)) a.despensa[k] = r2(a.despensa[k] - v);
+    // Con lo que haya: si no hay madera para la cerca, de piedra seca.
+    const pago = costeObra(a)!;
+    for (const [k, v] of Object.entries(pago.coste)) a.despensa[k] = r2(a.despensa[k] - v);
+    if (pago.material) obra.material = pago.material;
     obra.pagada = true;
   }
   p.x = obra.x;
@@ -622,7 +639,7 @@ function terminarObra(m: Mundo, a: Aldea): void {
   const obra = a.obra;
   if (!obra) return;
   a.obra = null;
-  const e: Aldea['edificios'][number] = { tipo: obra.tipo, x: obra.x, y: obra.y };
+  const e: Aldea['edificios'][number] = { tipo: obra.tipo, x: obra.x, y: obra.y, ...(obra.material ? { material: obra.material } : {}) };
   if (obra.tipo === 'campo') {
     e.fase = 0;
     e.trabajo = 0;
@@ -704,12 +721,19 @@ function articulo(t: TipoEdificio): string {
 
 /** Cada pocos días la aldea decide qué construir después. */
 export function planificar(m: Mundo, a: Aldea, gente: Persona[]): void {
-  if (a.obra) return;
+  if (a.obra) {
+    // Si lleva mucho esperando materiales, se deja para más adelante y se hace otra cosa.
+    a.obra.desde ??= m.t;
+    if (a.obra.pagada || m.t - a.obra.desde < 45) return;
+    (a.aparcadas ??= {})[a.obra.tipo] = m.t + 120;
+    a.obra = null;
+  }
   const n = gente.length;
   const capacidad = cuantos(a, 'choza') * 5 + cuantos(a, 'casa') * 7;
   const grano = (a.despensa.cereal ?? 0) + (a.despensa.semillas ?? 0);
   const opciones: [string, number][] = [];
-  if (conoce(a, 'fuego') && !tiene(a, 'hoguera')) opciones.push(['hoguera', 1]);
+  // Lo primero, el fuego: da calor, asa la comida y ahuyenta a las fieras.
+  if (conoce(a, 'fuego') && !tiene(a, 'hoguera')) opciones.push(['hoguera', 1.3]);
   if (capacidad < n) {
     if (conoce(a, 'adobe')) opciones.push(['casa', 0.9]);
     else if (conoce(a, 'choza')) opciones.push(['choza', 0.9]);
@@ -733,9 +757,10 @@ export function planificar(m: Mundo, a: Aldea, gente: Persona[]): void {
   if (conoce(a, 'comercio') && !tiene(a, 'mercado')) opciones.push(['mercado', 0.4]);
   opciones.sort((x, y) => y[1] - x[1]);
   for (const [tipo] of opciones) {
+    if ((a.aparcadas?.[tipo] ?? 0) > m.t) continue;
     const sitio = lugarPara(m, a, tipo);
     if (sitio < 0) continue;
-    a.obra = { tipo, x: sitio % m.ancho, y: Math.floor(sitio / m.ancho), progreso: 0, pagada: false };
+    a.obra = { tipo, x: sitio % m.ancho, y: Math.floor(sitio / m.ancho), progreso: 0, pagada: false, desde: m.t };
     return;
   }
 }

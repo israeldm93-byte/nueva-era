@@ -3,7 +3,7 @@
 // descubrir no aparecen (nada de destripes).
 
 import { DIAS_ANIO, ESTACIONES } from './config.ts';
-import { BASICOS, COMIDAS, CONCEPTOS_VIDA, MATERIALES, NOMBRE_CONCEPTO, TECNICA, TECNICAS } from './catalogo.ts';
+import { BASICOS, COMIDAS, CONCEPTOS_VIDA, EDIFICIOS, MATERIALES, NOMBRE_CONCEPTO, TECNICA, TECNICAS } from './catalogo.ts';
 import { anioDe, fecha } from './cronica.ts';
 import { comidaTotal, necesidad } from './economia.ts';
 import { lexicoComun, parecido } from './lenguaje.ts';
@@ -75,6 +75,7 @@ export function datosWeb(m: Mundo, ahora: Date) {
     conceptos: [...BASICOS, ...CONCEPTOS_VIDA],
     nombres,
     comestibles: COMIDAS.map((x) => x.id),
+    obras: Object.fromEntries(EDIFICIOS.map((e) => [e.id, { nombre: e.nombre, coste: e.coste, ...(e.alternativa ? { alternativa: e.alternativa.coste } : {}) }])),
     acciones: ACCIONES,
     pruebas: PRUEBAS.map((p) => p.nombre),
     frases: FRASE,
@@ -101,8 +102,9 @@ export function datosWeb(m: Mundo, ahora: Date) {
           ...(e.fase !== undefined ? { fase: e.fase } : {}),
           ...(e.animales !== undefined ? { animales: Math.round(e.animales) } : {}),
           ...(e.especie ? { especie: e.especie } : {}),
+          ...(e.material ? { material: e.material } : {}),
         })),
-        obra: a.obra ? { tipo: a.obra.tipo, x: a.obra.x, y: a.obra.y, progreso: r2(a.obra.progreso) } : null,
+        obra: a.obra ? { tipo: a.obra.tipo, x: a.obra.x, y: a.obra.y, progreso: r2(a.obra.progreso), pagada: a.obra.pagada, ...(a.obra.material ? { material: a.obra.material } : {}) } : null,
         conocidos: a.conocidos,
         archivo: a.archivo,
         despensa,

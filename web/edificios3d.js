@@ -181,6 +181,19 @@ function modelos() {
       { geo: C(0.05, 0.06, 1.05, 5), color: 0x7a5a3a, y: 0.52 },
       { geo: Co(0.05, 0.12, 5), color: 0x6a4a2e, y: 1.1 },
     ]),
+    // La pirca: una cerca baja de piedra seca, piedras apiladas sin argamasa.
+    pirca: fundir([
+      { geo: B(0.92, 0.22, 0.42), color: 0x8f877a, y: 0.11 },
+      ...[[-0.32, 0.3], [0.02, 0.31], [0.33, 0.29], [-0.16, 0.5], [0.18, 0.5], [0.0, 0.66]].map(([x, y], k) => ({
+        geo: Do(0.15 + (k % 3) * 0.02),
+        color: [0x9a948a, 0x8b867d, 0xa8a296, 0x7a756d][k % 4],
+        x,
+        y,
+        rx: k,
+        rz: k * 0.7,
+        sz: 1.25,
+      })),
+    ]),
     travesano: fundir([
       { geo: B(0.92, 0.06, 0.05), color: 0x8a6a44, y: 0.4 },
       { geo: B(0.92, 0.06, 0.05), color: 0x8a6a44, y: 0.78 },
@@ -254,6 +267,8 @@ export class Edificios3D {
     const torres = instancias(this.escena, im, 'torres', this.geo.torre, this.mat, 200);
     const muros = instancias(this.escena, im, 'muros', this.geo.muro, this.mat, 1500);
     const estacas = instancias(this.escena, im, 'estacas', this.geo.estaca, this.mat, 2000);
+    const pircas = instancias(this.escena, im, 'pircas', this.geo.pirca, this.mat, 2000);
+    let nPirca = 0;
     const travesanos = instancias(this.escena, im, 'travesanos', this.geo.travesano, this.mat, 2000);
     let nEstaca = 0;
     let nTrav = 0;
@@ -279,6 +294,67 @@ export class Edificios3D {
       return [x, y, z];
     };
     for (const r of d.ruinas ?? []) ponerEd('ruina', r, azar(r.x * 31 + r.y));
+    /**
+     * Lo que rodea una aldea: cerca de estacas, pirca de piedra seca, empalizada o muralla.
+     * Con `parte` < 1, solo el tramo ya levantado (se construye desde la puerta, al sur).
+     */
+    const anillo = (a, tipo, parte, ruina, mas = 0) => {
+      const [cx, cz] = tr.aMundo(a.x, a.y);
+      const grande = a.poblacion > 40;
+      const radio = T * ((tipo === 'muralla' ? (grande ? 3.9 : 3.0) : grande ? 3.6 : 2.7) + mas);
+      const paso = tipo === 'muralla' ? 0.95 : tipo === 'empalizada' ? 0.26 : 0.9;
+      const total = Math.round((2 * Math.PI * radio) / paso);
+      const hueco = tipo === 'empalizada' ? 0.16 : tipo === 'muralla' ? 0.2 : 0.14;
+      const gris = (k) => color.set(ruina ? 0x6f6a60 : 0xffffff).multiplyScalar(tipo === 'muralla' || tipo === 'pirca' ? 0.92 + azar(k * 3 + a.id) * 0.16 : 1);
+      const hechos = Math.ceil(total * parte);
+      for (let j = 0; j < hechos; j++) {
+        // Desde la puerta, alternando a un lado y a otro, como se levanta de verdad.
+        const k = (Math.round(total / 4) + (j % 2 ? -Math.ceil(j / 2) : Math.ceil(j / 2)) + total) % total;
+        const ang = (k / total) * Math.PI * 2;
+        if (Math.abs(ang - Math.PI / 2) < hueco) continue;
+        const x = cx + Math.cos(ang) * radio;
+        const z = cz + Math.sin(ang) * radio;
+        const y = tr.alturaEn(x, z);
+        if (tipo === 'muralla' && nMuro < 1500) {
+          colocar(muros, nMuro, x, y - 0.25, z, -ang - Math.PI / 2, 1, 1.1);
+          muros.setColorAt(nMuro++, gris(k));
+        } else if (tipo === 'pirca' && nPirca < 2000) {
+          colocar(pircas, nPirca, x, y - 0.05, z, -ang - Math.PI / 2, (2 * Math.PI * radio) / total / 0.92, 1);
+          pircas.setColorAt(nPirca++, gris(k));
+        } else if (tipo === 'empalizada' && nTron < 8000) {
+          colocar(tronquitos, nTron, x, y - 0.05, z, 0, 1, 0.85 + azar(k + a.id) * 0.3);
+          tronquitos.setColorAt(nTron++, gris(k));
+        } else if (tipo === 'cerca' && nEstaca < 2000) {
+          colocar(estacas, nEstaca, x, y - 0.05, z, azar(k + a.id) * 3, 1, 0.9 + azar(k * 3 + a.id) * 0.2);
+          estacas.setColorAt(nEstaca++, gris(k));
+          // El travesaño hasta la siguiente estaca, si ya está puesta.
+          const sig = ((k + 0.5) / total) * Math.PI * 2;
+          if (Math.abs(sig - Math.PI / 2) < hueco + 0.06 || nTrav >= 2000 || (parte < 1 && j + 2 >= hechos)) continue;
+          const mx = cx + Math.cos(sig) * radio;
+          const mz = cz + Math.sin(sig) * radio;
+          colocar(travesanos, nTrav, mx, tr.alturaEn(mx, mz) - 0.05, mz, -sig - Math.PI / 2, (2 * Math.PI * radio) / total / 0.92, 1);
+          travesanos.setColorAt(nTrav++, gris(k));
+        }
+      }
+      if (parte < 1 || ruina) return;
+      // Torres: dos a la puerta de la empalizada; torreones en la muralla.
+      if (tipo === 'empalizada') {
+        for (const lado of [-1, 1]) {
+          const ang = Math.PI / 2 + lado * 0.24;
+          const x = cx + Math.cos(ang) * radio;
+          const z = cz + Math.sin(ang) * radio;
+          colocar(torres, nTorre++, x, tr.alturaEn(x, z), z, 0, 1);
+        }
+      } else if (tipo === 'muralla') {
+        for (const ang of [Math.PI / 2 - 0.27, Math.PI / 2 + 0.27, 0, Math.PI, -Math.PI / 2]) {
+          if (nTorreon >= 300) break;
+          const x = cx + Math.cos(ang) * radio;
+          const z = cz + Math.sin(ang) * radio;
+          colocar(torreones, nTorreon, x, tr.alturaEn(x, z) - 0.2, z, -ang, 1, 1);
+          torreones.setColorAt(nTorreon++, color.set(0xffffff));
+        }
+      }
+    };
     for (const a of d.aldeas) {
       const ruina = a.abandonada !== null;
       for (const e of a.edificios) {
@@ -312,28 +388,14 @@ export class Edificios3D {
           }
         }
       }
-      const muralla = a.edificios.some((e) => e.tipo === 'muralla');
-      if (muralla) {
-        // Muralla de piedra: paños con almenas, torreones cada cuarto de vuelta y dos a la puerta.
-        const [cx, cz] = tr.aMundo(a.x, a.y);
-        const radio = T * (a.poblacion > 40 ? 3.9 : 3.0);
-        const total = Math.round((2 * Math.PI * radio) / 0.95);
-        for (let k = 0; k < total && nMuro < 1500; k++) {
-          const ang = (k / total) * Math.PI * 2;
-          if (Math.abs(ang - Math.PI / 2) < 0.2) continue;
-          const x = cx + Math.cos(ang) * radio;
-          const z = cz + Math.sin(ang) * radio;
-          colocar(muros, nMuro, x, tr.alturaEn(x, z) - 0.25, z, -ang - Math.PI / 2, 1, 1.1);
-          muros.setColorAt(nMuro++, color.set(ruina ? 0x6f6a60 : 0xffffff).multiplyScalar(0.92 + azar(k * 3 + a.id) * 0.16));
-        }
-        for (const ang of [Math.PI / 2 - 0.27, Math.PI / 2 + 0.27, 0, Math.PI, -Math.PI / 2]) {
-          if (nTorreon >= 300) break;
-          const x = cx + Math.cos(ang) * radio;
-          const z = cz + Math.sin(ang) * radio;
-          colocar(torreones, nTorreon, x, tr.alturaEn(x, z) - 0.2, z, -ang, 1, ruina ? 0.6 : 1);
-          torreones.setColorAt(nTorreon++, color.set(ruina ? 0x6f6a60 : 0xffffff));
-        }
-      }
+      // Lo que rodea la aldea (lo mejor que tenga) y, si está levantando otro, el tramo ya hecho.
+      const hay = (t) => a.edificios.find((e) => e.tipo === t);
+      const muralla = !!hay('muralla');
+      const cercaHecha = hay('cerca');
+      const delimita = muralla ? 'muralla' : hay('empalizada') ? 'empalizada' : cercaHecha ? (cercaHecha.material === 'piedra' ? 'pirca' : 'cerca') : null;
+      if (delimita) anillo(a, delimita, 1, ruina);
+      const obraMuro = !ruina && a.obra && ['cerca', 'empalizada', 'muralla'].includes(a.obra.tipo) ? a.obra : null;
+      if (obraMuro) anillo(a, obraMuro.tipo === 'cerca' ? (obraMuro.material === 'piedra' ? 'pirca' : 'cerca') : obraMuro.tipo, Math.max(0.06, obraMuro.progreso), false, delimita ? 0.35 : 0);
       // Catapultas junto a la aldea, en cuanto saben hacerlas (más cuanto más grande).
       if (!ruina && a.conocidos?.includes('catapulta')) {
         // En casillas libres de tierra firme alrededor de la aldea, apuntando hacia fuera.
@@ -362,52 +424,7 @@ export class Edificios3D {
           quedan--;
         }
       }
-      const empalizada = a.edificios.some((e) => e.tipo === 'empalizada');
-      if (!muralla && !empalizada && a.edificios.some((e) => e.tipo === 'cerca')) {
-        // Cerca de estacas alrededor de casas y corrales, con un hueco al sur para pasar.
-        const [cx, cz] = tr.aMundo(a.x, a.y);
-        const radio = T * (a.poblacion > 40 ? 3.6 : 2.7);
-        const total = Math.round((2 * Math.PI * radio) / 0.9);
-        for (let k = 0; k < total && nEstaca < 2000; k++) {
-          const ang = (k / total) * Math.PI * 2;
-          if (Math.abs(ang - Math.PI / 2) < 0.14) continue;
-          const x = cx + Math.cos(ang) * radio;
-          const z = cz + Math.sin(ang) * radio;
-          const y = tr.alturaEn(x, z) - 0.05;
-          colocar(estacas, nEstaca, x, y, z, azar(k + a.id) * 3, 1, 0.9 + azar(k * 3 + a.id) * 0.2);
-          estacas.setColorAt(nEstaca++, color.set(ruina ? 0x6f6a60 : 0xffffff));
-          const sig = ((k + 0.5) / total) * Math.PI * 2;
-          if (Math.abs(sig - Math.PI / 2) < 0.2 || nTrav >= 2000) continue;
-          const largo = (2 * Math.PI * radio) / total;
-          const mx = cx + Math.cos(sig) * radio;
-          const mz = cz + Math.sin(sig) * radio;
-          colocar(travesanos, nTrav, mx, tr.alturaEn(mx, mz) - 0.05, mz, -sig - Math.PI / 2, largo / 0.92, 1);
-          travesanos.setColorAt(nTrav++, color.set(ruina ? 0x6f6a60 : 0xffffff));
-        }
-      }
-      if (!muralla && empalizada) {
-        const [cx, cz] = tr.aMundo(a.x, a.y);
-        const radio = T * (a.poblacion > 40 ? 3.6 : 2.7);
-        const total = Math.round((2 * Math.PI * radio) / 0.26);
-        for (let k = 0; k < total && nTron < 8000; k++) {
-          const ang = (k / total) * Math.PI * 2;
-          // Hueco para la puerta, al sur, con dos torres de vigía.
-          if (Math.abs(ang - Math.PI / 2) < 0.16) continue;
-          const x = cx + Math.cos(ang) * radio;
-          const z = cz + Math.sin(ang) * radio;
-          colocar(tronquitos, nTron, x, tr.alturaEn(x, z) - 0.05, z, 0, 1, 0.85 + azar(k + a.id) * 0.3);
-          tronquitos.setColorAt(nTron++, color.set(ruina ? 0x6f6a60 : 0xffffff));
-        }
-        if (!ruina) {
-          for (const lado of [-1, 1]) {
-            const ang = Math.PI / 2 + lado * 0.24;
-            const x = cx + Math.cos(ang) * radio;
-            const z = cz + Math.sin(ang) * radio;
-            colocar(torres, nTorre++, x, tr.alturaEn(x, z), z, 0, 1);
-          }
-        }
-      }
-      if (a.obra && !ruina) ponerEd('obra', a.obra, 0, Math.max(0.15, a.obra.progreso) * 1.4);
+      if (a.obra && !ruina && !obraMuro) ponerEd('obra', a.obra, 0, Math.max(0.15, a.obra.progreso) * 1.4);
     }
     this.cementerios(d);
     for (const k of TIPOS) cerrar(im[`ed-${k}`], n[k]);
@@ -416,6 +433,7 @@ export class Edificios3D {
     cerrar(torres, nTorre);
     cerrar(muros, nMuro);
     cerrar(estacas, nEstaca);
+    cerrar(pircas, nPirca);
     cerrar(travesanos, nTrav);
     cerrar(torreones, nTorreon);
     cerrar(catapultas, nCata);

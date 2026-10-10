@@ -237,12 +237,55 @@ function hambreDe(f) {
   return f.hambre >= 0.85 ? 'Famélicos: se arriesgan a lo que sea.' : f.hambre >= 0.5 ? 'Tienen hambre.' : 'Bien comidos.';
 }
 
-function fichaTocada({ animal: i, casilla }) {
+/** Para qué sirve cada edificio. */
+const USO = {
+  hoguera: 'El fuego de la aldea: calienta, asa la comida y espanta a las fieras. De noche se reúnen a su alrededor y el consejo habla junto a él.',
+  choza: 'Choza de ramas y fibra: cobija del frío a unas cinco personas.',
+  casa: 'Casa de adobe: abriga más que una choza y caben unas siete personas.',
+  campo: 'Campo de cultivo: se siembra en primavera y se cosecha en verano y otoño.',
+  corral: 'Corral: los animales crían y dan carne sin tener que cazar.',
+  gallinero: 'Gallinero: las gallinas ponen huevos cada día y sacan pollitos.',
+  granja: 'Granja con establo y pajar: caben más animales y crían más.',
+  almacen: 'Almacén: la comida guardada se estropea mucho menos.',
+  horno: 'Horno: cuece vasijas y, más adelante, funde metales.',
+  archivo: 'Casa de las tablillas: lo que se escribe no se olvida.',
+  mercado: 'Mercado: aquí se cambia lo que sobra por lo que falta.',
+  cerca: 'Cerca alrededor de casas y corrales: frena a los lobos y a los extraños.',
+  empalizada: 'Empalizada de troncos con torres de vigía: los lobos casi no entran y los asaltantes lo tienen difícil.',
+  muralla: 'Muralla de piedra con torreones: casi nadie la salta; solo las catapultas abren brecha.',
+  puente: 'Puente sobre el río: se cruza a trabajar, cazar y comerciar en la otra orilla.',
+  ruina: 'Lo que queda de una casa abandonada.',
+};
+
+function fichaEdificio(e) {
+  const d = E.mundo;
+  const a = E.aldeas.get(e.aldea);
+  const nombre = e.tipo === 'cerca' && e.material === 'piedra' ? 'Cerca de piedra seca' : (d.obras?.[e.tipo]?.nombre ?? EDIFICIOS[e.tipo] ?? e.tipo);
+  const lineas = [];
+  if (e.obra) {
+    lineas.push(`${a?.nombre ?? 'La aldea'} la está levantando: va por el ${Math.round((e.progreso ?? 0) * 100)} %.`);
+    if (!e.pagada) {
+      const coste = d.obras?.[e.tipo];
+      const falta = (c) => Object.entries(c ?? {}).map(([k, v]) => `${NUM.format(v)} de ${d.nombres[k] ?? k} (tienen ${NUM.format(Math.floor(a?.despensa[k] ?? 0))})`).join(' y ');
+      if (coste) lineas.push(`Esperan a tener ${falta(coste.coste)}${coste.alternativa ? `, o si no, ${falta(coste.alternativa)}` : ''}.`);
+      lineas.push('Si tardan mucho en reunirlo, la dejan para más adelante y hacen otra cosa.');
+    } else lineas.push('Ya tienen los materiales: los que construyen están en ello.');
+  }
+  lineas.push(USO[e.tipo] ?? '');
+  if (e.tipo === 'campo' && !e.obra) lineas.push(e.fase === 1 ? 'Ahora está sembrado.' : 'Ahora está en barbecho.');
+  if ((e.tipo === 'corral' || e.tipo === 'gallinero') && e.animales !== undefined) lineas.push(`Tiene ${e.animales} ${e.tipo === 'gallinero' ? 'gallinas' : ({ oveja: 'ovejas', cabra: 'cabras', vaca: 'vacas', cerdo: 'cerdos', caballo: 'caballos' }[e.especie ?? 'oveja'] ?? 'animales')}.`);
+  if (e.tipo === 'cerca' && e.material === 'piedra') lineas.push('La hicieron de piedra seca porque no había madera a mano.');
+  if (a) lineas.push(`De ${a.nombre}.`);
+  return [mayus(e.obra ? `Obra: ${nombre.toLowerCase()}` : nombre), lineas];
+}
+
+function fichaTocada({ animal: i, casilla, edificio }) {
   const d = E.mundo;
   const aldea = (id) => E.aldeas.get(id)?.nombre ?? '¿?';
   let titulo = '';
-  const lineas = [];
-  if (casilla !== undefined) {
+  let lineas = [];
+  if (edificio) [titulo, lineas] = fichaEdificio(edificio);
+  else if (casilla !== undefined) {
     const t = d.terreno[casilla];
     titulo = TERRENO_NOMBRE[t] ?? 'Terreno';
     const madera = d.madera[casilla];
@@ -306,9 +349,9 @@ function fichaTocada({ animal: i, casilla }) {
   );
 }
 
-function tocado({ persona, aldea, almacen, animal, casilla } = {}) {
-  if (animal || casilla !== undefined) {
-    fichaTocada({ animal, casilla });
+function tocado({ persona, aldea, almacen, animal, casilla, edificio } = {}) {
+  if (animal || edificio || casilla !== undefined) {
+    fichaTocada({ animal, casilla, edificio });
     return;
   }
   document.getElementById('ficha-toque')?.remove();

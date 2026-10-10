@@ -68,6 +68,7 @@ export interface Edificio {
   /** Corrales y gallineros: animales que tiene, y de qué especie. */
   animales?: number;
   especie?: string;
+  material?: string;
 }
 
 export interface Obra {
@@ -76,9 +77,15 @@ export interface Obra {
   y: number;
   progreso: number;
   pagada: boolean;
+  /** Desde cuándo está apuntada (si espera materiales demasiado, se deja para más adelante). */
+  desde?: number;
+  /** Si se hizo con lo que había en vez de lo de siempre (una cerca de piedra seca, por ejemplo). */
+  material?: string;
 }
 
 export interface Aldea {
+  /** Obras que se dejaron por falta de materiales, y hasta cuándo no se retoman. */
+  aparcadas?: Record<string, number>;
   id: number;
   nombre: string;
   x: number;
