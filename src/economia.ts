@@ -7,7 +7,7 @@
 //     también la estación, el peligro y lo que ha decidido el consejo.
 
 import { azar, elegir, prob } from './azar.ts';
-import { EDAD_ADULTA, GANAS_EXPERIMENTAR, RADIO_TRABAJO } from './config.ts';
+import { EDAD_ADULTA, GANAS_EXPERIMENTAR, INSPIRACION, PRUEBAS_DIA, RADIO_TRABAJO } from './config.ts';
 import {
   AGUA,
   BOSQUE,
@@ -30,7 +30,20 @@ import { alcanzable, hayCerca, mejorCasilla } from './mapa.ts';
 import { distancia as distanciaXY } from './matematicas.ts';
 import { edad } from './mundo.ts';
 import { ACCIONES, ALINEADAS, aprender, entradas, pensar, type Pensamiento, type Situacion } from './mente.ts';
-import { experimentar, sabe } from './saber.ts';
+import { experimentar, inspirarse, sabe } from './saber.ts';
+
+/** Con qué se trabaja en cada oficio (de ahí salen las ideas al trabajar). */
+const INSPIRA: Record<string, string[]> = {
+  recolectar: ['semillas', 'fibra', 'bayas', 'hierbas'],
+  cazar: ['piel', 'hueso', 'carne', 'cria'],
+  pescar: ['agua', 'pescado'],
+  lenar: ['madera'],
+  picar: ['piedra', 'malaquita', 'casiterita', 'hematites'],
+  barro: ['arcilla'],
+  pastorear: ['cria'],
+  cultivar: ['semillas', 'tierra'],
+  construir: ['madera', 'piedra'],
+};
 import type { Aldea, Mundo, Persona } from './tipos.ts';
 
 const r2 = (x: number) => Math.round(x * 100) / 100;
@@ -330,7 +343,12 @@ function hacer(m: Mundo, p: Persona, c: Contexto, act: string, eficiencia: numbe
       break;
     case 'experimentar': {
       const rapidez = (conoce(c.a, 'tambor') ? 1.1 : 1) * (conoce(c.a, 'escritura') ? 1.2 : 1) * (conoce(c.a, 'numeros') ? 1.2 : 1);
-      const res = experimentar(m, p, c.a, rapidez);
+      // Un día da para varias pruebas (hasta que algo sale).
+      let res = experimentar(m, p, c.a, rapidez);
+      for (let k = 1; k < PRUEBAS_DIA && !res.descubierto; k++) {
+        const otra = experimentar(m, p, c.a, rapidez);
+        res = { descubierto: otra.descubierto, idea: res.idea || otra.idea };
+      }
       // La curiosidad satisfecha también cuenta; descubrir algo, muchísimo.
       r = 0.3 + 0.6 * p.genes.curiosidad + (res.idea ? 0.4 : 0) + (res.descubierto ? 8 : 0);
       p.x = c.a.x;
@@ -356,6 +374,9 @@ function hacer(m: Mundo, p: Persona, c: Contexto, act: string, eficiencia: numbe
     // Aprendizaje por refuerzo: lo esperado se acerca a lo obtenido.
     p.valor[act] = r2(p.valor[act] + 0.15 * (obtenido - p.valor[act]));
   }
+  // Trabajando con las manos a veces se le ocurre algo (que habrá que probar).
+  const materias = INSPIRA[act];
+  if (materias && prob(INSPIRACION * (0.4 + p.genes.curiosidad))) inspirarse(p, c.a, elegir(materias));
   return r;
 }
 
@@ -663,6 +684,8 @@ function lugarPara(m: Mundo, a: Aldea, tipo: string): number {
   for (const b of m.aldeas) {
     for (const e of b.edificios) if (e.tipo !== 'empalizada') ocupadas.add(e.y * m.ancho + e.x);
     if (b.obra && b.obra.tipo !== 'empalizada') ocupadas.add(b.obra.y * m.ancho + b.obra.x);
+    // Sobre las tumbas no se construye.
+    if (b.cementerio) ocupadas.add(b.cementerio.y * m.ancho + b.cementerio.x);
   }
   if (tipo === 'campo') {
     return mejorCasilla(m, a.x, a.y, 4, (i, d) => {

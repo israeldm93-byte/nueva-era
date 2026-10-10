@@ -86,6 +86,28 @@ export function recordarIdea(p: Persona, idea: Idea): void {
   if (p.ideas.length > 3) p.ideas.length = 3;
 }
 
+/**
+ * Inspirarse trabajando: quien corta leña, recoge semillas o pica piedra a veces
+ * barrunta algo que podría hacerse con eso. No es un descubrimiento, sino una idea a
+ * medias (alguna cosa o el gesto no encajan) que luego hay que probar y afinar
+ * experimentando, y que se puede contar a otros.
+ */
+export function inspirarse(p: Persona, a: Aldea, material: string): boolean {
+  const fam = cosasFamiliares(p, a);
+  const posibles = TECNICAS.filter((t) => t.cosas.includes(material) && puedeAprender(p, t) && t.cosas.every((c) => fam.includes(c)));
+  if (!posibles.length) return false;
+  const t = elegir(posibles);
+  const cosas = t.cosas.slice();
+  let verbo = t.verbo;
+  if (cosas.length === 1 || prob(0.5)) verbo = elegir(verbosDe(p));
+  else cosas[entero(cosas.length)] = elegir(fam);
+  cosas.sort();
+  const puntos = r2(parecidoReceta(cosas, verbo, t));
+  if (puntos < 0.5) return false;
+  recordarIdea(p, { cosas, verbo, puntos });
+  return true;
+}
+
 /** Un día probando cosas: si descubre algo y si ha dado con una idea prometedora. */
 export function experimentar(m: Mundo, p: Persona, a: Aldea, rapidez: number): { descubierto: Tecnica | null; idea: boolean } {
   const nada = { descubierto: null, idea: false };

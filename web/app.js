@@ -651,6 +651,21 @@ function relacionTexto(r) {
   return ['Trato normal', ''];
 }
 
+/** La manada de lobos y el oso despiertos más cercanos a una aldea. */
+function fierasCerca(a, m) {
+  const cerca = (tipo) =>
+    (m.fauna ?? [])
+      .filter((f) => f.tipo === tipo && f.estado !== 'hiberna')
+      .map((f) => ({ f, d: Math.round(Math.hypot(f.x - a.x, f.y - a.y)) }))
+      .sort((x, y) => x.d - y.d)[0];
+  const lobos = cerca('lobos');
+  const oso = cerca('oso');
+  const partes = [];
+  if (lobos) partes.push(`${lobos.f.estado === 'acecha' || lobos.f.estado === 'ataca' ? '¡lobos rondando la aldea!' : `lobos a ${lobos.d} casillas`}`);
+  if (oso) partes.push(`${oso.f.estado === 'ataca' ? '¡un oso atacando!' : `un oso a ${oso.d}`}`);
+  return partes.length ? partes.join(', ') : 'ninguna a la vista';
+}
+
 function fichaAldea(a) {
   const m = E.mundo;
   const cuenta = {};
@@ -682,7 +697,12 @@ function fichaAldea(a) {
       h('div', {}, h('dt', {}, 'Comida guardada'), h('dd', {}, ruina ? '—' : `${a.diasComida} días`)),
       h('div', {}, h('dt', {}, 'Construyendo'), h('dd', {}, a.obra ? `${EDIFICIOS[a.obra.tipo] || a.obra.tipo} (${pct(a.obra.progreso)})` : 'nada')),
       h('div', {}, h('dt', {}, 'Sensación de peligro'), h('dd', {}, a.amenaza > 0.3 ? 'alta' : a.amenaza > 0.1 ? 'algo' : 'tranquilos')),
+      ruina ? null : h('div', {}, h('dt', {}, 'Fieras cerca'), h('dd', {}, fierasCerca(a, m))),
+      h('div', {}, h('dt', {}, 'Cementerio'), h('dd', {}, a.enterrados ? `${a.enterrados} ${a.enterrados === 1 ? 'tumba' : 'tumbas'}` : 'nadie enterrado aún')),
     ),
+    a.difuntos?.length
+      ? h('p', { class: 'nota' }, 'Últimos enterrados: ', a.difuntos.map((x) => `${x.nombre} (${anios(x.edad)}, ${(CAUSAS[x.causa] ?? x.causa).toLowerCase()}, año ${x.anio})`).join(' · '), '.')
+      : null,
   ];
   if (a.consejo && !ruina) {
     const c = a.consejo;

@@ -24,6 +24,7 @@ La web muestra el mundo en 3D (relieve, ríos, lagos, bosques y animales; chozas
 - **Perros**: cada aldea tiene los suyos, que siguen a su dueño (cazadores y pastores primero), se sientan o se tumban cuando él para, menean la cola y espantan a los ciervos.
 - **Los aldeanos se mueven mejor**: las piernas van al ritmo de lo que de verdad avanzan (si tienen prisa, echan a correr), giran poco a poco y **vuelven a casa con lo que han conseguido**: el tronco al hombro, la pieza de caza a cuestas, una sarta de peces, el cesto lleno de frutos o de piedras, gavillas de trigo en verano y otoño. Los mayores andan con bastón, el pescador tiene su boya y de vez en cuando saca un pez coleando, y el cazador lanza.
 - **Hojas que caen** en los bosques en otoño y **nieve que cae** en el norte en invierno.
+- **Entierran a sus muertos**: cada aldea abre un cementerio a las afueras (si se muda lejos, abre otro) con un túmulo por difunto; las tumbas viejas se cubren de hierba y, con escritura, llevan lápida grabada. La ficha de la aldea dice cuántos hay enterrados y quiénes fueron los últimos.
 - Para que vaya fluido, lo cercano se dibuja con detalle y lo lejano con modelos ligeros; lo que no se ve, ni se prepara.
 
 ## Cada aldeano tiene una mente
@@ -43,7 +44,7 @@ Cada persona decide con una **red neuronal** pequeña (18 entradas, 6 neuronas o
 
 ## Saber, idioma y genes
 
-- **Prueba y error.** Cada saber (el fuego, la cuerda, la agricultura, el bronce…) es una receta secreta: unas cosas y un gesto. Los aldeanos no conocen las recetas: quien tiene curiosidad y tiempo combina cosas que conoce con un gesto (golpear, frotar, atar, calentar…) y, si algo parece prometer, lo va variando.
+- **Prueba y error.** Cada saber (el fuego, la cuerda, la agricultura, el bronce…) es una receta secreta: unas cosas y un gesto. Los aldeanos no conocen las recetas: quien tiene curiosidad y tiempo combina cosas que conoce con un gesto (golpear, frotar, atar, calentar…) y, si algo parece prometer, lo va variando. Un día de pruebas da para varios intentos, y el propio trabajo **inspira**: cortando leña, recogiendo semillas o picando piedra a alguien se le ocurre a medias algo que podría hacerse con eso, y luego hay que probarlo hasta dar con ello.
 - **Cultura.** El saber se transmite hablando. Muere con la última persona que lo sabía, salvo que esté escrito en tablillas.
 - **Idioma propio.** Para nombrar algo sin palabra, cada uno se la inventa con los sonidos de su pueblo (el *juego de nombrar* de Luc Steels). Cada aldea llega a un vocabulario común sin que nadie lo decida, y las que se separan acaban hablando lenguas distintas.
 - **Evolución.** Ocho genes (curiosidad, sociabilidad, fuerza, destreza, resistencia, fertilidad, longevidad y agresividad) se heredan con pequeñas mutaciones.

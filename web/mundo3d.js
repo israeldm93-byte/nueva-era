@@ -51,7 +51,12 @@ export class Mundo3D {
     c.maxDistance = 300;
     c.minPolarAngle = 0.3;
     c.maxPolarAngle = 1.25;
-    c.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
+    // Arrastrar mueve; la rueda pulsada o el botón derecho giran; la rueda acerca.
+    c.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.ROTATE, RIGHT: THREE.MOUSE.ROTATE };
+    // Que la rueda pulsada no active el desplazamiento automático del navegador.
+    lienzo.addEventListener('mousedown', (e) => {
+      if (e.button === 1) e.preventDefault();
+    });
     c.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_ROTATE };
     c.zoomToCursor = true;
     // Si quien mira mueve la cámara, deja de seguir a nadie.

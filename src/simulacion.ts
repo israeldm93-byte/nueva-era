@@ -2,7 +2,7 @@
 
 import { azar, barajar, estadoAzar, fijarAzar, prob } from './azar.ts';
 import { DIAS_ANIO } from './config.ts';
-import { TECNICA } from './catalogo.ts';
+import { AGUA, MONTANA, PANTANO, RIO, TECNICA } from './catalogo.ts';
 import { anioDe, anios, anotar, fecha, listar } from './cronica.ts';
 import { desastres } from './desastres.ts';
 import { asentarAprendizaje, comer, contexto, jornada, mantener, planificar } from './economia.ts';
@@ -13,7 +13,7 @@ import { aldeasVivas, crearMundo, edad, estacionDe, indexar, mediaGenes, type In
 import { examinar } from './mente.ts';
 import { facciones, noche } from './politica.ts';
 import { anochecer, dividir, encuentros, peligros, salud, trasladar, vigilarLenguas } from './sociedad.ts';
-import type { FilaHistoria, Mundo, Persona } from './tipos.ts';
+import type { Aldea, FilaHistoria, Mundo, Persona } from './tipos.ts';
 
 const r2 = (x: number) => Math.round(x * 100) / 100;
 const HITOS = [25, 50, 100, 200, 500, 1000, 2000, 5000];
@@ -71,6 +71,50 @@ function paso(m: Mundo): void {
   else if (m.t % DIAS_ANIO === 0) finAnio(m);
 }
 
+const VECINAS = [
+  [1, 0],
+  [1, 1],
+  [0, 1],
+  [-1, 1],
+  [-1, 0],
+  [-1, -1],
+  [0, -1],
+  [1, -1],
+];
+
+/** A las afueras, en tierra firme y sin nada construido encima. */
+function lugarCementerio(m: Mundo, a: Aldea): { x: number; y: number } | null {
+  const ocupadas = new Set<number>();
+  for (const b of m.aldeas) for (const e of b.edificios) ocupadas.add(e.y * m.ancho + e.x);
+  for (let r = 3; r <= 6; r++) {
+    for (let k = 0; k < VECINAS.length; k++) {
+      const [dx, dy] = VECINAS[(a.id * 3 + k) % VECINAS.length];
+      const x = a.x + dx * r;
+      const y = a.y + dy * r;
+      if (x < 0 || y < 0 || x >= m.ancho || y >= m.alto) continue;
+      const i = y * m.ancho + x;
+      const t = m.terreno[i];
+      if (t === AGUA || t === RIO || t === MONTANA || t === PANTANO || ocupadas.has(i)) continue;
+      return { x, y };
+    }
+  }
+  return null;
+}
+
+/** Cada aldea entierra a sus muertos en su cementerio; si se ha mudado lejos, abre otro. */
+function sepultar(m: Mundo, a: Aldea, p: Persona, causa: string): void {
+  let c = a.cementerio ?? null;
+  if (!c || Math.abs(c.x - a.x) + Math.abs(c.y - a.y) > 8) {
+    c = lugarCementerio(m, a);
+    a.cementerio = c;
+  }
+  if (!c) return;
+  a.tumbas ??= [];
+  a.tumbas.push({ x: c.x, y: c.y, t: m.t, nombre: p.nombre, edad: Math.floor(edad(m, p)), causa });
+  if (a.tumbas.length > 60) a.tumbas.shift();
+  a.enterrados = (a.enterrados ?? 0) + 1;
+}
+
 function enterrar(m: Mundo): void {
   const muertos = m.personas.filter((p) => p.muerto);
   if (muertos.length) m.personas = m.personas.filter((p) => !p.muerto);
@@ -84,6 +128,7 @@ function enterrar(m: Mundo): void {
     }
     const a = m.aldeas.find((x) => x.id === p.aldea);
     if (!a) continue;
+    sepultar(m, a, p, causa);
     const quedan = ix.porAldea.get(a.id) ?? [];
     necrologica(m, p, a.nombre, a.id);
     for (const s of p.saberes) {

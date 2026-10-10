@@ -102,11 +102,13 @@ export class Minimapa {
       g.fillStyle = '#ff7a1a';
       g.fillRect((i % d.ancho) * kx - kx * 0.5, Math.floor(i / d.ancho) * ky - ky * 0.5, kx * 2, ky * 2);
     }
+    // Todas las fieras: en rojo las que acechan o atacan una aldea.
     for (const f of d.fauna) {
-      if (f.estado !== 'acecha' && f.estado !== 'ataca') continue;
-      g.fillStyle = f.tipo === 'oso' ? '#6b3d1e' : '#d8443a';
+      if (f.estado === 'hiberna') continue;
+      const peligro = f.estado === 'acecha' || f.estado === 'ataca';
+      g.fillStyle = peligro ? (f.tipo === 'oso' ? '#b0441e' : '#e0302a') : f.tipo === 'oso' ? 'rgba(92, 58, 30, 0.85)' : 'rgba(60, 62, 70, 0.8)';
       g.beginPath();
-      g.arc((f.x + 0.5) * kx, (f.y + 0.5) * ky, Math.max(2, 1.6 * dpr), 0, Math.PI * 2);
+      g.arc((f.x + 0.5) * kx, (f.y + 0.5) * ky, Math.max(peligro ? 2.2 : 1.6, (peligro ? 1.9 : 1.3) * dpr), 0, Math.PI * 2);
       g.fill();
     }
     for (const a of d.aldeas) {

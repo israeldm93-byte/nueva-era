@@ -67,6 +67,22 @@ function modelos() {
       { geo: B(T * 0.94, 0.06, T * 0.94), color: 0x7a5a3a, y: 0.03 },
       ...[-0.66, -0.33, 0, 0.33, 0.66].map((z) => ({ geo: B(T * 0.9, 0.05, 0.1), color: 0x5e4229, y: 0.07, z })),
     ]),
+    // Tumbas: un túmulo de tierra con piedras; con escritura, una lápida grabada.
+    tumba: fundir([
+      { geo: Es(1, 7, 4), color: 0x6a5238, sx: 0.22, sy: 0.11, sz: 0.36 },
+      { geo: Do(0.05), color: 0x8b867d, x: 0.16, y: 0.02, z: 0.22 },
+      { geo: Do(0.045), color: 0x9a948a, x: -0.15, y: 0.02, z: 0.24 },
+      { geo: Do(0.05), color: 0x7a756d, x: 0.15, y: 0.02, z: -0.26 },
+      { geo: Do(0.045), color: 0x8b867d, x: -0.16, y: 0.02, z: -0.22 },
+      { geo: B(0.05, 0.16, 0.05), color: 0x8a8478, y: 0.08, z: -0.38 },
+    ]),
+    lapida: fundir([
+      { geo: Es(1, 7, 4), color: 0x6a5238, sx: 0.22, sy: 0.11, sz: 0.36 },
+      { geo: B(0.22, 0.3, 0.06), color: 0x9a948a, y: 0.15, z: -0.38 },
+      { geo: B(0.14, 0.012, 0.01), color: 0x4a4640, y: 0.22, z: -0.347 },
+      { geo: B(0.1, 0.012, 0.01), color: 0x4a4640, y: 0.17, z: -0.347 },
+      { geo: B(0.12, 0.012, 0.01), color: 0x4a4640, y: 0.12, z: -0.347 },
+    ]),
     corral: fundir([
       ...postes(1.7, 0.55, madera),
       { geo: B(1.78, 0.05, 0.05), color: madera, y: 0.36, z: -0.85 },
@@ -228,6 +244,7 @@ export class Edificios3D {
       }
       if (a.obra && !ruina) ponerEd('obra', a.obra, 0, Math.max(0.15, a.obra.progreso) * 1.4);
     }
+    this.cementerios(d);
     for (const k of TIPOS) cerrar(im[`ed-${k}`], n[k]);
     cerrar(cultivos, nCult);
     cerrar(tronquitos, nTron);
@@ -239,6 +256,40 @@ export class Edificios3D {
     });
     instancias(this.escena, im, 'llamas', this.geo.llama, this.matLlama, Math.max(64, this.hogueras.length + this.fuegos.length * 4 + 16), { sombra: false });
     instancias(this.escena, im, 'humo', this.geo.humo, this.matHumo, Math.max(64, this.hornos.length * 4 + this.fuegos.length * 3 + 16), { sombra: false });
+  }
+
+  /** Cada aldea, sus tumbas en filas (las recientes, de tierra removida; las viejas, ya con hierba). */
+  cementerios(d) {
+    const tr = this.terreno;
+    const total = d.aldeas.reduce((s, a) => s + (a.tumbas?.length ?? 0), 0);
+    const tumbas = instancias(this.escena, this.im, 'tumbas', this.geo.tumba, this.mat, Math.max(16, total));
+    const lapidas = instancias(this.escena, this.im, 'lapidas', this.geo.lapida, this.mat, Math.max(16, total));
+    let nt = 0;
+    let nl = 0;
+    const fresca = new THREE.Color(1, 1, 1);
+    const vieja = new THREE.Color(0.8, 1.15, 0.72);
+    const color = new THREE.Color();
+    for (const a of d.aldeas) {
+      if (!a.tumbas?.length) continue;
+      const escrita = a.conocidos?.includes('escritura');
+      const enCasilla = new Map();
+      // Las más recientes primero, hasta 30 por cementerio.
+      for (let j = a.tumbas.length - 1; j >= 0; j--) {
+        const [x, y, anio] = a.tumbas[j];
+        const k = enCasilla.get(y * d.ancho + x) ?? 0;
+        if (k >= 30) continue;
+        enCasilla.set(y * d.ancho + x, k + 1);
+        const [cx, cz] = tr.aMundo(x, y);
+        const px = cx + ((k % 5) - 2) * 0.42;
+        const pz = cz + (Math.floor(k / 5) - 1) * 0.62;
+        const im = escrita ? lapidas : tumbas;
+        const i = escrita ? nl++ : nt++;
+        colocar(im, i, px, tr.alturaEn(px, pz) - 0.02, pz, (azar(j + a.id) - 0.5) * 0.12);
+        im.setColorAt(i, color.copy(fresca).lerp(vieja, Math.min(1, Math.max(0, (d.anio - anio) / 8))));
+      }
+    }
+    cerrar(tumbas, nt);
+    cerrar(lapidas, nl);
   }
 
   animar(t, noche) {

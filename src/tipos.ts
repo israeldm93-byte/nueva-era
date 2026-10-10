@@ -104,6 +104,20 @@ export interface Aldea {
   amenaza: number;
   /** Necesidades recordadas de los últimos meses, por prioridad. */
   memoria?: Record<string, number>;
+  /** Dónde entierran a sus muertos (a las afueras; si la aldea se muda, abren otro). */
+  cementerio?: { x: number; y: number } | null;
+  /** Las últimas tumbas (las más viejas se pierden) y cuántos han enterrado en total. */
+  tumbas?: Tumba[];
+  enterrados?: number;
+}
+
+export interface Tumba {
+  x: number;
+  y: number;
+  t: number;
+  nombre: string;
+  edad: number;
+  causa: string;
 }
 
 export interface Consejo {

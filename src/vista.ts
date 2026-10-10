@@ -103,6 +103,10 @@ export function datosWeb(m: Mundo, ahora: Date) {
         despensa,
         diasComida: consumo > 0 ? Math.round(comidaTotal(a) / consumo) : 0,
         amenaza: r2(a.amenaza),
+        // Tumbas: [x, y, año] de cada una, y los últimos enterrados.
+        tumbas: (a.tumbas ?? []).map((g) => [g.x, g.y, anioDe(g.t)]),
+        difuntos: (a.tumbas ?? []).slice(-5).reverse().map((g) => ({ nombre: g.nombre, edad: g.edad, causa: g.causa, anio: anioDe(g.t) })),
+        enterrados: a.enterrados ?? 0,
         consejo: a.consejo
           ? {
               prioridad: a.consejo.prioridad,
