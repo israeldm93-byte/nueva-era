@@ -307,6 +307,8 @@ body.con-hoja .camara { display: none; }
 
 .nota { color: var(--tenue); font-size: 0.85rem; margin: 6px 0; }
 .vacio { color: var(--tenue); text-align: center; padding: 30px 10px; }
+.aviso-guerra { margin: 4px 0 8px; padding: 6px 10px; border-radius: 8px; background: rgba(229, 83, 75, 0.14); color: var(--tinta); border-left: 3px solid #e5534b; }
+.consejo-f.guerra { color: #ff9a8f; }
 .cita { font-family: Georgia, "Times New Roman", serif; font-style: italic; font-size: 1.02rem; margin: 4px 0 8px; color: var(--tinta); }
 h3.sub { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--tenue); margin: 18px 0 8px; }
 
@@ -375,8 +377,8 @@ h3.sub { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; c
 .suceso time { color: var(--tenue); font-size: 0.76rem; }
 .punto { width: 10px; height: 10px; border-radius: 50%; background: #9c968a; display: block; }
 .punto.t-descubrimiento, .punto.t-redescubrimiento { background: #e2804f; }
-.punto.t-perdida, .punto.t-olvido, .punto.t-extincion, .punto.t-lobos, .punto.t-fieras, .punto.t-incendio, .punto.t-inundacion, .punto.t-epidemia, .punto.t-asalto, .punto.t-hambre { background: #e5534b; }
-.punto.t-fundacion, .punto.t-traslado, .punto.t-contacto, .punto.t-lengua, .punto.t-alianza { background: #3987e5; }
+.punto.t-perdida, .punto.t-olvido, .punto.t-extincion, .punto.t-lobos, .punto.t-fieras, .punto.t-incendio, .punto.t-inundacion, .punto.t-epidemia, .punto.t-asalto, .punto.t-hambre, .punto.t-guerra { background: #e5534b; }
+.punto.t-fundacion, .punto.t-traslado, .punto.t-contacto, .punto.t-lengua, .punto.t-alianza, .punto.t-paz { background: #3987e5; }
 .punto.t-consejo, .punto.t-faccion, .punto.t-cisma { background: #e9c46a; }
 .mas { display: block; margin: 14px auto; font: inherit; padding: 8px 16px; border-radius: 10px; border: 1px solid var(--linea); background: var(--superficie); color: var(--tinta); cursor: pointer; }
 

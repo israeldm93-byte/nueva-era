@@ -10,6 +10,7 @@ import { lexicoComun, parecido } from './lenguaje.ts';
 import { ACCIONES, PRUEBAS, entradas, pensar } from './mente.ts';
 import { aldeasVivas, edad, estacionDe, indexar } from './mundo.ts';
 import { FRASE } from './politica.ts';
+import { focoDe } from './saber.ts';
 import type { Mundo } from './tipos.ts';
 
 const r1 = (x: number) => Math.round(x * 10) / 10;
@@ -54,7 +55,7 @@ export function datosWeb(m: Mundo, ahora: Date) {
     alto: m.alto,
     terreno: m.terreno,
     relieve: m.relieve,
-    fauna: m.fauna.map((f) => ({ id: f.id, tipo: f.tipo, x: f.x, y: f.y, px: f.px, py: f.py, n: f.n, estado: f.estado })),
+    fauna: m.fauna.map((f) => ({ id: f.id, tipo: f.tipo, x: f.x, y: f.y, px: f.px, py: f.py, n: f.n, estado: f.estado, hambre: f.hambre })),
     incendios: m.incendios.map(([i]) => i),
     cenizas: m.cenizas.map(([i, t]) => [i, m.t - t]),
     inundadas: m.inundadas.map(([i]) => i),
@@ -113,6 +114,10 @@ export function datosWeb(m: Mundo, ahora: Date) {
               desde: anioDe(a.consejo.desde),
               miembros: a.consejo.miembros.map((id) => ({ id, nombre: nombrePersona(id) })),
               votos: a.consejo.votos,
+              foco: focoDe(a),
+              guerra: a.consejo.guerra
+                ? { contra: a.consejo.guerra.contra, nombre: m.aldeas.find((b) => b.id === a.consejo!.guerra!.contra)?.nombre ?? '¿?', desde: anioDe(a.consejo.guerra.desde), motivo: a.consejo.guerra.motivo }
+                : null,
             }
           : null,
         facciones: a.facciones
@@ -123,7 +128,8 @@ export function datosWeb(m: Mundo, ahora: Date) {
     relaciones: Object.entries(m.relaciones)
       .map(([k, r]) => {
         const [a, b] = k.split('-').map(Number);
-        return { a, b, afinidad: r2(r.afinidad), rencor: r2(r.rencor), alianza: r.alianza };
+        const guerra = m.aldeas.some((x) => (x.id === a && x.consejo?.guerra?.contra === b) || (x.id === b && x.consejo?.guerra?.contra === a));
+        return { a, b, afinidad: r2(r.afinidad), rencor: r2(r.rencor), alianza: r.alianza, ...(guerra ? { guerra } : {}) };
       })
       .filter((r) => vivas.some((x) => x.id === r.a) && vivas.some((x) => x.id === r.b)),
     personas: m.personas.map((p) => {

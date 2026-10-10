@@ -128,6 +128,15 @@ export interface Consejo {
   anunciada: string;
   miembros: number[];
   votos: Record<string, number>;
+  /** La guerra que ha decidido hacer (contra quién, desde cuándo y por qué). */
+  guerra?: Guerra | null;
+}
+
+export interface Guerra {
+  contra: number;
+  desde: number;
+  motivo: string;
+  derrotas: number;
 }
 
 export interface Faccion {
@@ -149,6 +158,8 @@ export interface Relacion {
   rencor: number;
   ultimoAsalto: number;
   alianza: boolean;
+  /** Cuándo hicieron las paces (tras una paz hay unos años de tregua). */
+  paz?: number;
 }
 
 export type TipoSuceso =
@@ -176,6 +187,8 @@ export type TipoSuceso =
   | 'faccion'
   | 'cisma'
   | 'asalto'
+  | 'guerra'
+  | 'paz'
   | 'alianza'
   | 'poblacion'
   | 'extincion';

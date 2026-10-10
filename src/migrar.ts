@@ -104,7 +104,7 @@ function mapaNuevo(m: Mundo): void {
       return t !== AGUA && t !== RIO && t !== MONTANA && masa[i] === masa[a.y * ANCHO + a.x] && !ocupadas.has(i);
     };
     const colocar = (e: { x: number; y: number; tipo: string }) => {
-      if (e.tipo === 'empalizada') {
+      if (e.tipo === 'empalizada' || e.tipo === 'muralla') {
         e.x = a.x;
         e.y = a.y;
         return;

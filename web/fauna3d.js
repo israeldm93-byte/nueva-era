@@ -602,20 +602,57 @@ export class Fauna3D {
     if (a.estado === 'alerta' && a.huye) a.mira = acotar(giroHacia(a.ang, Math.atan2(a.huye[0] - a.x, a.huye[1] - a.z)), -1.2, 1.2);
   }
 
+  /** La persona u oveja más cercana a un punto (para el ataque de los lobos). */
+  presaCerca(x, z) {
+    let mejor = null;
+    let dmin = 9 * 9;
+    const cx = Math.floor(x / 8);
+    const cz = Math.floor(z / 8);
+    for (let i = cx - 1; i <= cx + 1; i++) {
+      for (let j = cz - 1; j <= cz + 1; j++) {
+        for (const [ax, az, fiera] of this.rejilla?.get(i * 100003 + j) ?? []) {
+          const d2 = (ax - x) ** 2 + (az - z) ** 2;
+          if (!fiera && d2 < dmin) {
+            dmin = d2;
+            mejor = [ax, az];
+          }
+        }
+      }
+    }
+    for (const o of this.ovejas.values()) {
+      const d2 = (o.x - x) ** 2 + (o.z - z) ** 2;
+      if (d2 < dmin) {
+        dmin = d2;
+        mejor = [o.x, o.z];
+      }
+    }
+    return mejor;
+  }
+
   /** Lobos y osos: siguen a su manada (lo que manda la simulación) y, parados, hacen lo suyo. */
   pensarFiera(a, dt, u, t, noche) {
     const f = a.f;
     const giro = Math.sin(t * 0.13 + a.id) * 0.4;
     const ox = a.ox * Math.cos(giro) - a.oz * Math.sin(giro);
     const oz = a.ox * Math.sin(giro) + a.oz * Math.cos(giro);
-    const dx = entre(a.x0, a.x1, u) + ox - a.x;
-    const dz = entre(a.z0, a.z1, u) + oz - a.z;
+    let tx = entre(a.x0, a.x1, u) + ox;
+    let tz = entre(a.z0, a.z1, u) + oz;
+    // El día que atacan, primero se lanzan a por quien (o lo que) tienen más cerca; luego huyen.
+    const presa = f.estado === 'ataca' || (f.estado === 'huye' && u < 0.35) ? this.presaCerca(f.estado === 'huye' ? a.x0 : tx, f.estado === 'huye' ? a.z0 : tz) : null;
+    if (presa) {
+      tx = presa[0] + a.ox * 0.35;
+      tz = presa[1] + a.oz * 0.35;
+    }
+    const dx = tx - a.x;
+    const dz = tz - a.z;
     const d = Math.hypot(dx, dz);
     const vel = ESPECIES[a.esp].vel;
-    const max = f.estado === 'ataca' || f.estado === 'huye' ? vel[2] : f.estado === 'acecha' ? vel[0] * 0.6 : vel[1];
-    a.agachado = f.estado === 'acecha';
-    if (d > 0.25) {
-      this.moverLibre(a, dt, dx, dz, Math.min(max, d * 1.6));
+    const max = presa || f.estado === 'ataca' || f.estado === 'huye' ? vel[2] : f.estado === 'acecha' ? vel[0] * 0.6 : vel[1];
+    a.agachado = f.estado === 'acecha' && !presa;
+    if (d > 0.35) {
+      // Si el sitio les queda de lado o detrás, frenan para girar (y no dan vueltas alrededor).
+      const falta = Math.abs(giroHacia(a.ang, Math.atan2(dx, dz)));
+      this.moverLibre(a, dt, dx, dz, Math.min(max, d * 1.6) * (falta > 1.3 ? 0.2 : 1 - falta * 0.55));
       a.quieto = 0;
     } else {
       this.moverLibre(a, dt, 0, 0, 0);

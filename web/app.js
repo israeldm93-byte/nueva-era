@@ -97,17 +97,25 @@ const CAUSAS = {
 
 const EDIFICIOS = {
   hoguera: 'hoguera', choza: 'choza', casa: 'casa de adobe', campo: 'campo', corral: 'corral', almacen: 'almacén',
-  horno: 'horno', empalizada: 'empalizada', archivo: 'casa de las tablillas', mercado: 'mercado',
+  horno: 'horno', empalizada: 'empalizada', muralla: 'muralla de piedra', archivo: 'casa de las tablillas', mercado: 'mercado',
+};
+
+/** Hacia dónde empuja el consejo a los que experimentan. */
+const FOCOS = {
+  comida: 'la comida (cultivar, criar, pescar mejor)',
+  obras: 'las obras (construir y trabajar los materiales)',
+  saber: 'el saber (contar, escribir, comerciar)',
+  guerra: 'las armas y las defensas',
 };
 
 const UNA = {
   hoguera: 'una hoguera', choza: 'una choza', casa: 'una casa de adobe', campo: 'un campo nuevo', corral: 'un corral', almacen: 'un almacén',
-  horno: 'un horno', empalizada: 'la empalizada', archivo: 'la casa de las tablillas', mercado: 'el mercado',
+  horno: 'un horno', empalizada: 'la empalizada', muralla: 'la muralla de piedra', archivo: 'la casa de las tablillas', mercado: 'el mercado',
 };
 
 const GRUPOS = {
   todo: ['Todo', null],
-  politica: ['Política', ['consejo', 'faccion', 'cisma', 'asalto', 'alianza']],
+  politica: ['Política', ['consejo', 'faccion', 'cisma', 'guerra', 'asalto', 'paz', 'alianza']],
   saber: ['Saber', ['descubrimiento', 'redescubrimiento', 'difusion', 'perdida', 'olvido']],
   aldeas: ['Aldeas', ['inicio', 'fundacion', 'abandono', 'traslado', 'edificio', 'contacto', 'poblacion']],
   vidas: ['Vidas', ['muerte']],
@@ -465,6 +473,7 @@ function pintarHud() {
       c,
       h('span', { class: 'consejo-l' }, 'Consejo'),
       h('span', { class: 'consejo-t' }, mayus(frase(a.consejo.prioridad))),
+      a.consejo.guerra ? h('span', { class: 'consejo-f guerra' }, `· en guerra con ${a.consejo.guerra.nombre}`) : null,
       f.length ? h('span', { class: 'consejo-f' }, f.length === 1 ? `· los ${f[0].nombre} no están de acuerdo` : `· ${f.length} facciones en contra`) : null,
     );
     c.hidden = false;
@@ -644,6 +653,7 @@ function fichaPersona(p) {
 }
 
 function relacionTexto(r) {
+  if (r.guerra) return ['En guerra', 'mal'];
   if (r.alianza) return ['Aliados', 'bien'];
   if (r.rencor > 0.5) return ['Enemistad', 'mal'];
   if (r.rencor > 0.2) return ['Recelo', 'mal'];
@@ -661,7 +671,8 @@ function fierasCerca(a, m) {
   const lobos = cerca('lobos');
   const oso = cerca('oso');
   const partes = [];
-  if (lobos) partes.push(`${lobos.f.estado === 'acecha' || lobos.f.estado === 'ataca' ? '¡lobos rondando la aldea!' : `lobos a ${lobos.d} casillas`}`);
+  const famelicos = (f) => (f.hambre >= 0.85 ? ', famélicos' : f.hambre >= 0.5 ? ', con hambre' : '');
+  if (lobos) partes.push(`${lobos.f.estado === 'acecha' || lobos.f.estado === 'ataca' ? '¡lobos rondando la aldea!' : `${lobos.f.n} lobos a ${lobos.d} casillas${famelicos(lobos.f)}`}`);
   if (oso) partes.push(`${oso.f.estado === 'ataca' ? '¡un oso atacando!' : `un oso a ${oso.d}`}`);
   return partes.length ? partes.join(', ') : 'ninguna a la vista';
 }
@@ -710,6 +721,8 @@ function fichaAldea(a) {
     hijos.push(
       h('h3', {}, 'El consejo'),
       h('p', { class: 'cita' }, `«${mayus(frase(c.prioridad))}»`),
+      c.guerra ? h('p', { class: 'aviso-guerra' }, `En guerra con ${c.guerra.nombre} desde el año ${c.guerra.desde}: ${c.guerra.motivo}.`) : null,
+      c.foco ? h('p', { class: 'nota' }, `Encauzan las ideas hacia ${FOCOS[c.foco] ?? c.foco}: quien experimenta prueba antes eso.`) : null,
       h('p', { class: 'nota' }, `Lo deciden desde el año ${c.desde}. Se reúnen cada noche junto al fuego: `, c.miembros.flatMap((x, i) => [i ? (i === c.miembros.length - 1 ? ' y ' : ', ') : '', enlacePersona(x.id, x.nombre ?? '¿?')]), '.'),
       h(
         'div',

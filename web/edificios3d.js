@@ -4,7 +4,7 @@
 // llamas y columnas de humo.
 
 import * as THREE from 'three';
-import { B, C, Co, Do, Es, T, azar, cerrar, colocar, fundir, instancias } from './util3d.js?v=__MOTOR__';
+import { AGUA, B, C, Co, Do, Es, RIO, T, azar, cerrar, colocar, fundir, instancias } from './util3d.js?v=__MOTOR__';
 
 function modelos() {
   const madera = 0x7a5534;
@@ -141,6 +141,40 @@ function modelos() {
       { geo: B(0.8, 0.08, 0.8), color: 0x7a5534, y: 1.9 },
       { geo: Co(0.62, 0.5, 4), color: 0xc9a24f, y: 2.45, ry: Math.PI / 4 },
     ]),
+    // Un paño de muralla de piedra, con almenas, y su torreón redondo.
+    muro: fundir([
+      { geo: B(1.0, 1.7, 0.5), color: 0xa59d8f, y: 0.85 },
+      { geo: B(1.02, 0.12, 0.56), color: 0x8f877a, y: 0.3 },
+      { geo: B(1.02, 0.08, 0.54), color: 0xb3ab9c, y: 1.72 },
+      { geo: B(0.24, 0.26, 0.14), color: 0xa59d8f, x: -0.3, y: 1.89, z: 0.18 },
+      { geo: B(0.24, 0.26, 0.14), color: 0xa59d8f, x: 0.3, y: 1.89, z: 0.18 },
+      { geo: B(0.24, 0.26, 0.14), color: 0xa59d8f, x: 0, y: 1.89, z: -0.18 },
+      { geo: B(0.3, 0.2, 0.52), color: 0x968e80, x: 0.2, y: 0.6, sz: 1.01 },
+      { geo: B(0.36, 0.18, 0.52), color: 0xb0a898, x: -0.25, y: 1.2, sz: 1.01 },
+    ]),
+    torreon: fundir([
+      { geo: C(0.62, 0.7, 2.7, 10), color: 0xa59d8f, y: 1.35 },
+      { geo: C(0.72, 0.66, 0.2, 10), color: 0xb3ab9c, y: 2.78 },
+      ...[0, 1, 2, 3, 4, 5, 6, 7].map((k) => ({ geo: B(0.2, 0.28, 0.16), color: 0xa59d8f, x: Math.cos((k * Math.PI) / 4) * 0.6, y: 3.0, z: Math.sin((k * Math.PI) / 4) * 0.6, ry: -(k * Math.PI) / 4 })),
+      { geo: B(0.1, 0.32, 0.04), color: 0x2a2622, y: 1.9, z: 0.66 },
+      { geo: B(0.1, 0.32, 0.04), color: 0x2a2622, y: 1.9, z: -0.66 },
+    ]),
+    // La catapulta: bastidor con ruedas, el brazo cargado con su piedra.
+    catapulta: fundir([
+      { geo: B(1.1, 0.12, 0.12), color: 0x6a4a2e, y: 0.32, z: -0.28 },
+      { geo: B(1.1, 0.12, 0.12), color: 0x6a4a2e, y: 0.32, z: 0.28 },
+      { geo: B(0.12, 0.1, 0.62), color: 0x6a4a2e, x: -0.45, y: 0.32 },
+      { geo: B(0.12, 0.1, 0.62), color: 0x6a4a2e, x: 0.45, y: 0.32 },
+      ...[[-0.4, -0.38], [0.4, -0.38], [-0.4, 0.38], [0.4, 0.38]].map(([x, z]) => ({ geo: C(0.22, 0.22, 0.07, 10), color: 0x5a3d22, x, y: 0.22, z, rx: Math.PI / 2 })),
+      { geo: B(0.09, 0.7, 0.09), color: 0x7a5534, x: 0.1, y: 0.7, z: -0.22 },
+      { geo: B(0.09, 0.7, 0.09), color: 0x7a5534, x: 0.1, y: 0.7, z: 0.22 },
+      { geo: B(0.09, 0.09, 0.53), color: 0x7a5534, x: 0.1, y: 1.0 },
+      { geo: C(0.035, 0.035, 0.5, 6), color: 0x8a7a5a, x: -0.1, y: 0.5, rx: Math.PI / 2 },
+      { geo: B(0.8, 0.08, 0.08), color: 0x8a6440, x: -0.42, y: 0.54, rz: 0.06 },
+      { geo: B(0.22, 0.08, 0.22), color: 0x5a3d22, x: -0.8, y: 0.54 },
+      { geo: Do(0.11), color: 0x8b867d, x: -0.8, y: 0.66 },
+      { geo: B(0.3, 0.3, 0.3), color: 0x7a756d, x: 0.42, y: 0.55 },
+    ]),
     llama: fundir([
       { geo: Co(0.2, 0.55, 6), color: 0xffffff, y: 0.28 },
       { geo: Co(0.11, 0.38, 5), color: 0xfff0a0, y: 0.25, x: 0.05 },
@@ -174,6 +208,12 @@ export class Edificios3D {
     const cultivos = instancias(this.escena, im, 'cultivos', this.geo.cultivo, this.mat, 40000);
     const tronquitos = instancias(this.escena, im, 'empalizadas', this.geo.tronquito, this.mat, 8000);
     const torres = instancias(this.escena, im, 'torres', this.geo.torre, this.mat, 200);
+    const muros = instancias(this.escena, im, 'muros', this.geo.muro, this.mat, 1500);
+    const torreones = instancias(this.escena, im, 'torreones', this.geo.torreon, this.mat, 300);
+    const catapultas = instancias(this.escena, im, 'catapultas', this.geo.catapulta, this.mat, 120);
+    let nMuro = 0;
+    let nTorreon = 0;
+    let nCata = 0;
     let nCult = 0;
     let nTron = 0;
     let nTorre = 0;
@@ -194,7 +234,7 @@ export class Edificios3D {
     for (const a of d.aldeas) {
       const ruina = a.abandonada !== null;
       for (const e of a.edificios) {
-        if (e.tipo === 'empalizada') continue;
+        if (e.tipo === 'empalizada' || e.tipo === 'muralla') continue;
         const tipo = ruina && e.tipo !== 'campo' ? 'ruina' : e.tipo;
         if (!TIPOS.includes(tipo)) continue;
         // Las casas miran hacia el centro de la aldea.
@@ -220,7 +260,57 @@ export class Edificios3D {
           }
         }
       }
-      if (a.edificios.some((e) => e.tipo === 'empalizada')) {
+      const muralla = a.edificios.some((e) => e.tipo === 'muralla');
+      if (muralla) {
+        // Muralla de piedra: paños con almenas, torreones cada cuarto de vuelta y dos a la puerta.
+        const [cx, cz] = tr.aMundo(a.x, a.y);
+        const radio = T * (a.poblacion > 40 ? 3.9 : 3.0);
+        const total = Math.round((2 * Math.PI * radio) / 0.95);
+        for (let k = 0; k < total && nMuro < 1500; k++) {
+          const ang = (k / total) * Math.PI * 2;
+          if (Math.abs(ang - Math.PI / 2) < 0.2) continue;
+          const x = cx + Math.cos(ang) * radio;
+          const z = cz + Math.sin(ang) * radio;
+          colocar(muros, nMuro, x, tr.alturaEn(x, z) - 0.25, z, -ang - Math.PI / 2, 1, 1.1);
+          muros.setColorAt(nMuro++, color.set(ruina ? 0x6f6a60 : 0xffffff).multiplyScalar(0.92 + azar(k * 3 + a.id) * 0.16));
+        }
+        for (const ang of [Math.PI / 2 - 0.27, Math.PI / 2 + 0.27, 0, Math.PI, -Math.PI / 2]) {
+          if (nTorreon >= 300) break;
+          const x = cx + Math.cos(ang) * radio;
+          const z = cz + Math.sin(ang) * radio;
+          colocar(torreones, nTorreon, x, tr.alturaEn(x, z) - 0.2, z, -ang, 1, ruina ? 0.6 : 1);
+          torreones.setColorAt(nTorreon++, color.set(ruina ? 0x6f6a60 : 0xffffff));
+        }
+      }
+      // Catapultas junto a la aldea, en cuanto saben hacerlas (más cuanto más grande).
+      if (!ruina && a.conocidos?.includes('catapulta')) {
+        // En casillas libres de tierra firme alrededor de la aldea, apuntando hacia fuera.
+        const ocupadas = new Set(a.edificios.map((e) => e.y * d.ancho + e.x));
+        let quedan = a.poblacion > 40 ? 2 : 1;
+        // Con muralla, fuera de ella, para no meterlas en el muro.
+        const rmin = muralla ? (a.poblacion > 40 ? 3.9 : 3.0) + 1.3 : 1.9;
+        const sitios = [];
+        for (let dy = -7; dy <= 7; dy++) {
+          for (let dx = -7; dx <= 7; dx++) {
+            const r = Math.hypot(dx, dy);
+            if (r >= rmin && r <= rmin + 2.4) sitios.push([dx, dy, r + azar(a.id * 7 + dx * 13 + dy * 31) * 0.8]);
+          }
+        }
+        sitios.sort((u, v) => u[2] - v[2]);
+        for (const [dx, dy] of sitios) {
+          if (quedan <= 0 || nCata >= 120) break;
+          const tx = a.x + dx;
+          const ty = a.y + dy;
+          if (tx < 0 || ty < 0 || tx >= d.ancho || ty >= d.alto || ocupadas.has(ty * d.ancho + tx)) continue;
+          if (d.terreno[ty * d.ancho + tx] === AGUA || d.terreno[ty * d.ancho + tx] === RIO) continue;
+          ocupadas.add(ty * d.ancho + tx);
+          const [x, z] = tr.aMundo(tx, ty);
+          colocar(catapultas, nCata, x, tr.alturaEn(x, z), z, -Math.atan2(ty - a.y, tx - a.x));
+          catapultas.setColorAt(nCata++, color.set(0xffffff));
+          quedan--;
+        }
+      }
+      if (!muralla && a.edificios.some((e) => e.tipo === 'empalizada')) {
         const [cx, cz] = tr.aMundo(a.x, a.y);
         const radio = T * (a.poblacion > 40 ? 3.6 : 2.7);
         const total = Math.round((2 * Math.PI * radio) / 0.26);
@@ -249,6 +339,9 @@ export class Edificios3D {
     cerrar(cultivos, nCult);
     cerrar(tronquitos, nTron);
     cerrar(torres, nTorre);
+    cerrar(muros, nMuro);
+    cerrar(torreones, nTorreon);
+    cerrar(catapultas, nCata);
     // Incendios forestales: varias llamas por casilla que arde.
     this.fuegos = d.incendios.map((i) => {
       const [x, z] = tr.aMundo(i % d.ancho, Math.floor(i / d.ancho));

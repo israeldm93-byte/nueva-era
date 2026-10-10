@@ -211,20 +211,26 @@ function lobos(m: Mundo, f: Fiera, dia: Dia): void {
   const aqui = f.y * m.ancho + f.x;
   const k = masa[aqui];
   const invierno = dia.est === 3;
-  // Cazan lo que encuentran; con la nieve cuesta más, y una manada grande necesita más.
-  f.hambre = r2(Math.min(1, f.hambre + (invierno ? 0.05 : 0.025) * (0.6 + f.n / 10)));
-  if (m.recursos.caza[aqui] >= 1 && prob(invierno ? 0.15 : 0.4)) {
-    m.recursos.caza[aqui] = r2(m.recursos.caza[aqui] - 1);
-    f.hambre = r2(Math.max(0, f.hambre - 0.35));
+  // Una manada grande necesita más, y en invierno más aún. Cazan lo que encuentran,
+  // pero no siempre sale bien: con pocas presas o con nieve, cuesta.
+  f.hambre = r2(Math.min(1, f.hambre + (invierno ? 0.06 : 0.035) * (0.6 + f.n / 10)));
+  const presas = m.recursos.caza[aqui];
+  if (presas >= 1 && prob((invierno ? 0.12 : 0.3) * Math.min(1, presas / 4))) {
+    m.recursos.caza[aqui] = r2(presas - 1);
+    f.hambre = r2(Math.max(0, f.hambre - 0.3));
   }
-  // Solo con mucha hambre (en invierno, o famélicos) se acercan a la aldea más cercana de su tierra.
+  // Famélicos mucho tiempo, los más débiles mueren y la manada mengua.
+  if (f.hambre >= 1 && prob(0.04)) f.n--;
+  // Con hambre (en invierno, o famélicos) se acercan a la aldea más cercana de su tierra;
+  // los corrales con animales los atraen desde más lejos.
   let objetivo: Aldea | null = null;
-  let dmin = 16;
-  if (f.espera === 0 && f.n >= 3 && ((invierno && f.hambre > 0.6) || f.hambre >= 0.95)) {
+  let dmin = Infinity;
+  if (f.espera === 0 && f.n >= 3 && ((invierno && f.hambre > 0.55) || f.hambre >= 0.85)) {
     for (const a of dia.vivas) {
       if (masa[a.y * m.ancho + a.x] !== k) continue;
+      const corral = a.edificios.some((e) => e.tipo === 'corral' && (e.animales ?? 0) >= 1);
       const d = distancia(a.x - f.x, a.y - f.y);
-      if (d < dmin) {
+      if (d < (corral ? 22 : 16) && d < dmin) {
         dmin = d;
         objetivo = a;
       }
@@ -246,7 +252,7 @@ function lobos(m: Mundo, f: Fiera, dia: Dia): void {
     }
   } else {
     f.estado = 'ronda';
-    const [x, y] = buscar(m, f, 4, (i) => (masa[i] === k && m.terreno[i] !== AGUA ? m.recursos.caza[i] : -1));
+    const [x, y] = buscar(m, f, f.hambre > 0.5 ? 6 : 4, (i) => (masa[i] === k && m.terreno[i] !== AGUA ? m.recursos.caza[i] : -1));
     mover(m, f, x, y, 2);
   }
   // Quien trabaja solo cerca de la manada corre peligro; los cazadores con lanza se defienden.
@@ -277,7 +283,7 @@ function lobos(m: Mundo, f: Fiera, dia: Dia): void {
 function batida(m: Mundo, f: Fiera, a: Aldea, dia: Dia): boolean {
   if (!prob(0.12)) return false;
   const gente = (dia.ix.porAldea.get(a.id) ?? []).filter(
-    (p) => !p.muerto && edad(m, p) >= 16 && p.saberes.includes('lanza') && (p.actividad === 'cazar' || p.actividad === 'vigilar'),
+    (p) => !p.muerto && edad(m, p) >= 16 && (p.saberes.includes('lanza') || p.saberes.includes('arco')) && (p.actividad === 'cazar' || p.actividad === 'vigilar'),
   );
   if (!gente.length) return false;
   const grupo = gente.slice(0, 4);
@@ -316,10 +322,10 @@ function batida(m: Mundo, f: Fiera, a: Aldea, dia: Dia): boolean {
 function atacarAldea(m: Mundo, f: Fiera, a: Aldea, dia: Dia): void {
   const gente = (dia.ix.porAldea.get(a.id) ?? []).filter((p) => !p.muerto);
   const fuego = dia.encendidas.has(a.id);
-  const muro = tiene(a, 'empalizada');
+  const muro = tiene(a, 'empalizada') || tiene(a, 'muralla');
   const vigias = gente.filter((p) => p.actividad === 'vigilar').length;
-  const lanzas = gente.filter((p) => edad(m, p) >= 14 && p.saberes.includes('lanza')).length;
-  let exito = 0.35 * (fuego ? 0.3 : 1) * (muro ? 0.1 : 1) * (gente.length >= 25 ? 0.6 : 1);
+  const lanzas = gente.filter((p) => edad(m, p) >= 14 && (p.saberes.includes('lanza') || p.saberes.includes('arco'))).length;
+  let exito = 0.35 * (fuego ? 0.3 : 1) * (muro ? (tiene(a, 'muralla') ? 0.03 : 0.1) : 1) * (gente.length >= 25 ? 0.6 : 1);
   for (let v = 0; v < vigias; v++) exito *= 0.6;
   a.amenaza = r2(Math.min(1, a.amenaza + 0.12));
   f.estado = 'ataca';

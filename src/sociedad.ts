@@ -11,7 +11,7 @@ import { lexicoComun, nombrar, parecido } from './lenguaje.ts';
 import { buscarSitio, direccion, masas, puntuarSitio } from './mapa.ts';
 import { distancia, exponencial } from './matematicas.ts';
 import { aldeasVivas, edad, nuevaAldea, nuevaPersona, type Indices } from './mundo.ts';
-import { asaltar, boda, convivir, persuadir, quiereAsaltar } from './politica.ts';
+import { asaltar, boda, convivir, enGuerra, persuadir, quiereAsaltar } from './politica.ts';
 import { compartirIdea, ensenar, escribir, leer } from './saber.ts';
 import type { Aldea, Mundo, Persona } from './tipos.ts';
 
@@ -323,17 +323,21 @@ export function encuentros(m: Mundo, ix: Indices, escasez: Map<number, number>):
       if (!ga.length || !gb.length) continue;
       // Sin barcas no se cruza el agua: la gente de las islas vive aparte.
       if (masa[a.y * m.ancho + a.x] !== masa[b.y * m.ancho + b.x] && !conoce(a, 'canoa') && !conoce(b, 'canoa')) continue;
-      const alcance = 18 + alcanceExtra(a) + alcanceExtra(b);
+      // En guerra se va a buscar al enemigo más lejos y más a menudo.
+      const guerra = enGuerra(a, b) || enGuerra(b, a);
+      const alcance = 18 + alcanceExtra(a) + alcanceExtra(b) + (guerra ? 8 : 0);
       const d = distancia(a.x - b.x, a.y - b.y);
-      if (d > alcance || !prob(0.35 * (tiene(a, 'mercado') && tiene(b, 'mercado') ? 2 : 1))) continue;
+      if (d > alcance || !prob((guerra ? 0.55 : 0.35) * (tiene(a, 'mercado') && tiene(b, 'mercado') ? 2 : 1))) continue;
       const ea = escasez.get(a.id) ?? 0;
       const eb = escasez.get(b.id) ?? 0;
-      if (quiereAsaltar(m, a, b, ga, gb, ea, ix.porId)) {
-        asaltar(m, a, b, ga, gb);
+      const motivoA = quiereAsaltar(m, a, b, ga, gb, ea, ix.porId);
+      if (motivoA) {
+        asaltar(m, a, b, ga, gb, motivoA);
         continue;
       }
-      if (quiereAsaltar(m, b, a, gb, ga, eb, ix.porId)) {
-        asaltar(m, b, a, gb, ga);
+      const motivoB = quiereAsaltar(m, b, a, gb, ga, eb, ix.porId);
+      if (motivoB) {
+        asaltar(m, b, a, gb, ga, motivoB);
         continue;
       }
       const clave = `${Math.min(a.id, b.id)}-${Math.max(a.id, b.id)}`;

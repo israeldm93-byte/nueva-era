@@ -99,6 +99,18 @@ function modelos() {
       { geo: C(0.016, 0.016, 0.34, 5), color: MADERA, y: mano, z: 0.13, rx: Math.PI / 2 },
       { geo: B(0.11, 0.07, 0.08), color: 0xffffff, y: mano, z: 0.3 },
     ]),
+    // La espada, de hoja recta como el hacha: hacia delante desde el puño.
+    espada: fundir([
+      { geo: C(0.016, 0.016, 0.13, 5), color: MADERA, y: mano, z: 0.01, rx: Math.PI / 2 },
+      { geo: B(0.15, 0.024, 0.03), color: 0xb0a890, y: mano, z: 0.085 },
+      { geo: B(0.01, 0.045, 0.52), color: 0xffffff, y: mano, z: 0.36 },
+      { geo: Co(0.023, 0.08, 4), color: 0xffffff, y: mano, z: 0.66, rx: Math.PI / 2, sx: 0.45 },
+    ]),
+    // El arco, vertical en el puño y combado hacia delante, con su cuerda.
+    arco: fundir([
+      { geo: new THREE.TorusGeometry(0.45, 0.013, 4, 12, 1.6).rotateZ(-0.8).rotateY(-Math.PI / 2), color: MADERA, y: mano, z: 0.03 - 0.45 },
+      { geo: C(0.003, 0.003, 0.64, 3), color: 0xe8e0c8, y: mano, z: 0.03 - 0.45 * (1 - Math.cos(0.8)) },
+    ]),
     // La antorcha se alza con el brazo: sale de la mano hacia donde apunta el antebrazo.
     antorcha: fundir([{ geo: C(0.016, 0.022, 0.42, 5), color: MADERA, y: mano - 0.18 }]),
     llama: fundir([
@@ -140,6 +152,12 @@ function modelos() {
       ...[0, 1, 2, 3].map((k) => ({ geo: Es(0.022, 4, 3), color: 0xc8a040, x: 0.11 + Math.cos(k * 1.7) * 0.03, y: 0.27 + Math.sin(k * 1.7) * 0.02, z: -0.36, sz: 2.2 })),
       { geo: C(0.034, 0.034, 0.03, 6), color: 0x8a6a3a, x: 0.11, y: 0.31, z: -0.06, rx: Math.PI / 2 - 0.15 },
     ]),
+    // El escudo redondo, embrazado en el antebrazo izquierdo.
+    escudo: fundir([
+      { geo: C(0.17, 0.17, 0.025, 12), color: 0x8a6438, x: -0.05, y: -0.09, rz: Math.PI / 2 },
+      { geo: C(0.175, 0.175, 0.012, 12, 1, true), color: 0x5a3a20, x: -0.05, y: -0.09, rz: Math.PI / 2 },
+      { geo: Es(0.04, 6, 4), color: 0x9a9488, x: -0.065, y: -0.09, sx: 0.6 },
+    ]),
     // El bastón de los mayores (en la mano derecha, hasta el suelo).
     baston: fundir([
       { geo: C(0.011, 0.014, 0.5, 5), color: 0x6b4a2e, y: mano - 0.24 },
@@ -159,7 +177,7 @@ function modelos() {
 
 /** Lo que trae a casa cada oficio. */
 const CARGA = { lenar: 'tronco', cazar: 'presa', pescar: 'sarta', recolectar: 'frutos', picar: 'piedras', barro: 'piedras', cultivar: 'gavilla' };
-const CARGAS = ['tronco', 'presa', 'sarta', 'frutos', 'piedras', 'gavilla', 'baston', 'boya', 'pezCana'];
+const CARGAS = ['tronco', 'presa', 'sarta', 'frutos', 'piedras', 'gavilla', 'baston', 'boya', 'pezCana', 'escudo'];
 /** Cargas que se llevan al hombro o a cuestas (y dejan la herramienta en el cinto). */
 const PESADAS = new Set(['tronco', 'presa', 'gavilla']);
 /** Ángulo de a a b por el camino corto. */
@@ -173,9 +191,18 @@ const HERRAMIENTA = {
 const QUIETOS = new Set(['jugar', 'descansar', 'experimentar']);
 const PARES = ['muslo', 'pierna', 'pie', 'brazo', 'antebrazo'];
 const SUELTAS = ['pelvis', 'torso', 'cabeza', 'peloCorto', 'peloLargo', 'peloMono', 'peloTrenza', 'barba', 'faldon', 'capa', 'diadema', 'cestaEspalda'];
-const HERRAMIENTAS = ['hacha', 'lanza', 'cesta', 'cana', 'azada', 'martillo', 'antorcha', 'llama'];
+const HERRAMIENTAS = ['hacha', 'lanza', 'cesta', 'cana', 'azada', 'martillo', 'antorcha', 'llama', 'espada', 'arco'];
 /** Herramientas con punta o filo de piedra o metal (el resto, de madera o fibra). */
-const CON_METAL = new Set(['hacha', 'lanza', 'azada', 'martillo']);
+const CON_METAL = new Set(['hacha', 'lanza', 'azada', 'martillo', 'espada']);
+/** Oficios de armas: con arco, espada y escudo cuando su aldea ya los sabe hacer. */
+const ARMADOS = new Set(['cazar', 'vigilar', 'defender', 'asaltar']);
+function armaDe(act, sabe, id) {
+  const tira = azar(id * 4.3);
+  if (act === 'cazar') return sabe.has('arco') && tira < 0.6 ? 'arco' : 'lanza';
+  if (sabe.has('arco') && tira < (act === 'vigilar' ? 0.6 : 0.35)) return 'arco';
+  if (act !== 'vigilar' && sabe.has('espada') && tira < 0.8) return 'espada';
+  return 'lanza';
+}
 
 // Matrices de trabajo (sin crear objetos en cada cuadro).
 const R = new THREE.Matrix4();
@@ -279,7 +306,7 @@ export class Gente3D {
         tz += (dz / l) * 1.3;
       }
       const metal = sabe.has('hierro') ? 0xaab1b8 : sabe.has('bronce') ? 0xc9923e : sabe.has('cobre') ? 0xc07a3a : 0x8d8a82;
-      const herramienta = p.edad >= 12 ? HERRAMIENTA[p.act] ?? null : null;
+      const herramienta = p.edad >= 12 ? (ARMADOS.has(p.act) ? armaDe(p.act, sabe, p.id) : HERRAMIENTA[p.act] ?? null) : null;
       const per = {
         p,
         idx,
@@ -297,6 +324,7 @@ export class Gente3D {
         largoFaldon,
         capa,
         consejero,
+        escudo: p.edad >= 14 && p.act !== 'cazar' && ARMADOS.has(p.act) && herramienta !== 'arco' && sabe.has('escudo'),
         cesta: (p.act === 'recolectar' || p.act === 'picar' || p.act === 'barro') && p.edad >= 12,
         viejo,
         nino,
@@ -437,6 +465,7 @@ export class Gente3D {
       this.postura(per, pose, t, x, y, z);
       if (carga) this.dejar(carg, carga, carga === 'sarta' ? this.M.manoI : this.M.torso);
       if (per.baston) this.dejar(carg, 'baston', this.M.mano);
+      if (per.escudo && pose !== 'sentado' && pose !== 'vigilarNoche' && (k > 0 || p.act === 'vigilar' || p.act === 'defender')) this.dejar(carg, 'escudo', this.M.antebrazoI);
       if (pose === 'pescar') this.pesca(per, t, carg);
       // Herramienta en la mano derecha (o antorcha de noche).
       const h = pose === 'vigilarNoche' ? 'antorcha' : per.herramienta;
@@ -555,7 +584,7 @@ export class Gente3D {
         bote = (corre ? 0.05 : 0.025) * Math.abs(Math.cos(w));
         inclina += corre ? 0.22 : 0.04;
         gira = 0.08 * sw;
-        if (corre && per.herramienta === 'lanza' && per.p.edad >= 14) {
+        if (corre && (per.herramienta === 'lanza' || per.herramienta === 'espada') && per.p.edad >= 14) {
           hombroD = -1.0;
           codoD = -1.5;
           herrX = 1.4;

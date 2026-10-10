@@ -67,6 +67,20 @@ export const NOMBRE_CONCEPTO: Record<string, string> = {
   padre: 'padre', hijo: 'hijo', amigo: 'amigo', muerte: 'muerte', comida: 'comida', casa: 'casa',
 };
 
+/**
+ * A qué sirve cada saber, a grandes rasgos: el consejo encauza las ideas de su gente
+ * hacia lo que cree que hace falta (comer, defenderse, construir o saber más).
+ */
+export const RAMA: Record<string, 'comida' | 'guerra' | 'obras' | 'saber'> = {
+  campo: 'comida', red: 'comida', trampa: 'comida', asado: 'comida', harina: 'comida', calendario: 'comida', acequia: 'comida',
+  arado: 'comida', corral: 'comida', vasija: 'comida', cerveza: 'comida', cesta: 'comida', canoa: 'comida',
+  lanza: 'guerra', arco: 'guerra', escudo: 'guerra', flechaFuego: 'guerra', espada: 'guerra', catapulta: 'guerra', empalizada: 'guerra',
+  muralla: 'guerra',
+  choza: 'obras', adobe: 'obras', horno: 'obras', rueda: 'obras', carro: 'obras', hacha: 'obras', carbon: 'obras', cobre: 'obras',
+  bronce: 'obras', hierro: 'obras', tela: 'obras', cuerda: 'obras', lasca: 'obras', fuego: 'obras', aguja: 'obras', ropa: 'obras',
+  escritura: 'saber', numeros: 'saber', pintura: 'saber', tambor: 'saber', medicina: 'saber', remedio: 'saber', comercio: 'saber', vela: 'saber',
+};
+
 export interface Tecnica {
   id: string;
   /** Con artículo, para la crónica: «el fuego». */
@@ -120,6 +134,12 @@ export const TECNICAS: Tecnica[] = [
   { id: 'medicina', titulo: 'la medicina', nombre: 'Medicina', cosa: 'medicinas', cosas: ['fuego', 'remedio', 'vasija'], verbo: 'calentar', facilidad: 0.025, efecto: 'Cocimientos de hierbas: enfermedades y partos aún menos mortales.' },
   { id: 'vela', titulo: 'la navegación a vela', nombre: 'Navegación a vela', cosa: 'velas', cosas: ['canoa', 'tela'], verbo: 'atar', facilidad: 0.012, efecto: 'Barcos de vela: viajes largos por agua, pesca lejana y contacto con aldeas lejanas.' },
   { id: 'numeros', titulo: 'los números', nombre: 'Números', cosa: 'números', cosas: ['escritura', 'semillas'], verbo: 'observar', facilidad: 0.012, efecto: 'Cuentas: se planifica mejor y se desperdicia menos.' },
+  { id: 'arco', titulo: 'el arco', nombre: 'Arco', cosa: 'arcos', cosas: ['cuerda', 'madera'], verbo: 'tensar', facilidad: 0.06, requiere: ['lanza'], efecto: 'Arcos y flechas: se caza desde lejos y se defiende la aldea desde lejos.' },
+  { id: 'escudo', titulo: 'el escudo', nombre: 'Escudo', cosa: 'escudos', cosas: ['madera', 'piel'], verbo: 'atar', facilidad: 0.06, requiere: ['lanza'], efecto: 'Escudos de madera y cuero: menos muertos al pelear.' },
+  { id: 'flechaFuego', titulo: 'las flechas de fuego', nombre: 'Flechas de fuego', cosa: 'flechas de fuego', cosas: ['arco', 'fuego'], verbo: 'atar', facilidad: 0.04, efecto: 'Flechas encendidas: en un asalto prenden las casas del enemigo.' },
+  { id: 'muralla', titulo: 'la muralla de piedra', nombre: 'Muralla de piedra', cosa: 'murallas', cosas: ['adobe', 'piedra', 'piedra'], verbo: 'apilar', facilidad: 0.03, requiere: ['empalizada'], efecto: 'Muros de piedra con torres: mucho más fuertes que la empalizada.' },
+  { id: 'espada', titulo: 'la espada', nombre: 'Espada', cosa: 'espadas', cosas: ['bronce', 'fuego'], verbo: 'golpear', facilidad: 0.03, efecto: 'Espadas (de hierro, si se sabe forjar): los guerreros pelean mucho mejor.' },
+  { id: 'catapulta', titulo: 'la catapulta', nombre: 'Catapulta', cosa: 'catapultas', cosas: ['cuerda', 'madera', 'rueda'], verbo: 'atar', facilidad: 0.02, requiere: ['lanza'], efecto: 'Máquinas de asedio: en los asaltos derriban empalizadas y murallas.' },
   { id: 'comercio', titulo: 'el comercio', nombre: 'Comercio', cosa: 'mercancías', cosas: ['cobre', 'escritura'], verbo: 'marcar', facilidad: 0.012, efecto: 'Mercados: las aldeas intercambian comida y saberes.' },
 ];
 
@@ -143,6 +163,7 @@ export const VERBOS: Verbo[] = [
   { id: 'plantar', gerundio: 'plantando' },
   { id: 'machacar', gerundio: 'machacando' },
   { id: 'tallar', gerundio: 'tallando' },
+  { id: 'tensar', gerundio: 'tensando' },
   { id: 'observar', gerundio: 'observando' },
   { id: 'mezclar', gerundio: 'mezclando' },
   { id: 'cavar', gerundio: 'cavando' },
@@ -172,6 +193,7 @@ export const EDIFICIOS: TipoEdificio[] = [
   { id: 'almacen', nombre: 'Almacén de vasijas', requiere: 'vasija', coste: { arcilla: 15, madera: 4 }, trabajo: 6 },
   { id: 'horno', nombre: 'Horno', requiere: 'horno', coste: { arcilla: 10, piedra: 10 }, trabajo: 6 },
   { id: 'empalizada', nombre: 'Empalizada', requiere: 'empalizada', coste: { madera: 40 }, trabajo: 15 },
+  { id: 'muralla', nombre: 'Muralla', requiere: 'muralla', coste: { piedra: 60, madera: 10 }, trabajo: 25 },
   { id: 'archivo', nombre: 'Casa de las tablillas', requiere: 'escritura', coste: { arcilla: 20, piedra: 10 }, trabajo: 10 },
   { id: 'mercado', nombre: 'Mercado', requiere: 'comercio', coste: { madera: 20, piedra: 20 }, trabajo: 12 },
 ];

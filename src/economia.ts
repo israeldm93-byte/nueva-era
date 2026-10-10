@@ -430,7 +430,9 @@ function cazar(m: Mundo, p: Persona, c: Contexto): number {
   if (i < 0 || R.caza[i] < 0.5) return 0;
   situar(m, p, i);
   const lanza = sabe(p, 'lanza');
-  if (prob((lanza ? 0.012 : 0.025) * (1.2 - 0.4 * p.genes.fuerza))) {
+  const arco = sabe(p, 'arco');
+  // Con arco se caza desde lejos: más presas y menos heridas.
+  if (prob((lanza ? 0.012 : 0.025) * (arco ? 0.6 : 1) * (1.2 - 0.4 * p.genes.fuerza))) {
     p.salud = r2(p.salud - 0.35);
     p.causa = 'herida';
   }
@@ -440,7 +442,7 @@ function cazar(m: Mundo, p: Persona, c: Contexto): number {
     return 0;
   }
   const exito =
-    0.3 * (0.6 + 0.4 * p.genes.fuerza + 0.3 * p.genes.destreza) * (lanza ? 1.8 : 1) * (sabe(p, 'trampa') ? 1.15 : 1) * c.herramienta * Math.min(1, R.caza[i] / 2);
+    0.3 * (0.6 + 0.4 * p.genes.fuerza + 0.3 * p.genes.destreza) * (lanza ? 1.8 : 1) * (arco ? 1.3 : 1) * (sabe(p, 'trampa') ? 1.15 : 1) * c.herramienta * Math.min(1, R.caza[i] / 2);
   if (!prob(exito)) return 0;
   R.caza[i] = r2(R.caza[i] - 1);
   const carne = r2((6 + 6 * azar()) * (sabe(p, 'lasca') ? 1.3 : 1));
@@ -639,14 +641,14 @@ function terminarObra(m: Mundo, a: Aldea): void {
   if (!m.construidos.includes(obra.tipo)) {
     m.construidos.push(obra.tipo);
     anotar(m, 'edificio', `En ${a.nombre} se levanta ${articulo(tipo)} por primera vez en el mundo.`, a.id);
-  } else if (['empalizada', 'archivo', 'mercado'].includes(obra.tipo) && cuantos(a, obra.tipo) === 1) {
+  } else if (['empalizada', 'muralla', 'archivo', 'mercado'].includes(obra.tipo) && cuantos(a, obra.tipo) === 1) {
     anotar(m, 'edificio', `${a.nombre} ya tiene ${articulo(tipo)}.`, a.id);
   }
 }
 
 function articulo(t: TipoEdificio): string {
   const n = t.nombre.toLowerCase();
-  const fem = ['hoguera', 'choza', 'casa de adobe', 'empalizada', 'casa de las tablillas'].includes(n);
+  const fem = ['hoguera', 'choza', 'casa de adobe', 'empalizada', 'muralla', 'casa de las tablillas'].includes(n);
   return `${fem ? 'una' : 'un'} ${n}`;
 }
 
@@ -666,7 +668,10 @@ export function planificar(m: Mundo, a: Aldea, gente: Persona[]): void {
   if (conoce(a, 'corral') && (a.despensa.cria ?? 0) >= 2 && cuantos(a, 'corral') < 1 + n / 25) opciones.push(['corral', 0.7]);
   if (conoce(a, 'vasija') && !tiene(a, 'almacen')) opciones.push(['almacen', 0.6]);
   if (conoce(a, 'horno') && !tiene(a, 'horno')) opciones.push(['horno', 0.6]);
-  if (conoce(a, 'empalizada') && !tiene(a, 'empalizada') && n >= 12) opciones.push(['empalizada', a.consejo?.prioridad === 'defensa' || a.amenaza > 0.3 ? 1.1 : 0.5]);
+  // Los muros, sobre todo si el consejo teme un ataque o está en guerra.
+  const peligro = a.consejo?.prioridad === 'defensa' || !!a.consejo?.guerra || a.amenaza > 0.3;
+  if (conoce(a, 'empalizada') && !tiene(a, 'empalizada') && n >= 12) opciones.push(['empalizada', peligro ? 1.1 : 0.5]);
+  if (conoce(a, 'muralla') && tiene(a, 'empalizada') && !tiene(a, 'muralla') && n >= 18) opciones.push(['muralla', peligro ? 1.2 : 0.4]);
   if (conoce(a, 'escritura') && !tiene(a, 'archivo')) opciones.push(['archivo', 0.5]);
   if (conoce(a, 'comercio') && !tiene(a, 'mercado')) opciones.push(['mercado', 0.4]);
   opciones.sort((x, y) => y[1] - x[1]);
@@ -679,11 +684,13 @@ export function planificar(m: Mundo, a: Aldea, gente: Persona[]): void {
 }
 
 function lugarPara(m: Mundo, a: Aldea, tipo: string): number {
-  if (tipo === 'empalizada') return a.y * m.ancho + a.x;
+  // Los muros rodean la aldea: se apuntan en su centro.
+  const rodea = (t: string) => t === 'empalizada' || t === 'muralla';
+  if (rodea(tipo)) return a.y * m.ancho + a.x;
   const ocupadas = new Set<number>();
   for (const b of m.aldeas) {
-    for (const e of b.edificios) if (e.tipo !== 'empalizada') ocupadas.add(e.y * m.ancho + e.x);
-    if (b.obra && b.obra.tipo !== 'empalizada') ocupadas.add(b.obra.y * m.ancho + b.obra.x);
+    for (const e of b.edificios) if (!rodea(e.tipo)) ocupadas.add(e.y * m.ancho + e.x);
+    if (b.obra && !rodea(b.obra.tipo)) ocupadas.add(b.obra.y * m.ancho + b.obra.x);
     // Sobre las tumbas no se construye.
     if (b.cementerio) ocupadas.add(b.cementerio.y * m.ancho + b.cementerio.x);
   }

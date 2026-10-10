@@ -8,7 +8,7 @@
 // muere con quien lo sabe si no lo ha enseñado (o escrito) antes.
 
 import { azar, elegir, elegirPeso, entero, prob } from './azar.ts';
-import { BASICOS, MATERIAL, TECNICA, TECNICAS, VERBOS, type Tecnica } from './catalogo.ts';
+import { BASICOS, MATERIAL, RAMA, TECNICA, TECNICAS, VERBOS, type Tecnica } from './catalogo.ts';
 import { RITMO_SABER } from './config.ts';
 import { anotar, como } from './cronica.ts';
 import { entiende, inventarPalabra, nombrar, palabraDe } from './lenguaje.ts';
@@ -86,6 +86,14 @@ export function recordarIdea(p: Persona, idea: Idea): void {
   if (p.ideas.length > 3) p.ideas.length = 3;
 }
 
+const FOCO: Record<string, string> = { comida: 'comida', invierno: 'obras', obras: 'obras', saber: 'saber', expandir: 'obras', defensa: 'guerra' };
+
+/** Hacia qué encauza el consejo las ideas: si están en guerra, a las armas. */
+export function focoDe(a: Aldea): string | null {
+  if (a.consejo?.guerra) return 'guerra';
+  return a.consejo ? (FOCO[a.consejo.prioridad] ?? null) : null;
+}
+
 /**
  * Inspirarse trabajando: quien corta leña, recoge semillas o pica piedra a veces
  * barrunta algo que podría hacerse con eso. No es un descubrimiento, sino una idea a
@@ -96,7 +104,9 @@ export function inspirarse(p: Persona, a: Aldea, material: string): boolean {
   const fam = cosasFamiliares(p, a);
   const posibles = TECNICAS.filter((t) => t.cosas.includes(material) && puedeAprender(p, t) && t.cosas.every((c) => fam.includes(c)));
   if (!posibles.length) return false;
-  const t = elegir(posibles);
+  // El consejo encauza: se da más vueltas a lo que sirve a lo que han decidido.
+  const foco = focoDe(a);
+  const t = elegirPeso(posibles, (x) => (RAMA[x.id] === foco ? 4 : 1)) ?? posibles[0];
   const cosas = t.cosas.slice();
   let verbo = t.verbo;
   if (cosas.length === 1 || prob(0.5)) verbo = elegir(verbosDe(p));
