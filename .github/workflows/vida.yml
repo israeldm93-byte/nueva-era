@@ -1,6 +1,6 @@
 name: Vida
 
-# Cada hora el mundo avanza hasta el momento real (un año simulado por hora),
+# Cada hora el mundo avanza hasta el momento real (año y medio simulado por hora),
 # se guarda en la rama `estado` y se publica la web en GitHub Pages. La web
 # lleva el mismo motor empaquetado y sigue simulando en directo en el navegador.
 # GitHub puede retrasar los cron; no pasa nada: cada ejecución recupera el
