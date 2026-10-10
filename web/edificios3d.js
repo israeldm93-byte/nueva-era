@@ -284,7 +284,7 @@ export class Edificios3D {
     this.hornos = [];
     this.corrales = [];
     const color = new THREE.Color();
-    const colorCultivo = { primavera: 0x7ab84f, verano: 0xa8b84a, 'otoño': 0xdcb53a, invierno: 0x8a7a5a };
+    const colorAux = new THREE.Color();
     const ponerEd = (tipo, e, ry = 0, sy = 1) => {
       const ed = im[`ed-${tipo}`];
       if (n[tipo] >= ed.instanceMatrix.count) return null;
@@ -298,10 +298,10 @@ export class Edificios3D {
      * Lo que rodea una aldea: cerca de estacas, pirca de piedra seca, empalizada o muralla.
      * Con `parte` < 1, solo el tramo ya levantado (se construye desde la puerta, al sur).
      */
-    const anillo = (a, tipo, parte, ruina, mas = 0) => {
+    const anillo = (a, tipo, parte, ruina, radioCasillas) => {
       const [cx, cz] = tr.aMundo(a.x, a.y);
-      const grande = a.poblacion > 40;
-      const radio = T * ((tipo === 'muralla' ? (grande ? 3.9 : 3.0) : grande ? 3.6 : 2.7) + mas);
+      // Cada muro tiene el radio con el que se hizo: crece cuando la aldea lo amplía.
+      const radio = T * radioCasillas;
       const paso = tipo === 'muralla' ? 0.95 : tipo === 'empalizada' ? 0.26 : 0.9;
       const total = Math.round((2 * Math.PI * radio) / paso);
       const hueco = tipo === 'empalizada' ? 0.16 : tipo === 'muralla' ? 0.2 : 0.14;
@@ -374,15 +374,22 @@ export class Edificios3D {
         if (tipo === 'hoguera' && !ruina) this.hogueras.push(pos);
         if (tipo === 'horno' && !ruina) this.hornos.push(pos);
         if ((tipo === 'corral' || tipo === 'gallinero') && !ruina) this.corrales.push({ pos, ry: mira, animales: e.animales ?? 0, especie: e.especie ?? (tipo === 'gallinero' ? 'gallina' : 'oveja'), aldea: a.id });
-        if (tipo === 'campo' && e.fase === 1 && !ruina && d.estacion !== 'invierno') {
-          const alto = d.estacion === 'primavera' ? 0.45 : d.estacion === 'verano' ? 0.9 : 1.05;
-          color.set(colorCultivo[d.estacion]);
+        // El cultivo crece día a día: brotes verdes, matas altas y espigas doradas;
+        // tras la siega queda el rastrojo.
+        const crece = tipo === 'campo' && !ruina ? (e.crece ?? (e.fase === 1 && d.estacion !== 'invierno' ? { primavera: 0.3, verano: 0.75, 'otoño': 1 }[d.estacion] : null)) : null;
+        if (crece !== null || (tipo === 'campo' && e.rastrojo && !ruina)) {
+          const rastrojo = crece === null;
+          const alto = rastrojo ? 0.34 : 0.14 + crece * 0.95;
+          const anchura = rastrojo ? 0.7 : 0.45 + crece * 0.6;
+          if (rastrojo) color.set(0xb8a060);
+          else color.set(0x6fb04a).lerp(colorAux.set(0xa8b84a), Math.min(1, crece * 1.4)).lerp(colorAux.set(0xdcb53a), Math.max(0, (crece - 0.65) / 0.35));
           for (let fx = 0; fx < 5; fx++) {
             for (let fz = 0; fz < 5; fz++) {
               if (nCult >= 40000) break;
               const x = pos[0] + (fx - 2) * 0.36 + (azar(fx * 7 + fz + e.x) - 0.5) * 0.08;
               const z = pos[2] + (fz - 2) * 0.33;
-              colocar(cultivos, nCult, x, pos[1] + 0.05, z, azar(fx + fz * 3) * 6, 1, alto);
+              const v = 0.85 + azar(fx * 3 + fz * 7 + e.y) * 0.3;
+              colocar(cultivos, nCult, x, pos[1] + 0.05, z, azar(fx + fz * 3) * 6, anchura, alto * v);
               cultivos.setColorAt(nCult++, color);
             }
           }
@@ -391,18 +398,20 @@ export class Edificios3D {
       // Lo que rodea la aldea (lo mejor que tenga) y, si está levantando otro, el tramo ya hecho.
       const hay = (t) => a.edificios.find((e) => e.tipo === t);
       const muralla = !!hay('muralla');
-      const cercaHecha = hay('cerca');
-      const delimita = muralla ? 'muralla' : hay('empalizada') ? 'empalizada' : cercaHecha ? (cercaHecha.material === 'piedra' ? 'pirca' : 'cerca') : null;
-      if (delimita) anillo(a, delimita, 1, ruina);
+      const muro = hay('muralla') ?? hay('empalizada') ?? hay('cerca');
+      const radioDe = (e) => e.radio ?? (e.tipo === 'muralla' ? 3 : 2.7);
+      const forma = (e) => (e.tipo === 'cerca' ? (e.material === 'piedra' ? 'pirca' : 'cerca') : e.tipo);
       const obraMuro = !ruina && a.obra && ['cerca', 'empalizada', 'muralla'].includes(a.obra.tipo) ? a.obra : null;
-      if (obraMuro) anillo(a, obraMuro.tipo === 'cerca' ? (obraMuro.material === 'piedra' ? 'pirca' : 'cerca') : obraMuro.tipo, Math.max(0.06, obraMuro.progreso), false, delimita ? 0.35 : 0);
+      // Mientras se levanta uno más grande del mismo tipo, el viejo sigue en pie.
+      if (muro) anillo(a, forma(muro), 1, ruina, radioDe(muro));
+      if (obraMuro) anillo(a, forma(obraMuro), Math.max(0.06, obraMuro.progreso), false, radioDe(obraMuro) + (muro && Math.abs(radioDe(muro) - radioDe(obraMuro)) < 0.3 ? 0.35 : 0));
       // Catapultas junto a la aldea, en cuanto saben hacerlas (más cuanto más grande).
       if (!ruina && a.conocidos?.includes('catapulta')) {
         // En casillas libres de tierra firme alrededor de la aldea, apuntando hacia fuera.
         const ocupadas = new Set(a.edificios.map((e) => e.y * d.ancho + e.x));
         let quedan = a.poblacion > 40 ? 2 : 1;
         // Con muralla, fuera de ella, para no meterlas en el muro.
-        const rmin = muralla ? (a.poblacion > 40 ? 3.9 : 3.0) + 1.3 : 1.9;
+        const rmin = muralla ? radioDe(hay('muralla')) + 1.3 : 1.9;
         const sitios = [];
         for (let dy = -7; dy <= 7; dy++) {
           for (let dx = -7; dx <= 7; dx++) {

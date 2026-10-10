@@ -257,7 +257,52 @@ const USO = {
   ruina: 'Lo que queda de una casa abandonada.',
 };
 
+/** De qué murió, dicho como se diría. */
+const MUERTE = {
+  vejez: () => 'de vieja edad',
+  enfermedad: () => 'de unas fiebres',
+  hambre: () => 'de hambre',
+  'frío': () => 'de frío',
+  lobos: (f) => `atacad${f ? 'a' : 'o'} por los lobos`,
+  oso: (f) => `atacad${f ? 'a' : 'o'} por un oso`,
+  parto: () => 'al dar a luz',
+  herida: () => 'de sus heridas',
+  combate: () => 'en combate',
+  fuego: () => 'en un incendio',
+  ahogado: (f) => `ahogad${f ? 'a' : 'o'}`,
+};
+/** A qué se dedicaba (en masculino y femenino). */
+const OFICIO = {
+  recolectar: ['recolector', 'recolectora'],
+  cazar: ['cazador', 'cazadora'],
+  pescar: ['pescador', 'pescadora'],
+  lenar: ['leñador', 'leñadora'],
+  picar: ['cantero', 'cantera'],
+  barro: ['alfarero', 'alfarera'],
+  cultivar: ['agricultor', 'agricultora'],
+  pastorear: ['pastor', 'pastora'],
+  construir: ['constructor', 'constructora'],
+  experimentar: ['inventor', 'inventora'],
+  vigilar: ['vigía', 'vigía'],
+  defender: ['guerrero', 'guerrera'],
+  asaltar: ['guerrero', 'guerrera'],
+};
+
+function fichaTumba(g) {
+  const f = g.sexo === 'M';
+  const a = E.aldeas.get(g.aldea);
+  const lineas = [`Murió en el año ${g.anio}, a los ${anios(g.edad)}, ${(MUERTE[g.causa] ?? (() => `(${g.causa})`))(f)}.`];
+  if (g.edad >= 14 && OFICIO[g.oficio]) lineas.push(`En sus últimos días era ${OFICIO[g.oficio][f ? 1 : 0]}.`);
+  if (g.edad < 14) lineas.push(`Era ${g.edad < 3 ? (f ? 'una niña de pecho' : 'un niño de pecho') : f ? 'una niña' : 'un niño'}.`);
+  if (g.pareja) lineas.push(`Su pareja: ${g.pareja}.`);
+  if (g.hijos) lineas.push(`Tuvo ${g.hijos} ${g.hijos === 1 ? 'hijo' : 'hijos'}.`);
+  if (g.descubrio?.length) lineas.push(`${f ? 'Ella' : 'Él'} descubrió ${g.descubrio.map((x) => x.toLowerCase()).join(', ')}: aún se le recuerda por ello.`);
+  lineas.push(`Enterrad${f ? 'a' : 'o'} en el cementerio de ${a?.nombre ?? 'su aldea'}.`);
+  return [`Tumba de ${g.nombre}`, lineas];
+}
+
 function fichaEdificio(e) {
+  if (e.tipo === 'tumba') return fichaTumba(e);
   const d = E.mundo;
   const a = E.aldeas.get(e.aldea);
   const nombre = e.tipo === 'cerca' && e.material === 'piedra' ? 'Cerca de piedra seca' : (d.obras?.[e.tipo]?.nombre ?? EDIFICIOS[e.tipo] ?? e.tipo);

@@ -103,15 +103,19 @@ export function datosWeb(m: Mundo, ahora: Date) {
           ...(e.animales !== undefined ? { animales: Math.round(e.animales) } : {}),
           ...(e.especie ? { especie: e.especie } : {}),
           ...(e.material ? { material: e.material } : {}),
+          ...(e.radio ? { radio: e.radio } : {}),
+          // Cómo va el cultivo (de 0, recién sembrado, a 1, listo para segar) o si queda rastrojo.
+          ...(e.tipo === 'campo' && e.fase === 1 ? { crece: r2(Math.min(1, (m.t - (e.sembrado ?? m.t - 40)) / 70)) } : {}),
+          ...(e.tipo === 'campo' && e.fase !== 1 && e.cosechado !== undefined && m.t - e.cosechado < 45 ? { rastrojo: true } : {}),
         })),
-        obra: a.obra ? { tipo: a.obra.tipo, x: a.obra.x, y: a.obra.y, progreso: r2(a.obra.progreso), pagada: a.obra.pagada, ...(a.obra.material ? { material: a.obra.material } : {}) } : null,
+        obra: a.obra ? { tipo: a.obra.tipo, x: a.obra.x, y: a.obra.y, progreso: r2(a.obra.progreso), pagada: a.obra.pagada, ...(a.obra.material ? { material: a.obra.material } : {}), ...(a.obra.radio ? { radio: a.obra.radio } : {}) } : null,
         conocidos: a.conocidos,
         archivo: a.archivo,
         despensa,
         diasComida: consumo > 0 ? Math.round(comidaTotal(a) / consumo) : 0,
         amenaza: r2(a.amenaza),
         // Tumbas: [x, y, año] de cada una, y los últimos enterrados.
-        tumbas: (a.tumbas ?? []).map((g) => [g.x, g.y, anioDe(g.t)]),
+        tumbas: (a.tumbas ?? []).map((g) => [g.x, g.y, anioDe(g.t), g.nombre, g.edad, g.causa, g.sexo ?? null, g.oficio ?? null, g.hijos ?? null, g.pareja ?? null, (g.descubrio ?? []).map((id) => TECNICA[id]?.nombre ?? id)]),
         difuntos: (a.tumbas ?? []).slice(-5).reverse().map((g) => ({ nombre: g.nombre, edad: g.edad, causa: g.causa, anio: anioDe(g.t) })),
         enterrados: a.enterrados ?? 0,
         consejo: a.consejo

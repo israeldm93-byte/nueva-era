@@ -571,6 +571,7 @@ function cultivar(m: Mundo, p: Persona, c: Contexto): number {
       campo.fase = 1;
       campo.trabajo = 0;
       campo.cuidado = 0;
+      campo.sembrado = m.t;
     }
     return fuerza;
   } else if (c.est === 1) {
@@ -592,6 +593,7 @@ function cultivar(m: Mundo, p: Persona, c: Contexto): number {
       const cosecha = r2(240 * (0.5 + Math.min(3, campo.cuidado ?? 0) / 6) * m.clima * mejora);
       guardar(a, 'cereal', cosecha);
       campo.fase = 0;
+      campo.cosechado = m.t;
       campo.trabajo = 0;
       campo.cuidado = 0;
     }
@@ -604,9 +606,12 @@ function cultivar(m: Mundo, p: Persona, c: Contexto): number {
 function costeObra(a: Aldea): { coste: Record<string, number>; material?: string } | null {
   if (!a.obra) return null;
   const tipo = EDIFICIO[a.obra.tipo];
+  // Un muro cuesta según lo largo que sea (el de siempre rodeaba unas 2,7 casillas de radio).
+  const f = rodea(a.obra.tipo) ? (a.obra.radio ?? 2.7) / 2.7 : 1;
+  const escala = (c: Record<string, number>) => Object.fromEntries(Object.entries(c).map(([k, v]) => [k, Math.ceil(v * f)]));
   const llega = (c: Record<string, number>) => Object.keys(c).every((k) => (a.despensa[k] ?? 0) >= c[k]);
-  if (llega(tipo.coste)) return { coste: tipo.coste };
-  if (tipo.alternativa && llega(tipo.alternativa.coste)) return tipo.alternativa;
+  if (llega(escala(tipo.coste))) return { coste: escala(tipo.coste) };
+  if (tipo.alternativa && llega(escala(tipo.alternativa.coste))) return { coste: escala(tipo.alternativa.coste), material: tipo.alternativa.material };
   return null;
 }
 
@@ -639,7 +644,13 @@ function terminarObra(m: Mundo, a: Aldea): void {
   const obra = a.obra;
   if (!obra) return;
   a.obra = null;
-  const e: Aldea['edificios'][number] = { tipo: obra.tipo, x: obra.x, y: obra.y, ...(obra.material ? { material: obra.material } : {}) };
+  const e: Aldea['edificios'][number] = { tipo: obra.tipo, x: obra.x, y: obra.y, ...(obra.material ? { material: obra.material } : {}), ...(obra.radio ? { radio: obra.radio } : {}) };
+  // Un muro nuevo más grande sustituye al viejo.
+  const ampliado = rodea(obra.tipo) && a.edificios.some((x) => x.tipo === obra.tipo);
+  if (ampliado) {
+    a.edificios = a.edificios.filter((x) => x.tipo !== obra.tipo);
+    anotar(m, 'edificio', `${a.nombre} amplía su ${EDIFICIO[obra.tipo].nombre.toLowerCase()}: ahora rodea todo lo que ha crecido la aldea.`, a.id);
+  }
   if (obra.tipo === 'campo') {
     e.fase = 0;
     e.trabajo = 0;
@@ -667,9 +678,35 @@ function terminarObra(m: Mundo, a: Aldea): void {
   if (!m.construidos.includes(obra.tipo)) {
     m.construidos.push(obra.tipo);
     anotar(m, 'edificio', `En ${a.nombre} se levanta ${articulo(tipo)} por primera vez en el mundo.`, a.id);
-  } else if (['cerca', 'empalizada', 'muralla', 'archivo', 'mercado', 'puente'].includes(obra.tipo) && cuantos(a, obra.tipo) === 1) {
+  } else if (!ampliado && ['cerca', 'empalizada', 'muralla', 'archivo', 'mercado', 'puente'].includes(obra.tipo) && cuantos(a, obra.tipo) === 1) {
     anotar(m, 'edificio', `${a.nombre} ya tiene ${articulo(tipo)}.`, a.id);
   }
+}
+
+/** Lo que rodea la aldea: cerca, empalizada o muralla. */
+export const rodea = (t: string): boolean => t === 'cerca' || t === 'empalizada' || t === 'muralla';
+
+/** Hasta dónde llega lo construido: la distancia (en casillas) del centro a lo más lejano. */
+function huella(a: Aldea): number {
+  let r = 0;
+  for (const e of a.edificios) if (!rodea(e.tipo) && e.tipo !== 'puente') r = Math.max(r, Math.hypot(e.x - a.x, e.y - a.y));
+  if (a.obra && !rodea(a.obra.tipo) && a.obra.tipo !== 'puente') r = Math.max(r, Math.hypot(a.obra.x - a.x, a.obra.y - a.y));
+  return r;
+}
+
+/** El radio que hace falta para rodearlo todo con algo de margen. */
+const radioNecesario = (a: Aldea): number => r2(Math.max(2, huella(a) + 1));
+
+/** El radio de un muro ya hecho (los antiguos, sin radio guardado, eran fijos). */
+export const radioMuro = (e: { tipo: string; radio?: number }): number => e.radio ?? (e.tipo === 'muralla' ? 3 : 2.7);
+
+/** El mejor muro que tiene la aldea. */
+export function muroDe(a: Aldea): Aldea['edificios'][number] | undefined {
+  for (const t of ['muralla', 'empalizada', 'cerca']) {
+    const e = a.edificios.find((x) => x.tipo === t);
+    if (e) return e;
+  }
+  return undefined;
 }
 
 /** Ritmo al que cría cada especie (por día) en el corral. */
@@ -753,6 +790,9 @@ export function planificar(m: Mundo, a: Aldea, gente: Persona[]): void {
   if (conoce(a, 'cuerda') && !muro && n >= 5 && (peligro || a.amenaza > 0.12)) opciones.push(['cerca', 1.05]);
   if (conoce(a, 'empalizada') && !tiene(a, 'empalizada') && n >= 12) opciones.push(['empalizada', peligro ? 1.1 : 0.5]);
   if (conoce(a, 'muralla') && tiene(a, 'empalizada') && !tiene(a, 'muralla') && n >= 18) opciones.push(['muralla', peligro ? 1.2 : 0.4]);
+  // Si la aldea ha crecido y algo queda fuera del muro, toca ampliarlo.
+  const muroHecho = muroDe(a);
+  if (muroHecho && huella(a) + 0.5 > radioMuro(muroHecho)) opciones.push([muroHecho.tipo, peligro ? 1.15 : 0.7]);
   if (conoce(a, 'escritura') && !tiene(a, 'archivo')) opciones.push(['archivo', 0.5]);
   if (conoce(a, 'comercio') && !tiene(a, 'mercado')) opciones.push(['mercado', 0.4]);
   opciones.sort((x, y) => y[1] - x[1]);
@@ -760,15 +800,20 @@ export function planificar(m: Mundo, a: Aldea, gente: Persona[]): void {
     if ((a.aparcadas?.[tipo] ?? 0) > m.t) continue;
     const sitio = lugarPara(m, a, tipo);
     if (sitio < 0) continue;
-    a.obra = { tipo, x: sitio % m.ancho, y: Math.floor(sitio / m.ancho), progreso: 0, pagada: false, desde: m.t };
+    a.obra = { tipo, x: sitio % m.ancho, y: Math.floor(sitio / m.ancho), progreso: 0, pagada: false, desde: m.t, ...(rodea(tipo) ? { radio: radioNecesario(a) } : {}) };
     return;
   }
 }
 
 function lugarPara(m: Mundo, a: Aldea, tipo: string): number {
   // Los muros rodean la aldea: se apuntan en su centro.
-  const rodea = (t: string) => t === 'cerca' || t === 'empalizada' || t === 'muralla';
   if (rodea(tipo)) return a.y * m.ancho + a.x;
+  // Nada encima de la línea del muro (ni del que se está levantando).
+  const lineas = [...a.edificios.filter((e) => rodea(e.tipo)).map(radioMuro), ...(a.obra && rodea(a.obra.tipo) ? [a.obra.radio ?? 2.7] : [])];
+  const sobreMuro = (i: number) => {
+    const d = Math.hypot((i % m.ancho) - a.x, Math.floor(i / m.ancho) - a.y);
+    return lineas.some((r) => Math.abs(d - r) < 0.75);
+  };
   if (tipo === 'puente') {
     // Sobre el río, donde enfrente haya tierra de la otra orilla.
     const aca = orilla(m, a);
@@ -800,14 +845,14 @@ function lugarPara(m: Mundo, a: Aldea, tipo: string): number {
   }
   if (tipo === 'campo') {
     return mejorCasilla(m, a.x, a.y, 4, (i, d) => {
-      if (ocupadas.has(i) || d < 1 || !alcanzable(m, a, i, false)) return 0;
+      if (ocupadas.has(i) || d < 1 || sobreMuro(i) || !alcanzable(m, a, i, false)) return 0;
       const t = m.terreno[i];
       const apto = t === PRADERA ? 3 : t === ESTEPA ? 2 : t === BOSQUE ? 1.5 : t === ORILLA ? 1 : t === PANTANO ? 0.5 : 0;
       return apto / (1 + d * 0.2);
     });
   }
   return mejorCasilla(m, a.x, a.y, 3, (i, d) => {
-    if (ocupadas.has(i) || !alcanzable(m, a, i, false)) return 0;
+    if (ocupadas.has(i) || sobreMuro(i) || !alcanzable(m, a, i, false)) return 0;
     const t = m.terreno[i];
     if (t === AGUA || t === MONTANA || t === RIO) return 0;
     if (tipo === 'hoguera') return 2 / (1 + d);

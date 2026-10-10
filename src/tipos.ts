@@ -69,6 +69,11 @@ export interface Edificio {
   animales?: number;
   especie?: string;
   material?: string;
+  /** Cercas, empalizadas y murallas: su radio en casillas (crece con la aldea). */
+  radio?: number;
+  /** Campos: el día en que se sembraron y en que se cosecharon. */
+  sembrado?: number;
+  cosechado?: number;
 }
 
 export interface Obra {
@@ -81,6 +86,8 @@ export interface Obra {
   desde?: number;
   /** Si se hizo con lo que había en vez de lo de siempre (una cerca de piedra seca, por ejemplo). */
   material?: string;
+  /** Cercas, empalizadas y murallas: el radio que tendrá (para rodear todo lo construido). */
+  radio?: number;
 }
 
 export interface Aldea {
@@ -126,6 +133,12 @@ export interface Tumba {
   nombre: string;
   edad: number;
   causa: string;
+  /** Lo que se recuerda de su vida: a qué se dedicaba, sus hijos, su pareja y lo que descubrió. */
+  sexo?: 'H' | 'M';
+  oficio?: string;
+  hijos?: number;
+  pareja?: string;
+  descubrio?: string[];
 }
 
 export interface Consejo {

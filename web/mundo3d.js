@@ -640,6 +640,29 @@ export class Mundo3D {
 
   /** El edificio (u obra) bajo un punto del suelo; las cercas y murallas, por su contorno. */
   edificioEn(px, pz) {
+    // Primero las tumbas (pequeñas, en filas de cinco, como las dibuja el cementerio).
+    let tumba = null;
+    let tmin = 0.32 ** 2;
+    for (const a of this.datos.aldeas) {
+      const enCasilla = new Map();
+      const lista = a.tumbas ?? [];
+      for (let j = lista.length - 1; j >= 0; j--) {
+        const g = lista[j];
+        const clave = g[1] * this.datos.ancho + g[0];
+        const k = enCasilla.get(clave) ?? 0;
+        if (k >= 30) continue;
+        enCasilla.set(clave, k + 1);
+        const [cx, cz] = this.aMundo(g[0], g[1]);
+        const x = cx + ((k % 5) - 2) * 0.42;
+        const z = cz + (Math.floor(k / 5) - 1) * 0.62;
+        const d2 = (x - px) ** 2 + (z - pz) ** 2;
+        if (d2 < tmin) {
+          tmin = d2;
+          tumba = { tipo: 'tumba', aldea: a.id, anio: g[2], nombre: g[3], edad: g[4], causa: g[5], sexo: g[6], oficio: g[7], hijos: g[8], pareja: g[9], descubrio: g[10] ?? [] };
+        }
+      }
+    }
+    if (tumba) return tumba;
     let mejor = null;
     let dmin = (T * 0.55) ** 2;
     const RODEA = ['cerca', 'empalizada', 'muralla'];
@@ -648,7 +671,9 @@ export class Mundo3D {
       const lista = a.obra ? [...a.edificios, { ...a.obra, obra: true }] : a.edificios;
       for (const e of lista) {
         if (RODEA.includes(e.tipo)) {
-          const r = T * ((e.tipo === 'muralla' ? (a.poblacion > 40 ? 3.9 : 3.0) : a.poblacion > 40 ? 3.6 : 2.7) + (e.obra && a.edificios.some((x) => RODEA.includes(x.tipo)) ? 0.35 : 0));
+          const base = e.radio ?? (e.tipo === 'muralla' ? 3 : 2.7);
+          const viejo = e.obra && a.edificios.find((x) => RODEA.includes(x.tipo));
+          const r = T * (base + (viejo && Math.abs((viejo.radio ?? 2.7) - base) < 0.3 ? 0.35 : 0));
           const dd = Math.abs(Math.hypot(px - cx, pz - cz) - r);
           if (dd < 0.7 && dd * dd < dmin) {
             dmin = dd * dd;

@@ -112,7 +112,23 @@ function sepultar(m: Mundo, a: Aldea, p: Persona, causa: string): void {
   }
   if (!c) return;
   a.tumbas ??= [];
-  a.tumbas.push({ x: c.x, y: c.y, t: m.t, nombre: p.nombre, edad: Math.floor(edad(m, p)), causa });
+  const pareja = p.pareja !== null ? m.personas.find((q) => q.id === p.pareja)?.nombre : undefined;
+  const descubrio = Object.entries(m.hallazgos)
+    .filter(([, h]) => h.porId === p.id)
+    .map(([id]) => id);
+  a.tumbas.push({
+    x: c.x,
+    y: c.y,
+    t: m.t,
+    nombre: p.nombre,
+    edad: Math.floor(edad(m, p)),
+    causa,
+    sexo: p.sexo,
+    oficio: p.actividad,
+    hijos: p.hijos,
+    ...(pareja ? { pareja } : {}),
+    ...(descubrio.length ? { descubrio } : {}),
+  });
   if (a.tumbas.length > 60) a.tumbas.shift();
   a.enterrados = (a.enterrados ?? 0) + 1;
 }
