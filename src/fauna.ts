@@ -228,8 +228,10 @@ function lobos(m: Mundo, f: Fiera, dia: Dia): void {
   if (f.espera === 0 && f.n >= 3 && ((invierno && f.hambre > 0.55) || f.hambre >= 0.85)) {
     for (const a of dia.vivas) {
       if (masa[a.y * m.ancho + a.x] !== k) continue;
+      // Recuerdan: no vuelven pronto a donde les fue mal; vuelven a donde comieron.
+      if (f.evita?.aldea === a.id && m.t < f.evita.hasta) continue;
       const corral = a.edificios.some((e) => e.tipo === 'corral' && (e.animales ?? 0) >= 1);
-      const d = distancia(a.x - f.x, a.y - f.y);
+      const d = distancia(a.x - f.x, a.y - f.y) * (f.querencia === a.id ? 0.7 : 1);
       if (d < (corral ? 22 : 16) && d < dmin) {
         dmin = d;
         objetivo = a;
@@ -238,6 +240,14 @@ function lobos(m: Mundo, f: Fiera, dia: Dia): void {
   }
   if (objetivo) {
     if (dmin <= 1.5) {
+      // Antes de entrar miden el riesgo: con fuego, vigías, lanzas y cercas, casi
+      // siempre se quedan al acecho esperando a quien salga solo.
+      if (prob(Math.min(0.85, riesgo(m, objetivo, dia)))) {
+        f.estado = 'acecha';
+        objetivo.amenaza = r2(Math.min(1, objetivo.amenaza + 0.02));
+        acechar(m, f, dia, 2, invierno);
+        return;
+      }
       atacarAldea(m, f, objetivo, dia);
       return;
     }
@@ -255,8 +265,26 @@ function lobos(m: Mundo, f: Fiera, dia: Dia): void {
     const [x, y] = buscar(m, f, f.hambre > 0.5 ? 6 : 4, (i) => (masa[i] === k && m.terreno[i] !== AGUA ? m.recursos.caza[i] : -1));
     mover(m, f, x, y, 2);
   }
-  // Quien trabaja solo cerca de la manada corre peligro; los cazadores con lanza se defienden.
-  for (const p of cercanos(m, f, dia, 1)) {
+  acechar(m, f, dia, 1, invierno);
+}
+
+/** Lo peligroso que les resulta entrar en una aldea (de 0 a más de 1). */
+function riesgo(m: Mundo, a: Aldea, dia: Dia): number {
+  const gente = (dia.ix.porAldea.get(a.id) ?? []).filter((p) => !p.muerto);
+  const vigias = gente.filter((p) => p.actividad === 'vigilar').length;
+  const armados = gente.filter((p) => edad(m, p) >= 14 && (p.saberes.includes('lanza') || p.saberes.includes('arco'))).length;
+  const muro = tiene(a, 'muralla') ? 1.2 : tiene(a, 'empalizada') ? 0.8 : tiene(a, 'cerca') ? 0.4 : 0;
+  return (dia.encendidas.has(a.id) ? 0.25 : 0) + vigias * 0.15 + armados * 0.04 + muro;
+}
+
+/**
+ * Quien trabaja solo cerca de la manada corre peligro (a un grupo no se atreven);
+ * los cazadores con lanza se defienden y pueden abatir a alguno.
+ */
+function acechar(m: Mundo, f: Fiera, dia: Dia, radio: number, invierno: boolean): void {
+  const cerca = cercanos(m, f, dia, radio);
+  if (cerca.length >= 3) return;
+  for (const p of cerca) {
     const a = dia.ix.aldeas.get(p.aldea);
     if (p.actividad === 'cazar' && p.saberes.includes('lanza') && prob(0.22)) {
       f.n--;
@@ -267,7 +295,7 @@ function lobos(m: Mundo, f: Fiera, dia: Dia): void {
       }
       continue;
     }
-    if (f.n >= 3 && f.hambre > 0.7 && prob(0.05 * (invierno ? 1.6 : 1))) {
+    if (f.n >= 3 && f.hambre > 0.7 && prob((cerca.length === 1 ? 0.07 : 0.03) * (invierno ? 1.6 : 1))) {
       herir(m, p, 0.25 + 0.3 * azar(), 'lobos', a);
       f.hambre = r2(Math.max(0, f.hambre - 0.3));
       f.estado = 'ataca';
@@ -322,10 +350,10 @@ function batida(m: Mundo, f: Fiera, a: Aldea, dia: Dia): boolean {
 function atacarAldea(m: Mundo, f: Fiera, a: Aldea, dia: Dia): void {
   const gente = (dia.ix.porAldea.get(a.id) ?? []).filter((p) => !p.muerto);
   const fuego = dia.encendidas.has(a.id);
-  const muro = tiene(a, 'empalizada') || tiene(a, 'muralla');
+  const muro = tiene(a, 'cerca') || tiene(a, 'empalizada') || tiene(a, 'muralla');
   const vigias = gente.filter((p) => p.actividad === 'vigilar').length;
   const lanzas = gente.filter((p) => edad(m, p) >= 14 && (p.saberes.includes('lanza') || p.saberes.includes('arco'))).length;
-  let exito = 0.35 * (fuego ? 0.3 : 1) * (muro ? (tiene(a, 'muralla') ? 0.03 : 0.1) : 1) * (gente.length >= 25 ? 0.6 : 1);
+  let exito = 0.35 * (fuego ? 0.3 : 1) * (muro ? (tiene(a, 'muralla') ? 0.03 : tiene(a, 'empalizada') ? 0.1 : 0.35) : 1) * (gente.length >= 25 ? 0.6 : 1);
   for (let v = 0; v < vigias; v++) exito *= 0.6;
   a.amenaza = r2(Math.min(1, a.amenaza + 0.12));
   f.estado = 'ataca';
@@ -333,8 +361,9 @@ function atacarAldea(m: Mundo, f: Fiera, a: Aldea, dia: Dia): void {
   for (let v = 0; v < vigias + Math.floor(lanzas / 3); v++) if (prob(0.18)) bajas++;
   bajas = Math.min(bajas, f.n);
   f.n -= bajas;
-  // Pase lo que pase, se retiran y tardan en volver.
+  // Pase lo que pase, se retiran y tardan en volver; si les ha ido mal, no lo olvidan.
   f.espera = 40 + entero(40);
+  if (bajas > 0) f.evita = { aldea: a.id, hasta: m.t + DIAS_ANIO };
   const gx = f.guarida % m.ancho;
   if (f.n <= 0) {
     anotar(m, 'fieras', `Los de ${a.nombre} acaban con la manada de lobos que atacaba la aldea.`, a.id);
@@ -342,6 +371,7 @@ function atacarAldea(m: Mundo, f: Fiera, a: Aldea, dia: Dia): void {
   }
   if (gente.length && prob(exito)) {
     f.hambre = 0;
+    f.querencia = a.id;
     const corral = a.edificios.find((e) => e.tipo === 'corral' && (e.animales ?? 0) >= 1);
     if (corral && prob(0.65)) {
       const muertos = Math.min(Math.floor(corral.animales ?? 0), 1 + entero(3));
@@ -364,7 +394,7 @@ function atacarAldea(m: Mundo, f: Fiera, a: Aldea, dia: Dia): void {
       }
     }
   } else if ((bajas > 0 || fuego || muro) && aviso(m, `ahuyentan-${a.id}`, 3 * DIAS_ANIO)) {
-    const como = muro ? 'tras la empalizada' : fuego ? 'con fuego' : 'con palos y piedras';
+    const como = muro ? (tiene(a, 'cerca') && !tiene(a, 'empalizada') && !tiene(a, 'muralla') ? 'tras la cerca' : 'tras la empalizada') : fuego ? 'con fuego' : 'con palos y piedras';
     anotar(m, 'fieras', `Los de ${a.nombre} ahuyentan a los lobos ${como}${bajas ? ` y matan ${bajas === 1 ? 'a uno' : `a ${bajas}`}` : ''}.`, a.id);
   }
   f.estado = 'huye';

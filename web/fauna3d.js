@@ -154,6 +154,11 @@ export class Fauna3D {
       this.fieras.clear();
       this.ovejas.clear();
     }
+    // Cada grupo tiene sus crías: nacen en primavera y van creciendo hasta el invierno.
+    if (this.estacionCrias !== `${clave}-${d.estacion}`) {
+      this.estacionCrias = `${clave}-${d.estacion}`;
+      for (const r of this.rebanos) this.criasDe(r, d.estacion);
+    }
     // Rebaños: si en su sitio ya no queda caza (o ha crecido una aldea al lado), no están.
     const W = d.ancho;
     const aldeas = d.aldeas.filter((a) => a.abandonada === null);
@@ -180,6 +185,19 @@ export class Fauna3D {
           this.fieras.set(id, a);
         }
         Object.assign(a, { f, k, n, x0, z0, x1, z1, ox: Math.cos(ang) * r, oz: Math.sin(ang) * r });
+      }
+      // Los lobeznos de la camada de primavera, detrás de la loba que guía la manada.
+      const camada = esp === 'lobo' && f.n >= 3 && (d.estacion === 'primavera' || d.estacion === 'verano') ? Math.min(3, Math.floor(f.n / 2)) : 0;
+      for (let k = 0; k < camada; k++) {
+        const id = `${f.id}-c${k}`;
+        vivos.add(id);
+        let a = this.fieras.get(id);
+        if (!a) {
+          a = this.nuevo('lobo', x0 + 0.4 * k, z0 + 0.3, f.id * 17 + k + 50);
+          this.fieras.set(id, a);
+        }
+        a.escala = d.estacion === 'primavera' ? 0.45 : 0.62;
+        Object.assign(a, { f, k: 100 + k, n, x0, z0, x1, z1, ox: 0, oz: 0, cachorro: true, madre: this.fieras.get(`${f.id}-0`) });
       }
     }
     for (const id of this.fieras.keys()) if (!vivos.has(id)) this.fieras.delete(id);
@@ -296,15 +314,87 @@ export class Fauna3D {
           const m = this.nuevo(esp, ax, az, s * 31 + k);
           m.hx = x;
           m.hz = z;
-          if (esp === 'ciervo' && k === 0) m.macho = true;
-          // Una cría en los rebaños grandes.
-          if ((esp === 'ciervo' || esp === 'jabali' || esp === 'caballo') && k === n - 1 && n >= 4) m.escala *= 0.6;
+          // Los machos de ciervo llevan cuernas (el que guía la manada, y alguno más).
+          if (esp === 'ciervo' && (k === 0 || azar(s + 40 + k) < 0.3)) m.macho = true;
           miembros.push(m);
         }
-        out.push({ esp, i, x, z, miembros, vivo: true });
+        out.push({ esp, i, x, z, miembros, crias: [], vivo: true });
       }
     }
     return out;
+  }
+
+  /** Las crías de un rebaño en esta estación (pequeñas en primavera, casi adultas en otoño). */
+  criasDe(r, estacion) {
+    const tam = { primavera: 0.5, verano: 0.64, 'otoño': 0.76, invierno: 0.86 }[estacion] ?? 0;
+    r.crias = [];
+    if (!tam || r.esp === 'liebre') return;
+    const madres = r.miembros.filter((m) => !m.macho);
+    const n = Math.min(madres.length, Math.max(1, Math.round(r.miembros.length * 0.4)));
+    for (let k = 0; k < n; k++) {
+      const madre = madres[k];
+      const c = this.nuevo(r.esp, madre.x + 0.3, madre.z + 0.3, madre.id * 7 + k + 1);
+      c.escala = madre.escala * tam;
+      c.madre = madre;
+      r.crias.push(c);
+    }
+  }
+
+  /** Una cría va pegada a su madre: si pasta, pasta; si huye, huye con ella. */
+  pensarCria(a, dt) {
+    const m = a.madre;
+    const lado = a.id % 2 ? 1 : -1;
+    const tx = m.x - Math.sin(m.ang) * 0.35 * m.escala + Math.cos(m.ang) * 0.4 * lado * m.escala;
+    const tz = m.z - Math.cos(m.ang) * 0.35 * m.escala - Math.sin(m.ang) * 0.4 * lado * m.escala;
+    const dx = tx - a.x;
+    const dz = tz - a.z;
+    const d = Math.hypot(dx, dz);
+    if (d > 6) {
+      a.x = tx;
+      a.z = tz;
+    }
+    if (d > 0.18) {
+      this.mover(a, dt, dx, dz, Math.min(ESPECIES[a.esp].vel[2], d * 2.6 + 0.2), 6);
+      a.estado = 'andar';
+    } else {
+      this.mover(a, dt, 0, 0, 0);
+      a.ang += acotar(giroHacia(a.ang, m.ang), -2 * dt, 2 * dt);
+      a.estado = m.estado === 'echado' || m.estado === 'pastar' || m.estado === 'alerta' ? m.estado : 'pie';
+      a.mira = m.mira;
+    }
+  }
+
+  /** Que los de un mismo grupo no se metan unos dentro de otros. */
+  separar(lista, esp) {
+    const base = ESPECIES[esp].alto * 0.8;
+    for (let i = 0; i < lista.length; i++) {
+      const a = lista[i];
+      for (let j = i + 1; j < lista.length; j++) {
+        const b = lista[j];
+        let dx = b.x - a.x;
+        let dz = b.z - a.z;
+        let d = Math.hypot(dx, dz);
+        // Las crías van pegadas a la madre.
+        const min = base * (a.escala + b.escala) * (a.madre || b.madre ? 0.5 : 1);
+        if (d >= min) continue;
+        if (d < 1e-4) {
+          dx = Math.sin(b.id * 7.1);
+          dz = Math.cos(b.id * 7.1);
+          d = 1;
+        }
+        const empuje = (min - Math.min(d, min)) / 2;
+        const ux = (dx / Math.max(d, 1e-4)) * empuje;
+        const uz = (dz / Math.max(d, 1e-4)) * empuje;
+        if (this.pisable(esp, a.x - ux, a.z - uz)) {
+          a.x -= ux;
+          a.z -= uz;
+        }
+        if (this.pisable(esp, b.x + ux, b.z + uz)) {
+          b.x += ux;
+          b.z += uz;
+        }
+      }
+    }
   }
 
   /** Gaviotas sobre las islas pequeñas y los lagos grandes; águilas sobre las montañas. */
@@ -425,7 +515,8 @@ export class Fauna3D {
       cuenta.canilla += n * 4;
     };
     for (const a of this.fieras.values()) contar(a.esp, 1);
-    for (const r of this.rebanos) contar(r.esp, r.miembros.length);
+    contar('lobo', 12);
+    for (const r of this.rebanos) contar(r.esp, r.miembros.length + 3);
     contar('oveja', this.ovejas.size);
     contar('perro', this.perros.size);
     cuenta.ojos = 80;
@@ -602,6 +693,23 @@ export class Fauna3D {
     if (a.estado === 'alerta' && a.huye) a.mira = acotar(giroHacia(a.ang, Math.atan2(a.huye[0] - a.x, a.huye[1] - a.z)), -1.2, 1.2);
   }
 
+  /** El animal de rebaño más cercano a un punto (para la caza de los lobos). */
+  presaRebano(x, z) {
+    let mejor = null;
+    let dmin = 9 * 9;
+    for (const r of this.rebanos) {
+      if (!r.vivo || r.esp === 'liebre' || (r.x - x) ** 2 + (r.z - z) ** 2 > 18 * 18) continue;
+      for (const m of r.crias.length ? r.crias.concat(r.miembros) : r.miembros) {
+        const d2 = (m.x - x) ** 2 + (m.z - z) ** 2;
+        if (d2 < dmin) {
+          dmin = d2;
+          mejor = [m.x, m.z];
+        }
+      }
+    }
+    return mejor;
+  }
+
   /** La persona u oveja más cercana a un punto (para el ataque de los lobos). */
   presaCerca(x, z) {
     let mejor = null;
@@ -638,7 +746,9 @@ export class Fauna3D {
     let tx = entre(a.x0, a.x1, u) + ox;
     let tz = entre(a.z0, a.z1, u) + oz;
     // El día que atacan, primero se lanzan a por quien (o lo que) tienen más cerca; luego huyen.
-    const presa = f.estado === 'ataca' || (f.estado === 'huye' && u < 0.35) ? this.presaCerca(f.estado === 'huye' ? a.x0 : tx, f.estado === 'huye' ? a.z0 : tz) : null;
+    let presa = f.estado === 'ataca' || (f.estado === 'huye' && u < 0.35) ? this.presaCerca(f.estado === 'huye' ? a.x0 : tx, f.estado === 'huye' ? a.z0 : tz) : null;
+    // Con hambre, de día, la manada sale tras el ciervo o el caballo que tenga más a mano.
+    if (!presa && a.esp === 'lobo' && f.estado === 'ronda' && (f.hambre ?? 0) > 0.45 && !noche) presa = this.presaRebano(entre(a.x0, a.x1, u), entre(a.z0, a.z1, u));
     if (presa) {
       tx = presa[0] + a.ox * 0.35;
       tz = presa[1] + a.oz * 0.35;
@@ -909,10 +1019,19 @@ export class Fauna3D {
     for (const q of gente) if ((q.x - objetivo.x) ** 2 + (q.z - objetivo.z) ** 2 < lejos2) meter(q.x, q.z, false);
     // Fieras de la simulación (siempre, estén donde estén).
     const u = suave(acotar((fase - 0.05) / 0.6, 0, 1));
+    const manadas = new Map();
+    for (const a of this.fieras.values()) {
+      if (a.f.estado === 'hiberna') continue;
+      if (a.cachorro && a.madre) this.pensarCria(a, dt);
+      else this.pensarFiera(a, dt, u, t, noche);
+      let l = manadas.get(a.f.id);
+      if (!l) manadas.set(a.f.id, (l = []));
+      l.push(a);
+    }
+    for (const l of manadas.values()) if (l.length > 1) this.separar(l, l[0].esp);
     for (const a of this.fieras.values()) {
       if (a.f.estado === 'hiberna') continue;
       const esp = ESPECIES[a.esp];
-      this.pensarFiera(a, dt, u, t, noche);
       meter(a.x, a.z, true);
       this.avanzar(a, esp, dt);
       this.postura(a, esp, t);
@@ -939,8 +1058,11 @@ export class Fauna3D {
       for (const r of this.rebanos) {
         if (!r.vivo || (r.x - objetivo.x) ** 2 + (r.z - objetivo.z) ** 2 > vida2 || !enVista(v, r.x, this.terreno.alturaEn(r.x, r.z), r.z, 9)) continue;
         const esp = ESPECIES[r.esp];
-        for (const a of r.miembros) {
-          this.pensar(a, dt, noche);
+        for (const a of r.miembros) this.pensar(a, dt, noche);
+        for (const a of r.crias) this.pensarCria(a, dt);
+        const todos = r.crias.length ? r.miembros.concat(r.crias) : r.miembros;
+        this.separar(todos, r.esp);
+        for (const a of todos) {
           this.avanzar(a, esp, dt);
           this.postura(a, esp, t);
           this.cuadrupedo(a, esp, false);

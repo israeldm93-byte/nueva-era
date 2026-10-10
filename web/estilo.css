@@ -198,7 +198,7 @@ button:focus-visible { outline: 2px solid var(--oro); outline-offset: 2px; }
   50% { box-shadow: 0 0 0 5px rgba(255, 90, 60, 0); }
 }
 
-.recursos { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; min-width: 0; }
+.recursos { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; min-width: 0; justify-content: safe center; }
 .recursos::-webkit-scrollbar { display: none; }
 .recurso {
   flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 8px;
@@ -206,6 +206,7 @@ button:focus-visible { outline: 2px solid var(--oro); outline-offset: 2px; }
   font: 600 0.82rem/1.3 system-ui, -apple-system, sans-serif; white-space: nowrap; font-variant-numeric: tabular-nums;
 }
 .recurso svg { color: var(--oro); flex: none; }
+button.recurso { cursor: pointer; }
 .recurso.aldea { color: var(--oro); font-weight: 800; cursor: pointer; }
 .recurso.mal { color: #ffc2b2; }
 .recurso.mal svg { color: #ff8a70; }
@@ -223,7 +224,7 @@ button:focus-visible { outline: 2px solid var(--oro); outline-offset: 2px; }
   .hud-fila { display: contents; }
   .marca { grid-column: 1; grid-row: 1; }
   .marca h1 { font-size: 1.35rem; }
-  .recursos { grid-column: 2; grid-row: 1; justify-content: center; }
+  .recursos { grid-column: 2; grid-row: 1; justify-content: safe center; }
   .fecha { grid-column: 3; grid-row: 1; font-size: 0.95rem; }
   .consejo-hud { grid-column: 1 / -1; grid-row: 2; justify-content: center; }
 }

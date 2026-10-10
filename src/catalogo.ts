@@ -192,6 +192,7 @@ export const EDIFICIOS: TipoEdificio[] = [
   { id: 'corral', nombre: 'Corral', requiere: 'corral', coste: { madera: 15 }, trabajo: 6 },
   { id: 'almacen', nombre: 'Almacén de vasijas', requiere: 'vasija', coste: { arcilla: 15, madera: 4 }, trabajo: 6 },
   { id: 'horno', nombre: 'Horno', requiere: 'horno', coste: { arcilla: 10, piedra: 10 }, trabajo: 6 },
+  { id: 'cerca', nombre: 'Cerca', requiere: 'cuerda', coste: { madera: 14 }, trabajo: 6 },
   { id: 'empalizada', nombre: 'Empalizada', requiere: 'empalizada', coste: { madera: 40 }, trabajo: 15 },
   { id: 'muralla', nombre: 'Muralla', requiere: 'muralla', coste: { piedra: 60, madera: 10 }, trabajo: 25 },
   { id: 'archivo', nombre: 'Casa de las tablillas', requiere: 'escritura', coste: { arcilla: 20, piedra: 10 }, trabajo: 10 },

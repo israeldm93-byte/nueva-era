@@ -3,7 +3,7 @@
 // descubrir no aparecen (nada de destripes).
 
 import { DIAS_ANIO, ESTACIONES } from './config.ts';
-import { BASICOS, CONCEPTOS_VIDA, MATERIALES, NOMBRE_CONCEPTO, TECNICA, TECNICAS } from './catalogo.ts';
+import { BASICOS, COMIDAS, CONCEPTOS_VIDA, MATERIALES, NOMBRE_CONCEPTO, TECNICA, TECNICAS } from './catalogo.ts';
 import { anioDe, fecha } from './cronica.ts';
 import { comidaTotal, necesidad } from './economia.ts';
 import { lexicoComun, parecido } from './lenguaje.ts';
@@ -74,6 +74,7 @@ export function datosWeb(m: Mundo, ahora: Date) {
     ruinas: m.ruinas,
     conceptos: [...BASICOS, ...CONCEPTOS_VIDA],
     nombres,
+    comestibles: COMIDAS.map((x) => x.id),
     acciones: ACCIONES,
     pruebas: PRUEBAS.map((p) => p.nombre),
     frases: FRASE,

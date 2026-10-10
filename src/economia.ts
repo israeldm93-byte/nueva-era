@@ -642,14 +642,14 @@ function terminarObra(m: Mundo, a: Aldea): void {
   if (!m.construidos.includes(obra.tipo)) {
     m.construidos.push(obra.tipo);
     anotar(m, 'edificio', `En ${a.nombre} se levanta ${articulo(tipo)} por primera vez en el mundo.`, a.id);
-  } else if (['empalizada', 'muralla', 'archivo', 'mercado'].includes(obra.tipo) && cuantos(a, obra.tipo) === 1) {
+  } else if (['cerca', 'empalizada', 'muralla', 'archivo', 'mercado'].includes(obra.tipo) && cuantos(a, obra.tipo) === 1) {
     anotar(m, 'edificio', `${a.nombre} ya tiene ${articulo(tipo)}.`, a.id);
   }
 }
 
 function articulo(t: TipoEdificio): string {
   const n = t.nombre.toLowerCase();
-  const fem = ['hoguera', 'choza', 'casa de adobe', 'empalizada', 'muralla', 'casa de las tablillas'].includes(n);
+  const fem = ['hoguera', 'choza', 'casa de adobe', 'cerca', 'empalizada', 'muralla', 'casa de las tablillas'].includes(n);
   return `${fem ? 'una' : 'un'} ${n}`;
 }
 
@@ -671,6 +671,9 @@ export function planificar(m: Mundo, a: Aldea, gente: Persona[]): void {
   if (conoce(a, 'horno') && !tiene(a, 'horno')) opciones.push(['horno', 0.6]);
   // Los muros, sobre todo si el consejo teme un ataque o está en guerra.
   const peligro = a.consejo?.prioridad === 'defensa' || !!a.consejo?.guerra || a.amenaza > 0.3;
+  // Con fieras rondando, lo primero es una cerca de estacas atadas alrededor de casas y corrales.
+  const muro = tiene(a, 'cerca') || tiene(a, 'empalizada') || tiene(a, 'muralla');
+  if (conoce(a, 'cuerda') && !muro && n >= 5 && (peligro || a.amenaza > 0.12)) opciones.push(['cerca', 1.05]);
   if (conoce(a, 'empalizada') && !tiene(a, 'empalizada') && n >= 12) opciones.push(['empalizada', peligro ? 1.1 : 0.5]);
   if (conoce(a, 'muralla') && tiene(a, 'empalizada') && !tiene(a, 'muralla') && n >= 18) opciones.push(['muralla', peligro ? 1.2 : 0.4]);
   if (conoce(a, 'escritura') && !tiene(a, 'archivo')) opciones.push(['archivo', 0.5]);
@@ -686,7 +689,7 @@ export function planificar(m: Mundo, a: Aldea, gente: Persona[]): void {
 
 function lugarPara(m: Mundo, a: Aldea, tipo: string): number {
   // Los muros rodean la aldea: se apuntan en su centro.
-  const rodea = (t: string) => t === 'empalizada' || t === 'muralla';
+  const rodea = (t: string) => t === 'cerca' || t === 'empalizada' || t === 'muralla';
   if (rodea(tipo)) return a.y * m.ancho + a.x;
   const ocupadas = new Set<number>();
   for (const b of m.aldeas) {

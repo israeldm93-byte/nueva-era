@@ -97,7 +97,7 @@ const CAUSAS = {
 
 const EDIFICIOS = {
   hoguera: 'hoguera', choza: 'choza', casa: 'casa de adobe', campo: 'campo', corral: 'corral', almacen: 'almacén',
-  horno: 'horno', empalizada: 'empalizada', muralla: 'muralla de piedra', archivo: 'casa de las tablillas', mercado: 'mercado',
+  horno: 'horno', cerca: 'cerca', empalizada: 'empalizada', muralla: 'muralla de piedra', archivo: 'casa de las tablillas', mercado: 'mercado',
 };
 
 /** Hacia dónde empuja el consejo a los que experimentan. */
@@ -110,7 +110,7 @@ const FOCOS = {
 
 const UNA = {
   hoguera: 'una hoguera', choza: 'una choza', casa: 'una casa de adobe', campo: 'un campo nuevo', corral: 'un corral', almacen: 'un almacén',
-  horno: 'un horno', empalizada: 'la empalizada', muralla: 'la muralla de piedra', archivo: 'la casa de las tablillas', mercado: 'el mercado',
+  horno: 'un horno', cerca: 'la cerca', empalizada: 'la empalizada', muralla: 'la muralla de piedra', archivo: 'la casa de las tablillas', mercado: 'el mercado',
 };
 
 const GRUPOS = {
@@ -168,6 +168,12 @@ const ICONOS = {
   piedra: 'M4 18l2.5-7L11 6l6 2 3 10Zm7-12 1 5 5 2',
   saber: 'M12 3a6 6 0 0 0-3.5 10.9V17h7v-3.1A6 6 0 0 0 12 3Zm-2.5 17h5',
   peligro: 'M12 3l9 16H3Zm0 6v4m0 3v.5',
+  arcilla: 'M3 7h18v12H3Zm0 6h18M9 7v6m6 0v6',
+  fibra: 'M12 21V9m0 0c0-3 2-5 5-6m-5 6c0-3-2-5-5-6m5 10c0-2.5 2-4.5 5-5m-5 5c0-2.5-2-4.5-5-5',
+  piel: 'M6 4l3 3h6l3-3 1 6-2 2 1 8H6l1-8-2-2Z',
+  mineral: 'M6 9l3-5h6l3 5-6 11Zm0 0h12M9 4l3 5 3-5',
+  ganado: 'M7 10a3 3 0 0 1 5-2 3 3 0 0 1 5 2 3 3 0 0 1-1 5H8a3 3 0 0 1-1-5Zm2 5v4m6-4v4',
+  almacen: 'M3 8l9-5 9 5v10l-9 5-9-5Zm0 0 9 5 9-5m-9 5v10',
 };
 
 function icono(nombre) {
@@ -202,7 +208,8 @@ try {
   if (localStorage.getItem('nueva-era-minimapa') === 'plegado') plegarMapa(true);
 } catch {}
 
-function tocado({ persona, aldea } = {}) {
+function tocado({ persona, aldea, almacen } = {}) {
+  if (almacen) setTimeout(() => document.getElementById('almacen')?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 120);
   if (persona !== undefined) {
     E.persona = persona;
     E.aldea = aldea;
@@ -452,6 +459,25 @@ async function cargarPublicado() {
 
 // ---------- barra superior ----------
 
+/** La hora del día en el mundo (el amanecer a las 5, de día de 7 a 19, anochece hasta las 21). */
+function horaDelDia(fase) {
+  const tramos = [[0, 5], [0.1, 7], [0.75, 19], [0.86, 21], [1, 29]];
+  let k = 0;
+  while (k < tramos.length - 2 && fase >= tramos[k + 1][0]) k++;
+  const [f0, h0] = tramos[k];
+  const [f1, h1] = tramos[k + 1];
+  const horas = (h0 + ((fase - f0) / (f1 - f0)) * (h1 - h0)) % 24;
+  const minutos = Math.floor((horas % 1) * 6) * 10;
+  return `${String(Math.floor(horas)).padStart(2, '0')}:${String(minutos).padStart(2, '0')}`;
+}
+
+function ponerHora() {
+  if (!E.textoFecha) return;
+  const hora = mundo?.datos ? ` · ${horaDelDia(mundo.faseDia())}` : '';
+  $('#fecha').textContent = `${E.textoFecha}${hora} · ${E.textoTiempo}`;
+}
+setInterval(ponerHora, 1000);
+
 /** Cómo se dice el tiempo que hace (en invierno, en el norte, lo que cae es nieve). */
 const TIEMPO = {
   sol: () => '☀️ soleado',
@@ -467,7 +493,9 @@ function pintarHud() {
   $('#era').classList.toggle('primera', m.era === 1);
   $('#era').title = m.eras.length ? `La especie se ha extinguido ${m.eras.length} ${m.eras.length === 1 ? 'vez' : 'veces'}` : 'Primera era';
   const sequia = m.clima < 0.7 ? ' · sequía' : '';
-  $('#fecha').textContent = `Año ${m.anio} · día ${m.dia} · ${m.estacion} · ${TIEMPO[m.tiempo]?.(m) ?? ''}${sequia}`;
+  E.textoFecha = `Año ${m.anio} · día ${m.dia} · ${m.estacion}`;
+  E.textoTiempo = `${TIEMPO[m.tiempo]?.(m) ?? ''}${sequia}`;
+  ponerHora();
   const a = E.foco !== null ? E.aldeas.get(E.foco) : null;
   const rec = $('#recursos');
   if (!a || a.abandonada !== null) {
@@ -476,14 +504,26 @@ function pintarHud() {
     return;
   }
   const comida = a.diasComida;
+  const desp = a.despensa;
+  const total = (ks) => ks.reduce((x, k) => x + (desp[k] ?? 0), 0);
+  const ganado = a.edificios.reduce((x, e) => x + (e.tipo === 'corral' ? Math.floor(e.animales ?? 0) : 0), 0);
+  const minerales = total(['malaquita', 'casiterita', 'hematites']);
+  // Como en los juegos de estrategia: cada recurso con su icono y lo que hay guardado.
+  const recurso = (nombre, valor, titulo, mal = false) =>
+    h('button', { class: `recurso${mal ? ' mal' : ''}`, type: 'button', title: titulo, onclick: () => tocado({ aldea: a.id, almacen: true }) }, icono(nombre), valor);
   rellenar(
     rec,
     h('button', { class: 'recurso aldea', type: 'button', onclick: () => tocado({ aldea: a.id }) }, a.nombre),
-    h('span', { class: 'recurso', title: 'Habitantes de la aldea' }, icono('gente'), `${a.poblacion}`),
-    h('span', { class: `recurso${comida < 10 ? ' mal' : ''}`, title: 'Días de comida guardada' }, icono('comida'), `${comida} d`),
-    h('span', { class: 'recurso', title: 'Madera guardada' }, icono('madera'), NUM.format(a.despensa.madera ?? 0)),
-    h('span', { class: 'recurso', title: 'Piedra guardada' }, icono('piedra'), NUM.format(a.despensa.piedra ?? 0)),
-    h('span', { class: 'recurso', title: 'Saberes de la aldea' }, icono('saber'), `${a.conocidos.length}`),
+    recurso('gente', `${a.poblacion}`, 'Habitantes de la aldea'),
+    recurso('comida', comida < 60 ? `${NUM.format(total(m.comestibles ?? []))} · ${comida} d` : NUM.format(total(m.comestibles ?? [])), `Comida guardada: da para ${comida} días`, comida < 10),
+    recurso('madera', NUM.format(desp.madera ?? 0), 'Madera'),
+    recurso('piedra', NUM.format(desp.piedra ?? 0), 'Piedra'),
+    recurso('arcilla', NUM.format(desp.arcilla ?? 0), 'Arcilla'),
+    recurso('fibra', NUM.format(desp.fibra ?? 0), 'Fibra'),
+    recurso('piel', NUM.format(desp.piel ?? 0), 'Pieles'),
+    minerales ? recurso('mineral', NUM.format(minerales), 'Minerales (cobre, estaño, hierro)') : null,
+    ganado ? recurso('ganado', NUM.format(ganado), 'Animales en los corrales') : null,
+    recurso('saber', `${a.conocidos.length}`, 'Saberes de la aldea'),
     a.amenaza > 0.3 ? h('span', { class: 'recurso mal', title: 'Se sienten amenazados' }, icono('peligro'), 'alerta') : null,
   );
   const c = $('#consejo');
@@ -731,6 +771,16 @@ function fichaAldea(a) {
       ruina ? null : h('div', {}, h('dt', {}, 'Fieras cerca'), h('dd', {}, fierasCerca(a, m))),
       h('div', {}, h('dt', {}, 'Cementerio'), h('dd', {}, a.enterrados ? `${a.enterrados} ${a.enterrados === 1 ? 'tumba' : 'tumbas'}` : 'nadie enterrado aún')),
     ),
+    h('h3', { id: 'almacen' }, 'Almacén'),
+    Object.keys(a.despensa).length
+      ? h(
+          'div',
+          { class: 'fila' },
+          Object.entries(a.despensa)
+            .sort((x, y) => y[1] - x[1])
+            .map(([k, v]) => h('span', { class: 'etiqueta' }, `${mayus(m.nombres[k] ?? k)}: ${NUM.format(v)}`)),
+        )
+      : h('p', { class: 'nota' }, 'Vacío.'),
     a.difuntos?.length
       ? h('p', { class: 'nota' }, 'Últimos enterrados: ', a.difuntos.map((x) => `${x.nombre} (${anios(x.edad)}, ${(CAUSAS[x.causa] ?? x.causa).toLowerCase()}, año ${x.anio})`).join(' · '), '.')
       : null,

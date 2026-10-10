@@ -260,7 +260,7 @@ const armas = (a: Aldea) =>
   (conoce(a, 'arco') ? 1.15 : 1) *
   (conoce(a, 'escudo') ? 1.1 : 1);
 /** Lo que protegen sus muros. */
-const muros = (a: Aldea) => (tiene(a, 'muralla') ? 3 : tiene(a, 'empalizada') ? 1.8 : 1);
+const muros = (a: Aldea) => (tiene(a, 'muralla') ? 3 : tiene(a, 'empalizada') ? 1.8 : tiene(a, 'cerca') ? 1.2 : 1);
 
 const MOTIVO: Record<string, string> = {
   hambre: 'les falta comida',

@@ -261,6 +261,9 @@ export interface Fiera {
   /** Cuántos son (una manada) o 1 (un oso). */
   n: number;
   hambre: number;
+  /** Lo que recuerdan: la aldea donde les fue mal (y hasta cuándo la evitan) y la que les dio de comer. */
+  evita?: { aldea: number; hasta: number };
+  querencia?: number;
   /** Qué hacen hoy: rondar, acechar una aldea, atacar, huir o hibernar. */
   estado: 'ronda' | 'acecha' | 'ataca' | 'huye' | 'hiberna';
   /** Días que esperan antes de volver a acercarse a una aldea. */

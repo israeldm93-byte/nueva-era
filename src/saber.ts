@@ -91,6 +91,8 @@ const FOCO: Record<string, string> = { comida: 'comida', invierno: 'obras', obra
 /** Hacia qué encauza el consejo las ideas: si están en guerra, a las armas. */
 export function focoDe(a: Aldea): string | null {
   if (a.consejo?.guerra) return 'guerra';
+  // Con fieras o enemigos rondando, piensan en lanzas y cercas.
+  if (a.amenaza > 0.25) return 'guerra';
   return a.consejo ? (FOCO[a.consejo.prioridad] ?? null) : null;
 }
 

@@ -141,6 +141,15 @@ function modelos() {
       { geo: B(0.8, 0.08, 0.8), color: 0x7a5534, y: 1.9 },
       { geo: Co(0.62, 0.5, 4), color: 0xc9a24f, y: 2.45, ry: Math.PI / 4 },
     ]),
+    // La cerca de estacas: un poste y dos travesaños atados hasta el siguiente.
+    estaca: fundir([
+      { geo: C(0.05, 0.06, 1.05, 5), color: 0x7a5a3a, y: 0.52 },
+      { geo: Co(0.05, 0.12, 5), color: 0x6a4a2e, y: 1.1 },
+    ]),
+    travesano: fundir([
+      { geo: B(0.92, 0.06, 0.05), color: 0x8a6a44, y: 0.4 },
+      { geo: B(0.92, 0.06, 0.05), color: 0x8a6a44, y: 0.78 },
+    ]),
     // Un paño de muralla de piedra, con almenas, y su torreón redondo.
     muro: fundir([
       { geo: B(1.0, 1.7, 0.5), color: 0xa59d8f, y: 0.85 },
@@ -209,6 +218,10 @@ export class Edificios3D {
     const tronquitos = instancias(this.escena, im, 'empalizadas', this.geo.tronquito, this.mat, 8000);
     const torres = instancias(this.escena, im, 'torres', this.geo.torre, this.mat, 200);
     const muros = instancias(this.escena, im, 'muros', this.geo.muro, this.mat, 1500);
+    const estacas = instancias(this.escena, im, 'estacas', this.geo.estaca, this.mat, 2000);
+    const travesanos = instancias(this.escena, im, 'travesanos', this.geo.travesano, this.mat, 2000);
+    let nEstaca = 0;
+    let nTrav = 0;
     const torreones = instancias(this.escena, im, 'torreones', this.geo.torreon, this.mat, 300);
     const catapultas = instancias(this.escena, im, 'catapultas', this.geo.catapulta, this.mat, 120);
     let nMuro = 0;
@@ -234,7 +247,7 @@ export class Edificios3D {
     for (const a of d.aldeas) {
       const ruina = a.abandonada !== null;
       for (const e of a.edificios) {
-        if (e.tipo === 'empalizada' || e.tipo === 'muralla') continue;
+        if (e.tipo === 'cerca' || e.tipo === 'empalizada' || e.tipo === 'muralla') continue;
         const tipo = ruina && e.tipo !== 'campo' ? 'ruina' : e.tipo;
         if (!TIPOS.includes(tipo)) continue;
         // Las casas miran hacia el centro de la aldea.
@@ -310,7 +323,30 @@ export class Edificios3D {
           quedan--;
         }
       }
-      if (!muralla && a.edificios.some((e) => e.tipo === 'empalizada')) {
+      const empalizada = a.edificios.some((e) => e.tipo === 'empalizada');
+      if (!muralla && !empalizada && a.edificios.some((e) => e.tipo === 'cerca')) {
+        // Cerca de estacas alrededor de casas y corrales, con un hueco al sur para pasar.
+        const [cx, cz] = tr.aMundo(a.x, a.y);
+        const radio = T * (a.poblacion > 40 ? 3.6 : 2.7);
+        const total = Math.round((2 * Math.PI * radio) / 0.9);
+        for (let k = 0; k < total && nEstaca < 2000; k++) {
+          const ang = (k / total) * Math.PI * 2;
+          if (Math.abs(ang - Math.PI / 2) < 0.14) continue;
+          const x = cx + Math.cos(ang) * radio;
+          const z = cz + Math.sin(ang) * radio;
+          const y = tr.alturaEn(x, z) - 0.05;
+          colocar(estacas, nEstaca, x, y, z, azar(k + a.id) * 3, 1, 0.9 + azar(k * 3 + a.id) * 0.2);
+          estacas.setColorAt(nEstaca++, color.set(ruina ? 0x6f6a60 : 0xffffff));
+          const sig = ((k + 0.5) / total) * Math.PI * 2;
+          if (Math.abs(sig - Math.PI / 2) < 0.2 || nTrav >= 2000) continue;
+          const largo = (2 * Math.PI * radio) / total;
+          const mx = cx + Math.cos(sig) * radio;
+          const mz = cz + Math.sin(sig) * radio;
+          colocar(travesanos, nTrav, mx, tr.alturaEn(mx, mz) - 0.05, mz, -sig - Math.PI / 2, largo / 0.92, 1);
+          travesanos.setColorAt(nTrav++, color.set(ruina ? 0x6f6a60 : 0xffffff));
+        }
+      }
+      if (!muralla && empalizada) {
         const [cx, cz] = tr.aMundo(a.x, a.y);
         const radio = T * (a.poblacion > 40 ? 3.6 : 2.7);
         const total = Math.round((2 * Math.PI * radio) / 0.26);
@@ -340,6 +376,8 @@ export class Edificios3D {
     cerrar(tronquitos, nTron);
     cerrar(torres, nTorre);
     cerrar(muros, nMuro);
+    cerrar(estacas, nEstaca);
+    cerrar(travesanos, nTrav);
     cerrar(torreones, nTorreon);
     cerrar(catapultas, nCata);
     // Incendios forestales: varias llamas por casilla que arde.
