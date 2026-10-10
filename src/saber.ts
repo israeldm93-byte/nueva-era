@@ -86,6 +86,9 @@ export function recordarIdea(p: Persona, idea: Idea): void {
   if (p.ideas.length > 3) p.ideas.length = 3;
 }
 
+/** Lo que sirve para traer cosas de lejos. */
+const ACARREO = new Set(['rueda', 'carro', 'doma', 'corral', 'canoa', 'cesta']);
+
 const FOCO: Record<string, string> = { comida: 'comida', invierno: 'obras', obras: 'obras', saber: 'saber', expandir: 'obras', defensa: 'guerra' };
 
 /** Hacia qué encauza el consejo las ideas: si están en guerra, a las armas. */
@@ -108,7 +111,10 @@ export function inspirarse(p: Persona, a: Aldea, material: string): boolean {
   if (!posibles.length) return false;
   // El consejo encauza: se da más vueltas a lo que sirve a lo que han decidido.
   const foco = focoDe(a);
-  const t = elegirPeso(posibles, (x) => (RAMA[x.id] === foco ? 4 : 1)) ?? posibles[0];
+  // Y la necesidad aprieta: con el bosque lejos, se piensa en cómo acarrear (ruedas,
+  // carros, caballos domados, canoas).
+  const acarreo = a.maderaLejos ? ACARREO : null;
+  const t = elegirPeso(posibles, (x) => (RAMA[x.id] === foco ? 4 : 1) * (acarreo?.has(x.id) ? 4 : 1)) ?? posibles[0];
   const cosas = t.cosas.slice();
   let verbo = t.verbo;
   if (cosas.length === 1 || prob(0.5)) verbo = elegir(verbosDe(p));

@@ -557,7 +557,9 @@ function pensamientoDe(p, elegido = false) {
     recolectar: ['Estas bayas están en su punto.', 'Hay que llenar la cesta antes de que oscurezca.'],
     cazar: ['Silencio… hay un ciervo cerca.', 'Hoy volveré con carne.'],
     pescar: ['Hoy pican.', 'El agua da de comer a quien tiene paciencia.'],
-    lenar: [otono || invierno ? 'Sin leña no pasaremos el invierno.' : 'Buena madera, esta.'],
+    lenar: a?.maderaLejos
+      ? ['El bosque queda lejísimos… ojalá tuviéramos con qué cargar.', 'Todo el día andando para traer cuatro palos.', 'Si pudiéramos domar a los caballos…']
+      : [otono || invierno ? 'Sin leña no pasaremos el invierno.' : 'Buena madera, esta.'],
     picar: ['Esta piedra servirá.', 'Más piedra para las obras.'],
     barro: ['Buen barro, este.'],
     cultivar: otono ? ['¡Qué cosecha!', 'Hay que recogerlo todo antes del frío.'] : ['Si llueve, este año comeremos bien.'],

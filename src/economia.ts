@@ -64,6 +64,8 @@ export interface Contexto {
   herramienta: number;
   /** Con carros y animales de tiro se trae más en cada viaje. */
   acarreo: number;
+  /** Si el bosque queda lejos (fuera de su radio de trabajo). */
+  lejos: boolean;
   agua: boolean;
   rocas: boolean;
   barro: boolean;
@@ -173,6 +175,7 @@ export function contexto(m: Mundo, a: Aldea, gente: Persona[], est: number): Con
     radio,
     herramienta: herramienta(a) * rindeFuera(m),
     acarreo: deTiro(a) ? 1.4 : 1,
+    lejos: (a.maderaLejos = !hayCerca(m, a.x, a.y, radio, (i) => m.recursos.madera[i] >= 4 && alcanzable(m, a, i, false))),
     agua: hayCerca(m, a.x, a.y, radio, (i) => PESCABLE[m.terreno[i]] && alcanzable(m, a, i, false)),
     // Piedras sueltas hay casi en cualquier parte; en colinas y montañas, muchas más.
     rocas: hayCerca(m, a.x, a.y, radio, (i) => m.recursos.piedra[i] >= 1 && alcanzable(m, a, i, false)),
@@ -419,12 +422,6 @@ function recolectar(m: Mundo, p: Persona, c: Contexto, eficiencia: number): numb
     R.fibra[i] = r2(R.fibra[i] - f);
     guardar(a, 'fibra', f);
   }
-  // Ramas secas y matorral para el fuego, si hace falta leña (en la estepa no hay otra).
-  if (R.madera[i] > 0.3 && c.precio.madera > 0.15) {
-    const w = r2(Math.min(R.madera[i], 0.8 * eficiencia));
-    R.madera[i] = r2(R.madera[i] - w);
-    guardar(a, 'madera', w);
-  }
   if (R.hierbas[i] > 0.5 && (c.precio.hierbas > 0.05 || prob(0.2))) {
     const h = r2(Math.min(R.hierbas[i], 1));
     R.hierbas[i] = r2(R.hierbas[i] - h);
@@ -485,10 +482,17 @@ function lenar(m: Mundo, p: Persona, c: Contexto): number {
   const barca = sabe(p, 'canoa');
   // Se va a donde hay árboles de verdad (bosque, arboledas de las colinas); el matorral
   // de la estepa lo traen los que recolectan.
-  const i = mejorCasilla(m, a.x, a.y, c.radio, (j, d) => (R.madera[j] >= 4 && alcanzable(m, a, j, barca) ? Math.min(R.madera[j], 15) * lejania(d) : 0));
-  if (i < 0) return 0;
+  let i = mejorCasilla(m, a.x, a.y, c.radio, (j, d) => (R.madera[j] >= 4 && alcanzable(m, a, j, barca) ? Math.min(R.madera[j], 15) * lejania(d) : 0));
+  let viaje = 1;
+  if (i < 0) {
+    // Sin bosque cerca, hay que ir tan lejos como haga falta: se pierde el día andando y
+    // se trae poco a cuestas; con caballos o carros, mucho más.
+    i = mejorCasilla(m, a.x, a.y, 20, (j, d) => (R.madera[j] >= 4 && alcanzable(m, a, j, barca) ? Math.min(R.madera[j], 15) / (1 + d * 0.15) : 0));
+    if (i < 0) return 0;
+    viaje = Math.max(0.15, c.radio / Math.max(1, distancia(m, a, i))) * (deTiro(a) ? 1.8 : aCaballo(a) ? 1.4 : 1);
+  }
   situar(m, p, i);
-  const n = r2(Math.min(R.madera[i], 3 * (0.6 + 0.6 * p.genes.fuerza) * (sabe(p, 'hacha') ? 2 : 1) * c.herramienta * c.acarreo));
+  const n = r2(Math.min(R.madera[i], 3 * (0.6 + 0.6 * p.genes.fuerza) * (sabe(p, 'hacha') ? 2 : 1) * c.herramienta * c.acarreo * viaje));
   R.madera[i] = r2(R.madera[i] - n);
   guardar(a, 'madera', n);
   return n;

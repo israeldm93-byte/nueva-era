@@ -108,6 +108,7 @@ export function datosWeb(m: Mundo, ahora: Date) {
           ...(e.tipo === 'campo' && e.fase === 1 ? { crece: r2(Math.min(1, (m.t - (e.sembrado ?? m.t - 40)) / 70)) } : {}),
           ...(e.tipo === 'campo' && e.fase !== 1 && e.cosechado !== undefined && m.t - e.cosechado < 45 ? { rastrojo: true } : {}),
         })),
+        ...(a.maderaLejos ? { maderaLejos: true } : {}),
         obra: a.obra ? { tipo: a.obra.tipo, x: a.obra.x, y: a.obra.y, progreso: r2(a.obra.progreso), pagada: a.obra.pagada, ...(a.obra.material ? { material: a.obra.material } : {}), ...(a.obra.radio ? { radio: a.obra.radio } : {}) } : null,
         conocidos: a.conocidos,
         archivo: a.archivo,

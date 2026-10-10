@@ -652,14 +652,16 @@ export class Gente3D {
       // 0 en casa, 1 en el trabajo.
       let k;
       let anda = false;
+      // Lo lejano (el bosque a medio día de camino) se va antes y se vuelve más tarde.
+      const [ida0, ida1, vuelta0, vuelta1] = per.ruta.total > 16 ? [0.06, 0.36, 0.52, 0.84] : [0.12, 0.3, 0.68, 0.84];
       if (quieto || !a) k = 0;
-      else if (f < 0.12) k = 0;
-      else if (f < 0.3) {
-        k = suave((f - 0.12) / 0.18);
+      else if (f < ida0) k = 0;
+      else if (f < ida1) {
+        k = suave((f - ida0) / (ida1 - ida0));
         anda = true;
-      } else if (f < 0.68) k = 1;
-      else if (f < 0.84) {
-        k = 1 - suave((f - 0.68) / 0.16);
+      } else if (f < vuelta0) k = 1;
+      else if (f < vuelta1) {
+        k = 1 - suave((f - vuelta0) / (vuelta1 - vuelta0));
         anda = true;
       } else k = 0;
       // Por el camino que rodea los edificios (y sale por la puerta de la cerca).
@@ -753,7 +755,7 @@ export class Gente3D {
       per.z = z;
       // De vuelta a casa traen lo que han conseguido; los mayores andan con bastón.
       let carga = null;
-      if ((pose === 'andar' || pose === 'correr') && f >= 0.68 && f < 0.86 && !quieto && p.edad >= 12) carga = CARGA[p.act] ?? null;
+      if ((pose === 'andar' || pose === 'correr') && f >= vuelta0 && f < 0.86 && !quieto && p.edad >= 12) carga = CARGA[p.act] ?? null;
       if (carga === 'gavilla' && this.estacion !== 'verano' && this.estacion !== 'otoño') carga = null;
       // Con carro: el animal tira de él a su lado y la carga va en el carro (las manos, libres).
       per.tiro = null;

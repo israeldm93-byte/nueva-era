@@ -227,7 +227,7 @@ export const CAPAS = ['madera', 'bayas', 'semillas', 'fibra', 'hierbas', 'caza',
  * [agua, orilla, pradera, bosque, colina, montaña, río, pantano, estepa, desierto].
  */
 export const CAPACIDAD: Record<string, number[]> = {
-  madera: [0, 4, 3, 40, 10, 2, 3, 6, 2, 0.3],
+  madera: [0, 4, 3, 40, 10, 2, 3, 6, 1, 0],
   bayas: [0, 2, 4, 10, 3, 1, 4, 3, 1, 0],
   semillas: [0, 1, 12, 2, 2, 0, 4, 2, 14, 1],
   fibra: [0, 8, 10, 3, 2, 0, 9, 16, 6, 0],

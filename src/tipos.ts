@@ -91,6 +91,8 @@ export interface Obra {
 }
 
 export interface Aldea {
+  /** Si el bosque queda lejos: la necesidad hace pensar en ruedas, carros y caballos. */
+  maderaLejos?: boolean;
   /** Obras que se dejaron por falta de materiales, y hasta cuándo no se retoman. */
   aparcadas?: Record<string, number>;
   id: number;
