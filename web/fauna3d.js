@@ -413,7 +413,8 @@ export class Fauna3D {
 
   /** Que los de un mismo grupo no se metan unos dentro de otros. */
   separar(lista, esp) {
-    const base = ESPECIES[esp].alto * 0.8;
+    // Cuanto más largo el cuerpo, más sitio (un lobo es más largo que alto).
+    const base = Math.max(ESPECIES[esp].alto * 0.8, (ESPECIES[esp].patas[0][2] - ESPECIES[esp].patas[1][2]) * 1.1);
     for (let i = 0; i < lista.length; i++) {
       const a = lista[i];
       for (let j = i + 1; j < lista.length; j++) {
@@ -822,7 +823,11 @@ export class Fauna3D {
   /** Lobos y osos: siguen a su manada (lo que manda la simulación) y, parados, hacen lo suyo. */
   pensarFiera(a, dt, u, t, noche) {
     const f = a.f;
-    const giro = Math.sin(t * 0.13 + a.id) * 0.4;
+    if (!(t < a.cambio)) {
+      a.giro = (azar(a.id * 1.7 + Math.floor(t)) - 0.5) * 1.2;
+      a.cambio = t + 18 + azar(a.id + Math.floor(t)) * 25;
+    }
+    const giro = a.giro;
     const ox = a.ox * Math.cos(giro) - a.oz * Math.sin(giro);
     const oz = a.ox * Math.sin(giro) + a.oz * Math.cos(giro);
     let tx = entre(a.x0, a.x1, u) + ox;
@@ -858,10 +863,12 @@ export class Fauna3D {
       const ciclo = (t * 0.05 + azar(a.id)) % 1;
       if (a.esp === 'lobo' && noche && (t + f.id * 7.3) % 24 < 5 && (a.k === 0 || azar(f.id * 3 + a.k) < 0.5)) a.estado = 'aullar';
       else if (f.estado === 'acecha') a.estado = 'acecho';
-      else if (ciclo < 0.35) a.estado = 'olfatear';
-      else if (ciclo < 0.6) a.estado = a.esp === 'oso' && ciclo > 0.5 ? 'sentado' : 'pie';
-      else if (ciclo < 0.85 && !noche) a.estado = 'echado';
-      else a.estado = a.esp === 'lobo' ? 'sentado' : 'pie';
+      // Descansan sobre todo tumbados (de noche, casi siempre); sentados, solo a ratos.
+      else if (noche) a.estado = ciclo < 0.85 ? 'echado' : 'sentado';
+      else if (ciclo < 0.3) a.estado = 'olfatear';
+      else if (ciclo < 0.5) a.estado = 'pie';
+      else if (ciclo < 0.92) a.estado = 'echado';
+      else a.estado = 'sentado';
     }
   }
 
@@ -909,7 +916,26 @@ export class Fauna3D {
   }
 
   /** Rellena P con la postura de un cuadrúpedo según lo que hace y su velocidad. */
+  /**
+   * La postura de cada momento, a la que se llega poco a poco desde la anterior: nadie
+   * pasa de golpe de andar a sentarse o a tumbarse (al andar, las patas siguen su paso).
+   */
   postura(a, esp, t) {
+    const anda = this.posturaMeta(a, esp, t);
+    const q = (a.pose ??= { y: P.y, cabeceo: P.cabeceo, cab: P.cab, cabY: P.cabY, colaX: P.colaX, colaY: P.colaY, patas: P.patas.slice(), atras: P.atras, anda });
+    const k = anda && q.anda ? Math.min(1, (this.dt ?? 0.016) * 14) : Math.min(1, (this.dt ?? 0.016) * 5);
+    for (const c of ['y', 'cabeceo', 'cab', 'cabY', 'colaX']) q[c] += (P[c] - q[c]) * k;
+    q.colaY = P.colaY;
+    for (let i = 0; i < 8; i++) q.patas[i] += (P.patas[i] - q.patas[i]) * (anda && q.anda ? 1 : k);
+    // Al sentarse o levantarse, el cuerpo gira sobre las caderas hasta estar derecho.
+    q.atras = P.atras || (q.atras && Math.abs(q.cabeceo) > 0.06);
+    q.anda = anda;
+    Object.assign(P, { y: q.y, cabeceo: q.cabeceo, cab: q.cab, cabY: q.cabY, colaX: q.colaX, colaY: q.colaY, atras: q.atras });
+    for (let i = 0; i < 8; i++) P.patas[i] = q.patas[i];
+  }
+
+  /** La postura que toca ahora mismo (devuelve si va andando). */
+  posturaMeta(a, esp, t) {
     const del = esp.del[1] + esp.del[3];
     const tras = esp.tras[1] + esp.tras[3];
     P.y = esp.alto;
@@ -940,7 +966,7 @@ export class Fauna3D {
         P.cab += 0.35;
         P.colaX -= 0.35;
       }
-      return;
+      return true;
     }
     switch (a.estado) {
       case 'pastar': {
@@ -1021,6 +1047,7 @@ export class Fauna3D {
       P.y *= 0.85;
       P.cab += 0.3;
     }
+    return false;
   }
 
   // ---------- dibujo ----------
@@ -1086,6 +1113,7 @@ export class Fauna3D {
    */
   animar(t, dt, fase, noche, gente, objetivo, distancia, camara) {
     if (!this.im.muslo || !this.d) return;
+    this.dt = dt;
     const v = vista(camara);
     const im = this.im;
     this.n = Object.fromEntries(PIEZAS.map((k) => [k, 0]));
