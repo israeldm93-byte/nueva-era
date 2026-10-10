@@ -394,12 +394,101 @@ function fichaTocada({ animal: i, casilla, edificio }) {
   );
 }
 
-function tocado({ persona, aldea, almacen, animal, casilla, edificio } = {}) {
+/** Lo que trae a casa cada oficio, dicho en palabras. */
+const TRAE = { tronco: 'leña', presa: 'una pieza de caza', sarta: 'una sarta de pescado', frutos: 'la cesta llena de frutos', piedras: 'piedras', gavilla: 'gavillas de la cosecha' };
+/** Qué hace cada oficio, en gerundio. */
+const HACIENDO = {
+  recolectar: 'recolectando frutos y semillas', cazar: 'cazando', pescar: 'pescando', lenar: 'cortando leña', picar: 'picando piedra',
+  barro: 'sacando arcilla', cultivar: 'trabajando el campo', pastorear: 'cuidando el ganado', construir: 'construyendo', experimentar: 'probando cosas nuevas',
+  descansar: 'descansando', jugar: 'jugando', vigilar: 'vigilando', asaltar: 'asaltando otra aldea', defender: 'defendiendo la aldea',
+};
+
+/** Lo que está haciendo alguien justo ahora, según lo que se ve en el mundo. */
+function haciendoAhora(p, ahora) {
+  const oficio = HACIENDO[p.act] ?? ACTIVIDAD[p.act] ?? p.act;
+  if (!ahora) return mayus(oficio) + '.';
+  const { pose, carga, carro, barca, caballo, alarma, fase } = ahora;
+  if (alarma) return '¡Ha salido con los demás a plantar cara a los lobos!';
+  if (barca) return pose === 'remar' ? 'Rema en su canoa.' : 'Pesca desde su canoa, mar adentro.';
+  if (pose === 'hablar') return 'Habla ante el consejo, junto al fuego.';
+  if (pose === 'sentado') return fase > 0.8 || fase < 0.05 ? 'Junto al fuego con los suyos, escuchando al consejo.' : 'Sentado, descansando.';
+  if (pose === 'vigilarNoche') return 'Hace guardia en la noche, con una antorcha.';
+  if (carro) return `Vuelve a casa con el carro cargado de ${TRAE[carga] ?? 'lo que ha conseguido'}.`;
+  if (caballo) return fase < 0.5 ? `Sale a caballo: va ${p.act === 'cazar' ? 'a cazar' : p.act === 'vigilar' ? 'a vigilar' : 'a trabajar'}.` : 'Vuelve a caballo.';
+  if (pose === 'andar' || pose === 'correr') {
+    if (carga) return `Vuelve a casa con ${TRAE[carga] ?? 'lo que ha conseguido'}.`;
+    if (p.act === 'jugar') return 'Corretea jugando con los otros niños.';
+    return fase < 0.5 ? `Va a trabajar: hoy toca ${ACCION[p.act] ?? oficio}.` : 'Vuelve a casa.';
+  }
+  if (pose === 'experimentar') return p.idea ? `Está probando a ${p.idea.verbo} ${listar(p.idea.cosas)}, a ver qué sale.` : 'Prueba cosas nuevas, a ver qué sale.';
+  if (pose === 'pie') return fase < 0.12 ? 'Acaba de levantarse, a la puerta de su choza.' : fase > 0.8 ? 'Ya en casa, a la puerta de su choza.' : 'Parado, mirando a su alrededor.';
+  return `Está ${oficio}.`;
+}
+
+/** Lo que piensa según lo que está haciendo (junto al fuego, de lo que se habla allí). */
+function piensaAhora(p, a, ahora) {
+  const noche = ahora && (ahora.fase > 0.8 || ahora.fase < 0.05);
+  if (noche && ahora.pose === 'hablar') return alAzar([p.opinion ? `Propongo que ${frase(p.opinion)}.` : 'Escuchadme todos.', 'Esto es lo que debemos hacer, y lo sabéis.']);
+  if (noche && ahora.pose === 'sentado') {
+    const ops = ['Qué bien se está junto al fuego.', 'Mañana será otro día.'];
+    if (a?.consejo) ops.push(a.consejo.prioridad === p.opinion ? `El consejo tiene razón: ${frase(p.opinion)}.` : `El consejo dicta que ${frase(a.consejo.prioridad)}… yo no lo veo igual.`);
+    return alAzar(ops);
+  }
+  return pensamientoDe(p, true);
+}
+
+/** La ficha rápida de una persona al tocarla: quién es, qué hace y qué piensa. */
+function fichaRapida(p, ahora) {
+  const a = E.aldeas.get(p.aldea);
+  const lineas = [
+    h('p', { class: 'ahora' }, haciendoAhora(p, ahora)),
+    h('p', { class: 'piensa' }, `«${piensaAhora(p, a, ahora)}»`),
+  ];
+  const estado = [];
+  if (p.reservas < 1.5) estado.push('tiene hambre');
+  if (p.salud < 0.4) estado.push('está enfermo o herido');
+  else if (p.salud < 0.7) estado.push('no está del todo bien');
+  if (estado.length) lineas.push(h('p', {}, mayus(estado.join(' y ')) + '.'));
+  if (p.opinion && a?.consejo) lineas.push(h('p', {}, a.consejo.prioridad === p.opinion ? `Está de acuerdo con el consejo: ${frase(p.opinion)}.` : `Cree que ${frase(p.opinion)}; el consejo dicta otra cosa.`));
+  const familia = [];
+  if (p.pareja !== null && E.porId.has(p.pareja)) familia.push(`pareja de ${E.porId.get(p.pareja).nombre}`);
+  if (p.hijos) familia.push(`${p.hijos} ${p.hijos === 1 ? 'hijo' : 'hijos'}`);
+  if (familia.length) lineas.push(h('p', {}, mayus(familia.join(', ')) + '.'));
+  lineas.push(h('p', { class: 'nota' }, `Sabe ${p.saberes.length} ${p.saberes.length === 1 ? 'cosa' : 'cosas'}${p.desc ? ` y ha descubierto ${p.desc}` : ''}.`));
+  let caja = document.getElementById('ficha-toque');
+  if (!caja) {
+    caja = h('div', { class: 'ficha-toque', id: 'ficha-toque', role: 'dialog', 'aria-live': 'polite' });
+    $('#escena').append(caja);
+  }
+  rellenar(
+    caja,
+    h('button', { class: 'cerrar-toque', type: 'button', 'aria-label': 'Cerrar', onclick: () => caja.remove() }, '×'),
+    h('strong', {}, `${p.nombre}, ${anios(p.edad)}`),
+    h('span', { class: 'sub' }, `${p.sexo === 'M' ? 'Mujer' : 'Hombre'} de ${a?.nombre ?? 'ninguna aldea'}`),
+    ...lineas,
+    h('button', { class: 'ver-mas', type: 'button', onclick: () => (caja.remove(), abrir('aldea')) }, 'Ver su ficha completa'),
+  );
+}
+
+function tocado({ persona, aldea, almacen, animal, casilla, edificio, ahora } = {}) {
   if (animal || edificio || casilla !== undefined) {
     fichaTocada({ animal, casilla, edificio });
     return;
   }
   document.getElementById('ficha-toque')?.remove();
+  // Al tocar a alguien en el mundo: su ficha rápida encima (y la completa en el panel, si se pide).
+  if (persona !== undefined && ahora) {
+    const p = E.porId.get(persona);
+    if (p) {
+      E.persona = persona;
+      E.aldea = aldea;
+      seleccionar();
+      mundo?.enfocarPersona(persona, reducido.matches);
+      fichaRapida(p, ahora);
+      if (E.pestana === 'aldea') pintarPestana();
+      return;
+    }
+  }
   if (almacen) setTimeout(() => document.getElementById('almacen')?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 120);
   if (persona !== undefined) {
     E.persona = persona;

@@ -709,7 +709,11 @@ export class Mundo3D {
       if (g.object !== this.terreno.malla && g.instanceId !== undefined) {
         const per = this.gente.lista[g.instanceId];
         if (per) {
-          this.alTocar?.({ persona: per.p.id, aldea: per.p.aldea });
+          this.alTocar?.({
+            persona: per.p.id,
+            aldea: per.p.aldea,
+            ahora: { pose: per.pose, carga: per.carga, carro: !!per.tiro, barca: per.enBarca, caballo: per.montando, alarma: per.alarma, fase: this.faseDia() },
+          });
           return;
         }
       }

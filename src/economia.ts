@@ -483,7 +483,9 @@ function lenar(m: Mundo, p: Persona, c: Contexto): number {
   const R = m.recursos;
   const a = c.a;
   const barca = sabe(p, 'canoa');
-  const i = mejorCasilla(m, a.x, a.y, c.radio, (j, d) => (alcanzable(m, a, j, barca) ? Math.min(R.madera[j], 15) * lejania(d) : 0));
+  // Se va a donde hay árboles de verdad (bosque, arboledas de las colinas); el matorral
+  // de la estepa lo traen los que recolectan.
+  const i = mejorCasilla(m, a.x, a.y, c.radio, (j, d) => (R.madera[j] >= 4 && alcanzable(m, a, j, barca) ? Math.min(R.madera[j], 15) * lejania(d) : 0));
   if (i < 0) return 0;
   situar(m, p, i);
   const n = r2(Math.min(R.madera[i], 3 * (0.6 + 0.6 * p.genes.fuerza) * (sabe(p, 'hacha') ? 2 : 1) * c.herramienta * c.acarreo));

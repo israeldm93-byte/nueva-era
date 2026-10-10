@@ -452,3 +452,8 @@ figure.mini { margin: 0; }
 .ficha-toque strong { display: block; color: var(--oro); font-size: 0.98rem; margin-bottom: 2px; }
 .ficha-toque p { margin: 2px 0; }
 .cerrar-toque { position: absolute; top: 4px; right: 6px; border: 0; background: none; color: var(--hud-tinta); font-size: 1.2rem; cursor: pointer; line-height: 1; padding: 4px 6px; }
+
+.ficha-toque .sub { display: block; font-size: 0.78rem; opacity: 0.75; margin-bottom: 4px; }
+.ficha-toque .ahora { font-weight: 600; }
+.ficha-toque .piensa { font-family: Georgia, "Times New Roman", serif; font-style: italic; color: #ffe2b0; }
+.ficha-toque .ver-mas { margin-top: 6px; font: inherit; font-size: 0.8rem; padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(214, 177, 102, 0.5); background: rgba(214, 177, 102, 0.15); color: var(--oro); cursor: pointer; }

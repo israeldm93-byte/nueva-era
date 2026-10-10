@@ -5,7 +5,7 @@
 // trabaja a su manera y por la noche vuelve al fuego. Todo se dibuja con instancias.
 
 import * as THREE from 'three';
-import { AGUA, B, C, Co, Cup, Do, Es, RIO, acotar, azar, entre, fundir, instancias, suave } from './util3d.js?v=__MOTOR__';
+import { AGUA, B, BOSQUE, C, COLINA, Co, Cup, Do, Es, RIO, T, acotar, azar, entre, fundir, instancias, suave } from './util3d.js?v=__MOTOR__';
 
 const PIELES = [0xf1c8a0, 0xe3b088, 0xc98f62, 0x9a6845, 0x734a2e, 0xf6d6b6, 0xd6a77c];
 const PELOS = [0x2b1b10, 0x4a2f1b, 0x161616, 0x7a4a1e, 0xb88a4a, 0x5a3825, 0x8c5a2b];
@@ -79,7 +79,9 @@ function modelos() {
     // Herramientas: el origen es la muñeca; «hacia arriba» del antebrazo es +y.
     hacha: fundir([
       { geo: C(0.017, 0.017, 0.56, 5), color: MADERA, y: mano, z: 0.16, rx: Math.PI / 2 },
-      { geo: B(0.035, 0.13, 0.1), color: 0xffffff, y: mano + 0.02, z: 0.41 },
+      // La hoja del hacha, ancha y con filo, bien distinta de una lanza.
+      { geo: B(0.03, 0.2, 0.12), color: 0xffffff, y: mano + 0.06, z: 0.42 },
+      { geo: B(0.026, 0.06, 0.16), color: 0xffffff, y: mano + 0.17, z: 0.43 },
     ]),
     lanza: fundir([
       { geo: C(0.014, 0.014, 1.4, 5), color: MADERA, y: mano + 0.18 },
@@ -509,6 +511,27 @@ export class Gente3D {
         tx += (dx / l) * 1.3;
         tz += (dz / l) * 1.3;
       }
+      // El leñador, junto a un árbol de verdad de esa casilla (como los planta la vegetación).
+      let arbol = null;
+      if (p.act === 'lenar') {
+        const W = d.ancho;
+        const i = p.y * W + p.x;
+        const ter = d.terreno[i];
+        const [cx, cz] = tr.aMundo(p.x, p.y);
+        const nivel = ter === BOSQUE ? d.madera[i] / 11 : ter === COLINA && azar(i * 2.9) < 0.5 ? d.madera[i] / 5 : 0;
+        const huecos = ter === BOSQUE ? 3 : 1;
+        const vivos = [];
+        for (let k = 0; k < huecos; k++) if (nivel - k >= 0.6) vivos.push(k);
+        if (vivos.length) {
+          const k = vivos[p.id % vivos.length];
+          arbol = [cx + (azar(i * 13 + k) - 0.5) * T * 0.85, cz + (azar(i * 17 + k * 3) - 0.5) * T * 0.85];
+          const dx = ax - arbol[0];
+          const dz = az - arbol[1];
+          const l = Math.hypot(dx, dz) || 1;
+          tx = arbol[0] + (dx / l) * 0.55;
+          tz = arbol[1] + (dz / l) * 0.55;
+        }
+      }
       // Se trabaja junto a los edificios, no dentro (salvo el pastor, en su corral).
       if (plano && p.act !== 'pastorear') [tx, tz] = fuera(tx, tz, plano.obst);
       // Su sitio junto al fuego (que no caiga dentro de una choza).
@@ -532,6 +555,7 @@ export class Gente3D {
         idx,
         casa,
         trabajo: [tx, tz],
+        arbol,
         ruta: camino(casa, [tx, tz], plano),
         asiento,
         rutaFuego: asiento ? camino(casa, asiento, plano) : null,
@@ -722,6 +746,7 @@ export class Gente3D {
       let rumbo = per.ang;
       if (mira) rumbo = Math.atan2(mira[0] - x, mira[1] - z);
       else if (mov > 0.002) rumbo = Math.atan2(dx, dz);
+      else if (k === 1 && per.arbol) rumbo = Math.atan2(per.arbol[0] - x, per.arbol[1] - z);
       else if (k === 1 && p.act === 'pescar') rumbo = Math.atan2(per.trabajo[0] - per.casa[0], per.trabajo[1] - per.casa[1]);
       per.ang += mov > 2 ? giroHacia(per.ang, rumbo) : acotar(giroHacia(per.ang, rumbo), -8 * dt, 8 * dt);
       per.x = x;
@@ -757,6 +782,8 @@ export class Gente3D {
         per.enBarca = true;
         pose = pose === 'pescar' ? 'barcaPesca' : 'remar';
       }
+      // Lo que está haciendo justo ahora (para su ficha al tocarlo).
+      per.pose = pose;
       this.postura(per, pose, t, x, y, z);
       if (carga) this.dejar(carg, carga, carga === 'sarta' ? this.M.manoI : this.M.torso);
       if (per.baston) this.dejar(carg, 'baston', this.M.mano);
