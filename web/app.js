@@ -243,6 +243,7 @@ function pensamientoDe(p, elegido = false) {
   const urgentes = [];
   if (p.reservas < 1.5) urgentes.push('Tengo hambre…', 'Hoy apenas he comido.');
   if (p.salud < 0.4) urgentes.push('No me encuentro bien…');
+  if (d.tiempo === 'tormenta') urgentes.push('¡Qué truenos! Mejor volver a casa.', 'Los rayos caen muy cerca…');
   if (p.act === 'asaltar') urgentes.push('¡Necesitamos su comida!', '¡Que paguen por lo que nos hicieron!');
   if (p.act === 'defender') urgentes.push('¡Fuera de nuestra aldea!', '¡Defended a los niños!');
   if (a && (d.incendios ?? []).some((i) => Math.hypot((i % d.ancho) - a.x, Math.floor(i / d.ancho) - a.y) < 7)) {
@@ -255,6 +256,16 @@ function pensamientoDe(p, elegido = false) {
   const otono = d.estacion === 'otoño';
   const invierno = d.estacion === 'invierno';
   const idea = p.idea;
+  // A veces, del tiempo que hace.
+  if (!elegido && Math.random() < 0.25) {
+    const delTiempo = {
+      sol: invierno ? ['Un poco de sol, por fin.'] : ['Qué buen día hace.', 'Con este sol da gusto trabajar.'],
+      nubes: ['Se está nublando…', 'Parece que va a llover.'],
+      niebla: ['Con esta niebla no se ve nada.', 'Cuidado, que con niebla los lobos se acercan.'],
+      lluvia: invierno ? ['Cae aguanieve, qué frío.'] : ['La lluvia es buena para los campos.', '¡Qué manera de llover!'],
+    }[d.tiempo];
+    if (delTiempo) return alAzar(delTiempo);
+  }
   const trabajo = {
     recolectar: ['Estas bayas están en su punto.', 'Hay que llenar la cesta antes de que oscurezca.'],
     cazar: ['Silencio… hay un ciervo cerca.', 'Hoy volveré con carne.'],
@@ -272,8 +283,8 @@ function pensamientoDe(p, elegido = false) {
   if (elegido && trabajo.length) return alAzar(trabajo);
   const ops = [...trabajo, ...trabajo];
   if (a?.consejo && p.opinion) {
-    if (p.opinion === a.consejo.prioridad) ops.push(`El consejo acierta: ${frase(p.opinion)}.`);
-    else ops.push(`Yo creo que ${frase(p.opinion)}.`, 'El consejo se equivoca.');
+    if (p.opinion === a.consejo.prioridad) ops.push(`El consejo dicta que ${frase(p.opinion)}, y estoy de acuerdo.`);
+    else ops.push(`El consejo dicta que ${frase(a.consejo.prioridad)}, pero yo creo que ${frase(p.opinion)}.`, 'No estoy de acuerdo con lo que dicta el consejo.');
   }
   const f = faccionDe(p);
   if (f) ops.push(f.descontento > 0.6 ? 'Si el consejo no nos escucha, nos iremos.' : `Los ${f.nombre} tenemos razón.`);
@@ -441,13 +452,22 @@ async function cargarPublicado() {
 
 // ---------- barra superior ----------
 
+/** Cómo se dice el tiempo que hace (en invierno, en el norte, lo que cae es nieve). */
+const TIEMPO = {
+  sol: () => '☀️ soleado',
+  nubes: () => '☁️ nublado',
+  niebla: () => '🌫️ niebla',
+  lluvia: (m) => (m.estacion === 'invierno' ? '🌨️ lluvia y nieve' : '🌧️ lluvia'),
+  tormenta: () => '⛈️ tormenta',
+};
+
 function pintarHud() {
   const m = E.mundo;
   $('#era').textContent = `Era ${m.era}`;
   $('#era').classList.toggle('primera', m.era === 1);
   $('#era').title = m.eras.length ? `La especie se ha extinguido ${m.eras.length} ${m.eras.length === 1 ? 'vez' : 'veces'}` : 'Primera era';
   const sequia = m.clima < 0.7 ? ' · sequía' : '';
-  $('#fecha').textContent = `Año ${m.anio} · ${m.estacion}${sequia}`;
+  $('#fecha').textContent = `Año ${m.anio} · día ${m.dia} · ${m.estacion} · ${TIEMPO[m.tiempo]?.(m) ?? ''}${sequia}`;
   const a = E.foco !== null ? E.aldeas.get(E.foco) : null;
   const rec = $('#recursos');
   if (!a || a.abandonada !== null) {

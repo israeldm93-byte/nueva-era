@@ -313,6 +313,15 @@ export function modelosPlantas() {
     rama(0, 0.85, 0.02, 0.3, 0.8, 0.45, 0.035, 0x2a2420, { fijo: 1 }),
     rama(0, 1.2, -0.03, -0.8, 0.2, 0.4, 0.03, 0x2a2420, { fijo: 1 }),
   ]);
+  // El tocón que queda al talar: corteza, el corte claro con sus anillos y raíces.
+  m.tocon = fundir([
+    { geo: CA(0.13, 0.17, 0.28, 7), color: 0x5e4a38, y: 0.14, fijo: 1 },
+    { geo: new THREE.CircleGeometry(0.13, 7).rotateX(-Math.PI / 2), color: 0xd9bf8c, y: 0.28, fijo: 1 },
+    { geo: new THREE.RingGeometry(0.05, 0.065, 7).rotateX(-Math.PI / 2), color: 0xb08a5a, y: 0.282, fijo: 1 },
+    { geo: CA(0.025, 0.055, 0.24, 4), color: 0x4e3c2c, x: 0.15, y: 0.05, rz: -1.2, fijo: 1 },
+    { geo: CA(0.025, 0.05, 0.2, 4), color: 0x4e3c2c, x: -0.09, y: 0.05, z: 0.13, rx: 1.2, rz: 0.5, fijo: 1 },
+    { geo: CA(0.02, 0.045, 0.2, 4), color: 0x4e3c2c, x: -0.07, y: 0.05, z: -0.14, rx: -1.2, rz: 0.4, fijo: 1 },
+  ]);
   const matas = [
     { geo: bulto(0.34, 41), color: gris(1), y: 0.24, sx: 1.2, sy: 0.75, oscuro: 0.55 },
     { geo: bulto(0.26, 42), color: gris(0.88), x: 0.24, y: 0.18, z: 0.1, sy: 0.8, oscuro: 0.55 },

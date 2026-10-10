@@ -156,6 +156,7 @@ export function crearMundo(semilla: number, previo?: Mundo): Mundo {
     avisos: {},
     recursos,
     clima: 1,
+    tiempo: 'sol',
     fonologia: crearFonologia(),
     personas: [],
     aldeas: [],

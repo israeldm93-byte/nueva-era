@@ -74,6 +74,9 @@ export class Mundo3D {
     this.cieloAlba = new THREE.Color(0xf3c18c);
     this.luzNoche = new THREE.Color(0x7d93c9);
     this.luzDia = new THREE.Color(0xcfe8ff);
+    this.cieloGris = new THREE.Color();
+    this.clima3d = { nube: 0, lluvia: 0, niebla: 0, rayo: 0 };
+    this.matRayo = new THREE.MeshBasicMaterial({ color: 0xeef4ff, fog: false });
     this.sol = new THREE.DirectionalLight(0xfff1d6, 2.4);
     this.sol.castShadow = true;
     const movil = Math.min(window.innerWidth, window.innerHeight) < 700;
@@ -376,11 +379,15 @@ export class Mundo3D {
     else dia = 0;
     const calido = fase < 0.12 || (fase > 0.7 && fase < 0.88) ? 1 : 0;
     const cielo = this.colorCielo.copy(this.cieloNoche).lerp(calido ? this.cieloAlba : this.cieloDia, dia);
+    // Nublado, el cielo se agrisa (más oscuro con lluvia); el relámpago lo ilumina todo.
+    const c3 = this.clima3d;
+    cielo.lerp(this.cieloGris.setRGB(0.55, 0.59, 0.63).multiplyScalar(0.35 + 0.65 * dia), c3.nube * 0.7).lerp(this.cieloGris.setRGB(0.3, 0.33, 0.37).multiplyScalar(0.3 + 0.7 * dia), c3.lluvia * 0.5);
+    cielo.lerp(this.cieloGris.setRGB(0.86, 0.9, 1), c3.rayo * 0.7);
     this.escena.background.copy(cielo);
     this.escena.fog.color.copy(cielo);
-    this.sol.intensity = 0.7 + 1.9 * dia;
+    this.sol.intensity = (0.7 + 1.9 * dia) * (1 - 0.6 * c3.nube - 0.15 * c3.lluvia);
     this.sol.color.set(calido && dia < 0.95 ? 0xffc48a : dia > 0.05 ? 0xfff1d6 : 0xa9bcff);
-    this.cielo.intensity = 0.75 + 0.25 * dia;
+    this.cielo.intensity = 0.75 + 0.25 * dia + c3.rayo * 2.5;
     this.cielo.color.copy(this.luzNoche).lerp(this.luzDia, dia);
     const ang = entre(0.15, Math.PI - 0.15, Math.min(1, Math.max(0, (fase - 0.02) / 0.84)));
     const t = this.controles.target;
@@ -428,8 +435,11 @@ export class Mundo3D {
       this.camara.updateProjectionMatrix();
       if (this.desvioActual.x || this.desvioActual.y) this.fijarDesvio();
     }
-    this.escena.fog.near = lejos * 0.45;
-    this.escena.fog.far = lejos * 0.95;
+    this.animarTiempo(t, dt);
+    // Con niebla o lluvia se ve menos lejos.
+    const cerrado = 1 - 0.55 * this.clima3d.niebla - 0.25 * this.clima3d.lluvia;
+    this.escena.fog.near = lejos * 0.45 * cerrado * cerrado;
+    this.escena.fog.far = lejos * 0.95 * cerrado;
     this.luz(fase);
     const noche = this.noche > 0.5;
     this.terreno.animarAgua(t);
@@ -474,6 +484,62 @@ export class Mundo3D {
     });
   }
 
+  /** El tiempo que hace: cambia poco a poco hacia lo que dice el mundo; con tormenta, relámpagos. */
+  animarTiempo(t, dt) {
+    const tipo = this.datos?.tiempo ?? 'sol';
+    const meta = {
+      nube: tipo === 'sol' ? 0 : tipo === 'nubes' ? 0.55 : tipo === 'niebla' ? 0.4 : tipo === 'lluvia' ? 0.8 : 1,
+      lluvia: tipo === 'lluvia' ? 0.7 : tipo === 'tormenta' ? 1 : 0,
+      niebla: tipo === 'niebla' ? 1 : 0,
+    };
+    const c3 = this.clima3d;
+    const k = Math.min(1, dt * 0.25);
+    for (const x of ['nube', 'lluvia', 'niebla']) c3[x] += (meta[x] - c3[x]) * k;
+    // Relámpagos: un fogonazo doble y un rayo que cae a lo lejos.
+    c3.rayo = Math.max(0, c3.rayo - dt * 5);
+    if (tipo === 'tormenta' && t > (this.proximoRayo ?? 0)) {
+      if (this.proximoRayo) this.relampago();
+      this.proximoRayo = t + 3 + Math.random() * 9;
+    }
+    if (this.rayoDoble && t > this.rayoDoble) {
+      c3.rayo = 0.8;
+      this.rayoDoble = 0;
+    }
+    if (this.mallaRayo) this.mallaRayo.visible = c3.rayo > 0.25;
+  }
+
+  relampago() {
+    this.clima3d.rayo = 1;
+    this.rayoDoble = performance.now() / 1000 + 0.12;
+    // El rayo: un zigzag desde las nubes hasta el suelo, a cierta distancia de lo que se mira.
+    const o = this.controles.target;
+    const ang = Math.random() * Math.PI * 2;
+    const r = 18 + Math.random() * 40;
+    const x = o.x + Math.cos(ang) * r;
+    const z = o.z + Math.sin(ang) * r;
+    const suelo = this.alturaEn(x, z);
+    const piezas = [];
+    let p = new THREE.Vector3(x + (Math.random() - 0.5) * 6, suelo + 38, z + (Math.random() - 0.5) * 6);
+    for (let k = 0; k < 9; k++) {
+      const q = k === 8 ? new THREE.Vector3(x, suelo, z) : new THREE.Vector3(entre(p.x, x, 0.2) + (Math.random() - 0.5) * 3, p.y - (p.y - suelo) / (9 - k), entre(p.z, z, 0.2) + (Math.random() - 0.5) * 3);
+      const dir = p.clone().sub(q);
+      const largo = dir.length();
+      const g = new THREE.BoxGeometry(0.22, largo, 0.22);
+      g.translate(0, largo / 2, 0);
+      g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize()));
+      g.translate(q.x, q.y, q.z);
+      piezas.push({ geo: g, color: 0xffffff });
+      p = q;
+    }
+    if (this.mallaRayo) {
+      this.escena.remove(this.mallaRayo);
+      this.mallaRayo.geometry.dispose();
+    }
+    this.mallaRayo = new THREE.Mesh(fundir(piezas), this.matRayo);
+    this.mallaRayo.frustumCulled = false;
+    this.escena.add(this.mallaRayo);
+  }
+
   animarNubes(t) {
     const ancho = this.terreno.W * T + 200;
     this.datosNubes.forEach((n, k) => {
@@ -482,6 +548,10 @@ export class Mundo3D {
       this.nubes.setMatrixAt(k, this.mNube);
     });
     this.nubes.instanceMatrix.needsUpdate = true;
+    // Con sol, pocas nubes blancas; nublado, el cielo cubierto; con lluvia, nubes oscuras.
+    const c3 = this.clima3d;
+    this.nubes.count = Math.round(9 + 17 * Math.min(1, c3.nube * 1.4));
+    this.matNube.color.setRGB(1, 1, 1).lerp(this.cieloGris.setRGB(0.42, 0.45, 0.5), Math.min(1, c3.lluvia * 1.2));
     this.matNube.opacity = 0.55 + 0.37 * (1 - this.noche);
   }
 

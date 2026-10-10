@@ -6,7 +6,7 @@ export const ANCHO = 160;
 export const ALTO = 112;
 
 /** Ritmo del mundo respecto al tiempo real: años simulados por cada hora real. */
-export const ANIOS_POR_HORA = 1;
+export const ANIOS_POR_HORA = 1.5;
 export const MS_POR_DIA = 3_600_000 / (DIAS_ANIO * ANIOS_POR_HORA);
 
 export const VERSION_ESTADO = 4;

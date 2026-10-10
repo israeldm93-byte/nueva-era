@@ -2,7 +2,7 @@
 
 Una civilización que vive sola, en 3D y en directo. Empieza con una banda de unas quince personas sin palabras, sin fuego y sin herramientas, y a partir de ahí todo lo deciden ellas: en qué trabajan, qué descubren probando cosas, cómo llaman a cada cosa, quién manda, qué facciones nacen, a quién atacan y de quién se defienden.
 
-El mundo avanza **un año cada hora** (un día cada 30 segundos), día y noche:
+El mundo avanza **año y medio cada hora** (un día cada 20 segundos; 36 años al día), día y noche:
 
 **https://israeldm93-byte.github.io/nueva-era/**
 

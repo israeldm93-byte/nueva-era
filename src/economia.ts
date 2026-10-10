@@ -7,6 +7,7 @@
 //     también la estación, el peligro y lo que ha decidido el consejo.
 
 import { azar, elegir, prob } from './azar.ts';
+import { rindeFuera } from './tiempo.ts';
 import { EDAD_ADULTA, GANAS_EXPERIMENTAR, INSPIRACION, PRUEBAS_DIA, RADIO_TRABAJO } from './config.ts';
 import {
   AGUA,
@@ -167,7 +168,7 @@ export function contexto(m: Mundo, a: Aldea, gente: Persona[], est: number): Con
     escasez,
     holgura: clamp(dias / 12, 0, 1),
     radio,
-    herramienta: herramienta(a),
+    herramienta: herramienta(a) * rindeFuera(m),
     agua: hayCerca(m, a.x, a.y, radio, (i) => PESCABLE[m.terreno[i]] && alcanzable(m, a, i, false)),
     // Piedras sueltas hay casi en cualquier parte; en colinas y montañas, muchas más.
     rocas: hayCerca(m, a.x, a.y, radio, (i) => m.recursos.piedra[i] >= 1 && alcanzable(m, a, i, false)),
@@ -461,7 +462,7 @@ function pescar(m: Mundo, p: Persona, c: Contexto): number {
   if (i < 0) return 0;
   situar(m, p, i);
   const cap =
-    1.6 * (0.6 + 0.6 * p.genes.destreza) * (sabe(p, 'red') ? 2.5 : 1) * (sabe(p, 'canoa') ? 1.3 : 1) * (sabe(p, 'vela') ? 1.3 : 1) * (c.est === 3 ? 0.6 : 1);
+    1.6 * (0.6 + 0.6 * p.genes.destreza) * (sabe(p, 'red') ? 2.5 : 1) * (sabe(p, 'canoa') ? 1.3 : 1) * (sabe(p, 'vela') ? 1.3 : 1) * (c.est === 3 ? 0.6 : 1) * (m.tiempo === 'tormenta' ? 0.4 : 1);
   const n = r2(Math.min(R.peces[i] * 0.3, cap));
   R.peces[i] = r2(R.peces[i] - n);
   guardar(a, 'pescado', n);

@@ -8,6 +8,7 @@ import { AGUA, BOSQUE, COLINA, ESTEPA, MONTANA, PRADERA, RIO } from './catalogo.
 import { anotar } from './cronica.ts';
 import { tiene } from './economia.ts';
 import { aviso } from './fauna.ts';
+import { llueve } from './tiempo.ts';
 import { direccion } from './mapa.ts';
 import { distancia } from './matematicas.ts';
 import { aldeasVivas, edad, type Indices } from './mundo.ts';
@@ -51,8 +52,9 @@ function prender(m: Mundo, i: number): void {
 
 function incendios(m: Mundo, ix: Indices, est: number): void {
   const seco = m.clima < 0.85;
-  // Un rayo en verano (o un descuido junto a una hoguera en un año seco).
-  const rayo = (est === 1 ? 0.012 : est === 2 ? 0.003 : 0) * (seco ? 3 : 0.5);
+  // Los rayos de las tormentas (más en verano y en los años secos), o un descuido junto
+  // a una hoguera en un año seco.
+  const rayo = m.tiempo === 'tormenta' ? (est === 1 ? 0.3 : est === 3 ? 0 : 0.06) * (seco ? 1.6 : 1) : 0;
   if (prob(rayo)) {
     for (let intento = 0; intento < 40; intento++) {
       const i = entero(m.terreno.length);
@@ -94,9 +96,10 @@ function incendios(m: Mundo, ix: Indices, est: number): void {
       const j = yy * m.ancho + xx;
       if (arde(m, j) || nuevos.some(([k]) => k === j)) continue;
       if (m.incendios.length + nuevos.length >= MAX_FUEGO) continue;
-      if (prob(inflamable(m, j, est, seco))) nuevos.push([j, 2 + entero(2)]);
+      if (prob(inflamable(m, j, est, seco) * (llueve(m) ? 0.2 : 1))) nuevos.push([j, 2 + entero(2)]);
     }
-    par[1]--;
+    // La lluvia los apaga antes.
+    par[1] -= llueve(m) ? 2 : 1;
   }
   const apagadas = m.incendios.filter(([, d]) => d <= 0);
   for (const [i] of apagadas) m.cenizas.push([i, m.t]);
@@ -185,8 +188,8 @@ function crecidas(m: Mundo, ix: Indices, est: number, dia: number): void {
     m.inundadas = m.inundadas.filter(([, d]) => d > 0);
   }
   const enEstacion = dia % DIAS_ESTACION;
-  if (est !== 0 || enEstacion < 5 || enEstacion > 25 || m.clima <= 1.05) return;
-  if (!prob(0.25 * (m.clima - 1.05))) return;
+  if (est !== 0 || enEstacion < 5 || enEstacion > 25 || m.clima <= 1.05 || !llueve(m)) return;
+  if (!prob((m.tiempo === 'tormenta' ? 1 : 0.5) * (m.clima - 1.05))) return;
   // ¿Dónde? Junto a un río; si hay aldeas cerca, se nota.
   const rios: number[] = [];
   for (let i = 0; i < m.terreno.length; i++) if (m.terreno[i] === RIO) rios.push(i);

@@ -58,6 +58,7 @@ const ESPECIES = {
   palmera: { cerca: [['palmeraTronco', 'arbol'], ['palmeraHojas', 'palma']], lejos: [['palmeraL', 'palma']] },
   desnudo: { cerca: [['desnudo', 'arbol']], lejos: [['desnudoL', 'arbol']] },
   quemado: { cerca: [['quemado', 'rigido']], lejos: [['quemado', 'rigido']] },
+  tocon: { cerca: [['tocon', 'rigido']], lejos: [['tocon', 'rigido']] },
   arbusto: { cerca: [['arbusto', 'arbusto']], lejos: [['arbustoL', 'arbusto']] },
   arbustoFlor: { cerca: [['arbustoFlor', 'arbusto']], lejos: [['arbustoL', 'arbusto']] },
   bayas: { cerca: [['bayas', 'arbusto']], lejos: [], sombra: false },
@@ -246,9 +247,9 @@ export class Vegetacion3D {
       const dulce = mp.dulce[i] === 1;
       let arboles = 0;
       if (libre) {
-        if (t === BOSQUE) arboles = Math.min(3, Math.round(d.madera[i] / 11));
+        if (t === BOSQUE) arboles = 3;
         else if (t === PRADERA && azar(i * 5.3) < 0.07 && d.madera[i] >= 2) arboles = 1;
-        else if (t === COLINA && d.madera[i] >= 5 && azar(i * 2.9) < 0.5) arboles = 1;
+        else if (t === COLINA && azar(i * 2.9) < 0.5) arboles = 1;
         else if (t === MONTANA && h < 7 && azar(i * 3.7) < 0.2) arboles = 1;
         else if (t === PANTANO && azar(i * 6.1) < 0.18) arboles = 1;
         else if (t === ESTEPA && azar(i * 4.9) < 0.015) arboles = 1;
@@ -263,11 +264,20 @@ export class Vegetacion3D {
         }
         arboles = Math.max(0, arboles - 1);
       }
-      // Los bosques jóvenes (talados o tras un incendio) tienen árboles más pequeños.
-      const crecido = t === BOSQUE ? 0.72 + 0.28 * Math.min(1, d.madera[i] / 30) : 1;
+      // Lo talado deja tocones; con los años, la madera vuelve a crecer y junto al
+      // tocón brota un arbolito que se hace árbol. Cada hueco del bosque, a su ritmo.
+      const nivel = t === BOSQUE ? d.madera[i] / 11 : t === COLINA ? d.madera[i] / 5 : 1;
       for (let k = 0; k < arboles; k++) {
-        const x = cx + (azar(i * 13 + k) - 0.5) * T * 0.85;
-        const z = cz + (azar(i * 17 + k * 3) - 0.5) * T * 0.85;
+        let x = cx + (azar(i * 13 + k) - 0.5) * T * 0.85;
+        let z = cz + (azar(i * 17 + k * 3) - 0.5) * T * 0.85;
+        const g = nivel - k;
+        if (g < 0.6 && !quemada) poner('tocon', x, z, azar(i * 31 + k) * 6.28, 0.85 + azar(i * 37 + k) * 0.4, 1, col.set(0xffffff), 0.02, 0.05);
+        if (g < 0.2) continue;
+        const crecido = g >= 1 ? 1 : 0.22 + 0.7 * g;
+        if (g < 0.6) {
+          x += 0.3;
+          z += 0.15;
+        }
         const s = (0.78 + azar(i * 7 + k) * 0.55) * crecido;
         const ry = azar(i * 19 + k) * 6.28;
         const v = azar(i * 23 + k) - 0.5;
@@ -431,7 +441,7 @@ export class Vegetacion3D {
     for (const [nombre, im] of Object.entries(this.mallas)) if (!usadas.has(nombre) && im.visible) cerrar(im, 0);
   }
 
-  /** Hojas que caen en otoño y nieve que cae en invierno (en el norte), alrededor de lo que se mira. */
+  /** Lluvia, nieve (en invierno, en el norte, cuando nieva) y hojas que caen en otoño, alrededor de lo que se mira. */
   particulas(t, objetivo, distancia) {
     const d = this.datos;
     if (!d) return;
@@ -439,26 +449,43 @@ export class Vegetacion3D {
     const [cx, cy] = tr.aCasilla(objetivo.x, objetivo.z);
     const ty = acotar(cy, 0, d.alto - 1);
     const ter = d.terreno[ty * d.ancho + acotar(cx, 0, d.ancho - 1)];
-    const nieva = d.estacion === 'invierno' && ty / (d.alto - 1) < 0.5;
+    const tiempo = d.tiempo ?? 'sol';
+    const precip = tiempo === 'lluvia' || tiempo === 'tormenta';
+    const nieva = d.estacion === 'invierno' && ty / (d.alto - 1) < 0.5 && (precip || tiempo === 'nubes');
+    const llueve = precip && !nieva;
     const hojas = d.estacion === 'otoño' && (ter === BOSQUE || ter === COLINA || ter === PRADERA || ter === PANTANO || ter === RIO);
-    const n = distancia > 110 ? 0 : nieva ? 260 : hojas ? 130 : 0;
-    const copos = instancias(this.escena, this.suelo, 'copos', this.geoCopo, this.matCopo, 260, { sombra: false });
-    const caen = instancias(this.escena, this.suelo, 'hojas', this.geoHoja, this.matHoja, 130, { sombra: false });
-    const im = nieva ? copos : caen;
-    const otra = nieva ? caen : copos;
-    if (otra.visible) cerrar(otra, 0);
-    if (!n) {
-      if (im.visible) cerrar(im, 0);
-      return;
-    }
+    const modo = llueve ? 'gotas' : nieva ? 'copos' : hojas ? 'hojas' : null;
+    const n = distancia > 110 || !modo ? 0 : modo === 'gotas' ? (tiempo === 'tormenta' ? 900 : 520) : modo === 'copos' ? (precip ? 260 : 90) : 130;
+    this.geoGota ??= new THREE.BoxGeometry(0.012, 0.5, 0.012);
+    this.matGota ??= new THREE.MeshBasicMaterial({ color: 0xc4d4e4, transparent: true, opacity: 0.35, depthWrite: false });
+    const mallas = {
+      copos: instancias(this.escena, this.suelo, 'copos', this.geoCopo, this.matCopo, 260, { sombra: false }),
+      hojas: instancias(this.escena, this.suelo, 'hojas', this.geoHoja, this.matHoja, 130, { sombra: false }),
+      gotas: instancias(this.escena, this.suelo, 'gotas', this.geoGota, this.matGota, 900, { sombra: false }),
+    };
+    for (const [k, otra] of Object.entries(mallas)) if (k !== modo && otra.visible) cerrar(otra, 0);
+    if (!n) return;
+    const im = mallas[modo];
     // La caja donde caen se ajusta a lo que se ve: de cerca, más densas.
     const caja = acotar(distancia * 0.8, 12, 40);
-    const alto = Math.min(nieva ? 10 : 6, 3 + distancia * 0.4);
+    const alto = modo === 'gotas' ? Math.min(14, 4 + distancia * 0.5) : Math.min(nieva ? 10 : 6, 3 + distancia * 0.4);
     const col = this.colorParticula;
     for (let k = 0; k < n; k++) {
       const a = azar(k * 1.37);
       const b = azar(k * 2.11);
       const c = azar(k * 3.71);
+      if (modo === 'gotas') {
+        // La lluvia cae rápida y algo inclinada por el viento.
+        const ciclo = alto / (13 + c * 5);
+        const u = ((t + a * ciclo) % ciclo) / ciclo;
+        const x = objetivo.x + ((((b * caja - objetivo.x) % caja) + caja) % caja) - caja / 2 + (1 - u) * alto * 0.18;
+        const z = objetivo.z + ((((c * caja - objetivo.z) % caja) + caja) % caja) - caja / 2;
+        E.set(0, 0, 0.18);
+        Q.setFromEuler(E);
+        M.compose(V.set(x, tr.alturaEn(x, z) + alto * (1 - u), z), Q, ESC.set(1, 0.8 + c * 0.5, 1));
+        im.setMatrixAt(k, M);
+        continue;
+      }
       const ciclo = alto / (nieva ? 0.55 + c * 0.35 : 0.45 + c * 0.45);
       const u = ((t + a * ciclo) % ciclo) / ciclo;
       // Quietas en el mundo (no viajan con la cámara), en una caja que sigue a la vista.
@@ -468,7 +495,7 @@ export class Vegetacion3D {
       const z = objetivo.z + ((((c * caja + deriva * 0.6 - objetivo.z) % caja) + caja) % caja) - caja / 2 + Math.cos(t * 0.9 + k * 1.3) * vaiven;
       E.set(t * (nieva ? 0.5 : 2.3) + k, t * 1.1 + k * 2, t * (nieva ? 0.3 : 1.7));
       Q.setFromEuler(E);
-      const s = nieva ? 0.9 + c * 0.5 : 0.9 + c * 0.5;
+      const s = 0.9 + c * 0.5;
       M.compose(V.set(x, tr.alturaEn(x, z) + alto * (1 - u), z), Q, ESC.set(s, s, s));
       im.setMatrixAt(k, M);
       im.setColorAt(k, nieva ? col.setRGB(1, 1, 1) : col.set([0xd8902a, 0xe8b830, 0xc0561e, 0xa8401a][k % 4]));

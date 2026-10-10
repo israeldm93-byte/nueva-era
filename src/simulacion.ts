@@ -5,6 +5,7 @@ import { DIAS_ANIO } from './config.ts';
 import { AGUA, MONTANA, PANTANO, RIO, TECNICA } from './catalogo.ts';
 import { anioDe, anios, anotar, fecha, listar } from './cronica.ts';
 import { desastres } from './desastres.ts';
+import { cambiarTiempo } from './tiempo.ts';
 import { asentarAprendizaje, comer, contexto, jornada, mantener, planificar } from './economia.ts';
 import { fauna } from './fauna.ts';
 import { lexicoComun, parecido } from './lenguaje.ts';
@@ -29,6 +30,7 @@ function paso(m: Mundo): void {
   const dia = m.t % DIAS_ANIO;
   const est = estacionDe(m.t);
   if (dia === 0) inicioAnio(m);
+  cambiarTiempo(m, est);
   if (m.t % 5 === 0) recrecer(m, est, 5);
 
   const ix = indexar(m);

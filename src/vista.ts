@@ -2,7 +2,7 @@
 // (no usa nada de Node). Solo se muestra lo que ya ha pasado: los saberes por
 // descubrir no aparecen (nada de destripes).
 
-import { ESTACIONES } from './config.ts';
+import { DIAS_ANIO, ESTACIONES } from './config.ts';
 import { BASICOS, CONCEPTOS_VIDA, MATERIALES, NOMBRE_CONCEPTO, TECNICA, TECNICAS } from './catalogo.ts';
 import { anioDe, fecha } from './cronica.ts';
 import { comidaTotal, necesidad } from './economia.ts';
@@ -49,6 +49,8 @@ export function datosWeb(m: Mundo, ahora: Date) {
     semilla: m.semilla,
     t: m.t,
     anio: anioDe(m.t),
+    dia: (m.t % DIAS_ANIO) + 1,
+    tiempo: m.tiempo ?? 'sol',
     estacion: ESTACIONES[estacionDe(m.t)],
     fecha: fecha(m.t),
     ancho: m.ancho,

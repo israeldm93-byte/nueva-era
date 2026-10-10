@@ -289,6 +289,8 @@ export interface Mundo {
   avisos: Record<string, number>;
   recursos: Record<string, number[]>;
   clima: number;
+  /** El tiempo que hace hoy. */
+  tiempo?: Tiempo;
   fonologia: Fonologia;
   personas: Persona[];
   aldeas: Aldea[];
@@ -319,3 +321,5 @@ export interface Mundo {
   /** Instante real (ISO) hasta el que está simulado el mundo. */
   reloj: string | null;
 }
+
+export type Tiempo = 'sol' | 'nubes' | 'niebla' | 'lluvia' | 'tormenta';
