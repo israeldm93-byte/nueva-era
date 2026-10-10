@@ -6,12 +6,13 @@
 //   - lo que le dice su mente (red neuronal heredada y entrenada día a día), que ve
 //     también la estación, el peligro y lo que ha decidido el consejo.
 
-import { azar, elegir, prob } from './azar.ts';
+import { azar, elegir, elegirPeso, prob } from './azar.ts';
 import { rindeFuera } from './tiempo.ts';
 import { EDAD_ADULTA, GANAS_EXPERIMENTAR, INSPIRACION, PRUEBAS_DIA, RADIO_TRABAJO } from './config.ts';
 import {
   AGUA,
   BOSQUE,
+  COLINA,
   EDIFICIO,
   ESTEPA,
   MATERIAL,
@@ -151,7 +152,7 @@ export function contexto(m: Mundo, a: Aldea, gente: Persona[], est: number): Con
     else precio[mineral] = 0.02;
   }
 
-  const radio = RADIO_TRABAJO + (conoce(a, 'rueda') ? 2 : 0) + (conoce(a, 'carro') ? 2 : 0);
+  const radio = RADIO_TRABAJO + (conoce(a, 'rueda') ? 2 : 0) + (conoce(a, 'carro') ? 2 : 0) + (aCaballo(a) ? 2 : 0);
   let camposPorTrabajar = 0;
   const semillas = (a.despensa.cereal ?? 0) + (a.despensa.semillas ?? 0);
   for (const e of a.edificios) {
@@ -531,11 +532,12 @@ function pastorear(m: Mundo, p: Persona, c: Contexto): number {
   p.x = corral.x;
   p.y = corral.y;
   const animales = corral.animales ?? 0;
-  let carne = r2(Math.min(3, animales * 0.15) * (0.8 + 0.4 * p.genes.destreza));
+  const raza = CARNE[corral.especie ?? 'oveja'] ?? 1;
+  let carne = r2(Math.min(3, animales * 0.15) * (0.8 + 0.4 * p.genes.destreza) * raza);
   if (prob(0.05)) guardar(a, 'piel', 1);
   if (animales > 14 && prob(0.15)) {
     corral.animales = r2(animales - 1);
-    carne = r2(carne + 8);
+    carne = r2(carne + 8 * raza);
     guardar(a, 'piel', 1);
     guardar(a, 'hueso', 2);
   }
@@ -635,7 +637,13 @@ function terminarObra(m: Mundo, a: Aldea): void {
   if (obra.tipo === 'corral') {
     const n = Math.min(Math.floor(a.despensa.cria ?? 0), 6);
     e.animales = n;
+    e.especie = especieCorral(m, a);
     a.despensa.cria = r2((a.despensa.cria ?? 0) - n);
+  }
+  if (obra.tipo === 'gallinero') {
+    // Se empieza con unas cuantas aves del campo atrapadas con cestas.
+    e.animales = 6;
+    e.especie = 'gallina';
   }
   a.edificios.push(e);
   const tipo = EDIFICIO[obra.tipo];
@@ -647,9 +655,50 @@ function terminarObra(m: Mundo, a: Aldea): void {
   }
 }
 
+/** Ritmo al que cría cada especie (por día) en el corral. */
+const RITMO_CRIA: Record<string, number> = { oveja: 0.0025, cabra: 0.003, cerdo: 0.004, vaca: 0.0015, caballo: 0.0015 };
+/** Lo que da de carne cada especie respecto a la oveja. */
+const CARNE: Record<string, number> = { oveja: 1, cabra: 0.9, cerdo: 1.4, vaca: 1.3, caballo: 0.5 };
+
+/** Qué animales se crían en un corral nuevo: los que se dan en las tierras de alrededor (y no los que ya tienen). */
+function especieCorral(m: Mundo, a: Aldea): string {
+  const peso: Record<string, number> = { oveja: 0.2, cabra: 0, cerdo: 0, vaca: 0, caballo: 0 };
+  for (let dy = -4; dy <= 4; dy++) {
+    for (let dx = -4; dx <= 4; dx++) {
+      const x = a.x + dx;
+      const y = a.y + dy;
+      if (x < 0 || y < 0 || x >= m.ancho || y >= m.alto) continue;
+      const t = m.terreno[y * m.ancho + x];
+      if (t === PRADERA) {
+        peso.oveja += 1;
+        peso.vaca += 0.7;
+      } else if (t === ESTEPA) {
+        peso.oveja += 0.8;
+        peso.caballo += 1.2;
+      } else if (t === COLINA) {
+        peso.cabra += 1;
+        peso.oveja += 0.5;
+      } else if (t === MONTANA) peso.cabra += 1.2;
+      else if (t === BOSQUE) peso.cerdo += 1;
+      else if (t === PANTANO) peso.cerdo += 0.5;
+    }
+  }
+  // Las vacas, con quien ya cultiva; los caballos, con quien sabe domarlos.
+  if (!conoce(a, 'campo')) peso.vaca = 0;
+  if (!conoce(a, 'doma')) peso.caballo = 0;
+  for (const e of a.edificios) if (e.tipo === 'corral' && e.especie && peso[e.especie]) peso[e.especie] *= 0.25;
+  return elegirPeso(Object.keys(peso), (k) => peso[k]) ?? 'oveja';
+}
+
+/** Cuántos animales caben en un corral (con granja, muchos más). */
+export const capacidadCorral = (a: Aldea): number => (tiene(a, 'granja') ? 40 : 25);
+
+/** Si en la aldea montan a caballo. */
+export const aCaballo = (a: Aldea): boolean => conoce(a, 'doma') && a.edificios.some((e) => e.tipo === 'corral' && e.especie === 'caballo' && (e.animales ?? 0) >= 2);
+
 function articulo(t: TipoEdificio): string {
   const n = t.nombre.toLowerCase();
-  const fem = ['hoguera', 'choza', 'casa de adobe', 'cerca', 'empalizada', 'muralla', 'casa de las tablillas'].includes(n);
+  const fem = ['hoguera', 'choza', 'casa de adobe', 'cerca', 'granja', 'empalizada', 'muralla', 'casa de las tablillas'].includes(n);
   return `${fem ? 'una' : 'un'} ${n}`;
 }
 
@@ -667,6 +716,8 @@ export function planificar(m: Mundo, a: Aldea, gente: Persona[]): void {
   }
   if (conoce(a, 'campo') && cuantos(a, 'campo') < Math.ceil(n * 0.6) + 2 && grano >= 4) opciones.push(['campo', 0.85]);
   if (conoce(a, 'corral') && (a.despensa.cria ?? 0) >= 2 && cuantos(a, 'corral') < 1 + n / 25) opciones.push(['corral', 0.7]);
+  if (conoce(a, 'gallinero') && cuantos(a, 'gallinero') < 1 + Math.floor(n / 30)) opciones.push(['gallinero', 0.75]);
+  if (conoce(a, 'granja') && tiene(a, 'corral') && !tiene(a, 'granja') && n >= 15) opciones.push(['granja', 0.6]);
   if (conoce(a, 'vasija') && !tiene(a, 'almacen')) opciones.push(['almacen', 0.6]);
   if (conoce(a, 'horno') && !tiene(a, 'horno')) opciones.push(['horno', 0.6]);
   // Los muros, sobre todo si el consejo teme un ataque o está en guerra.
@@ -723,9 +774,10 @@ export function mantener(m: Mundo, a: Aldea, est: number, diaDelAnio: number): b
     if (v) a.despensa[mat] = r2(v - v * (MATERIAL[mat].pudre ?? 0) * conserva);
   }
   const corrales = a.edificios.filter((e) => e.tipo === 'corral');
+  const cabe = capacidadCorral(a);
   if (a.despensa.cria) {
     for (const c of corrales) {
-      const hueco = Math.min(Math.floor(a.despensa.cria), 25 - (c.animales ?? 0));
+      const hueco = Math.min(Math.floor(a.despensa.cria), cabe - (c.animales ?? 0));
       if (hueco > 0) {
         c.animales = (c.animales ?? 0) + hueco;
         a.despensa.cria = r2(a.despensa.cria - hueco);
@@ -734,9 +786,28 @@ export function mantener(m: Mundo, a: Aldea, est: number, diaDelAnio: number): b
     // Sin corral, las crías se escapan o se mueren.
     a.despensa.cria = r2(a.despensa.cria * 0.99);
   }
+  // Crían cada uno a su ritmo; con granja (establo y pajar), más.
+  const granja = tiene(a, 'granja') ? 1.4 : 1;
   for (const c of corrales) {
     const n = c.animales ?? 0;
-    if (n >= 2) c.animales = r2(n + n * 0.0025 * (1 - n / 25));
+    const esp = c.especie ?? 'oveja';
+    if (n >= 2) c.animales = r2(n + n * (RITMO_CRIA[esp] ?? 0.0025) * granja * (1 - n / cabe));
+    // Leche de cabras y vacas; lana de las ovejas en primavera.
+    if (n >= 1 && conoce(a, 'ordeno') && (esp === 'cabra' || esp === 'vaca')) guardar(a, 'leche', r2(n * (esp === 'vaca' ? 0.1 : 0.05)));
+    if (n >= 1 && conoce(a, 'esquileo') && esp === 'oveja' && est === 0) guardar(a, 'lana', r2(n * 0.02));
+  }
+  // Las gallinas ponen huevos cada día y sacan pollitos.
+  for (const g of a.edificios) {
+    if (g.tipo !== 'gallinero') continue;
+    const n = g.animales ?? 0;
+    if (n >= 1 && est !== 3) guardar(a, 'huevos', r2(n * 0.08));
+    if (n >= 2) g.animales = r2(n + n * 0.006 * (1 - n / 30));
+  }
+  // La leche que sobra se cuaja en quesos que aguantan meses.
+  if (conoce(a, 'queseria') && (a.despensa.leche ?? 0) > 2) {
+    const q = r2(a.despensa.leche * 0.3);
+    a.despensa.leche = r2(a.despensa.leche - q);
+    guardar(a, 'queso', r2(q * 0.6));
   }
   if (est === 3 && diaDelAnio === 90) {
     // Llega el invierno: lo que no se cosechó se pierde.

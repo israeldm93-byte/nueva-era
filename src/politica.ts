@@ -12,7 +12,7 @@ import { prob } from './azar.ts';
 import { DIAS_ANIO, EDAD_ADULTA } from './config.ts';
 import { ORDEN_COMER } from './catalogo.ts';
 import { anotar, listar } from './cronica.ts';
-import { comidaTotal, conoce, cuantos, guardar, situacion, tiene, type Contexto } from './economia.ts';
+import { aCaballo, comidaTotal, conoce, cuantos, guardar, situacion, tiene, type Contexto } from './economia.ts';
 import { mayuscula, inventarPalabra } from './lenguaje.ts';
 import { buscarSitio, direccion } from './mapa.ts';
 import { distancia } from './matematicas.ts';
@@ -253,12 +253,13 @@ function cisma(m: Mundo, a: Aldea, f: Faccion, miembros: Persona[], ix: Indices)
   );
 }
 
-/** Lo que valen sus armas: el metal, la espada, el arco y el escudo. */
+/** Lo que valen sus armas: el metal, la espada, el arco, el escudo y los caballos. */
 const armas = (a: Aldea) =>
   (conoce(a, 'hierro') ? 2 : conoce(a, 'bronce') ? 1.6 : conoce(a, 'cobre') ? 1.3 : conoce(a, 'lanza') ? 1.15 : 1) *
   (conoce(a, 'espada') ? (conoce(a, 'hierro') ? 1.35 : 1.25) : 1) *
   (conoce(a, 'arco') ? 1.15 : 1) *
-  (conoce(a, 'escudo') ? 1.1 : 1);
+  (conoce(a, 'escudo') ? 1.1 : 1) *
+  (aCaballo(a) ? 1.15 : 1);
 /** Lo que protegen sus muros. */
 const muros = (a: Aldea) => (tiene(a, 'muralla') ? 3 : tiene(a, 'empalizada') ? 1.8 : tiene(a, 'cerca') ? 1.2 : 1);
 

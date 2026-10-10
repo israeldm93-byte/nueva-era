@@ -299,18 +299,26 @@ export class Fauna3D {
           }
         }
         const [x, z] = tr.aMundo(tx, ty);
+        // Solo donde la especie puede andar (no en riscos nevados ni en el agua).
+        if (!this.pisable(esp, x, z)) continue;
         const [a, b] = TAMANO[esp];
         const n = a + Math.floor(azar(s + 4) * (b - a + 1));
         const miembros = [];
         for (let k = 0; k < n; k++) {
-          const ang = azar(s + 10 + k) * Math.PI * 2;
-          const rr = 0.4 + azar(s + 20 + k) * 1.4;
-          let ax = x + Math.cos(ang) * rr;
-          let az = z + Math.sin(ang) * rr;
-          if (!this.pisable(esp, ax, az)) {
-            ax = x;
-            az = z;
+          // Cada uno en su sitio, sin caer encima de otro.
+          let ax = null;
+          let az = null;
+          for (let intento = 0; intento < 8 && ax === null; intento++) {
+            const ang = azar(s + 10 + k + intento * 17) * Math.PI * 2;
+            const rr = 0.6 + azar(s + 20 + k + intento * 13) * 1.6;
+            const px = x + Math.cos(ang) * rr;
+            const pz = z + Math.sin(ang) * rr;
+            if (this.pisable(esp, px, pz) && miembros.every((o) => (o.x - px) ** 2 + (o.z - pz) ** 2 > 0.5)) {
+              ax = px;
+              az = pz;
+            }
           }
+          if (ax === null) continue;
           const m = this.nuevo(esp, ax, az, s * 31 + k);
           m.hx = x;
           m.hz = z;
@@ -318,7 +326,7 @@ export class Fauna3D {
           if (esp === 'ciervo' && (k === 0 || azar(s + 40 + k) < 0.3)) m.macho = true;
           miembros.push(m);
         }
-        out.push({ esp, i, x, z, miembros, crias: [], vivo: true });
+        if (miembros.length) out.push({ esp, i, x, z, miembros, crias: [], vivo: true });
       }
     }
     return out;
@@ -385,11 +393,11 @@ export class Fauna3D {
         const empuje = (min - Math.min(d, min)) / 2;
         const ux = (dx / Math.max(d, 1e-4)) * empuje;
         const uz = (dz / Math.max(d, 1e-4)) * empuje;
-        if (this.pisable(esp, a.x - ux, a.z - uz)) {
+        if (this.pisable(esp, a.x - ux, a.z - uz) || !this.pisable(esp, a.x, a.z)) {
           a.x -= ux;
           a.z -= uz;
         }
-        if (this.pisable(esp, b.x + ux, b.z + uz)) {
+        if (this.pisable(esp, b.x + ux, b.z + uz) || !this.pisable(esp, b.x, b.z)) {
           b.x += ux;
           b.z += uz;
         }
@@ -578,7 +586,8 @@ export class Fauna3D {
     if (a.v > 0.001) {
       const nx = a.x + Math.sin(a.ang) * a.v * dt;
       const nz = a.z + Math.cos(a.ang) * a.v * dt;
-      if (this.pisable(a.esp, nx, nz)) {
+      // Si ya está donde no debería (o el sitio nuevo es bueno), se mueve.
+      if (this.pisable(a.esp, nx, nz) || !this.pisable(a.esp, a.x, a.z)) {
         a.x = nx;
         a.z = nz;
       } else {

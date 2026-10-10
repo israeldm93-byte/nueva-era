@@ -181,14 +181,17 @@ export function salud(m: Mundo, a: Aldea, gente: Persona[], est: number, hoguera
     const chozas = Math.min(n - casas, a.edificios.filter((e) => e.tipo === 'choza').length * 5);
     refugio = (casas * 0.5 + chozas * 0.35) / n;
   }
-  const pieles = (a.despensa.piel ?? 0) > 0;
+  const pieles = (a.despensa.piel ?? 0) > 0 || (a.despensa.lana ?? 0) > 0;
   for (const p of gente) {
     const e = edad(m, p);
     if (est === 3) {
       let abrigo = refugio + (hogueraEncendida ? 0.3 : 0);
       if (pieles && p.saberes.includes('ropa')) {
-        abrigo += 0.25;
-        a.despensa.piel = r2(Math.max(0, a.despensa.piel - 0.01));
+        // La lana abriga más que las pieles; se gasta primero.
+        const lana = (a.despensa.lana ?? 0) > 0;
+        abrigo += lana ? 0.32 : 0.25;
+        if (lana) a.despensa.lana = r2(Math.max(0, a.despensa.lana - 0.01));
+        else a.despensa.piel = r2(Math.max(0, a.despensa.piel - 0.01));
       }
       if (p.saberes.includes('tela') && (a.despensa.fibra ?? 0) > 0) abrigo += 0.1;
       const expuesto = Math.max(0, 1 - abrigo);

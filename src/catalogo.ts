@@ -49,12 +49,16 @@ export const MATERIALES: Material[] = [
   { id: 'casiterita', nombre: 'casiterita', peso: 1.5 },
   { id: 'hematites', nombre: 'hematites', peso: 1.5 },
   { id: 'cria', nombre: 'crías de animal', peso: 2 },
+  { id: 'huevos', nombre: 'huevos', comida: 0.6, pudre: 0.03, peso: 1 },
+  { id: 'leche', nombre: 'leche', comida: 0.7, pudre: 0.2, peso: 1 },
+  { id: 'queso', nombre: 'queso', comida: 1.1, pudre: 0.003, peso: 1 },
+  { id: 'lana', nombre: 'lana', peso: 0.6 },
 ];
 
 export const MATERIAL: Record<string, Material> = Object.fromEntries(MATERIALES.map((x) => [x.id, x]));
 export const COMIDAS = MATERIALES.filter((x) => x.comida);
 /** Orden en que se come: primero lo que se estropea antes. */
-export const ORDEN_COMER = ['pescado', 'bayas', 'carne', 'semillas', 'cereal'];
+export const ORDEN_COMER = ['leche', 'pescado', 'bayas', 'huevos', 'carne', 'semillas', 'cereal', 'queso'];
 export const MINERALES = ['malaquita', 'casiterita', 'hematites'];
 
 /** Cosas que todo el mundo conoce sin necesidad de recogerlas. */
@@ -73,7 +77,7 @@ export const NOMBRE_CONCEPTO: Record<string, string> = {
  */
 export const RAMA: Record<string, 'comida' | 'guerra' | 'obras' | 'saber'> = {
   campo: 'comida', red: 'comida', trampa: 'comida', asado: 'comida', harina: 'comida', calendario: 'comida', acequia: 'comida',
-  arado: 'comida', corral: 'comida', vasija: 'comida', cerveza: 'comida', cesta: 'comida', canoa: 'comida',
+  arado: 'comida', corral: 'comida', gallinero: 'comida', ordeno: 'comida', esquileo: 'obras', queseria: 'comida', doma: 'guerra', granja: 'comida', vasija: 'comida', cerveza: 'comida', cesta: 'comida', canoa: 'comida',
   lanza: 'guerra', arco: 'guerra', escudo: 'guerra', flechaFuego: 'guerra', espada: 'guerra', catapulta: 'guerra', empalizada: 'guerra',
   muralla: 'guerra',
   choza: 'obras', adobe: 'obras', horno: 'obras', rueda: 'obras', carro: 'obras', hacha: 'obras', carbon: 'obras', cobre: 'obras',
@@ -113,6 +117,12 @@ export const TECNICAS: Tecnica[] = [
   { id: 'pintura', titulo: 'la pintura', nombre: 'Pintura', cosa: 'pintura', cosas: ['arcilla', 'bayas'], verbo: 'mezclar', facilidad: 0.12, efecto: 'Arte y memoria: se enseña mejor.' },
   { id: 'campo', titulo: 'la agricultura', nombre: 'Agricultura', cosa: 'cultivos', cosas: ['semillas', 'tierra'], verbo: 'plantar', facilidad: 0.03, requiere: ['cesta'], efecto: 'Campos de cereal: mucha más comida y aldeas más grandes.' },
   { id: 'corral', titulo: 'la ganadería', nombre: 'Ganadería', cosa: 'ganado', cosas: ['cria', 'cuerda'], verbo: 'atar', facilidad: 0.04, requiere: ['trampa'], efecto: 'Corrales con animales que dan carne y pieles sin cazar.' },
+  { id: 'gallinero', titulo: 'las gallinas', nombre: 'Gallinero', cosa: 'gallinas', cosas: ['cesta', 'cria', 'semillas'], verbo: 'atar', facilidad: 0.05, requiere: ['trampa'], efecto: 'Gallinas en un gallinero: huevos cada día.' },
+  { id: 'ordeno', titulo: 'el ordeño', nombre: 'Ordeño', cosa: 'leche', cosas: ['corral', 'vasija'], verbo: 'ordeñar', facilidad: 0.05, requiere: ['corral'], efecto: 'Cabras y vacas dan leche cada día.' },
+  { id: 'esquileo', titulo: 'el esquileo', nombre: 'Esquileo', cosa: 'lana', cosas: ['corral', 'lasca'], verbo: 'esquilar', facilidad: 0.05, requiere: ['corral'], efecto: 'Las ovejas dan lana en primavera: el mejor abrigo para el invierno.' },
+  { id: 'queseria', titulo: 'el queso', nombre: 'Quesería', cosa: 'quesos', cosas: ['leche', 'vasija'], verbo: 'calentar', facilidad: 0.05, requiere: ['ordeno'], efecto: 'La leche se guarda en quesos que no se estropean.' },
+  { id: 'doma', titulo: 'la doma del caballo', nombre: 'Doma', cosa: 'caballos domados', cosas: ['corral', 'cuerda'], verbo: 'montar', facilidad: 0.03, requiere: ['corral'], efecto: 'Caballos domados: a caballo se llega más lejos y más rápido, y se pelea mejor.' },
+  { id: 'granja', titulo: 'la granja', nombre: 'Granja', cosa: 'granjas', cosas: ['campo', 'corral', 'madera'], verbo: 'apilar', facilidad: 0.03, requiere: ['campo', 'corral'], efecto: 'Granjas con establo y pajar: más animales, que crían más, y estiércol para los campos.' },
   { id: 'vasija', titulo: 'la alfarería', nombre: 'Alfarería', cosa: 'vasijas', cosas: ['arcilla', 'fuego'], verbo: 'calentar', facilidad: 0.05, efecto: 'Almacenes de vasijas: la comida se estropea mucho menos.' },
   { id: 'harina', titulo: 'la piedra de moler', nombre: 'Piedra de moler', cosa: 'harina', cosas: ['piedra', 'semillas'], verbo: 'machacar', facilidad: 0.06, efecto: 'El grano molido alimenta un 30 % más.' },
   { id: 'canoa', titulo: 'la canoa', nombre: 'Canoa', cosa: 'canoas', cosas: ['fuego', 'madera'], verbo: 'tallar', facilidad: 0.05, requiere: ['hacha'], efecto: 'Se cruza el agua: se llega a las islas, se pesca más lejos y mejor.' },
@@ -164,6 +174,9 @@ export const VERBOS: Verbo[] = [
   { id: 'machacar', gerundio: 'machacando' },
   { id: 'tallar', gerundio: 'tallando' },
   { id: 'tensar', gerundio: 'tensando' },
+  { id: 'ordeñar', gerundio: 'ordeñando' },
+  { id: 'esquilar', gerundio: 'esquilando' },
+  { id: 'montar', gerundio: 'montando' },
   { id: 'observar', gerundio: 'observando' },
   { id: 'mezclar', gerundio: 'mezclando' },
   { id: 'cavar', gerundio: 'cavando' },
@@ -193,6 +206,8 @@ export const EDIFICIOS: TipoEdificio[] = [
   { id: 'almacen', nombre: 'Almacén de vasijas', requiere: 'vasija', coste: { arcilla: 15, madera: 4 }, trabajo: 6 },
   { id: 'horno', nombre: 'Horno', requiere: 'horno', coste: { arcilla: 10, piedra: 10 }, trabajo: 6 },
   { id: 'cerca', nombre: 'Cerca', requiere: 'cuerda', coste: { madera: 14 }, trabajo: 6 },
+  { id: 'gallinero', nombre: 'Gallinero', requiere: 'gallinero', coste: { madera: 8 }, trabajo: 3 },
+  { id: 'granja', nombre: 'Granja', requiere: 'granja', coste: { madera: 30, piedra: 10 }, trabajo: 12 },
   { id: 'empalizada', nombre: 'Empalizada', requiere: 'empalizada', coste: { madera: 40 }, trabajo: 15 },
   { id: 'muralla', nombre: 'Muralla', requiere: 'muralla', coste: { piedra: 60, madera: 10 }, trabajo: 25 },
   { id: 'archivo', nombre: 'Casa de las tablillas', requiere: 'escritura', coste: { arcilla: 20, piedra: 10 }, trabajo: 10 },

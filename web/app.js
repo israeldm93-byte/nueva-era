@@ -97,7 +97,7 @@ const CAUSAS = {
 
 const EDIFICIOS = {
   hoguera: 'hoguera', choza: 'choza', casa: 'casa de adobe', campo: 'campo', corral: 'corral', almacen: 'almacén',
-  horno: 'horno', cerca: 'cerca', empalizada: 'empalizada', muralla: 'muralla de piedra', archivo: 'casa de las tablillas', mercado: 'mercado',
+  horno: 'horno', gallinero: 'gallinero', granja: 'granja', cerca: 'cerca', empalizada: 'empalizada', muralla: 'muralla de piedra', archivo: 'casa de las tablillas', mercado: 'mercado',
 };
 
 /** Hacia dónde empuja el consejo a los que experimentan. */
@@ -110,7 +110,7 @@ const FOCOS = {
 
 const UNA = {
   hoguera: 'una hoguera', choza: 'una choza', casa: 'una casa de adobe', campo: 'un campo nuevo', corral: 'un corral', almacen: 'un almacén',
-  horno: 'un horno', cerca: 'la cerca', empalizada: 'la empalizada', muralla: 'la muralla de piedra', archivo: 'la casa de las tablillas', mercado: 'el mercado',
+  horno: 'un horno', gallinero: 'un gallinero', granja: 'la granja', cerca: 'la cerca', empalizada: 'la empalizada', muralla: 'la muralla de piedra', archivo: 'la casa de las tablillas', mercado: 'el mercado',
 };
 
 const GRUPOS = {

@@ -65,8 +65,9 @@ export interface Edificio {
   fase?: number;
   trabajo?: number;
   cuidado?: number;
-  /** Corrales: animales que tiene. */
+  /** Corrales y gallineros: animales que tiene, y de qué especie. */
   animales?: number;
+  especie?: string;
 }
 
 export interface Obra {

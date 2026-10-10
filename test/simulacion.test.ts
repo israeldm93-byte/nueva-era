@@ -67,7 +67,7 @@ test('cada saber se puede llegar a descubrir', () => {
   // Todo ingrediente es un material del mundo, algo básico o el producto de otro saber.
   const ids = new Set(TECNICAS.map((t) => t.id));
   const basicos = new Set(['tierra', 'agua', 'cielo']);
-  const materiales = new Set(['madera', 'piedra', 'fibra', 'hierbas', 'bayas', 'semillas', 'carne', 'pescado', 'cereal', 'piel', 'hueso', 'arcilla', 'malaquita', 'casiterita', 'hematites', 'cria']);
+  const materiales = new Set(['madera', 'piedra', 'fibra', 'hierbas', 'bayas', 'semillas', 'carne', 'pescado', 'cereal', 'piel', 'hueso', 'arcilla', 'malaquita', 'casiterita', 'hematites', 'cria', 'huevos', 'leche', 'queso', 'lana']);
   const firmas = new Set<string>();
   for (const t of TECNICAS) {
     for (const c of t.cosas) assert.ok(ids.has(c) || basicos.has(c) || materiales.has(c), `${t.id}: ingrediente desconocido ${c}`);
