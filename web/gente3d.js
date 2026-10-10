@@ -164,6 +164,26 @@ function modelos() {
       { geo: B(0.015, 0.9, 0.7), color: 0xf0e6cc, y: 0.95, z: -0.1 },
       { geo: B(0.02, 0.02, 0.8), color: 0x6a4a2e, y: 0.5, z: -0.1 },
     ]),
+    // El carro de dos ruedas con sus varas, y lo que acarrea (troncos, piedras, gavillas, frutos).
+    carro: fundir([
+      { geo: B(0.72, 0.07, 1.05), color: 0x8a6440, y: 0.46 },
+      { geo: B(0.05, 0.18, 1.05), color: 0x7a5534, x: -0.36, y: 0.56 },
+      { geo: B(0.05, 0.18, 1.05), color: 0x7a5534, x: 0.36, y: 0.56 },
+      { geo: B(0.72, 0.18, 0.05), color: 0x7a5534, y: 0.56, z: -0.52 },
+      { geo: C(0.32, 0.32, 0.06, 10), color: 0x5a3d22, x: -0.42, y: 0.32, rz: Math.PI / 2 },
+      { geo: C(0.32, 0.32, 0.06, 10), color: 0x5a3d22, x: 0.42, y: 0.32, rz: Math.PI / 2 },
+      { geo: C(0.04, 0.04, 0.92, 5), color: 0x6a4a2e, x: 0, y: 0.32, rz: Math.PI / 2 },
+      { geo: B(0.04, 0.04, 1.0), color: 0x6a4a2e, x: -0.22, y: 0.5, z: 0.95, rx: 0.12 },
+      { geo: B(0.04, 0.04, 1.0), color: 0x6a4a2e, x: 0.22, y: 0.5, z: 0.95, rx: 0.12 },
+    ]),
+    cargaTronco: fundir([-0.18, 0, 0.18].map((x, k) => ({ geo: C(0.08, 0.09, 1.0, 6), color: 0x7a5534, x, y: 0.6 + (k === 1 ? 0.12 : 0), rx: Math.PI / 2 }))),
+    cargaPiedras: fundir([0, 1, 2, 3, 4, 5].map((k) => ({ geo: Do(0.12 + (k % 2) * 0.03), color: [0x8b867d, 0x9a948a, 0x7a756d][k % 3], x: Math.cos(k * 2.1) * 0.18, y: 0.62 + (k % 3) * 0.06, z: Math.sin(k * 2.1) * 0.3, rx: k }))),
+    cargaGavilla: fundir([0, 1, 2, 3, 4].map((k) => ({ geo: C(0.09, 0.09, 0.62, 6), color: 0xd8b850, x: (k - 2) * 0.13, y: 0.62 + (k % 2) * 0.1, rx: Math.PI / 2 }))),
+    cargaFrutos: fundir([
+      { geo: C(0.2, 0.16, 0.22, 8), color: 0xb08a50, y: 0.62, z: 0.2 },
+      { geo: C(0.2, 0.16, 0.22, 8), color: 0xb08a50, y: 0.62, z: -0.25 },
+      ...[0, 1, 2, 3].map((k) => ({ geo: Es(0.05, 5, 4), color: [0xc0263a, 0xe07a1e, 0x6a3a8a, 0xd8a020][k], x: (k % 2) * 0.08 - 0.04, y: 0.75, z: k < 2 ? 0.2 : -0.25 })),
+    ]),
     // El escudo redondo, embrazado en el antebrazo izquierdo.
     escudo: fundir([
       { geo: C(0.17, 0.17, 0.025, 12), color: 0x8a6438, x: -0.05, y: -0.09, rz: Math.PI / 2 },
@@ -189,7 +209,9 @@ function modelos() {
 
 /** Lo que trae a casa cada oficio. */
 const CARGA = { lenar: 'tronco', cazar: 'presa', pescar: 'sarta', recolectar: 'frutos', picar: 'piedras', barro: 'piedras', cultivar: 'gavilla' };
-const CARGAS = ['tronco', 'presa', 'sarta', 'frutos', 'piedras', 'gavilla', 'baston', 'boya', 'pezCana', 'escudo', 'canoa', 'velaBarca'];
+const CARGAS = ['tronco', 'presa', 'sarta', 'frutos', 'piedras', 'gavilla', 'baston', 'boya', 'pezCana', 'escudo', 'canoa', 'velaBarca', 'carro', 'cargaTronco', 'cargaPiedras', 'cargaGavilla', 'cargaFrutos'];
+/** Lo que se lleva en el carro según lo que se trae. */
+const EN_CARRO = { tronco: 'cargaTronco', piedras: 'cargaPiedras', gavilla: 'cargaGavilla', frutos: 'cargaFrutos' };
 /** Cargas que se llevan al hombro o a cuestas (y dejan la herramienta en el cinto). */
 const PESADAS = new Set(['tronco', 'presa', 'gavilla']);
 /** Ángulo de a a b por el camino corto. */
@@ -201,6 +223,100 @@ const HERRAMIENTA = {
   pescar: 'cana', recolectar: 'cesta', cultivar: 'azada', barro: 'cesta', pastorear: 'lanza',
 };
 const QUIETOS = new Set(['jugar', 'descansar', 'experimentar']);
+/** Lo que ocupa cada edificio al pasar (radio en unidades del mundo); los campos se pisan. */
+const OCUPA = { choza: 0.88, casa: 0.92, corral: 1.0, gallinero: 0.75, granja: 1.2, almacen: 0.85, horno: 0.7, archivo: 0.85, mercado: 0.95, hoguera: 0.5, obra: 0.6, ruina: 0.7 };
+
+/** ¿Está libre este punto (fuera de todo edificio)? */
+function libre(x, z, obst, margen = 0.15) {
+  return obst.every(([ox, oz, r]) => (x - ox) ** 2 + (z - oz) ** 2 >= (r + margen) ** 2);
+}
+
+/** Saca un punto de dentro de los edificios empujándolo hacia fuera. */
+function fuera(x, z, obst) {
+  for (let i = 0; i < 4; i++) {
+    for (const [ox, oz, r] of obst) {
+      const d = Math.hypot(x - ox, z - oz);
+      if (d < r + 0.2) {
+        const ux = d > 1e-3 ? (x - ox) / d : 1;
+        const uz = d > 1e-3 ? (z - oz) / d : 0;
+        x = ox + ux * (r + 0.25);
+        z = oz + uz * (r + 0.25);
+      }
+    }
+  }
+  return [x, z];
+}
+
+/** Rodea los edificios que corten el tramo p→q (desviándose por el lado más corto). */
+function rodear(p, q, obst, out, prof) {
+  let peor = null;
+  let tmin = Infinity;
+  const dx = q[0] - p[0];
+  const dz = q[1] - p[1];
+  const l2 = dx * dx + dz * dz || 1e-6;
+  for (const o of obst) {
+    const [ox, oz, r] = o;
+    // Si el camino empieza o acaba dentro (se trabaja ahí), ese no se rodea.
+    if ((p[0] - ox) ** 2 + (p[1] - oz) ** 2 < r * r || (q[0] - ox) ** 2 + (q[1] - oz) ** 2 < r * r) continue;
+    const t = acotar(((ox - p[0]) * dx + (oz - p[1]) * dz) / l2, 0, 1);
+    const cx = p[0] + dx * t;
+    const cz = p[1] + dz * t;
+    if ((cx - ox) ** 2 + (cz - oz) ** 2 < (r + 0.2) ** 2 && t < tmin) {
+      tmin = t;
+      peor = [o, cx, cz];
+    }
+  }
+  if (!peor || prof > 5) {
+    out.push(q);
+    return;
+  }
+  const [[ox, oz, r], cx, cz] = peor;
+  let nx = cx - ox;
+  let nz = cz - oz;
+  let nl = Math.hypot(nx, nz);
+  if (nl < 1e-3) {
+    nx = -dz;
+    nz = dx;
+    nl = Math.hypot(nx, nz) || 1;
+  }
+  const desvio = [ox + (nx / nl) * (r + 0.45), oz + (nz / nl) * (r + 0.45)];
+  rodear(p, desvio, obst, out, prof + 1);
+  rodear(desvio, q, obst, out, prof + 1);
+}
+
+/**
+ * Un camino de a a b que no atraviesa nada: rodea los edificios y, si hay que cruzar
+ * la cerca o la muralla, sale o entra por la puerta (al sur).
+ */
+function camino(a, b, plano) {
+  const tramos = [a];
+  const m = plano?.anillo;
+  if (m) {
+    const dentro = (p) => Math.hypot(p[0] - m.cx, p[1] - m.cz) < m.r;
+    if (dentro(a) !== dentro(b)) {
+      const puertaDentro = [m.cx, m.cz + m.r - 0.9];
+      const puertaFuera = [m.cx, m.cz + m.r + 0.9];
+      tramos.push(...(dentro(a) ? [puertaDentro, puertaFuera] : [puertaFuera, puertaDentro]));
+    }
+  }
+  tramos.push(b);
+  const pts = [a];
+  for (let i = 0; i < tramos.length - 1; i++) rodear(tramos[i], tramos[i + 1], plano?.obst ?? [], pts, 0);
+  const largos = [0];
+  for (let i = 1; i < pts.length; i++) largos.push(largos[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  return { pts, largos, total: largos[largos.length - 1] || 1e-6 };
+}
+
+/** El punto del camino a una fracción k de su recorrido. */
+function enCamino(c, k) {
+  const d = acotar(k, 0, 1) * c.total;
+  let i = 1;
+  while (i < c.pts.length - 1 && c.largos[i] < d) i++;
+  const l = c.largos[i] - c.largos[i - 1] || 1e-6;
+  const u = acotar((d - c.largos[i - 1]) / l, 0, 1);
+  return [entre(c.pts[i - 1][0], c.pts[i][0], u), entre(c.pts[i - 1][1], c.pts[i][1], u)];
+}
+
 /** Oficios que se hacen a caballo cuando la aldea tiene caballos domados. */
 const JINETES = new Set(['cazar', 'vigilar', 'asaltar', 'defender', 'pastorear']);
 const PARES = ['muslo', 'pierna', 'pie', 'brazo', 'antebrazo'];
@@ -268,6 +384,45 @@ export class Gente3D {
     this.d = d;
     this.estacion = d.estacion;
     const conocen = new Map(d.aldeas.map((a) => [a.id, new Set(a.conocidos)]));
+    // El plano de cada aldea: lo que estorba al pasar, la cerca (con su puerta) y las
+    // puertas de las chozas y casas, donde vive cada familia.
+    this.planos = new Map();
+    for (const a of d.aldeas) {
+      if (a.abandonada !== null) continue;
+      const [ax, az] = this.terreno.aMundo(a.x, a.y);
+      const obst = [];
+      const puertas = [];
+      for (const e of a.edificios) {
+        const r = OCUPA[e.tipo];
+        if (!r) continue;
+        const [ex, ez] = this.terreno.aMundo(e.x, e.y);
+        obst.push([ex, ez, r]);
+        if (e.tipo === 'choza' || e.tipo === 'casa') {
+          // La puerta mira al centro de la aldea (como la dibuja el edificio).
+          const mira = Math.atan2(ax - ex, az - ez) + (azar(e.x * 7 + e.y * 13) - 0.5) * 0.3;
+          puertas.push([ex + Math.sin(mira) * (r + 0.3), ez + Math.cos(mira) * (r + 0.3), Math.sin(mira), Math.cos(mira)]);
+        }
+      }
+      if (a.obra && !['cerca', 'empalizada', 'muralla'].includes(a.obra.tipo)) obst.push([...this.terreno.aMundo(a.obra.x, a.obra.y), OCUPA.obra]);
+      const muro = ['muralla', 'empalizada', 'cerca'].map((t) => a.edificios.find((e) => e.tipo === t)).find(Boolean);
+      const anillo = muro ? { cx: ax, cz: az, r: 2 * (muro.radio ?? (muro.tipo === 'muralla' ? 3 : 2.7)) } : null;
+      this.planos.set(a.id, { obst, puertas, anillo, fuego: [ax, az] });
+    }
+    // Cada familia, en su choza (los niños con su madre; las parejas juntas).
+    const hogar = new Map();
+    const porId = new Map(d.personas.map((p) => [p.id, p]));
+    const claveHogar = (p, prof = 0) => {
+      const madre = p.madre !== null ? porId.get(p.madre) : null;
+      if (madre && p.edad < 16 && madre.aldea === p.aldea && prof < 4) return claveHogar(madre, prof + 1);
+      return p.pareja !== null ? Math.min(p.id, p.pareja) : p.id;
+    };
+    const familias = new Map();
+    for (const p of d.personas) {
+      const k = claveHogar(p);
+      if (!familias.has(p.aldea)) familias.set(p.aldea, []);
+      if (!familias.get(p.aldea).includes(k)) familias.get(p.aldea).push(k);
+      hogar.set(p.id, k);
+    }
     // Lobos a las puertas: dónde está la manada que amenaza a cada aldea.
     this.alarmas = new Map();
     for (const f of d.fauna ?? []) {
@@ -278,6 +433,14 @@ export class Gente3D {
         this.alarmas.set(a.id, { x: wx, z: wz, estado: f.estado });
       }
     }
+    // Carros: con el saber y animales de tiro (caballos o bueyes), uno por cada dos animales.
+    const carros = new Map(
+      d.aldeas.map((a) => {
+        const tiro = a.edificios.filter((e) => e.tipo === 'corral' && (e.especie === 'caballo' || e.especie === 'vaca'));
+        const n = tiro.reduce((s, e) => s + (e.animales ?? 0), 0);
+        return [a.id, a.conocidos.includes('carro') && n >= 2 ? { quedan: Math.min(6, Math.floor(n / 2)), esp: tiro.some((e) => e.especie === 'caballo') ? 'caballo' : 'vaca' } : { quedan: 0 }];
+      }),
+    );
     // Caballos domados de cada aldea: uno de cada dos sale montado.
     const sillas = new Map(
       d.aldeas.map((a) => [a.id, a.conocidos.includes('doma') ? Math.min(10, Math.floor(a.edificios.reduce((s, e) => s + (e.tipo === 'corral' && e.especie === 'caballo' ? e.animales ?? 0 : 0), 0) / 2)) : 0]),
@@ -319,11 +482,21 @@ export class Gente3D {
       const faldon = mujer || tela || !ropa ? (tela ? tinte : cuero) : null;
       const largoFaldon = mujer ? (tela ? 1.25 : 0.95) : 0.55;
       const capa = consejero ? 0x8e2c2c : ropa && estacion === 'invierno' && !nino ? 0x8a6a48 : null;
-      // Dónde vive y dónde trabaja hoy.
+      // Dónde vive (a la puerta de la choza de su familia) y dónde trabaja hoy.
       const [ax, az] = a ? tr.aMundo(a.x, a.y) : tr.aMundo(p.x, p.y);
-      const ang = azar(p.id * 0.77) * Math.PI * 2;
-      const radio = 1.1 + azar(p.id * 1.91) * 2.4;
-      const casa = [ax + Math.cos(ang) * radio, az + Math.sin(ang) * radio];
+      const plano = this.planos.get(p.aldea);
+      const fams = familias.get(p.aldea) ?? [];
+      const puerta = plano?.puertas.length ? plano.puertas[fams.indexOf(hogar.get(p.id)) % plano.puertas.length] : null;
+      let casa;
+      if (puerta) {
+        const lado = (azar(p.id * 1.91) - 0.5) * 0.9;
+        casa = [puerta[0] + puerta[2] * 0.25 + puerta[3] * lado, puerta[1] + puerta[3] * 0.25 - puerta[2] * lado];
+      } else {
+        const ang = azar(p.id * 0.77) * Math.PI * 2;
+        const radio = 1.1 + azar(p.id * 1.91) * 2.4;
+        casa = [ax + Math.cos(ang) * radio, az + Math.sin(ang) * radio];
+      }
+      if (plano) casa = fuera(casa[0], casa[1], plano.obst);
       let [tx, tz] = tr.aMundo(p.x, p.y);
       tx += (azar(p.id * 3.3) - 0.5) * 1.2;
       tz += (azar(p.id * 4.4) - 0.5) * 1.2;
@@ -336,6 +509,22 @@ export class Gente3D {
         tx += (dx / l) * 1.3;
         tz += (dz / l) * 1.3;
       }
+      // Se trabaja junto a los edificios, no dentro (salvo el pastor, en su corral).
+      if (plano && p.act !== 'pastorear') [tx, tz] = fuera(tx, tz, plano.obst);
+      // Su sitio junto al fuego (que no caiga dentro de una choza).
+      let asiento = null;
+      if (plano) {
+        const base = azar(p.id * 5.7) * Math.PI * 2;
+        const r0 = consejeros.has(p.id) ? 1.15 : 1.5 + azar(p.id) * 1.3;
+        const sinFuego = plano.obst.filter((o) => o[2] !== OCUPA.hoguera);
+        for (let i = 0; i < 12 && !asiento; i++) {
+          const ang = base + i * 0.52;
+          const sx = ax + Math.cos(ang) * r0;
+          const sz = az + Math.sin(ang) * r0;
+          if (libre(sx, sz, sinFuego, 0.2)) asiento = [sx, sz];
+        }
+        asiento ??= fuera(ax + Math.cos(base) * r0, az + Math.sin(base) * r0, sinFuego);
+      }
       const metal = sabe.has('hierro') ? 0xaab1b8 : sabe.has('bronce') ? 0xc9923e : sabe.has('cobre') ? 0xc07a3a : 0x8d8a82;
       const herramienta = p.edad >= 12 ? (ARMADOS.has(p.act) ? armaDe(p.act, sabe, p.id) : HERRAMIENTA[p.act] ?? null) : null;
       const per = {
@@ -343,6 +532,10 @@ export class Gente3D {
         idx,
         casa,
         trabajo: [tx, tz],
+        ruta: camino(casa, [tx, tz], plano),
+        asiento,
+        rutaFuego: asiento ? camino(casa, asiento, plano) : null,
+        puerta,
         escala: (nino ? 0.5 + p.edad * 0.035 : 1) * (mujer ? 1.18 : 1.25) * (0.94 + azar(p.id * 8.8) * 0.12),
         ancho: 0.92 + p.genes.fuerza * 0.16 + (mujer ? -0.06 : 0.04),
         cabezon: nino ? 1.25 - p.edad * 0.012 : 1,
@@ -358,6 +551,7 @@ export class Gente3D {
         escudo: p.edad >= 14 && p.act !== 'cazar' && ARMADOS.has(p.act) && herramienta !== 'arco' && sabe.has('escudo'),
         barca,
         vela: barca && sabe.has('vela'),
+        carro: p.edad >= 14 && ['lenar', 'picar', 'barro', 'cultivar', 'recolectar'].includes(p.act) && (carros.get(p.aldea)?.quedan ?? 0) > 0 ? (carros.get(p.aldea).quedan--, carros.get(p.aldea).esp) : null,
         montado: p.edad >= 14 && JINETES.has(p.act) && (sillas.get(p.aldea) ?? 0) > 0 && (sillas.set(p.aldea, sillas.get(p.aldea) - 1), true),
         cesta: (p.act === 'recolectar' || p.act === 'picar' || p.act === 'barro') && p.edad >= 12,
         viejo,
@@ -444,28 +638,40 @@ export class Gente3D {
         k = 1 - suave((f - 0.68) / 0.16);
         anda = true;
       } else k = 0;
-      let x = entre(per.casa[0], per.trabajo[0], k);
-      let z = entre(per.casa[1], per.trabajo[1], k);
+      // Por el camino que rodea los edificios (y sale por la puerta de la cerca).
+      let [x, z] = enCamino(per.ruta, k);
       let pose = anda ? 'andar' : k === 1 ? p.act : 'pie';
       let mira = null;
-      // De noche, alrededor del fuego; el consejo en el círculo de dentro.
-      if ((f > 0.86 || f < 0.04) && a && !quieto && p.act !== 'vigilar') {
+      per.oculto = false;
+      const guardia = p.act === 'vigilar' || p.act === 'defender';
+      if ((f > 0.86 || f < 0.045) && a && !guardia) {
         const [hx, hz] = tr.aMundo(a.x, a.y);
-        const r = per.consejero ? 1.15 : 1.9 + azar(p.id) * 1.6;
-        const ang = azar(p.id * 5.7) * Math.PI * 2;
-        const u = Math.min(1, f > 0.86 ? (f - 0.86) / 0.04 : 1);
-        x = entre(per.casa[0], hx + Math.cos(ang) * r, u);
-        z = entre(per.casa[1], hz + Math.sin(ang) * r, u);
-        if (u < 1) pose = 'andar';
-        else {
-          pose = per.consejero && hablante === p.id ? 'hablar' : per.nino ? 'pie' : 'sentado';
-          mira = [hx, hz];
+        if (f > 0.86 && f < 0.91 && per.rutaFuego && !quieto) {
+          // Al caer la noche, junto al fuego (el consejo en el círculo de dentro);
+          // luego, de vuelta a la choza.
+          const ida = Math.min(1, (f - 0.86) / 0.012);
+          const vuelta = f > 0.895 ? Math.min(1, (f - 0.895) / 0.013) : 0;
+          [x, z] = enCamino(per.rutaFuego, ida - vuelta);
+          if (ida < 1 || vuelta > 0) pose = 'andar';
+          else {
+            pose = per.consejero && hablante === p.id ? 'hablar' : per.nino ? 'pie' : 'sentado';
+            mira = [hx, hz];
+          }
+        } else if (f >= 0.91 || f < 0.045) {
+          // A dormir: dentro de su choza (quien no tiene, a cubierto junto a la puerta del fuego).
+          [x, z] = per.casa;
+          if (per.puerta) per.oculto = true;
+          else {
+            pose = 'sentado';
+            mira = [hx, hz];
+          }
         }
       }
       // Con lobos a las puertas, los adultos salen juntos a plantarles cara (con lo que
       // tengan: lanzas, palos, antorchas) y los niños corren a casa.
       const alarma = this.alarmas?.get(p.aldea);
       if (alarma && a && !quieto) {
+        per.oculto = false;
         const [hx, hz] = tr.aMundo(a.x, a.y);
         if (p.edad < 12) {
           x = per.casa[0];
@@ -485,10 +691,15 @@ export class Gente3D {
           per.alarma = true;
         }
       } else per.alarma = false;
-      if (p.act === 'jugar' && !alarma) {
+      if (p.act === 'jugar' && !alarma && !per.oculto) {
+        // Juegan delante de su puerta, hacia el centro (no dentro de las chozas).
         const u = t * 1.6 + p.id;
-        x = per.casa[0] + Math.cos(u) * 1.2;
-        z = per.casa[1] + Math.sin(u * 1.2) * 1.0;
+        const cx = per.casa[0] + (per.puerta ? per.puerta[2] * 1.3 : 0);
+        const cz = per.casa[1] + (per.puerta ? per.puerta[3] * 1.3 : 0);
+        x = cx + Math.cos(u) * 0.9;
+        z = cz + Math.sin(u * 1.2) * 0.7;
+        const plano = this.planos?.get(p.aldea);
+        if (plano) [x, z] = fuera(x, z, plano.obst);
         pose = 'correr';
       } else if (p.act === 'descansar') pose = 'sentado';
       else if (p.act === 'experimentar') pose = 'experimentar';
@@ -519,6 +730,23 @@ export class Gente3D {
       let carga = null;
       if ((pose === 'andar' || pose === 'correr') && f >= 0.68 && f < 0.86 && !quieto && p.edad >= 12) carga = CARGA[p.act] ?? null;
       if (carga === 'gavilla' && this.estacion !== 'verano' && this.estacion !== 'otoño') carga = null;
+      // Con carro: el animal tira de él a su lado y la carga va en el carro (las manos, libres).
+      per.tiro = null;
+      if (per.carro && carga && EN_CARRO[carga] && !per.oculto) {
+        const fx = Math.sin(per.ang);
+        const fz = Math.cos(per.ang);
+        const obst = this.planos?.get(p.aldea)?.obst ?? [];
+        // El animal y el carro tampoco atraviesan las chozas.
+        const [bx, bz] = fuera(x + fz * 0.75 + fx * 0.35, z - fx * 0.75 + fz * 0.35, obst);
+        const [kx, kz] = fuera(bx - fx * 1.25, bz - fz * 1.25, obst);
+        per.tiro = { x: bx, z: bz, ang: per.ang, v: per.vel ?? 0, esp: per.carro };
+        E.set(0, per.ang, 0);
+        Q.setFromEuler(E);
+        BARCA.compose(V.set(kx, tr.alturaEn(kx, kz), kz), Q, ESC.set(1, 1, 1));
+        this.dejar(carg, 'carro', BARCA);
+        this.dejar(carg, EN_CARRO[carga], BARCA);
+        carga = null;
+      }
       per.carga = carga;
       per.baston = per.viejo && !carga && (pose === 'andar' || pose === 'pie');
       // En el agua, en su canoa: sentado, remando o pescando.
@@ -880,7 +1108,9 @@ export class Gente3D {
     // Raíz: posición, orientación y tamaño.
     E.set(0, per.ang, 0);
     Q.setFromEuler(E);
-    M.raiz.compose(V.set(x, y + bote * s, z), Q, ESC.set(s * per.ancho, s, s));
+    // Quien duerme dentro de su choza no se ve.
+    const vis = per.oculto ? 0 : 1;
+    M.raiz.compose(V.set(x, y + bote * s, z), Q, ESC.set(s * per.ancho * vis, s * vis, s * vis));
     articular(M.pelvis, M.raiz, 0, alto, 0);
     articular(M.musloI, M.pelvis, -0.056, -0.02, 0, caderaI, -abreI);
     articular(M.musloD, M.pelvis, 0.056, -0.02, 0, caderaD, abreD);

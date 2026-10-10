@@ -564,7 +564,8 @@ export class Fauna3D {
     };
     for (const a of this.fieras.values()) contar(a.esp, 1);
     contar('lobo', 12);
-    contar('caballo', 24);
+    contar('caballo', 36);
+    contar('vaca', 12);
     for (const r of this.rebanos) contar(r.esp, r.miembros.length + 3);
     for (const a of this.ovejas.values()) contar(a.esp, 1);
     cuenta.gallina = this.gallinas?.length ?? 0;
@@ -1171,6 +1172,25 @@ export class Fauna3D {
       this.cuadrupedo(c, caballo, false);
     }
     for (const [id, c] of this.monturas) if (t - c.visto > 5) this.monturas.delete(id);
+    // Los caballos y bueyes que tiran de los carros, al paso de quien los lleva.
+    this.tiros ??= new Map();
+    for (const q of gente) {
+      if (!q.tiro) continue;
+      let c = this.tiros.get(q.p.id);
+      if (!c || c.esp !== q.tiro.esp) {
+        c = this.nuevo(q.tiro.esp, q.tiro.x, q.tiro.z, q.p.id * 5.3 + 7);
+        c.escala = q.tiro.esp === 'vaca' ? 0.85 : 0.9;
+        this.tiros.set(q.p.id, c);
+      }
+      c.visto = t;
+      if ((q.x - objetivo.x) ** 2 + (q.z - objetivo.z) ** 2 > RADIO_VIDA * RADIO_VIDA) continue;
+      Object.assign(c, { x: q.tiro.x, z: q.tiro.z, ang: q.tiro.ang, v: q.tiro.v, estado: 'pie' });
+      const esp = ESPECIES[c.esp];
+      this.avanzar(c, esp, dt);
+      this.postura(c, esp, t);
+      this.cuadrupedo(c, esp, false);
+    }
+    for (const [id, c] of this.tiros) if (t - c.visto > 5) this.tiros.delete(id);
     // Perros, con su dueño (y los ciervos también se asustan de ellos).
     if (this.perros.size) {
       const porId = new Map();

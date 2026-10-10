@@ -62,6 +62,8 @@ export interface Contexto {
   holgura: number;
   radio: number;
   herramienta: number;
+  /** Con carros y animales de tiro se trae más en cada viaje. */
+  acarreo: number;
   agua: boolean;
   rocas: boolean;
   barro: boolean;
@@ -152,7 +154,7 @@ export function contexto(m: Mundo, a: Aldea, gente: Persona[], est: number): Con
     else precio[mineral] = 0.02;
   }
 
-  const radio = RADIO_TRABAJO + (conoce(a, 'rueda') ? 2 : 0) + (conoce(a, 'carro') ? 2 : 0) + (aCaballo(a) ? 2 : 0);
+  const radio = RADIO_TRABAJO + (conoce(a, 'rueda') ? 2 : 0) + (deTiro(a) ? 2 : 0) + (aCaballo(a) ? 2 : 0);
   let camposPorTrabajar = 0;
   const semillas = (a.despensa.cereal ?? 0) + (a.despensa.semillas ?? 0);
   for (const e of a.edificios) {
@@ -170,6 +172,7 @@ export function contexto(m: Mundo, a: Aldea, gente: Persona[], est: number): Con
     holgura: clamp(dias / 12, 0, 1),
     radio,
     herramienta: herramienta(a) * rindeFuera(m),
+    acarreo: deTiro(a) ? 1.4 : 1,
     agua: hayCerca(m, a.x, a.y, radio, (i) => PESCABLE[m.terreno[i]] && alcanzable(m, a, i, false)),
     // Piedras sueltas hay casi en cualquier parte; en colinas y montañas, muchas más.
     rocas: hayCerca(m, a.x, a.y, radio, (i) => m.recursos.piedra[i] >= 1 && alcanzable(m, a, i, false)),
@@ -483,7 +486,7 @@ function lenar(m: Mundo, p: Persona, c: Contexto): number {
   const i = mejorCasilla(m, a.x, a.y, c.radio, (j, d) => (alcanzable(m, a, j, barca) ? Math.min(R.madera[j], 15) * lejania(d) : 0));
   if (i < 0) return 0;
   situar(m, p, i);
-  const n = r2(Math.min(R.madera[i], 3 * (0.6 + 0.6 * p.genes.fuerza) * (sabe(p, 'hacha') ? 2 : 1) * c.herramienta));
+  const n = r2(Math.min(R.madera[i], 3 * (0.6 + 0.6 * p.genes.fuerza) * (sabe(p, 'hacha') ? 2 : 1) * c.herramienta * c.acarreo));
   R.madera[i] = r2(R.madera[i] - n);
   guardar(a, 'madera', n);
   return n;
@@ -504,7 +507,7 @@ function picar(m: Mundo, p: Persona, c: Contexto): number {
   if (i < 0) return 0;
   situar(m, p, i);
   const fuerza = (0.6 + 0.6 * p.genes.fuerza) * c.herramienta;
-  const n = r2(Math.min(R.piedra[i], 3 * fuerza));
+  const n = r2(Math.min(R.piedra[i], 3 * fuerza * c.acarreo));
   R.piedra[i] = r2(R.piedra[i] - n);
   guardar(a, 'piedra', n);
   for (const mineral of MINERALES) {
@@ -524,7 +527,7 @@ function barro(m: Mundo, p: Persona, c: Contexto): number {
   const i = mejorCasilla(m, a.x, a.y, c.radio, (j, d) => (alcanzable(m, a, j, barca) ? Math.min(R.arcilla[j], 20) * lejania(d) : 0));
   if (i < 0) return 0;
   situar(m, p, i);
-  const n = r2(Math.min(R.arcilla[i], 4 * (0.6 + 0.6 * p.genes.fuerza)));
+  const n = r2(Math.min(R.arcilla[i], 4 * (0.6 + 0.6 * p.genes.fuerza) * c.acarreo));
   R.arcilla[i] = r2(R.arcilla[i] - n);
   guardar(a, 'arcilla', n);
   return n;
@@ -746,6 +749,10 @@ function especieCorral(m: Mundo, a: Aldea): string {
 
 /** Cuántos animales caben en un corral (con granja, muchos más). */
 export const capacidadCorral = (a: Aldea): number => (tiene(a, 'granja') ? 40 : 25);
+
+/** Si la aldea tiene carros y animales que tiren de ellos (caballos o bueyes). */
+export const deTiro = (a: Aldea): boolean =>
+  conoce(a, 'carro') && a.edificios.some((e) => e.tipo === 'corral' && (e.especie === 'caballo' || e.especie === 'vaca') && (e.animales ?? 0) >= 2);
 
 /** Si en la aldea montan a caballo. */
 export const aCaballo = (a: Aldea): boolean => conoce(a, 'doma') && a.edificios.some((e) => e.tipo === 'corral' && e.especie === 'caballo' && (e.animales ?? 0) >= 2);
