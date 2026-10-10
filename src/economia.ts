@@ -28,7 +28,7 @@ import {
   type TipoEdificio,
 } from './catalogo.ts';
 import { anotar } from './cronica.ts';
-import { alcanzable, hayCerca, mejorCasilla } from './mapa.ts';
+import { alcanzable, hayCerca, mejorCasilla, orilla } from './mapa.ts';
 import { distancia as distanciaXY } from './matematicas.ts';
 import { edad } from './mundo.ts';
 import { ACCIONES, ALINEADAS, aprender, entradas, pensar, type Pensamiento, type Situacion } from './mente.ts';
@@ -650,7 +650,7 @@ function terminarObra(m: Mundo, a: Aldea): void {
   if (!m.construidos.includes(obra.tipo)) {
     m.construidos.push(obra.tipo);
     anotar(m, 'edificio', `En ${a.nombre} se levanta ${articulo(tipo)} por primera vez en el mundo.`, a.id);
-  } else if (['cerca', 'empalizada', 'muralla', 'archivo', 'mercado'].includes(obra.tipo) && cuantos(a, obra.tipo) === 1) {
+  } else if (['cerca', 'empalizada', 'muralla', 'archivo', 'mercado', 'puente'].includes(obra.tipo) && cuantos(a, obra.tipo) === 1) {
     anotar(m, 'edificio', `${a.nombre} ya tiene ${articulo(tipo)}.`, a.id);
   }
 }
@@ -717,6 +717,8 @@ export function planificar(m: Mundo, a: Aldea, gente: Persona[]): void {
   if (conoce(a, 'campo') && cuantos(a, 'campo') < Math.ceil(n * 0.6) + 2 && grano >= 4) opciones.push(['campo', 0.85]);
   if (conoce(a, 'corral') && (a.despensa.cria ?? 0) >= 2 && cuantos(a, 'corral') < 1 + n / 25) opciones.push(['corral', 0.7]);
   if (conoce(a, 'gallinero') && cuantos(a, 'gallinero') < 1 + Math.floor(n / 30)) opciones.push(['gallinero', 0.75]);
+  // Un puente si hay un río cerca con tierra al otro lado.
+  if (conoce(a, 'puente') && !tiene(a, 'puente') && n >= 8) opciones.push(['puente', 0.8]);
   if (conoce(a, 'granja') && tiene(a, 'corral') && !tiene(a, 'granja') && n >= 15) opciones.push(['granja', 0.6]);
   if (conoce(a, 'vasija') && !tiene(a, 'almacen')) opciones.push(['almacen', 0.6]);
   if (conoce(a, 'horno') && !tiene(a, 'horno')) opciones.push(['horno', 0.6]);
@@ -742,6 +744,28 @@ function lugarPara(m: Mundo, a: Aldea, tipo: string): number {
   // Los muros rodean la aldea: se apuntan en su centro.
   const rodea = (t: string) => t === 'cerca' || t === 'empalizada' || t === 'muralla';
   if (rodea(tipo)) return a.y * m.ancho + a.x;
+  if (tipo === 'puente') {
+    // Sobre el río, donde enfrente haya tierra de la otra orilla.
+    const aca = orilla(m, a);
+    return mejorCasilla(m, a.x, a.y, 5, (i, d) => {
+      if (m.terreno[i] !== RIO || !aca.has(i)) return 0;
+      const x = i % m.ancho;
+      const y = (i - x) / m.ancho;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        for (let k = 1; k <= 2; k++) {
+          const xx = x + dx * k;
+          const yy = y + dy * k;
+          if (xx < 0 || yy < 0 || xx >= m.ancho || yy >= m.alto) break;
+          const j = yy * m.ancho + xx;
+          const t = m.terreno[j];
+          if (t === RIO) continue;
+          if (t !== AGUA && !aca.has(j)) return 1 / (1 + d);
+          break;
+        }
+      }
+      return 0;
+    });
+  }
   const ocupadas = new Set<number>();
   for (const b of m.aldeas) {
     for (const e of b.edificios) if (!rodea(e.tipo)) ocupadas.add(e.y * m.ancho + e.x);

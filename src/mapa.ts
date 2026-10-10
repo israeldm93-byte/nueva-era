@@ -423,6 +423,45 @@ export function calcularMasas(terreno: number[], ancho: number, alto: number): n
 
 const cacheMasas = new WeakMap<number[], { masa: number[]; continente: number }>();
 
+/** Hasta dónde se mira qué queda en la misma orilla que una aldea. */
+const RADIO_ORILLA = 16;
+const cacheOrillas = new WeakMap<number[], Map<number, Set<number>>>();
+
+/**
+ * Las casillas a las que se llega a pie desde una aldea sin cruzar ríos ni lagos (y el
+ * agua que las toca, para pescar desde la orilla).
+ */
+export function orilla(m: Mundo, a: { x: number; y: number }): Set<number> {
+  let porAldea = cacheOrillas.get(m.terreno);
+  if (!porAldea) cacheOrillas.set(m.terreno, (porAldea = new Map()));
+  const inicio = a.y * m.ancho + a.x;
+  let set = porAldea.get(inicio);
+  if (set) return set;
+  set = new Set([inicio]);
+  const pila = [inicio];
+  const agua = (t: number) => t === AGUA || t === RIO;
+  while (pila.length) {
+    const j = pila.pop()!;
+    const x = j % m.ancho;
+    const y = (j - x) / m.ancho;
+    for (const [dx, dy] of VECINOS4) {
+      const xx = x + dx;
+      const yy = y + dy;
+      if (xx < 0 || yy < 0 || xx >= m.ancho || yy >= m.alto || Math.max(Math.abs(xx - a.x), Math.abs(yy - a.y)) > RADIO_ORILLA) continue;
+      const v = yy * m.ancho + xx;
+      if (set.has(v)) continue;
+      if (agua(m.terreno[v])) {
+        set.add(v);
+        continue;
+      }
+      set.add(v);
+      pila.push(v);
+    }
+  }
+  porAldea.set(inicio, set);
+  return set;
+}
+
 /** Masas de tierra del mundo (se calculan una vez por mapa) y cuál es el continente. */
 export function masas(m: Mundo): { masa: number[]; continente: number } {
   let c = cacheMasas.get(m.terreno);
@@ -551,8 +590,14 @@ export function puntuarSitio(m: Mundo, x: number, y: number): number {
  * ¿Puede alguien de esta aldea trabajar en la casilla i? A pie solo se llega a la
  * propia tierra (los ríos se vadean) y se pesca desde la orilla; en barca, a todas partes.
  */
-export function alcanzable(m: Mundo, a: { x: number; y: number }, i: number, barca: boolean): boolean {
+export function alcanzable(m: Mundo, a: { x: number; y: number; edificios?: { tipo: string }[] }, i: number, barca: boolean): boolean {
   if (barca) return true;
+  // Sin barca ni puente, lo que queda al otro lado del río no se alcanza.
+  if (a.edificios && !a.edificios.some((e) => e.tipo === 'puente') && !orilla(m, a).has(i)) {
+    const x = i % m.ancho;
+    const y = (i - x) / m.ancho;
+    if (Math.max(Math.abs(x - a.x), Math.abs(y - a.y)) <= RADIO_ORILLA) return false;
+  }
   const { masa } = masas(m);
   const k = masa[a.y * m.ancho + a.x];
   if (m.terreno[i] !== AGUA) return masa[i] === k;

@@ -152,6 +152,18 @@ function modelos() {
       ...[0, 1, 2, 3].map((k) => ({ geo: Es(0.022, 4, 3), color: 0xc8a040, x: 0.11 + Math.cos(k * 1.7) * 0.03, y: 0.27 + Math.sin(k * 1.7) * 0.02, z: -0.36, sz: 2.2 })),
       { geo: C(0.034, 0.034, 0.03, 6), color: 0x8a6a3a, x: 0.11, y: 0.31, z: -0.06, rx: Math.PI / 2 - 0.15 },
     ]),
+    // La canoa (tronco vaciado) y, con la navegación a vela, su mástil y su vela.
+    canoa: fundir([
+      { geo: B(0.34, 0.12, 1.2), color: 0x7a5534, y: 0.06 },
+      { geo: Co(0.17, 0.32, 6), color: 0x7a5534, y: 0.06, z: 0.75, rx: Math.PI / 2, sy: 1, sx: 1, sz: 0.4 },
+      { geo: Co(0.17, 0.32, 6), color: 0x7a5534, y: 0.06, z: -0.75, rx: -Math.PI / 2, sz: 0.4 },
+      { geo: B(0.26, 0.02, 1.08), color: 0x4a3220, y: 0.12 },
+    ]),
+    velaBarca: fundir([
+      { geo: C(0.018, 0.022, 1.5, 5), color: 0x6a4a2e, y: 0.8, z: 0.25 },
+      { geo: B(0.015, 0.9, 0.7), color: 0xf0e6cc, y: 0.95, z: -0.1 },
+      { geo: B(0.02, 0.02, 0.8), color: 0x6a4a2e, y: 0.5, z: -0.1 },
+    ]),
     // El escudo redondo, embrazado en el antebrazo izquierdo.
     escudo: fundir([
       { geo: C(0.17, 0.17, 0.025, 12), color: 0x8a6438, x: -0.05, y: -0.09, rz: Math.PI / 2 },
@@ -177,7 +189,7 @@ function modelos() {
 
 /** Lo que trae a casa cada oficio. */
 const CARGA = { lenar: 'tronco', cazar: 'presa', pescar: 'sarta', recolectar: 'frutos', picar: 'piedras', barro: 'piedras', cultivar: 'gavilla' };
-const CARGAS = ['tronco', 'presa', 'sarta', 'frutos', 'piedras', 'gavilla', 'baston', 'boya', 'pezCana', 'escudo'];
+const CARGAS = ['tronco', 'presa', 'sarta', 'frutos', 'piedras', 'gavilla', 'baston', 'boya', 'pezCana', 'escudo', 'canoa', 'velaBarca'];
 /** Cargas que se llevan al hombro o a cuestas (y dejan la herramienta en el cinto). */
 const PESADAS = new Set(['tronco', 'presa', 'gavilla']);
 /** Ángulo de a a b por el camino corto. */
@@ -214,6 +226,7 @@ const Q = new THREE.Quaternion();
 const V = new THREE.Vector3();
 const PUNTA = new THREE.Vector3();
 const ESC = new THREE.Vector3();
+const BARCA = new THREE.Matrix4();
 const UNO = new THREE.Vector3(1, 1, 1);
 
 /**
@@ -314,7 +327,9 @@ export class Gente3D {
       let [tx, tz] = tr.aMundo(p.x, p.y);
       tx += (azar(p.id * 3.3) - 0.5) * 1.2;
       tz += (azar(p.id * 4.4) - 0.5) * 1.2;
-      if (p.act === 'pescar') {
+      // Con canoa se pesca mar adentro; sin ella, desde la orilla.
+      const barca = p.act === 'pescar' && p.edad >= 14 && sabe.has('canoa');
+      if (p.act === 'pescar' && !barca) {
         const dx = ax - tx;
         const dz = az - tz;
         const l = Math.hypot(dx, dz) || 1;
@@ -341,6 +356,8 @@ export class Gente3D {
         capa,
         consejero,
         escudo: p.edad >= 14 && p.act !== 'cazar' && ARMADOS.has(p.act) && herramienta !== 'arco' && sabe.has('escudo'),
+        barca,
+        vela: barca && sabe.has('vela'),
         montado: p.edad >= 14 && JINETES.has(p.act) && (sillas.get(p.aldea) ?? 0) > 0 && (sillas.set(p.aldea, sillas.get(p.aldea) - 1), true),
         cesta: (p.act === 'recolectar' || p.act === 'picar' || p.act === 'barro') && p.edad >= 12,
         viejo,
@@ -504,12 +521,26 @@ export class Gente3D {
       if (carga === 'gavilla' && this.estacion !== 'verano' && this.estacion !== 'otoño') carga = null;
       per.carga = carga;
       per.baston = per.viejo && !carga && (pose === 'andar' || pose === 'pie');
-      const y = tr.alturaEn(x, z);
+      // En el agua, en su canoa: sentado, remando o pescando.
+      let y = tr.alturaEn(x, z);
+      per.enBarca = false;
+      if (per.barca && this.enAgua(x, z)) {
+        y = this.nivelAgua(x, z, t) - 0.02;
+        per.enBarca = true;
+        pose = pose === 'pescar' ? 'barcaPesca' : 'remar';
+      }
       this.postura(per, pose, t, x, y, z);
       if (carga) this.dejar(carg, carga, carga === 'sarta' ? this.M.manoI : this.M.torso);
       if (per.baston) this.dejar(carg, 'baston', this.M.mano);
       if (per.escudo && pose !== 'sentado' && pose !== 'vigilarNoche' && (k > 0 || p.act === 'vigilar' || p.act === 'defender')) this.dejar(carg, 'escudo', this.M.antebrazoI);
-      if (pose === 'pescar') this.pesca(per, t, carg);
+      if (pose === 'pescar' || pose === 'barcaPesca') this.pesca(per, t, carg);
+      if (per.enBarca) {
+        E.set(0, per.ang, Math.sin(t * 1.3 + p.id) * 0.04);
+        Q.setFromEuler(E);
+        BARCA.compose(V.set(x, y, z), Q, ESC.set(1, 1, 1));
+        this.dejar(carg, 'canoa', BARCA);
+        if (per.vela) this.dejar(carg, 'velaBarca', BARCA);
+      }
       // Herramienta en la mano derecha (o antorcha de noche).
       // Ante los lobos, sus armas o, si no tienen, un palo (de noche, una antorcha).
       const arma = per.herramienta === 'lanza' || per.herramienta === 'espada' || per.herramienta === 'arco';
@@ -544,6 +575,15 @@ export class Gente3D {
   }
 
   /** Altura del agua (o del suelo, si no hay agua) en un punto. */
+  /** Si un punto cae en el agua (lago, mar o río). */
+  enAgua(x, z) {
+    const d = this.d;
+    const [tx, ty] = this.terreno.aCasilla(x, z);
+    if (!d || tx < 0 || ty < 0 || tx >= d.ancho || ty >= d.alto) return false;
+    const ter = d.terreno[ty * d.ancho + tx];
+    return ter === AGUA || ter === RIO;
+  }
+
   nivelAgua(x, z, t) {
     const tr = this.terreno;
     const d = this.d;
@@ -633,6 +673,27 @@ export class Gente3D {
           hombroD = -1.0;
           codoD = -1.5;
           herrX = 1.4;
+        }
+        break;
+      }
+      case 'remar':
+      case 'barcaPesca': {
+        // Sentado en el fondo de la canoa, piernas estiradas.
+        alto = 0.2;
+        caderaI = caderaD = -1.45;
+        abreI = abreD = 0.2;
+        rodI = rodD = 0.35;
+        if (pose === 'remar') {
+          const r = Math.sin(t * 3.2 + id);
+          hombroI = hombroD = -0.9 + 0.55 * r;
+          codoI = codoD = -0.5 - 0.3 * r;
+          inclina = 0.15 + 0.12 * r;
+        } else {
+          hombroD = -0.95 + 0.06 * Math.sin(t * 0.8 + id);
+          codoD = -0.55;
+          hombroI = -0.7;
+          codoI = -0.8;
+          if ((t * 0.06 + id * 0.37) % 1 > 0.93) hombroD -= 0.6;
         }
         break;
       }

@@ -141,6 +141,14 @@ function modelos() {
       { geo: B(0.8, 0.08, 0.8), color: 0x7a5534, y: 1.9 },
       { geo: Co(0.62, 0.5, 4), color: 0xc9a24f, y: 2.45, ry: Math.PI / 4 },
     ]),
+    // El puente: tablero de tablones con barandillas y pilotes, de orilla a orilla (a lo largo de z).
+    puente: fundir([
+      { geo: B(1.0, 0.09, 2.9), color: 0x8a6440 },
+      ...[-1.1, -0.55, 0, 0.55, 1.1].map((z) => ({ geo: B(1.02, 0.02, 0.06), color: 0x6a4a2e, y: 0.055, z })),
+      ...[-1.35, -0.45, 0.45, 1.35].flatMap((z) => [-0.47, 0.47].map((x) => ({ geo: B(0.07, 0.5, 0.07), color: 0x5a3d22, x, y: 0.25, z }))),
+      ...[-0.47, 0.47].map((x) => ({ geo: B(0.05, 0.05, 2.8), color: 0x7a5534, x, y: 0.48 })),
+      ...[-0.5, 0.5].flatMap((z) => [-0.4, 0.4].map((x) => ({ geo: C(0.07, 0.07, 1.4, 6), color: 0x4e3622, x, y: -0.7, z }))),
+    ]),
     // El gallinero: una casita sobre patas con su rampa y un corralito delante.
     gallinero: fundir([
       ...[[-0.3, -0.25], [0.3, -0.25], [-0.3, 0.2], [0.3, 0.2]].map(([x, z]) => ({ geo: B(0.06, 0.4, 0.06), color: 0x6a4a2e, x, y: 0.2, z: z - 0.3 })),
@@ -219,7 +227,7 @@ function modelos() {
   };
 }
 
-const TIPOS = ['choza', 'casa', 'hoguera', 'campo', 'corral', 'gallinero', 'granja', 'almacen', 'horno', 'archivo', 'mercado', 'ruina', 'obra'];
+const TIPOS = ['choza', 'casa', 'hoguera', 'campo', 'corral', 'gallinero', 'granja', 'puente', 'almacen', 'horno', 'archivo', 'mercado', 'ruina', 'obra'];
 
 export class Edificios3D {
   constructor(escena, terreno) {
@@ -275,6 +283,10 @@ export class Edificios3D {
       const ruina = a.abandonada !== null;
       for (const e of a.edificios) {
         if (e.tipo === 'cerca' || e.tipo === 'empalizada' || e.tipo === 'muralla') continue;
+        if (e.tipo === 'puente') {
+          this.ponerPuente(d, e, ruina, n);
+          continue;
+        }
         const tipo = ruina && e.tipo !== 'campo' ? 'ruina' : e.tipo;
         if (!TIPOS.includes(tipo)) continue;
         // Las casas miran hacia el centro de la aldea.
@@ -414,6 +426,22 @@ export class Edificios3D {
     });
     instancias(this.escena, im, 'llamas', this.geo.llama, this.matLlama, Math.max(64, this.hogueras.length + this.fuegos.length * 4 + 16), { sombra: false });
     instancias(this.escena, im, 'humo', this.geo.humo, this.matHumo, Math.max(64, this.hornos.length * 4 + this.fuegos.length * 3 + 16), { sombra: false });
+  }
+
+  /** El puente cruza el río de través, a la altura de las orillas. */
+  ponerPuente(d, e, ruina, n) {
+    const tr = this.terreno;
+    const im = this.im['ed-puente'];
+    if (ruina || n.puente >= im.instanceMatrix.count) return;
+    const W = d.ancho;
+    const rio = (x, y) => x >= 0 && y >= 0 && x < W && y < d.alto && (d.terreno[y * W + x] === RIO || d.terreno[y * W + x] === AGUA);
+    // Si el río corre de este a oeste, el puente va de norte a sur, y al revés.
+    const esteOeste = (rio(e.x - 1, e.y) ? 1 : 0) + (rio(e.x + 1, e.y) ? 1 : 0) >= (rio(e.x, e.y - 1) ? 1 : 0) + (rio(e.x, e.y + 1) ? 1 : 0);
+    const [x, z] = tr.aMundo(e.x, e.y);
+    const [ax, az] = esteOeste ? [x, z - T * 0.75] : [x - T * 0.75, z];
+    const [bx, bz] = esteOeste ? [x, z + T * 0.75] : [x + T * 0.75, z];
+    const y = Math.max(tr.alturaEn(ax, az), tr.alturaEn(bx, bz)) + 0.12;
+    colocar(im, n.puente++, x, y, z, esteOeste ? 0 : Math.PI / 2);
   }
 
   /** Cada aldea, sus tumbas en filas (las recientes, de tierra removida; las viejas, ya con hierba). */
