@@ -645,6 +645,12 @@ export class Mundo3D {
     const im = this.gente.im;
     const cuerpos = [im.torso, im.cabeza, im.pelvis].filter(Boolean);
     const golpes = this.raycaster.intersectObjects([...cuerpos, this.terreno.malla], false);
+    // ¿Un animal más cerca que la primera persona o que el suelo?
+    const animal = this.fauna.tocar(this.raycaster.ray);
+    if (animal && (!golpes.length || animal.t < golpes[0].distance + 0.3)) {
+      this.alTocar?.({ animal: animal.info });
+      return;
+    }
     for (const g of golpes) {
       if (g.object !== this.terreno.malla && g.instanceId !== undefined) {
         const per = this.gente.lista[g.instanceId];
@@ -656,7 +662,7 @@ export class Mundo3D {
       if (g.object === this.terreno.malla) {
         // ¿Cerca de una aldea?
         let mejor = null;
-        let dmin = (T * 4) ** 2;
+        let dmin = (T * 3) ** 2;
         for (const a of this.datos.aldeas) {
           const [x, z] = this.aMundo(a.x, a.y);
           const d2 = (x - g.point.x) ** 2 + (z - g.point.z) ** 2;
@@ -665,7 +671,9 @@ export class Mundo3D {
             mejor = a;
           }
         }
-        this.alTocar?.(mejor ? { aldea: mejor.id } : {});
+        // Lejos de las aldeas: lo que hay en esa casilla (bosque, rocas, minerales…).
+        const [tx, ty] = this.terreno.aCasilla(g.point.x, g.point.z);
+        this.alTocar?.(mejor ? { aldea: mejor.id } : { casilla: ty * this.datos.ancho + tx });
         return;
       }
     }

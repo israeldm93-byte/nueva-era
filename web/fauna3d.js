@@ -743,6 +743,38 @@ export class Fauna3D {
     if (a.estado === 'alerta' && a.huye) a.mira = acotar(giroHacia(a.ang, Math.atan2(a.huye[0] - a.x, a.huye[1] - a.z)), -1.2, 1.2);
   }
 
+  /** El animal que hay bajo un rayo (el más cercano a la cámara), con lo que se sabe de él. */
+  tocar(rayo) {
+    const tr = this.terreno;
+    const o = rayo.origin;
+    const dir = rayo.direction;
+    let mejor = null;
+    const probar = (x, z, alto, escala, info, y0 = null) => {
+      const y = (y0 ?? tr.alturaEn(x, z)) + alto * escala * 0.7;
+      const t = (x - o.x) * dir.x + (y - o.y) * dir.y + (z - o.z) * dir.z;
+      if (t < 0 || (mejor && t > mejor.t)) return;
+      const d2 = (o.x + dir.x * t - x) ** 2 + (o.y + dir.y * t - y) ** 2 + (o.z + dir.z * t - z) ** 2;
+      const r = 0.25 + alto * escala * 0.6;
+      if (d2 < r * r) mejor = { t, info };
+    };
+    for (const a of this.fieras.values()) {
+      if (a.f.estado === 'hiberna') continue;
+      probar(a.x, a.z, ESPECIES[a.esp].alto, a.escala, { clase: a.esp, cria: !!a.cachorro, f: a.f });
+    }
+    for (const r of this.rebanos) {
+      if (!r.vivo) continue;
+      for (const a of r.miembros) probar(a.x, a.z, ESPECIES[a.esp].alto, a.escala, { clase: 'salvaje', esp: r.esp, macho: !!a.macho, cria: false, n: r.miembros.length, crias: r.crias.length, estado: a.estado });
+      for (const a of r.crias) probar(a.x, a.z, ESPECIES[a.esp].alto, a.escala, { clase: 'salvaje', esp: r.esp, cria: true, n: r.miembros.length, crias: r.crias.length, estado: a.estado });
+    }
+    for (const a of this.ovejas.values()) probar(a.x, a.z, ESPECIES[a.esp].alto, a.escala, { clase: 'ganado', esp: a.esp, aldea: a.aldea, n: a.n });
+    for (const g of this.gallinas ?? []) probar(g.x, g.z, 0.25, 1, { clase: 'gallina', aldea: g.aldea, n: g.n });
+    for (const a of this.perros.values()) probar(a.x, a.z, ESPECIES.perro.alto, a.escala, { clase: 'perro', dueno: a.dueno });
+    for (const c of this.monturas?.values() ?? []) probar(c.x, c.z, ESPECIES.caballo.alto, c.escala, { clase: 'montura', jinete: c.jinete?.id });
+    for (const g of this.patos) for (const p of g.miembros) probar(p.x, p.z, 0.2, 1, { clase: 'pato', n: g.miembros.length }, Math.max(tr.alturaEn(p.x, p.z), -0.05));
+    for (const g of this.garzas) probar(g.x, g.z, 0.6, 1, { clase: 'garza' });
+    return mejor;
+  }
+
   /** El animal de rebaño más cercano a un punto (para la caza de los lobos). */
   presaRebano(x, z) {
     let mejor = null;
@@ -807,7 +839,7 @@ export class Fauna3D {
     const dz = tz - a.z;
     const d = Math.hypot(dx, dz);
     const vel = ESPECIES[a.esp].vel;
-    const max = presa || f.estado === 'ataca' || f.estado === 'huye' ? vel[2] : f.estado === 'acecha' ? vel[0] * 0.6 : vel[1];
+    const max = presa || f.estado === 'ataca' || f.estado === 'huye' || f.estado === 'espantada' ? vel[2] : f.estado === 'acecha' ? vel[0] * 0.6 : vel[1];
     a.agachado = f.estado === 'acecha' && !presa;
     if (d > 0.35) {
       // Si el sitio les queda de lado o detrás, frenan para girar (y no dan vueltas alrededor).

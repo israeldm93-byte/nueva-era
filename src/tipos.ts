@@ -266,7 +266,7 @@ export interface Fiera {
   evita?: { aldea: number; hasta: number };
   querencia?: number;
   /** Qué hacen hoy: rondar, acechar una aldea, atacar, huir o hibernar. */
-  estado: 'ronda' | 'acecha' | 'ataca' | 'huye' | 'hiberna';
+  estado: 'ronda' | 'acecha' | 'ataca' | 'huye' | 'espantada' | 'hiberna';
   /** Días que esperan antes de volver a acercarse a una aldea. */
   espera: number;
 }

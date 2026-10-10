@@ -255,6 +255,16 @@ export class Gente3D {
     this.d = d;
     this.estacion = d.estacion;
     const conocen = new Map(d.aldeas.map((a) => [a.id, new Set(a.conocidos)]));
+    // Lobos a las puertas: dónde está la manada que amenaza a cada aldea.
+    this.alarmas = new Map();
+    for (const f of d.fauna ?? []) {
+      if (!['acecha', 'ataca', 'huye', 'espantada'].includes(f.estado) || f.tipo !== 'lobos') continue;
+      for (const a of d.aldeas) {
+        if (a.abandonada !== null || Math.hypot(a.x - f.x, a.y - f.y) > 6) continue;
+        const [wx, wz] = this.terreno.aMundo(f.px ?? f.x, f.py ?? f.y);
+        this.alarmas.set(a.id, { x: wx, z: wz, estado: f.estado });
+      }
+    }
     // Caballos domados de cada aldea: uno de cada dos sale montado.
     const sillas = new Map(
       d.aldeas.map((a) => [a.id, a.conocidos.includes('doma') ? Math.min(10, Math.floor(a.edificios.reduce((s, e) => s + (e.tipo === 'corral' && e.especie === 'caballo' ? e.animales ?? 0 : 0), 0) / 2)) : 0]),
@@ -435,7 +445,30 @@ export class Gente3D {
           mira = [hx, hz];
         }
       }
-      if (p.act === 'jugar') {
+      // Con lobos a las puertas, los adultos salen juntos a plantarles cara (con lo que
+      // tengan: lanzas, palos, antorchas) y los niños corren a casa.
+      const alarma = this.alarmas?.get(p.aldea);
+      if (alarma && a && !quieto) {
+        const [hx, hz] = tr.aMundo(a.x, a.y);
+        if (p.edad < 12) {
+          x = per.casa[0];
+          z = per.casa[1];
+          pose = 'andar';
+        } else if (p.edad >= 14 && p.edad <= 60 && azar(p.id * 6.1) < 0.7) {
+          // Espantados, los persiguen un trecho; si no, forman entre la aldea y la manada.
+          const hasta = alarma.estado === 'espantada' || alarma.estado === 'huye' ? 0.9 : 0.6;
+          const lado = (azar(p.id * 3.3) - 0.5) * 3;
+          const ux = alarma.x - hx;
+          const uz = alarma.z - hz;
+          const l = Math.hypot(ux, uz) || 1;
+          x = hx + ux * hasta - (uz / l) * lado;
+          z = hz + uz * hasta + (ux / l) * lado;
+          pose = 'correr';
+          mira = [alarma.x, alarma.z];
+          per.alarma = true;
+        }
+      } else per.alarma = false;
+      if (p.act === 'jugar' && !alarma) {
         const u = t * 1.6 + p.id;
         x = per.casa[0] + Math.cos(u) * 1.2;
         z = per.casa[1] + Math.sin(u * 1.2) * 1.0;
@@ -451,7 +484,7 @@ export class Gente3D {
       if (dt > 0) per.vel = (per.vel ?? 0) + (mov / dt - (per.vel ?? 0)) * Math.min(1, dt * 6);
       if (pose === 'andar' && per.vel > 1.9 * per.escala) pose = 'correr';
       // Quien no se mueve no corre en el sitio: los que defienden esperan alerta.
-      if ((pose === 'andar' || pose === 'correr') && mov < 0.0005 && p.act !== 'jugar') pose = p.act === 'defender' ? 'vigilar' : 'pie';
+      if ((pose === 'andar' || pose === 'correr') && mov < 0.0005 && p.act !== 'jugar') pose = p.act === 'defender' || per.alarma ? 'vigilar' : 'pie';
       // A caballo: el jinete va sentado y el caballo pone el paso (lo dibuja la fauna).
       if (per.montado && (pose === 'andar' || pose === 'correr' || pose === 'pie' || pose === 'vigilar')) pose = 'montar';
       per.montando = pose === 'montar';
@@ -478,12 +511,14 @@ export class Gente3D {
       if (per.escudo && pose !== 'sentado' && pose !== 'vigilarNoche' && (k > 0 || p.act === 'vigilar' || p.act === 'defender')) this.dejar(carg, 'escudo', this.M.antebrazoI);
       if (pose === 'pescar') this.pesca(per, t, carg);
       // Herramienta en la mano derecha (o antorcha de noche).
-      const h = pose === 'vigilarNoche' ? 'antorcha' : per.herramienta;
-      const visible = h && !per.baston && !PESADAS.has(carga) && pose !== 'sentado' && pose !== 'experimentar' && (k > 0 || p.act === 'vigilar' || p.act === 'defender');
+      // Ante los lobos, sus armas o, si no tienen, un palo (de noche, una antorcha).
+      const arma = per.herramienta === 'lanza' || per.herramienta === 'espada' || per.herramienta === 'arco';
+      const h = pose === 'vigilarNoche' ? 'antorcha' : per.alarma ? (arma ? per.herramienta : 'antorcha') : per.herramienta;
+      const visible = h && !per.baston && !PESADAS.has(carga) && pose !== 'sentado' && pose !== 'experimentar' && (k > 0 || p.act === 'vigilar' || p.act === 'defender' || per.alarma);
       if (visible) {
         const j = herr[h]++;
         im[h].setMatrixAt(j, this.M.mano);
-        if (h === 'antorcha') im.llama.setMatrixAt(herr.llama++, this.M.mano);
+        if (h === 'antorcha' && (noche || pose === 'vigilarNoche')) im.llama.setMatrixAt(herr.llama++, this.M.mano);
         else im[h].setColorAt(j, this.colorMetal(CON_METAL.has(h) ? per.metal : 0xffffff));
       }
     }

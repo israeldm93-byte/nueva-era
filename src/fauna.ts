@@ -254,6 +254,7 @@ function lobos(m: Mundo, f: Fiera, dia: Dia): void {
     f.estado = 'acecha';
     mover(m, f, objetivo.x, objetivo.y, 2);
     if (dmin < 6 && batida(m, f, objetivo, dia)) return;
+    if (dmin <= 3 && espantar(m, f, objetivo, dia)) return;
     if (dmin < 6) {
       objetivo.amenaza = r2(Math.min(1, objetivo.amenaza + 0.01));
       if (aviso(m, `lobos-${objetivo.id}`, 4 * DIAS_ANIO)) {
@@ -302,6 +303,34 @@ function acechar(m: Mundo, f: Fiera, dia: Dia, radio: number, invierno: boolean)
       break;
     }
   }
+}
+
+/**
+ * Con la manada a las puertas, los de la aldea salen en grupo con antorchas, palos y
+ * piedras a espantarla (y si tienen lanzas, a veces matan a alguno). Cuantos más y
+ * con fuego, mejor; los lobos se van y tardan en volver.
+ */
+function espantar(m: Mundo, f: Fiera, a: Aldea, dia: Dia): boolean {
+  if (!prob(0.3)) return false;
+  const adultos = (dia.ix.porAldea.get(a.id) ?? []).filter((p) => !p.muerto && edad(m, p) >= 14 && edad(m, p) <= 60);
+  const fuego = dia.encendidas.has(a.id);
+  const lanzas = adultos.filter((p) => p.saberes.includes('lanza') || p.saberes.includes('arco')).length;
+  if (!prob(Math.min(0.9, adultos.length * 0.08 + (fuego ? 0.3 : 0) + lanzas * 0.06))) return false;
+  let muertos = 0;
+  if (lanzas && prob(0.35)) {
+    muertos = 1;
+    f.n--;
+    guardar(a, 'piel', 1);
+  }
+  f.estado = 'espantada';
+  f.espera = 30 + entero(30);
+  f.evita = { aldea: a.id, hasta: m.t + DIAS_ANIO / 2 };
+  const gx = f.guarida % m.ancho;
+  mover(m, f, gx, (f.guarida - gx) / m.ancho, 3);
+  if (aviso(m, `espantan-${a.id}`, DIAS_ANIO)) {
+    anotar(m, 'fieras', `Los de ${a.nombre} salen en grupo ${fuego ? 'con antorchas' : 'con palos'} y piedras y espantan a la manada de lobos${muertos ? ': matan a uno con las lanzas' : ''}.`, a.id);
+  }
+  return true;
 }
 
 /**

@@ -208,7 +208,110 @@ try {
   if (localStorage.getItem('nueva-era-minimapa') === 'plegado') plegarMapa(true);
 } catch {}
 
-function tocado({ persona, aldea, almacen } = {}) {
+// ---------- fichas de lo que se toca en el mundo ----------
+
+const TERRENO_NOMBRE = ['Agua', 'Orilla', 'Pradera', 'Bosque', 'Colina', 'Montaña', 'Río', 'Pantano', 'Estepa', 'Desierto'];
+const MINERAL = [
+  null,
+  'Malaquita: la piedra verde de la que, con un horno, sale el cobre.',
+  'Casiterita: el estaño; con cobre se hace bronce.',
+  'Hematites: mineral de hierro, el más duro de trabajar.',
+];
+const NOMBRE_ANIMAL = {
+  ciervo: (i) => (i.cria ? 'Cervatillo' : i.macho ? 'Ciervo' : 'Cierva'),
+  jabali: (i) => (i.cria ? 'Jabato' : 'Jabalí'),
+  caballo: (i) => (i.cria ? 'Potro salvaje' : 'Caballo salvaje'),
+  cabra: (i) => (i.cria ? 'Chivo montés' : 'Cabra montés'),
+  liebre: () => 'Liebre',
+};
+const GANADO = {
+  oveja: ['Oveja', 'Da carne, pieles y, con el esquileo, lana en primavera.'],
+  cabra: ['Cabra', 'Da carne y, con el ordeño, leche cada día.'],
+  vaca: ['Vaca', 'Da mucha leche (con el ordeño) y mucha carne.'],
+  cerdo: ['Cerdo', 'Cría deprisa y da más carne que nadie.'],
+  caballo: ['Caballo domado', 'Lo montan para cazar, vigilar o ir a la guerra.'],
+};
+const ESTADO_ANIMAL = { pastar: 'Pastando.', huir: '¡Huyendo!', alerta: 'Alerta: ha olido algo.', echado: 'Descansando.', andar: 'Paseando.' };
+
+function hambreDe(f) {
+  return f.hambre >= 0.85 ? 'Famélicos: se arriesgan a lo que sea.' : f.hambre >= 0.5 ? 'Tienen hambre.' : 'Bien comidos.';
+}
+
+function fichaTocada({ animal: i, casilla }) {
+  const d = E.mundo;
+  const aldea = (id) => E.aldeas.get(id)?.nombre ?? '¿?';
+  let titulo = '';
+  const lineas = [];
+  if (casilla !== undefined) {
+    const t = d.terreno[casilla];
+    titulo = TERRENO_NOMBRE[t] ?? 'Terreno';
+    const madera = d.madera[casilla];
+    if (t === 3) lineas.push(madera >= 30 ? `Bosque espeso (madera: ${madera}).` : madera >= 12 ? `Bosque aclarado por la tala (madera: ${madera}); con los años vuelve a crecer.` : `Casi todo talado: tocones y arbolitos que brotan (madera: ${madera}).`);
+    else if (madera >= 2) lineas.push(`Algo de madera (${madera}).`);
+    if (d.caza[casilla] >= 1) lineas.push(`Caza: ${d.caza[casilla]}.`);
+    if (d.bayas[casilla] >= 1) lineas.push(`Bayas y frutos: ${d.bayas[casilla]}.`);
+    if (MINERAL[d.minerales[casilla]]) lineas.push(MINERAL[d.minerales[casilla]]);
+    if (t === 4 || t === 5 || t === 9) lineas.push('Piedras sueltas para las obras.');
+    if (t === 0 || t === 6) lineas.push('Agua: aquí se pesca; para cruzarla hacen falta canoas.');
+    if ((d.incendios ?? []).includes(casilla)) lineas.push('¡Arde!');
+    const cerca = d.aldeas.filter((a) => a.abandonada === null).map((a) => [a, Math.hypot(a.x - (casilla % d.ancho), a.y - Math.floor(casilla / d.ancho))]).sort((x, y) => x[1] - y[1])[0];
+    if (cerca && cerca[1] < 8) lineas.push(`Tierras de ${cerca[0].nombre}.`);
+  } else if (i.clase === 'lobo' || i.clase === 'oso') {
+    const f = (d.fauna ?? []).find((x) => x.id === i.f.id) ?? i.f;
+    titulo = i.clase === 'oso' ? 'Oso' : i.cria ? 'Lobezno' : 'Lobo';
+    if (i.clase === 'lobo') lineas.push(i.cria ? `Nació esta primavera en una manada de ${f.n}.` : `De una manada de ${f.n}.`);
+    lineas.push(hambreDe(f));
+    lineas.push(
+      { ronda: 'Rondan su territorio buscando presas.', acecha: 'Acechan una aldea: esperan a que alguien salga solo.', ataca: '¡Atacando!', huye: 'Huyen tras el ataque.' }[f.estado] ?? '',
+    );
+    lineas.push(i.clase === 'oso' ? 'Peligroso para quien corta leña o caza solo en el bosque.' : 'Los frenan el fuego, las cercas, los vigías y las lanzas.');
+  } else if (i.clase === 'salvaje') {
+    titulo = NOMBRE_ANIMAL[i.esp]?.(i) ?? i.esp;
+    lineas.push(`Un grupo de ${i.n}${i.crias ? ` con ${i.crias} ${i.crias === 1 ? 'cría' : 'crías'}` : ''}.`);
+    if (i.cria) lineas.push('Va pegado a su madre.');
+    if (i.macho) lineas.push('Lleva cuernas: guía la manada.');
+    lineas.push(ESTADO_ANIMAL[i.estado] ?? '');
+    if (i.esp === 'caballo') lineas.push('Con la doma se podría montar.');
+    else lineas.push('Los cazadores lo buscan por su carne y su piel; también los lobos.');
+  } else if (i.clase === 'ganado') {
+    const [nombre, uso] = GANADO[i.esp] ?? [i.esp, ''];
+    titulo = nombre;
+    lineas.push(`Del corral de ${aldea(i.aldea)}: ${i.n} ${i.n === 1 ? 'animal' : 'animales'}.`, uso);
+  } else if (i.clase === 'gallina') {
+    titulo = 'Gallina';
+    lineas.push(`Del gallinero de ${aldea(i.aldea)}: ${i.n} gallinas.`, 'Ponen huevos cada día (menos en invierno) y sacan pollitos.');
+  } else if (i.clase === 'perro') {
+    titulo = 'Perro';
+    lineas.push(`De ${E.porId.get(i.dueno)?.nombre ?? 'alguien de la aldea'}: va con su dueño a todas partes.`);
+  } else if (i.clase === 'montura') {
+    titulo = 'Caballo';
+    lineas.push(`Lo monta ${E.porId.get(i.jinete)?.nombre ?? 'un jinete'}: a caballo se llega más lejos y más rápido.`);
+  } else if (i.clase === 'pato') {
+    titulo = 'Pato';
+    lineas.push(`Una bandada de ${i.n} en el agua.`, 'Se zambullen a por comida.');
+  } else if (i.clase === 'garza') {
+    titulo = 'Garza';
+    lineas.push('Pesca quieta en los pantanos y las orillas.');
+  }
+  let caja = document.getElementById('ficha-toque');
+  if (!caja) {
+    caja = h('div', { class: 'ficha-toque', id: 'ficha-toque', role: 'dialog', 'aria-live': 'polite' });
+    $('#escena').append(caja);
+  }
+  rellenar(
+    caja,
+    h('button', { class: 'cerrar-toque', type: 'button', 'aria-label': 'Cerrar', onclick: () => caja.remove() }, '×'),
+    h('strong', {}, titulo),
+    ...lineas.filter(Boolean).map((l) => h('p', {}, l)),
+  );
+}
+
+function tocado({ persona, aldea, almacen, animal, casilla } = {}) {
+  if (animal || casilla !== undefined) {
+    fichaTocada({ animal, casilla });
+    return;
+  }
+  document.getElementById('ficha-toque')?.remove();
   if (almacen) setTimeout(() => document.getElementById('almacen')?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 120);
   if (persona !== undefined) {
     E.persona = persona;
