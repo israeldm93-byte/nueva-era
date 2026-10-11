@@ -226,6 +226,7 @@ export function datosWeb(m: Mundo, ahora: Date) {
           : {}),
         ...(p.vida?.length ? { vida: p.vida.map((h) => [anioDe(h[0]), h[1], h[2] ?? null]) } : {}),
         ...(p.mudanza ? { mudanza: { ...p.mudanza } } : {}),
+        ...(p.viaje ? { viaje: { a: p.viaje.a, fase: p.viaje.fase, desde: p.viaje.desde, hasta: p.viaje.hasta, salida: p.viaje.salida, dias: p.viaje.dias } } : {}),
       };
     }),
     tecnicas: TECNICAS.filter((t) => m.hallazgos[t.id]).map((t) => {

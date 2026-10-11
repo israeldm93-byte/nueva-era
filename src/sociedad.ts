@@ -62,7 +62,7 @@ function parientes(a: Persona, b: Persona): boolean {
   );
 }
 
-function conversar(m: Mundo, p: Persona, q: Persona, ap: Aldea, aq: Aldea, ix: Indices): string | null {
+export function conversar(m: Mundo, p: Persona, q: Persona, ap: Aldea, aq: Aldea, ix: Indices): string | null {
   const eq = edad(m, q);
   nombrar(m.fonologia, p, q, tema(p, ap), eq < 10);
   let aprendido: string | null = null;
@@ -110,8 +110,15 @@ function conversar(m: Mundo, p: Persona, q: Persona, ap: Aldea, aq: Aldea, ix: I
       // Uno de los dos se muda a la aldea del otro, y se lleva lo que sabe.
       const [quien, destino, origen] = prob(0.5) ? [p, aq, ap] : [q, ap, aq];
       quien.aldea = destino.id;
-      quien.x = destino.x;
-      quien.y = destino.y;
+      // Si la otra aldea queda lejos (se conocieron en un viaje), se va andando.
+      const d = distancia(quien.x - destino.x, quien.y - destino.y);
+      if (d > 8) {
+        quien.mudanza = { desde: [quien.x, quien.y], hasta: [destino.x, destino.y], salida: m.t, dias: Math.max(2, Math.ceil(d / 1.5)) };
+        hito(m, quien, 'emigra', destino.nombre);
+      } else {
+        quien.x = destino.x;
+        quien.y = destino.y;
+      }
       const lista = ix.porAldea.get(origen.id);
       if (lista && lista.includes(quien)) lista.splice(lista.indexOf(quien), 1);
       ix.porAldea.get(destino.id)?.push(quien);
@@ -148,14 +155,14 @@ export function anochecer(m: Mundo, ix: Indices): void {
     const hoguera = tiene(a, 'hoguera');
     for (const p of gente.slice()) {
       const e = edad(m, p);
-      if (e < 2 || p.mudanza) continue;
+      if (e < 2 || p.mudanza || p.viaje) continue;
       const charlas = e < 12 ? 2 : hoguera ? 2 : 1;
       for (let k = 0; k < charlas; k++) {
         let q: Persona | undefined;
         if (e < 12 && prob(0.7)) q = ix.porId.get(prob(0.5) ? (p.madre ?? -1) : (p.padre ?? -1));
         else q = companero(p, gente, ix);
-        if (!q || q.aldea !== a.id || q.mudanza) q = elegir(gente);
-        if (q === p || q.mudanza) continue;
+        if (!q || q.aldea !== a.id || q.mudanza || q.viaje) q = elegir(gente);
+        if (q === p || q.mudanza || q.viaje) continue;
         // Normalmente habla el mayor (los niños escuchan); a veces al revés.
         if (edad(m, q) > e || prob(0.3)) conversar(m, q, p, a, a, ix);
         else conversar(m, p, q, a, a, ix);
@@ -454,7 +461,7 @@ function alcanceExtra(a: Aldea): number {
   return (conoce(a, 'rueda') ? 4 : 0) + (conoce(a, 'carro') ? 8 : 0) + (conoce(a, 'vela') ? 10 : 0) + (conoce(a, 'comercio') ? 6 : 0);
 }
 
-function visita(m: Mundo, p: Persona, q: Persona, ap: Aldea, aq: Aldea, ix: Indices): void {
+export function visita(m: Mundo, p: Persona, q: Persona, ap: Aldea, aq: Aldea, ix: Indices): void {
   if (edad(m, p) < EDAD_ADULTA || edad(m, q) < EDAD_ADULTA) return;
   const antes = aq.conocidos.length;
   const aprendido = conversar(m, p, q, ap, aq, ix);

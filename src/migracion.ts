@@ -27,7 +27,7 @@ function atractivo(m: Mundo, a: Aldea, n: number): number {
 }
 
 /** Qué es para él alguien de otra aldea (para contarlo): «su hermana», «su hijo», «su amigo»... */
-function parentesco(p: Persona, q: Persona): string | null {
+export function parentesco(p: Persona, q: Persona): string | null {
   const ella = q.sexo === 'M';
   if (q.id === p.madre) return 'su madre';
   if (q.id === p.padre) return 'su padre';
@@ -64,7 +64,8 @@ export function buscarDestino(
     const clave = `${Math.min(a.id, b.id)}-${Math.max(a.id, b.id)}`;
     if (!m.contactos.includes(clave) && a.origen !== b.id && b.origen !== a.id) continue;
     const d = distancia(a.x - b.x, a.y - b.y);
-    if (d > 70) continue;
+    // Lejos (más de 70 casillas) solo se va adonde alguien ya hizo el camino (un viajero).
+    if (d > (m.contactos.includes(clave) ? 150 : 70)) continue;
     if (masa[a.y * m.ancho + a.x] !== masa[b.y * m.ancho + b.x] && !conoce(a, 'canoa')) continue;
     const rel = relacion(m, a.id, b.id);
     if (rel.rencor > 0.6) continue;
@@ -101,7 +102,7 @@ export function buscarDestino(
 export function mudanzas(m: Mundo, ix: Indices): void {
   const turno = m.t % 10;
   for (const p of m.personas) {
-    if (p.id % 10 !== turno || p.muerto || p.mudanza || p.meta?.tipo !== 'emigrar' || m.t - p.meta.desde < 15) continue;
+    if (p.id % 10 !== turno || p.muerto || p.mudanza || p.viaje || p.meta?.tipo !== 'emigrar' || m.t - p.meta.desde < 15) continue;
     const a = ix.aldeas.get(p.aldea);
     const b = m.aldeas.find((x) => x.id === p.meta!.ref);
     if (!a || !b || b.abandonada !== null || b.viaje || a.viaje) {
@@ -167,6 +168,9 @@ export function caminarMudanza(m: Mundo, p: Persona): void {
     p.x = v.hasta[0];
     p.y = v.hasta[1];
     delete p.mudanza;
+    // Lo que sabe llega con él (si no había llegado ya).
+    const b = m.aldeas.find((x) => x.id === p.aldea);
+    if (b) for (const s of p.saberes) if (!b.conocidos.includes(s)) b.conocidos.push(s);
     return;
   }
   p.x = Math.round(v.desde[0] + (v.hasta[0] - v.desde[0]) * f);

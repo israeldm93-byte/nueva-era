@@ -11,6 +11,7 @@ import { cambiarTiempo } from './tiempo.ts';
 import { nombreOficio, oficio, vidas } from './individuo.ts';
 import { hito, recordar } from './memoria.ts';
 import { mudanzas } from './migracion.ts';
+import { viajes } from './viajes.ts';
 import { asentarAprendizaje, comer, contexto, jornada, mantener, planificar, radioMuro, rodea } from './economia.ts';
 import { fauna } from './fauna.ts';
 import { lexicoComun, parecido } from './lenguaje.ts';
@@ -65,6 +66,8 @@ function paso(m: Mundo): void {
   // Cada cual repasa lo que quiere de la vida (escalonado) y quien lo tiene decidido se muda.
   vidas(m, ix, vivas);
   mudanzas(m, ix);
+  // Visitas a aldeas lejanas emparentadas: quien va, quien está allí y quien vuelve.
+  viajes(m, ix);
   for (const a of vivas) {
     const c = ctx.get(a.id);
     if (c) noche(m, a, gente(a.id), c);

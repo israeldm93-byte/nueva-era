@@ -207,6 +207,16 @@ export function reparar(m: Mundo): Reparacion[] {
       apuntar(`${ruta}.aldea`, p.aldea, cerca.id, `su aldea ya no existe: pasa a la más cercana (${cerca.nombre})`, false);
       p.aldea = cerca.id;
     }
+    // Un viaje con datos rotos o hacia una aldea que no existe: se da por terminado (está en casa).
+    if (p.viaje && (![p.viaje.dias, p.viaje.salida, ...(p.viaje.desde ?? []), ...(p.viaje.hasta ?? [])].every(finito) || !Array.isArray(p.viaje.conocio) || !m.aldeas.some((a) => a.id === p.viaje!.a))) {
+      apuntar(`${ruta}.viaje`, p.viaje, null, 'viaje ilegible o a una aldea que no existe: vuelve a estar en su aldea', false);
+      const casa = m.aldeas.find((a) => a.id === p.aldea);
+      if (casa) {
+        p.x = casa.x;
+        p.y = casa.y;
+      }
+      delete p.viaje;
+    }
     if (p.pareja !== null) {
       const q = porId.get(p.pareja);
       if (!q || q.pareja !== p.id) {

@@ -98,6 +98,12 @@ export interface Persona {
   fama?: number;
   /** Si va de camino a su nueva aldea: de dónde sale, adónde va y cuándo llega. */
   mudanza?: { desde: [number, number]; hasta: [number, number]; salida: number; dias: number };
+  /**
+   * Si está de visita en otra aldea lejana: a cuál (`a`), en qué tramo (ida, estancia o
+   * vuelta), de dónde a dónde va en ese tramo, cuándo empezó y cuántos días dura, y con
+   * quiénes ha tratado allí.
+   */
+  viaje?: { a: number; fase: 'ida' | 'estancia' | 'vuelta'; desde: [number, number]; hasta: [number, number]; salida: number; dias: number; conocio: number[] };
   /** Solo durante el día en que muere en un asalto: la aldea que lo mató. */
   porAldea?: number;
   /** Solo durante el día en que muere; nunca se guarda. */
@@ -281,6 +287,7 @@ export type TipoSuceso =
   | 'cisma'
   | 'edad'
   | 'migracion'
+  | 'viaje'
   | 'vida'
   | 'asalto'
   | 'guerra'

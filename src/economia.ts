@@ -38,6 +38,7 @@ import { experimentar, inspirarse, sabe } from './saber.ts';
 import { pericia, practicar, sesgo } from './individuo.ts';
 import { recordar } from './memoria.ts';
 import { caminarMudanza } from './migracion.ts';
+import { caminarViaje } from './viajes.ts';
 
 /** Con qué se trabaja en cada oficio (de ahí salen las ideas al trabajar). */
 const INSPIRA: Record<string, string[]> = {
@@ -381,6 +382,11 @@ export function jornada(m: Mundo, p: Persona, c: Contexto): void {
   // Quien va de camino a su nueva aldea no trabaja: anda.
   if (p.mudanza) {
     caminarMudanza(m, p);
+    return;
+  }
+  // Ni quien está de visita en otra aldea.
+  if (p.viaje) {
+    caminarViaje(m, p);
     return;
   }
   const e = edad(m, p);

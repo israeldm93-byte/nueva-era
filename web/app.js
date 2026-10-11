@@ -104,8 +104,16 @@ const HITO = {
   emigra: (d) => `se fue a vivir a ${d}`, funda: (d) => `fundó ${d}`, 'se va': (d) => `se fue con los suyos a fundar ${d}`,
   herido: (d) => `fue herido ${d}`, enviuda: (d) => `perdió a su pareja, ${d}`, 'pierde hijo': (d) => `perdió a su hijo ${d}`,
   'pierde hija': (d) => `perdió a su hija ${d}`, 'muere madre': (d) => `murió su madre, ${d}`, 'muere padre': (d) => `murió su padre, ${d}`,
-  reconcilia: (d) => `hizo las paces con ${d}`,
+  reconcilia: (d) => `hizo las paces con ${d}`, visita: (d) => `viajó hasta ${d} y pasó allí unos días`,
 };
+
+/** Dónde anda quien está de viaje en otra aldea. */
+function textoViaje(p) {
+  const destino = E.aldeas.get(p.viaje.a)?.nombre ?? 'otra aldea';
+  if (p.viaje.fase === 'ida') return `Va de camino a ${destino}, de visita.`;
+  if (p.viaje.fase === 'estancia') return `Está de visita en ${destino}.`;
+  return `Vuelve a casa desde ${destino}.`;
+}
 
 /** Lo que recuerda, contado. */
 const RECUERDO = {
@@ -142,8 +150,8 @@ const GRUPOS = {
   todo: ['Todo', null],
   politica: ['Política', ['consejo', 'faccion', 'cisma', 'guerra', 'asalto', 'paz', 'alianza']],
   saber: ['Saber', ['descubrimiento', 'redescubrimiento', 'difusion', 'perdida', 'olvido']],
-  aldeas: ['Aldeas', ['inicio', 'fundacion', 'abandono', 'traslado', 'edificio', 'contacto', 'poblacion', 'edad', 'cisma', 'migracion']],
-  vidas: ['Vidas', ['muerte', 'migracion', 'vida']],
+  aldeas: ['Aldeas', ['inicio', 'fundacion', 'abandono', 'traslado', 'edificio', 'contacto', 'poblacion', 'edad', 'cisma', 'migracion', 'viaje']],
+  vidas: ['Vidas', ['muerte', 'migracion', 'viaje', 'vida']],
   lenguas: ['Lenguas', ['lengua']],
   desgracias: ['Desgracias', ['lobos', 'fieras', 'incendio', 'inundacion', 'epidemia', 'sequia', 'hambre', 'extincion']],
 };
@@ -467,7 +475,7 @@ function haciendoAhora(p, ahora) {
     return fase < 0.5 ? `Va a trabajar: hoy toca ${ACCION[p.act] ?? oficio}.` : 'Vuelve a casa.';
   }
   if (pose === 'cazar' && rebano) return `Acecha ${PRESA[rebano] ?? 'a la caza'}, agachado y contra el viento, con el arma lista.`;
-  if (p.act === 'viajar') return 'Va de camino a su nueva aldea con su familia.';
+  if (p.act === 'viajar') return p.viaje ? textoViaje(p) : 'Va de camino a su nueva aldea con su familia.';
   if (pose === 'experimentar') return p.idea ? `Está probando a ${p.idea.verbo} ${listar(p.idea.cosas)}, a ver qué sale.` : 'Prueba cosas nuevas, a ver qué sale.';
   if (pose === 'pie') return fase < 0.12 ? 'Acaba de levantarse, a la puerta de su choza.' : fase > 0.8 ? 'Ya en casa, a la puerta de su choza.' : 'Parado, mirando a su alrededor.';
   return `Está ${oficio}.`;
@@ -1027,6 +1035,7 @@ function fichaPersona(p) {
   // Lo que persigue, y por qué (sale de lo que de verdad le pasa).
   if (p.meta) hijos.push(h('h3', {}, 'Lo que quiere'), h('p', {}, h('strong', {}, `${META[p.meta.tipo] ?? p.meta.tipo}. `), p.meta.motivo, h('span', { class: 'nota' }, ` (desde el año ${p.meta.desde})`)));
   if (p.mudanza) hijos.push(h('p', { class: 'aviso-viaje' }, 'Va de camino a su nueva aldea con su familia.'));
+  if (p.viaje) hijos.push(h('p', { class: 'aviso-viaje' }, textoViaje(p)));
   // Su vida: los hitos, en orden.
   if (p.vida?.length) {
     hijos.push(

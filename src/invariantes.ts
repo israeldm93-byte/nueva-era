@@ -59,6 +59,7 @@ export function comprobar(m: Mundo): string[] {
     for (const [, v] of p.lazos ?? []) if (!Number.isFinite(v) || v < -1 || v > 1) out.push(`${p.nombre}: lazo inválido ${v}`);
     for (const r of p.recuerdos ?? []) if (!Number.isFinite(r[3])) out.push(`${p.nombre}: recuerdo inválido`);
     if (p.mudanza && !Number.isFinite(p.mudanza.dias)) out.push(`${p.nombre}: mudanza inválida`);
+    if (p.viaje && (![p.viaje.dias, p.viaje.salida, ...p.viaje.desde, ...p.viaje.hasta].every(Number.isFinite) || !m.aldeas.some((a) => a.id === p.viaje!.a))) out.push(`${p.nombre}: viaje inválido`);
     if (p.muerto) out.push(`${p.nombre}: muerto sin enterrar`);
     if (out.length > 40) break;
   }

@@ -184,3 +184,27 @@ Estado: ✅ hecho y verificado · 🟡 parcial · ⏳ pendiente.
 - **Remedios**: cada enfermo curado gasta una dosis de hierbas; sin hierbas, no hay remedio.
 - Pruebas: `test/estabilidad.test.ts` (con `LARGO=1`, las semillas 23, 37 y 59 más allá de
   su día de fallo) y `test/limites.test.ts` (casos límite y cada redondeo corregido).
+
+### Viajes entre aldeas lejanas (`src/viajes.ts`)
+
+Las aldeas nacidas de un cisma suelen quedar a 60–100 casillas, fuera del alcance de los
+encuentros de siempre (unas 18–30). Para que no queden incomunicadas para siempre:
+
+- **Quién y cuándo**: cada día, desde una aldea con al menos 6 adultos y comida para 60
+  días o más, puede salir un adulto (18–55 años, sano y bien comido) hacia una aldea
+  emparentada (madre o hija) o ya visitada, a entre 24 y 150 casillas y sin enemistad
+  grave. Como mucho un viaje cada tres años en las mejores condiciones, y menos cuanto
+  más lejos (×50/distancia). Nunca en invierno. Va con más probabilidad quien tiene allí
+  familia, y el curioso o el ambicioso.
+- **Coste**: a pie, 1,5 casillas al día (a caballo, 3); ida, 5 días de estancia y vuelta.
+  Mientras tanto no trabaja para su aldea.
+- **Estancia**: dos charlas al día con gente de allí (mejor sus parientes o amigos), con
+  las mismas reglas que las visitas entre vecinos: palabras, saberes, ideas, lazos,
+  persuasión y bodas. Lo que enseña se queda allí; lo que aprende lo lleva «en la
+  mochila» y no llega a su aldea hasta que vuelve. Lleva y trae un poco de lo que a la
+  otra aldea le falta.
+- **Consecuencias**: el contacto queda registrado (y con él, la posibilidad de mudarse
+  allí aunque esté a más de 70 casillas, pagando la distancia); la relación entre las
+  aldeas mejora si se llevaron bien y empeora si hubo roces; una boda hace que uno de los
+  dos se mude andando.
+- Pruebas: `test/convivencia.test.ts`.
