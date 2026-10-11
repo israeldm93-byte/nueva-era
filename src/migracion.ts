@@ -9,7 +9,7 @@
 import { DIAS_ANIO } from './config.ts';
 import { anotar } from './cronica.ts';
 import { comidaTotal, conoce, plazas } from './economia.ts';
-import { hito, lazo, recordar } from './memoria.ts';
+import { hito, lazo, memoria, recordar } from './memoria.ts';
 import { masas } from './mapa.ts';
 import { distancia } from './matematicas.ts';
 import { aviso } from './fauna.ts';
@@ -49,7 +49,14 @@ export function buscarDestino(
   ix: Indices,
 ): { aldea: Aldea; ventaja: number; motivo: string } | null {
   const { masa } = masas(m);
-  const aqui = atractivo(m, a, ix.porAldea.get(a.id)?.length ?? 1);
+  const origen = ix.porAldea.get(a.id) ?? [];
+  const aqui = atractivo(m, a, origen.length);
+  // Mudarse cuesta (dejar casa, campos y vecinos): quien acaba de hacerlo necesita
+  // muchas más razones para volver a cargar con todo.
+  const recien = memoria(m, p, 'emigro');
+  const umbral = 0.25 + 0.8 * recien;
+  // Con él se van su pareja y sus hijos pequeños: allí harán falta casas para todos.
+  const familia = 1 + (p.pareja !== null ? 1 : 0) + origen.filter((q) => (q.madre === p.id || q.padre === p.id) && edad(m, q) < 16).length;
   let mejor: { aldea: Aldea; ventaja: number; quien: [Persona, string] | null } | null = null;
   for (const b of m.aldeas) {
     if (b === a || b.abandonada !== null || b.viaje) continue;
@@ -70,8 +77,10 @@ export function buscarDestino(
         break;
       }
     }
-    const v = atractivo(m, b, gente.length) + (quien ? 0.35 : 0) + rel.afinidad * 0.2 - d / 80 - aqui;
-    if (v > 0.25 && (!mejor || v > mejor.ventaja)) mejor = { aldea: b, ventaja: v, quien };
+    // A la aldea que dejó hace poco no se vuelve sin un buen motivo: se fue por algo.
+    const dejada = memoria(m, p, 'emigro', b.id);
+    const v = atractivo(m, b, gente.length + familia) + (quien ? 0.35 : 0) + rel.afinidad * 0.2 - d / 80 - aqui - 0.8 * dejada;
+    if (v > umbral && (!mejor || v > mejor.ventaja)) mejor = { aldea: b, ventaja: v, quien };
   }
   if (!mejor) return null;
   // El motivo: lo que más le empuja a irse y lo que le atrae de allí.

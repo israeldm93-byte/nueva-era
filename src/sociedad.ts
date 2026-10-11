@@ -6,9 +6,10 @@ import { azar, barajar, elegir, prob } from './azar.ts';
 import { DIAS_ANIO, EDAD_ADULTA } from './config.ts';
 import { ABRIGO_CASA, BASICOS, CONCEPTOS_VIDA, EDIFICIO, PANTANO, TECNICA } from './catalogo.ts';
 import { anotar } from './cronica.ts';
+import { anomalia } from './anomalias.ts';
 import { edadSegun } from './edades.ts';
 import { cargar, partir } from './exodo.ts';
-import { comidaTotal, conoce, guardar, necesidad, tiene } from './economia.ts';
+import { apuntar, comidaTotal, conoce, guardar, necesidad, tiene } from './economia.ts';
 import { lexicoComun, nombrar, parecido } from './lenguaje.ts';
 import { buscarSitio, direccion, masas, puntuarSitio } from './mapa.ts';
 import { distancia, exponencial } from './matematicas.ts';
@@ -212,6 +213,10 @@ export function morir(p: Persona, causa: string): void {
 }
 
 export function danar(p: Persona, x: number, causa: string): void {
+  if (!Number.isFinite(x)) {
+    anomalia(`daño no válido a ${p.nombre} (${x}, ${causa})`);
+    return;
+  }
   p.salud = r2(p.salud - x);
   p.causa = causa;
 }
@@ -220,9 +225,15 @@ export function danar(p: Persona, x: number, causa: string): void {
 export function salud(m: Mundo, a: Aldea, gente: Persona[], est: number, hogueraEncendida: boolean): void {
   const n = gente.length;
   if (!n) return;
-  const remedio = conoce(a, 'remedio');
-  const medicina = conoce(a, 'medicina');
+  // Los remedios se hacen con hierbas: cada día de cura de un enfermo gasta una dosis, y
+  // sin hierbas en la despensa no hay remedio. Saber prevenir (hervir el agua, apartar al
+  // enfermo) protege a todos mientras haya con qué curar.
+  const DOSIS = 0.1;
+  let dosis = conoce(a, 'remedio') ? Math.floor((a.despensa.hierbas ?? 0) / DOSIS + 1e-9) : 0;
+  const remedio = dosis > 0;
+  const medicina = remedio && conoce(a, 'medicina');
   const cura = (remedio ? 0.6 : 1) * (medicina ? 0.6 : 1);
+  let usadas = 0;
   let refugio = 0;
   if (est === 3) {
     // Se reparten bajo techo empezando por las casas que mejor abrigan.
@@ -245,8 +256,8 @@ export function salud(m: Mundo, a: Aldea, gente: Persona[], est: number, hoguera
         // La lana abriga más que las pieles; se gasta primero.
         const lana = (a.despensa.lana ?? 0) > 0;
         abrigo += lana ? 0.32 : 0.25;
-        if (lana) a.despensa.lana = r2(Math.max(0, a.despensa.lana - 0.01));
-        else a.despensa.piel = r2(Math.max(0, a.despensa.piel - 0.01));
+        if (lana) apuntar(a, 'lana', a.despensa.lana - 0.01);
+        else apuntar(a, 'piel', a.despensa.piel - 0.01);
       }
       if (p.saberes.includes('tela') && (a.despensa.fibra ?? 0) > 0) abrigo += 0.1;
       const expuesto = Math.max(0, 1 - abrigo);
@@ -257,9 +268,18 @@ export function salud(m: Mundo, a: Aldea, gente: Persona[], est: number, hoguera
     let riesgo = 0.0006 * exponencial(0.085 * e * (1.25 - 0.5 * p.genes.longevidad));
     if (e < 3) riesgo += 0.1 * (remedio ? 0.7 : 1) * (medicina ? 0.7 : 1) * (hogueraEncendida ? 0.85 : 1);
     if (prob(riesgo / DIAS_ANIO)) morir(p, e > 50 ? 'vejez' : 'enfermedad');
-    if (p.reservas > 1 && p.salud < 1) p.salud = r2(Math.min(1, p.salud + 0.01 + (remedio ? 0.004 : 0) + (medicina ? 0.004 : 0)));
+    if (p.reservas > 1 && p.salud < 1) {
+      // Quien se está recuperando toma su dosis, si queda.
+      const toma = dosis > 0;
+      if (toma) {
+        dosis--;
+        usadas++;
+      }
+      p.salud = r2(Math.min(1, p.salud + 0.01 + (toma ? 0.004 : 0) + (toma && medicina ? 0.004 : 0)));
+    }
     if (p.salud <= 0) morir(p, p.causa || 'enfermedad');
   }
+  if (usadas) apuntar(a, 'hierbas', (a.despensa.hierbas ?? 0) - usadas * DOSIS);
 }
 
 /** Epidemias (las fieras viven ahora en el mapa: ver fauna.ts). Los pantanos traen fiebres. */
@@ -420,6 +440,9 @@ export function encuentros(m: Mundo, ix: Indices, escasez: Map<number, number>):
         visita(m, elegir(ga), elegir(gb), a, b, ix);
         if (ga.length && gb.length) visita(m, elegir(gb), elegir(ga), b, a, ix);
       }
+      // En las visitas alguien puede haberse casado y mudado: si una aldea se ha quedado sin
+      // gente, ya no queda con quién intercambiar ni comerciar.
+      if (!ga.length || !gb.length) continue;
       truequear(a, b);
       convivir(m, a, b, ea, eb);
       if (conoce(a, 'comercio') && conoce(b, 'comercio')) comerciar(a, b, ga.length, gb.length);
@@ -453,22 +476,24 @@ function truequear(a: Aldea, b: Aldea): void {
       const hay = da.despensa[mat] ?? 0;
       if (hay < 4 || (db.despensa[mat] ?? 0) >= 1) continue;
       const n = r2(Math.min(2, hay * 0.25));
-      da.despensa[mat] = r2(hay - n);
+      apuntar(da, mat, hay - n);
       guardar(db, mat, n);
     }
   }
 }
 
-function comerciar(a: Aldea, b: Aldea, na: number, nb: number): void {
+export function comerciar(a: Aldea, b: Aldea, na: number, nb: number): void {
+  // La comida por cabeza solo tiene sentido con gente en las dos aldeas.
+  if (na <= 0 || nb <= 0) return;
   const ca = comidaTotal(a) / na;
   const cb = comidaTotal(b) / nb;
   const [rica, pobre] = ca > cb ? [a, b] : [b, a];
   for (const mat of ['cereal', 'semillas', 'carne', 'pescado']) {
     const v = rica.despensa[mat] ?? 0;
     const pasa = r2(v * 0.1 * Math.min(1, Math.abs(ca - cb) / Math.max(ca, cb, 1)));
-    if (pasa <= 0) continue;
-    rica.despensa[mat] = r2(v - pasa);
-    pobre.despensa[mat] = r2((pobre.despensa[mat] ?? 0) + pasa);
+    if (!(pasa > 0)) continue;
+    apuntar(rica, mat, v - pasa);
+    apuntar(pobre, mat, (pobre.despensa[mat] ?? 0) + pasa);
   }
 }
 

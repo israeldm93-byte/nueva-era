@@ -112,8 +112,10 @@ export interface Edificio {
   fase?: number;
   trabajo?: number;
   cuidado?: number;
-  /** Corrales y gallineros: animales que tiene, y de qué especie. */
+  /** Corrales y gallineros: animales que tiene (siempre un número entero), y de qué especie. */
   animales?: number;
+  /** Lo que llevan criado hacia el próximo animal (fracción de 0 a 1): nace uno al llegar a 1. */
+  gestacion?: number;
   especie?: string;
   material?: string;
   /** Cercas, empalizadas y murallas: su radio en casillas (crece con la aldea). */
@@ -422,6 +424,19 @@ export interface Mundo {
   eras: Era[];
   /** Instante real (ISO) hasta el que está simulado el mundo. */
   reloj: string | null;
+  /** Lo que se reparó al cargar un guardado dañado (las últimas): qué, cómo y por qué. */
+  reparaciones?: Reparacion[];
+}
+
+/** Una reparación hecha al cargar: ruta del dato, valor que tenía, valor que se le dio y criterio. */
+export interface Reparacion {
+  t: number;
+  ruta: string;
+  antes: string;
+  despues: string;
+  criterio: string;
+  /** false si el valor original se perdió y lo puesto es una estimación o un vacío. */
+  recuperable: boolean;
 }
 
 export type Tiempo = 'sol' | 'nubes' | 'niebla' | 'lluvia' | 'tormenta';

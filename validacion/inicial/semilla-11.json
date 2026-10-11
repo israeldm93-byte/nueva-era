@@ -1,0 +1,9708 @@
+{
+ "origen": "11",
+ "semilla": 11,
+ "anios": 150,
+ "desdeAnio": 1,
+ "hastaAnio": 151,
+ "final": {
+  "anio": 151,
+  "poblacion": 347,
+  "aldeas": 8,
+  "saberesMundo": 53,
+  "oficios": {
+   "sin oficio": 66,
+   "recolectar": 31,
+   "pescar": 45,
+   "pastorear": 4,
+   "cazar": 3,
+   "vigilar": 17
+  },
+  "entropiaOficios": 2.06,
+  "metas": {
+   "ninguna": 90,
+   "prestigio": 55,
+   "familia": 21
+  },
+  "entropiaMetas": 1.38,
+  "migrantesDecada": 1,
+  "asaltosDecada": 0,
+  "conRival": 1,
+  "detalle": [
+   {
+    "nombre": "Asi",
+    "pob": 114,
+    "edad": 3,
+    "rango": "ciudad",
+    "saberes": 53,
+    "valor": null,
+    "consejo": "comida",
+    "guerra": null,
+    "oficios": {
+     "recolectar": 14,
+     "pastorear": 1,
+     "pescar": 5,
+     "vigilar": 10
+    },
+    "metas": {
+     "prestigio": 23,
+     "aprender": 6
+    },
+    "edificios": 49,
+    "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+    "porCabeza": {
+     "cereal": 321.05,
+     "piedra": 173.5,
+     "piel": 82.21,
+     "hueso": 21.48,
+     "hierbas": 254.35,
+     "madera": 4.82
+    }
+   },
+   {
+    "nombre": "Ñivis",
+    "pob": 31,
+    "edad": 3,
+    "rango": "aldea",
+    "saberes": 53,
+    "valor": "comida",
+    "consejo": "comida",
+    "guerra": null,
+    "oficios": {
+     "pescar": 7,
+     "recolectar": 5
+    },
+    "metas": {
+     "prestigio": 7,
+     "familia": 2,
+     "aprender": 1
+    },
+    "edificios": 34,
+    "casas": "casatejas,casatejas,casatejas,casatejas",
+    "porCabeza": {
+     "cereal": 476.15,
+     "piedra": 0.3,
+     "piel": 128.28,
+     "hueso": 271.74,
+     "hierbas": 104.58,
+     "madera": 2.73
+    }
+   },
+   {
+    "nombre": "Eke",
+    "pob": 25,
+    "edad": 3,
+    "rango": "pueblo",
+    "saberes": 53,
+    "valor": "expandir",
+    "consejo": "comida",
+    "guerra": null,
+    "oficios": {
+     "recolectar": 10,
+     "vigilar": 1
+    },
+    "metas": {
+     "prestigio": 7,
+     "familia": 2,
+     "aprender": 1
+    },
+    "edificios": 21,
+    "casas": "casatejas,casatejas,casatejas,casatejas",
+    "porCabeza": {
+     "cereal": 322.73,
+     "piedra": 357.99,
+     "piel": 80.6,
+     "hueso": 182.96,
+     "hierbas": 220.62,
+     "madera": 1.6
+    }
+   },
+   {
+    "nombre": "Viji",
+    "pob": 45,
+    "edad": 3,
+    "rango": "pueblo",
+    "saberes": 53,
+    "valor": "obras",
+    "consejo": "defensa",
+    "guerra": null,
+    "oficios": {
+     "pescar": 25
+    },
+    "metas": {
+     "prestigio": 7,
+     "familia": 4,
+     "aprender": 1
+    },
+    "edificios": 26,
+    "casas": "casatejas,casatejas,casatejas,casatejas,casatejas",
+    "porCabeza": {
+     "cereal": 230.14,
+     "piedra": 482.19,
+     "piel": 38.8,
+     "hueso": 86.58,
+     "hierbas": 31.82,
+     "madera": 5.98
+    }
+   },
+   {
+    "nombre": "Riñi",
+    "pob": 45,
+    "edad": 3,
+    "rango": "pueblo",
+    "saberes": 53,
+    "valor": "defensa",
+    "consejo": "defensa",
+    "guerra": null,
+    "oficios": {
+     "vigilar": 2,
+     "pastorear": 2,
+     "pescar": 11
+    },
+    "metas": {
+     "prestigio": 1,
+     "familia": 6,
+     "aprender": 2
+    },
+    "edificios": 24,
+    "casas": "casatejas,casatejas,casatejas,casatejas,casatejas",
+    "porCabeza": {
+     "cereal": 354.69,
+     "piedra": 21.18,
+     "piel": 46.1,
+     "hueso": 92.12,
+     "hierbas": 44.4,
+     "madera": 2.58
+    }
+   },
+   {
+    "nombre": "Fiñe",
+    "pob": 52,
+    "edad": 3,
+    "rango": "pueblo",
+    "saberes": 53,
+    "valor": "obras",
+    "consejo": "defensa",
+    "guerra": null,
+    "oficios": {
+     "pescar": 2,
+     "recolectar": 5,
+     "vigilar": 4
+    },
+    "metas": {
+     "prestigio": 3,
+     "familia": 7,
+     "aprender": 2
+    },
+    "edificios": 27,
+    "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+    "porCabeza": {
+     "cereal": 378.08,
+     "piedra": 319.22,
+     "piel": 59.79,
+     "hueso": 131.45,
+     "hierbas": 67.29,
+     "madera": 3.95
+    }
+   },
+   {
+    "nombre": "Jeke",
+    "pob": 17,
+    "edad": 3,
+    "rango": "aldea",
+    "saberes": 53,
+    "valor": "comida",
+    "consejo": "comida",
+    "guerra": null,
+    "oficios": {
+     "cazar": 3,
+     "picar": 1
+    },
+    "metas": {
+     "prestigio": 4,
+     "familia": 1,
+     "aprender": 2
+    },
+    "edificios": 13,
+    "casas": "casatejas,casatejas",
+    "porCabeza": {
+     "cereal": 233.81,
+     "piedra": 797,
+     "piel": 225.29,
+     "hueso": 446.22,
+     "hierbas": 21.59,
+     "madera": 2.26
+    }
+   },
+   {
+    "nombre": "Kaje",
+    "pob": 18,
+    "edad": 3,
+    "rango": "aldea",
+    "saberes": 53,
+    "valor": "comida",
+    "consejo": "comida",
+    "guerra": null,
+    "oficios": {
+     "pastorear": 2
+    },
+    "metas": {
+     "prestigio": 3,
+     "familia": 1,
+     "aprender": 1
+    },
+    "edificios": 11,
+    "casas": "casatejas,casatejas",
+    "porCabeza": {
+     "cereal": 388.47,
+     "piedra": 862.14,
+     "piel": 77.07,
+     "hueso": 144.68,
+     "hierbas": 17.96,
+     "madera": 2.46
+    }
+   }
+  ]
+ },
+ "decadas": [
+  {
+   "anio": 11,
+   "poblacion": 22,
+   "aldeas": 1,
+   "saberesMundo": 16,
+   "oficios": {
+    "sin oficio": 3,
+    "cazar": 2,
+    "recolectar": 4
+   },
+   "entropiaOficios": 1.53,
+   "metas": {
+    "ninguna": 4,
+    "prestigio": 3,
+    "familia": 2
+   },
+   "entropiaMetas": 1.53,
+   "migrantesDecada": 0,
+   "asaltosDecada": 0,
+   "conRival": 1,
+   "detalle": [
+    {
+     "nombre": "Asi",
+     "pob": 22,
+     "edad": 1,
+     "rango": "aldea",
+     "saberes": 16,
+     "valor": null,
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "cazar": 2,
+      "recolectar": 4,
+      "pastorear": 1
+     },
+     "metas": {
+      "prestigio": 3,
+      "familia": 2
+     },
+     "edificios": 9,
+     "casas": "choza,choza,choza,choza,choza",
+     "porCabeza": {
+      "cereal": 0,
+      "piedra": 0.5,
+      "piel": 38.69,
+      "hueso": 86.93,
+      "hierbas": 56.09,
+      "madera": 1.79
+     }
+    }
+   ]
+  },
+  {
+   "anio": 21,
+   "poblacion": 30,
+   "aldeas": 1,
+   "saberesMundo": 26,
+   "oficios": {
+    "experimentar": 2,
+    "pastorear": 3,
+    "sin oficio": 4,
+    "recolectar": 5
+   },
+   "entropiaOficios": 1.92,
+   "metas": {
+    "ninguna": 8,
+    "prestigio": 5,
+    "familia": 1
+   },
+   "entropiaMetas": 1.26,
+   "migrantesDecada": 0,
+   "asaltosDecada": 0,
+   "conRival": 0,
+   "detalle": [
+    {
+     "nombre": "Asi",
+     "pob": 30,
+     "edad": 1,
+     "rango": "aldea",
+     "saberes": 26,
+     "valor": null,
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "experimentar": 2,
+      "pastorear": 5,
+      "recolectar": 5
+     },
+     "metas": {
+      "prestigio": 5,
+      "familia": 1
+     },
+     "edificios": 12,
+     "casas": "casa,casa,casa,casa,casa,casa",
+     "porCabeza": {
+      "cereal": 0,
+      "piedra": 0.15,
+      "piel": 63.27,
+      "hueso": 122.7,
+      "hierbas": 78.62,
+      "madera": 1.29
+     }
+    }
+   ]
+  },
+  {
+   "anio": 31,
+   "poblacion": 42,
+   "aldeas": 1,
+   "saberesMundo": 38,
+   "oficios": {
+    "experimentar": 5,
+    "recolectar": 4,
+    "sin oficio": 8,
+    "pescar": 2
+   },
+   "entropiaOficios": 1.85,
+   "metas": {
+    "ninguna": 14,
+    "prestigio": 4,
+    "familia": 1
+   },
+   "entropiaMetas": 1.02,
+   "migrantesDecada": 0,
+   "asaltosDecada": 0,
+   "conRival": 0,
+   "detalle": [
+    {
+     "nombre": "Asi",
+     "pob": 42,
+     "edad": 1,
+     "rango": "pueblo",
+     "saberes": 38,
+     "valor": null,
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "experimentar": 5,
+      "recolectar": 4,
+      "pescar": 2
+     },
+     "metas": {
+      "prestigio": 4,
+      "familia": 1
+     },
+     "edificios": 23,
+     "casas": "casa,casa,casa,casa,casa,casa",
+     "porCabeza": {
+      "cereal": 219.92,
+      "piedra": 0.18,
+      "piel": 57.74,
+      "hueso": 113.18,
+      "hierbas": 87.67,
+      "madera": 1.41
+     }
+    }
+   ]
+  },
+  {
+   "anio": 41,
+   "poblacion": 56,
+   "aldeas": 1,
+   "saberesMundo": 44,
+   "oficios": {
+    "experimentar": 9,
+    "sin oficio": 11,
+    "pescar": 2,
+    "picar": 4
+   },
+   "entropiaOficios": 1.75,
+   "metas": {
+    "ninguna": 17,
+    "aprender": 3,
+    "prestigio": 2,
+    "familia": 4
+   },
+   "entropiaMetas": 1.46,
+   "migrantesDecada": 0,
+   "asaltosDecada": 0,
+   "conRival": 0,
+   "detalle": [
+    {
+     "nombre": "Asi",
+     "pob": 56,
+     "edad": 1,
+     "rango": "pueblo",
+     "saberes": 44,
+     "valor": null,
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "experimentar": 9,
+      "pescar": 2,
+      "picar": 4
+     },
+     "metas": {
+      "aprender": 4,
+      "prestigio": 2,
+      "familia": 4
+     },
+     "edificios": 28,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 413.42,
+      "piedra": 363.92,
+      "piel": 40.44,
+      "hueso": 82.54,
+      "hierbas": 88.89,
+      "madera": 0.75
+     }
+    }
+   ]
+  },
+  {
+   "anio": 51,
+   "poblacion": 69,
+   "aldeas": 1,
+   "saberesMundo": 50,
+   "oficios": {
+    "experimentar": 6,
+    "sin oficio": 22,
+    "pescar": 1,
+    "pastorear": 8,
+    "recolectar": 1
+   },
+   "entropiaOficios": 1.63,
+   "metas": {
+    "ninguna": 23,
+    "familia": 5,
+    "prestigio": 10
+   },
+   "entropiaMetas": 1.33,
+   "migrantesDecada": 0,
+   "asaltosDecada": 0,
+   "conRival": 0,
+   "detalle": [
+    {
+     "nombre": "Asi",
+     "pob": 69,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 50,
+     "valor": null,
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "experimentar": 6,
+      "pescar": 1,
+      "pastorear": 9,
+      "recolectar": 1
+     },
+     "metas": {
+      "familia": 5,
+      "prestigio": 10,
+      "aprender": 3
+     },
+     "edificios": 34,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 448.09,
+      "piedra": 330.47,
+      "piel": 36.87,
+      "hueso": 69.15,
+      "hierbas": 99.36,
+      "madera": 2.85
+     }
+    }
+   ]
+  },
+  {
+   "anio": 61,
+   "poblacion": 83,
+   "aldeas": 1,
+   "saberesMundo": 50,
+   "oficios": {
+    "pastorear": 20,
+    "experimentar": 3,
+    "sin oficio": 18,
+    "recolectar": 3
+   },
+   "entropiaOficios": 1.57,
+   "metas": {
+    "ninguna": 20,
+    "prestigio": 21,
+    "familia": 3
+   },
+   "entropiaMetas": 1.29,
+   "migrantesDecada": 0,
+   "asaltosDecada": 0,
+   "conRival": 0,
+   "detalle": [
+    {
+     "nombre": "Asi",
+     "pob": 83,
+     "edad": 3,
+     "rango": "ciudad",
+     "saberes": 50,
+     "valor": null,
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "pastorear": 23,
+      "experimentar": 3,
+      "recolectar": 3
+     },
+     "metas": {
+      "prestigio": 21,
+      "familia": 3,
+      "aprender": 1
+     },
+     "edificios": 37,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 418.65,
+      "piedra": 272.7,
+      "piel": 34.8,
+      "hueso": 54.15,
+      "hierbas": 108.65,
+      "madera": 2.65
+     }
+    }
+   ]
+  },
+  {
+   "anio": 71,
+   "poblacion": 95,
+   "aldeas": 1,
+   "saberesMundo": 51,
+   "oficios": {
+    "sin oficio": 7,
+    "pastorear": 39,
+    "experimentar": 1
+   },
+   "entropiaOficios": 0.75,
+   "metas": {
+    "ninguna": 31,
+    "prestigio": 12,
+    "familia": 4
+   },
+   "entropiaMetas": 1.2,
+   "migrantesDecada": 0,
+   "asaltosDecada": 0,
+   "conRival": 0,
+   "detalle": [
+    {
+     "nombre": "Asi",
+     "pob": 95,
+     "edad": 3,
+     "rango": "ciudad",
+     "saberes": 51,
+     "valor": null,
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "pastorear": 40,
+      "experimentar": 1
+     },
+     "metas": {
+      "prestigio": 12,
+      "familia": 4,
+      "aprender": 5
+     },
+     "edificios": 39,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 362.61,
+      "piedra": 231.88,
+      "piel": 35.19,
+      "hueso": 43.64,
+      "hierbas": 118.23,
+      "madera": 0.92
+     }
+    }
+   ]
+  },
+  {
+   "anio": 81,
+   "poblacion": 116,
+   "aldeas": 1,
+   "saberesMundo": 51,
+   "oficios": {
+    "experimentar": 2,
+    "pastorear": 57
+   },
+   "entropiaOficios": 0.21,
+   "metas": {
+    "ninguna": 30,
+    "prestigio": 20,
+    "familia": 9
+   },
+   "entropiaMetas": 1.44,
+   "migrantesDecada": 0,
+   "asaltosDecada": 0,
+   "conRival": 0,
+   "detalle": [
+    {
+     "nombre": "Asi",
+     "pob": 116,
+     "edad": 3,
+     "rango": "ciudad",
+     "saberes": 51,
+     "valor": null,
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "experimentar": 2,
+      "pastorear": 64
+     },
+     "metas": {
+      "prestigio": 20,
+      "familia": 9,
+      "aprender": 3
+     },
+     "edificios": 41,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 269.94,
+      "piedra": 189.18,
+      "piel": 37.49,
+      "hueso": 32.32,
+      "hierbas": 114.97,
+      "madera": 0.51
+     }
+    }
+   ]
+  },
+  {
+   "anio": 91,
+   "poblacion": 136,
+   "aldeas": 2,
+   "saberesMundo": 51,
+   "oficios": {
+    "pastorear": 59,
+    "sin oficio": 7,
+    "cazar": 1,
+    "picar": 1
+   },
+   "entropiaOficios": 0.69,
+   "metas": {
+    "ninguna": 34,
+    "prestigio": 32,
+    "familia": 2
+   },
+   "entropiaMetas": 1.16,
+   "migrantesDecada": 23,
+   "asaltosDecada": 0,
+   "conRival": 1,
+   "detalle": [
+    {
+     "nombre": "Asi",
+     "pob": 105,
+     "edad": 3,
+     "rango": "ciudad",
+     "saberes": 51,
+     "valor": null,
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "pastorear": 60
+     },
+     "metas": {
+      "prestigio": 27,
+      "familia": 4,
+      "aprender": 4
+     },
+     "edificios": 43,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 250.46,
+      "piedra": 208.9,
+      "piel": 52.3,
+      "hueso": 32.1,
+      "hierbas": 145.26,
+      "madera": 0.73
+     }
+    },
+    {
+     "nombre": "Vesise",
+     "pob": 31,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 51,
+     "valor": "expandir",
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "cazar": 1,
+      "pastorear": 8,
+      "picar": 1
+     },
+     "metas": {
+      "prestigio": 5,
+      "aprender": 1
+     },
+     "edificios": 24,
+     "casas": "casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 326.31,
+      "piedra": 627.03,
+      "piel": 65.79,
+      "hueso": 119.59,
+      "hierbas": 19.63,
+      "madera": 3.21
+     }
+    }
+   ]
+  },
+  {
+   "anio": 101,
+   "poblacion": 157,
+   "aldeas": 3,
+   "saberesMundo": 52,
+   "oficios": {
+    "pastorear": 72,
+    "sin oficio": 8,
+    "cazar": 8
+   },
+   "entropiaOficios": 0.87,
+   "metas": {
+    "ninguna": 30,
+    "prestigio": 32,
+    "fundar": 17,
+    "familia": 9
+   },
+   "entropiaMetas": 1.85,
+   "migrantesDecada": 1,
+   "asaltosDecada": 0,
+   "conRival": 0,
+   "detalle": [
+    {
+     "nombre": "Asi",
+     "pob": 120,
+     "edad": 3,
+     "rango": "ciudad",
+     "saberes": 51,
+     "valor": null,
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "pastorear": 72
+     },
+     "metas": {
+      "prestigio": 23,
+      "fundar": 17,
+      "familia": 5,
+      "aprender": 5
+     },
+     "edificios": 43,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 286.56,
+      "piedra": 183.72,
+      "piel": 56.96,
+      "hueso": 24.99,
+      "hierbas": 144.49,
+      "madera": 1.27
+     }
+    },
+    {
+     "nombre": "Vesise",
+     "pob": 22,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 51,
+     "valor": "expandir",
+     "consejo": "obras",
+     "guerra": null,
+     "oficios": {
+      "pastorear": 10
+     },
+     "metas": {
+      "prestigio": 7,
+      "familia": 1
+     },
+     "edificios": 24,
+     "casas": "casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 481.15,
+      "piedra": 887.94,
+      "piel": 100.76,
+      "hueso": 175.37,
+      "hierbas": 63.55,
+      "madera": 1.94
+     }
+    },
+    {
+     "nombre": "Ñivis",
+     "pob": 15,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 52,
+     "valor": "comida",
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "cazar": 8
+     },
+     "metas": {
+      "prestigio": 2,
+      "familia": 4,
+      "aprender": 1
+     },
+     "edificios": 26,
+     "casas": "casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 1446.55,
+      "piedra": 9.04,
+      "piel": 186.66,
+      "hueso": 366.67,
+      "hierbas": 13.26,
+      "madera": 3.99
+     }
+    }
+   ]
+  },
+  {
+   "anio": 111,
+   "poblacion": 172,
+   "aldeas": 6,
+   "saberesMundo": 52,
+   "oficios": {
+    "pastorear": 65,
+    "picar": 7,
+    "sin oficio": 20,
+    "vigilar": 2,
+    "pescar": 6
+   },
+   "entropiaOficios": 1.49,
+   "metas": {
+    "ninguna": 48,
+    "prestigio": 15,
+    "vengar": 2,
+    "fundar": 25,
+    "familia": 10
+   },
+   "entropiaMetas": 1.86,
+   "migrantesDecada": 125,
+   "asaltosDecada": 2,
+   "conRival": 2,
+   "detalle": [
+    {
+     "nombre": "Asi",
+     "pob": 129,
+     "edad": 3,
+     "rango": "ciudad",
+     "saberes": 51,
+     "valor": null,
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "pastorear": 64,
+      "vigilar": 2
+     },
+     "metas": {
+      "prestigio": 7,
+      "fundar": 25,
+      "familia": 2,
+      "aprender": 11
+     },
+     "edificios": 44,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 287.52,
+      "piedra": 168.88,
+      "piel": 60.96,
+      "hueso": 20.04,
+      "hierbas": 150.1,
+      "madera": 3.33
+     }
+    },
+    {
+     "nombre": "Vesise",
+     "pob": 11,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 51,
+     "valor": "expandir",
+     "consejo": "defensa",
+     "guerra": null,
+     "oficios": {
+      "pastorear": 5
+     },
+     "metas": {
+      "familia": 3
+     },
+     "edificios": 24,
+     "casas": "casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 860.47,
+      "piedra": 1770.58,
+      "piel": 217.66,
+      "hueso": 370.72,
+      "hierbas": 147.8,
+      "madera": 3.82
+     }
+    },
+    {
+     "nombre": "Ñivis",
+     "pob": 14,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 52,
+     "valor": "comida",
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "pescar": 6
+     },
+     "metas": {
+      "prestigio": 4,
+      "familia": 3
+     },
+     "edificios": 26,
+     "casas": "casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 1646.04,
+      "piedra": 4.18,
+      "piel": 292.94,
+      "hueso": 574.39,
+      "hierbas": 27.12,
+      "madera": 2.78
+     }
+    },
+    {
+     "nombre": "Sales",
+     "pob": 11,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 51,
+     "valor": "defensa",
+     "consejo": "obras",
+     "guerra": null,
+     "oficios": {
+      "picar": 7
+     },
+     "metas": {
+      "prestigio": 4,
+      "familia": 1
+     },
+     "edificios": 11,
+     "casas": "casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 1424.22,
+      "piedra": 1863.28,
+      "piel": 130.66,
+      "hueso": 256.83,
+      "hierbas": 17.2,
+      "madera": 3.8
+     }
+    },
+    {
+     "nombre": "Zares",
+     "pob": 3,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 51,
+     "valor": "expandir",
+     "consejo": null,
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "vengar": 1,
+      "familia": 1
+     },
+     "edificios": 15,
+     "casas": "casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 3379.05,
+      "piedra": 0.62,
+      "piel": 503.03,
+      "hueso": 868.87,
+      "hierbas": 87.53,
+      "madera": 25.61
+     }
+    },
+    {
+     "nombre": "Zeli",
+     "pob": 4,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 51,
+     "valor": "expandir",
+     "consejo": null,
+     "guerra": null,
+     "oficios": {
+      "pastorear": 1
+     },
+     "metas": {
+      "vengar": 1,
+      "aprender": 1
+     },
+     "edificios": 3,
+     "casas": "casatejas",
+     "porCabeza": {
+      "cereal": 2123.31,
+      "piedra": 151.67,
+      "piel": 140.81,
+      "hueso": 217.4,
+      "hierbas": 42.36,
+      "madera": 33.19
+     }
+    }
+   ]
+  },
+  {
+   "anio": 121,
+   "poblacion": 196,
+   "aldeas": 7,
+   "saberesMundo": 53,
+   "oficios": {
+    "sin oficio": 29,
+    "pescar": 16,
+    "pastorear": 47,
+    "experimentar": 3,
+    "recolectar": 6,
+    "cazar": 4,
+    "picar": 4,
+    "vigilar": 2
+   },
+   "entropiaOficios": 2.25,
+   "metas": {
+    "ninguna": 61,
+    "vengar": 9,
+    "prestigio": 29,
+    "familia": 12
+   },
+   "entropiaMetas": 1.62,
+   "migrantesDecada": 115,
+   "asaltosDecada": 14,
+   "conRival": 3,
+   "detalle": [
+    {
+     "nombre": "Asi",
+     "pob": 91,
+     "edad": 3,
+     "rango": "ciudad",
+     "saberes": 53,
+     "valor": null,
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "pastorear": 40,
+      "vigilar": 2
+     },
+     "metas": {
+      "prestigio": 13,
+      "vengar": 2,
+      "familia": 9,
+      "aprender": 5
+     },
+     "edificios": 44,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 505.63,
+      "piedra": 234.33,
+      "piel": 90.69,
+      "hueso": 24.7,
+      "hierbas": 233.54,
+      "madera": 4.42
+     }
+    },
+    {
+     "nombre": "Vesise",
+     "pob": 15,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 51,
+     "valor": "expandir",
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "pastorear": 8
+     },
+     "metas": {
+      "aprender": 1
+     },
+     "edificios": 24,
+     "casas": "casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 722.56,
+      "piedra": 1297.48,
+      "piel": 174.19,
+      "hueso": 291.43,
+      "hierbas": 134.1,
+      "madera": 3.69
+     }
+    },
+    {
+     "nombre": "Ñivis",
+     "pob": 23,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "pescar": 10
+     },
+     "metas": {
+      "prestigio": 5,
+      "vengar": 1,
+      "familia": 1
+     },
+     "edificios": 26,
+     "casas": "casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 728.34,
+      "piedra": 0.32,
+      "piel": 185.58,
+      "hueso": 363.44,
+      "hierbas": 23.37,
+      "madera": 3.38
+     }
+    },
+    {
+     "nombre": "Sales",
+     "pob": 4,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 52,
+     "valor": "defensa",
+     "consejo": "defensa",
+     "guerra": null,
+     "oficios": {
+      "pescar": 2
+     },
+     "metas": {
+      "vengar": 2
+     },
+     "edificios": 10,
+     "casas": "casatejas",
+     "porCabeza": {
+      "cereal": 1199.09,
+      "piedra": 8422.71,
+      "piel": 487.67,
+      "hueso": 970,
+      "hierbas": 44.25,
+      "madera": 8.81
+     }
+    },
+    {
+     "nombre": "Eke",
+     "pob": 27,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": "expandir",
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "recolectar": 6,
+      "cazar": 2,
+      "experimentar": 1
+     },
+     "metas": {
+      "prestigio": 8,
+      "familia": 1,
+      "aprender": 2
+     },
+     "edificios": 18,
+     "casas": "casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 588.55,
+      "piedra": 354.31,
+      "piel": 83.39,
+      "hueso": 161.16,
+      "hierbas": 24.87,
+      "madera": 2.91
+     }
+    },
+    {
+     "nombre": "Viji",
+     "pob": 19,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 52,
+     "valor": "obras",
+     "consejo": "defensa",
+     "guerra": "Sales",
+     "oficios": {
+      "picar": 6,
+      "pescar": 3
+     },
+     "metas": {
+      "vengar": 3,
+      "prestigio": 2,
+      "familia": 3
+     },
+     "edificios": 21,
+     "casas": "casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 590,
+      "piedra": 1144.42,
+      "piel": 75.83,
+      "hueso": 157.64,
+      "hierbas": 11.59,
+      "madera": 2.46
+     }
+    },
+    {
+     "nombre": "Riñi",
+     "pob": 17,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "defensa",
+     "consejo": "defensa",
+     "guerra": null,
+     "oficios": {
+      "experimentar": 2,
+      "pescar": 1,
+      "pastorear": 1,
+      "cazar": 2
+     },
+     "metas": {
+      "prestigio": 1,
+      "vengar": 1,
+      "familia": 1,
+      "aprender": 1
+     },
+     "edificios": 13,
+     "casas": "casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 585.41,
+      "piedra": 71.03,
+      "piel": 75.06,
+      "hueso": 136.71,
+      "hierbas": 6.11,
+      "madera": 2.52
+     }
+    }
+   ]
+  },
+  {
+   "anio": 131,
+   "poblacion": 231,
+   "aldeas": 7,
+   "saberesMundo": 53,
+   "oficios": {
+    "sin oficio": 43,
+    "cazar": 4,
+    "recolectar": 19,
+    "pescar": 28,
+    "experimentar": 4,
+    "pastorear": 10,
+    "vigilar": 3
+   },
+   "entropiaOficios": 2.27,
+   "metas": {
+    "ninguna": 56,
+    "vengar": 8,
+    "prestigio": 33,
+    "familia": 14
+   },
+   "entropiaMetas": 1.67,
+   "migrantesDecada": 37,
+   "asaltosDecada": 12,
+   "conRival": 1,
+   "detalle": [
+    {
+     "nombre": "Asi",
+     "pob": 76,
+     "edad": 3,
+     "rango": "ciudad",
+     "saberes": 53,
+     "valor": null,
+     "consejo": "defensa",
+     "guerra": null,
+     "oficios": {
+      "recolectar": 4,
+      "pastorear": 12,
+      "vigilar": 1,
+      "pescar": 1
+     },
+     "metas": {
+      "vengar": 2,
+      "prestigio": 12,
+      "familia": 2,
+      "aprender": 4
+     },
+     "edificios": 44,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 516.95,
+      "piedra": 274.66,
+      "piel": 110.7,
+      "hueso": 25.83,
+      "hierbas": 305.52,
+      "madera": 0.54
+     }
+    },
+    {
+     "nombre": "Vesise",
+     "pob": 3,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 51,
+     "valor": "expandir",
+     "consejo": null,
+     "guerra": null,
+     "oficios": {
+      "vigilar": 1
+     },
+     "metas": {
+      "vengar": 1,
+      "familia": 1
+     },
+     "edificios": 18,
+     "casas": "casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 1136.61,
+      "piedra": 6500.5,
+      "piel": 903.28,
+      "hueso": 1509.37,
+      "hierbas": 722.54,
+      "madera": 13.45
+     }
+    },
+    {
+     "nombre": "Ñivis",
+     "pob": 28,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "experimentar": 1,
+      "pescar": 8,
+      "recolectar": 1
+     },
+     "metas": {
+      "prestigio": 2,
+      "vengar": 2,
+      "familia": 2,
+      "aprender": 2
+     },
+     "edificios": 31,
+     "casas": "casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 774.62,
+      "piedra": 0.31,
+      "piel": 150.82,
+      "hueso": 298.6,
+      "hierbas": 44.62,
+      "madera": 1.78
+     }
+    },
+    {
+     "nombre": "Eke",
+     "pob": 32,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": "expandir",
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "recolectar": 16,
+      "experimentar": 1
+     },
+     "metas": {
+      "vengar": 1,
+      "prestigio": 9,
+      "familia": 2,
+      "aprender": 3
+     },
+     "edificios": 21,
+     "casas": "casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 555.3,
+      "piedra": 290.51,
+      "piel": 69.93,
+      "hueso": 140.21,
+      "hierbas": 80.58,
+      "madera": 6.19
+     }
+    },
+    {
+     "nombre": "Viji",
+     "pob": 30,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "obras",
+     "consejo": "defensa",
+     "guerra": null,
+     "oficios": {
+      "pescar": 18
+     },
+     "metas": {
+      "prestigio": 6,
+      "familia": 1
+     },
+     "edificios": 21,
+     "casas": "casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 391.58,
+      "piedra": 732.87,
+      "piel": 59.06,
+      "hueso": 124.06,
+      "hierbas": 17.49,
+      "madera": 3.38
+     }
+    },
+    {
+     "nombre": "Riñi",
+     "pob": 24,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "defensa",
+     "consejo": "defensa",
+     "guerra": null,
+     "oficios": {
+      "pescar": 8,
+      "experimentar": 1,
+      "cazar": 1
+     },
+     "metas": {
+      "familia": 2,
+      "aprender": 1
+     },
+     "edificios": 16,
+     "casas": "casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 605.99,
+      "piedra": 61.19,
+      "piel": 74.75,
+      "hueso": 142.67,
+      "hierbas": 23.33,
+      "madera": 2.85
+     }
+    },
+    {
+     "nombre": "Fiñe",
+     "pob": 38,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": "obras",
+     "consejo": "defensa",
+     "guerra": null,
+     "oficios": {
+      "cazar": 5,
+      "experimentar": 1,
+      "vigilar": 1
+     },
+     "metas": {
+      "vengar": 3,
+      "prestigio": 4,
+      "familia": 4,
+      "aprender": 1
+     },
+     "edificios": 26,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 523.39,
+      "piedra": 443.34,
+      "piel": 92.21,
+      "hueso": 180.14,
+      "hierbas": 15.35,
+      "madera": 8.52
+     }
+    }
+   ]
+  },
+  {
+   "anio": 141,
+   "poblacion": 284,
+   "aldeas": 8,
+   "saberesMundo": 53,
+   "oficios": {
+    "sin oficio": 44,
+    "pastorear": 31,
+    "experimentar": 2,
+    "pescar": 35,
+    "recolectar": 11,
+    "vigilar": 7,
+    "picar": 1,
+    "cazar": 5
+   },
+   "entropiaOficios": 2.35,
+   "metas": {
+    "ninguna": 78,
+    "prestigio": 43,
+    "familia": 15
+   },
+   "entropiaMetas": 1.34,
+   "migrantesDecada": 31,
+   "asaltosDecada": 2,
+   "conRival": 1,
+   "detalle": [
+    {
+     "nombre": "Asi",
+     "pob": 106,
+     "edad": 3,
+     "rango": "ciudad",
+     "saberes": 53,
+     "valor": null,
+     "consejo": "obras",
+     "guerra": null,
+     "oficios": {
+      "pastorear": 33,
+      "experimentar": 1,
+      "pescar": 1,
+      "vigilar": 4
+     },
+     "metas": {
+      "prestigio": 15,
+      "familia": 3,
+      "oficio": 1,
+      "aprender": 5
+     },
+     "edificios": 47,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 383.67,
+      "piedra": 192.3,
+      "piel": 88.42,
+      "hueso": 25.58,
+      "hierbas": 238.03,
+      "madera": 0.49
+     }
+    },
+    {
+     "nombre": "Ñivis",
+     "pob": 26,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "obras",
+     "guerra": null,
+     "oficios": {
+      "pescar": 6
+     },
+     "metas": {
+      "prestigio": 7,
+      "familia": 1,
+      "aprender": 3
+     },
+     "edificios": 34,
+     "casas": "casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 642.14,
+      "piedra": 0.66,
+      "piel": 156.54,
+      "hueso": 321.9,
+      "hierbas": 87.46,
+      "madera": 1.54
+     }
+    },
+    {
+     "nombre": "Eke",
+     "pob": 21,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": "expandir",
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "recolectar": 7,
+      "vigilar": 2
+     },
+     "metas": {
+      "prestigio": 5,
+      "aprender": 2
+     },
+     "edificios": 21,
+     "casas": "casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 470.4,
+      "piedra": 433.94,
+      "piel": 99.11,
+      "hueso": 215.24,
+      "hierbas": 191.18,
+      "madera": 2.39
+     }
+    },
+    {
+     "nombre": "Viji",
+     "pob": 30,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "obras",
+     "consejo": "defensa",
+     "guerra": null,
+     "oficios": {
+      "pescar": 21
+     },
+     "metas": {
+      "prestigio": 6,
+      "familia": 4
+     },
+     "edificios": 21,
+     "casas": "casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 261.16,
+      "piedra": 728.29,
+      "piel": 57.48,
+      "hueso": 123.97,
+      "hierbas": 37.25,
+      "madera": 2.01
+     }
+    },
+    {
+     "nombre": "Riñi",
+     "pob": 35,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "defensa",
+     "consejo": "defensa",
+     "guerra": null,
+     "oficios": {
+      "pescar": 12,
+      "experimentar": 1
+     },
+     "metas": {
+      "prestigio": 2,
+      "familia": 3,
+      "aprender": 2
+     },
+     "edificios": 19,
+     "casas": "casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 473.91,
+      "piedra": 37.99,
+      "piel": 56.82,
+      "hueso": 112.75,
+      "hierbas": 35.89,
+      "madera": 3.15
+     }
+    },
+    {
+     "nombre": "Fiñe",
+     "pob": 42,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": "obras",
+     "consejo": "defensa",
+     "guerra": null,
+     "oficios": {
+      "vigilar": 1,
+      "pescar": 2,
+      "recolectar": 3
+     },
+     "metas": {
+      "prestigio": 3,
+      "familia": 4
+     },
+     "edificios": 26,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 457.6,
+      "piedra": 402.75,
+      "piel": 80.17,
+      "hueso": 164.8,
+      "hierbas": 41.61,
+      "madera": 2.91
+     }
+    },
+    {
+     "nombre": "Jeke",
+     "pob": 11,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "cazar": 5
+     },
+     "metas": {
+      "familia": 1,
+      "prestigio": 4,
+      "aprender": 1
+     },
+     "edificios": 12,
+     "casas": "casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 235.69,
+      "piedra": 104.03,
+      "piel": 110.72,
+      "hueso": 211.82,
+      "hierbas": 7.48,
+      "madera": 4.19
+     }
+    },
+    {
+     "nombre": "Kaje",
+     "pob": 13,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "picar": 1,
+      "recolectar": 2
+     },
+     "metas": {
+      "familia": 2,
+      "prestigio": 1,
+      "aprender": 2
+     },
+     "edificios": 10,
+     "casas": "casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 424.75,
+      "piedra": 75.47,
+      "piel": 29.52,
+      "hueso": 48.33,
+      "hierbas": 6.08,
+      "madera": 2.99
+     }
+    }
+   ]
+  },
+  {
+   "anio": 151,
+   "poblacion": 347,
+   "aldeas": 8,
+   "saberesMundo": 53,
+   "oficios": {
+    "sin oficio": 66,
+    "recolectar": 31,
+    "pescar": 45,
+    "pastorear": 4,
+    "cazar": 3,
+    "vigilar": 17
+   },
+   "entropiaOficios": 2.06,
+   "metas": {
+    "ninguna": 90,
+    "prestigio": 55,
+    "familia": 21
+   },
+   "entropiaMetas": 1.38,
+   "migrantesDecada": 1,
+   "asaltosDecada": 0,
+   "conRival": 1,
+   "detalle": [
+    {
+     "nombre": "Asi",
+     "pob": 114,
+     "edad": 3,
+     "rango": "ciudad",
+     "saberes": 53,
+     "valor": null,
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "recolectar": 14,
+      "pastorear": 1,
+      "pescar": 5,
+      "vigilar": 10
+     },
+     "metas": {
+      "prestigio": 23,
+      "aprender": 6
+     },
+     "edificios": 49,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 321.05,
+      "piedra": 173.5,
+      "piel": 82.21,
+      "hueso": 21.48,
+      "hierbas": 254.35,
+      "madera": 4.82
+     }
+    },
+    {
+     "nombre": "Ñivis",
+     "pob": 31,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "pescar": 7,
+      "recolectar": 5
+     },
+     "metas": {
+      "prestigio": 7,
+      "familia": 2,
+      "aprender": 1
+     },
+     "edificios": 34,
+     "casas": "casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 476.15,
+      "piedra": 0.3,
+      "piel": 128.28,
+      "hueso": 271.74,
+      "hierbas": 104.58,
+      "madera": 2.73
+     }
+    },
+    {
+     "nombre": "Eke",
+     "pob": 25,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": "expandir",
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "recolectar": 10,
+      "vigilar": 1
+     },
+     "metas": {
+      "prestigio": 7,
+      "familia": 2,
+      "aprender": 1
+     },
+     "edificios": 21,
+     "casas": "casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 322.73,
+      "piedra": 357.99,
+      "piel": 80.6,
+      "hueso": 182.96,
+      "hierbas": 220.62,
+      "madera": 1.6
+     }
+    },
+    {
+     "nombre": "Viji",
+     "pob": 45,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": "obras",
+     "consejo": "defensa",
+     "guerra": null,
+     "oficios": {
+      "pescar": 25
+     },
+     "metas": {
+      "prestigio": 7,
+      "familia": 4,
+      "aprender": 1
+     },
+     "edificios": 26,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 230.14,
+      "piedra": 482.19,
+      "piel": 38.8,
+      "hueso": 86.58,
+      "hierbas": 31.82,
+      "madera": 5.98
+     }
+    },
+    {
+     "nombre": "Riñi",
+     "pob": 45,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": "defensa",
+     "consejo": "defensa",
+     "guerra": null,
+     "oficios": {
+      "vigilar": 2,
+      "pastorear": 2,
+      "pescar": 11
+     },
+     "metas": {
+      "prestigio": 1,
+      "familia": 6,
+      "aprender": 2
+     },
+     "edificios": 24,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 354.69,
+      "piedra": 21.18,
+      "piel": 46.1,
+      "hueso": 92.12,
+      "hierbas": 44.4,
+      "madera": 2.58
+     }
+    },
+    {
+     "nombre": "Fiñe",
+     "pob": 52,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": "obras",
+     "consejo": "defensa",
+     "guerra": null,
+     "oficios": {
+      "pescar": 2,
+      "recolectar": 5,
+      "vigilar": 4
+     },
+     "metas": {
+      "prestigio": 3,
+      "familia": 7,
+      "aprender": 2
+     },
+     "edificios": 27,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 378.08,
+      "piedra": 319.22,
+      "piel": 59.79,
+      "hueso": 131.45,
+      "hierbas": 67.29,
+      "madera": 3.95
+     }
+    },
+    {
+     "nombre": "Jeke",
+     "pob": 17,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "cazar": 3,
+      "picar": 1
+     },
+     "metas": {
+      "prestigio": 4,
+      "familia": 1,
+      "aprender": 2
+     },
+     "edificios": 13,
+     "casas": "casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 233.81,
+      "piedra": 797,
+      "piel": 225.29,
+      "hueso": 446.22,
+      "hierbas": 21.59,
+      "madera": 2.26
+     }
+    },
+    {
+     "nombre": "Kaje",
+     "pob": 18,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "pastorear": 2
+     },
+     "metas": {
+      "prestigio": 3,
+      "familia": 1,
+      "aprender": 1
+     },
+     "edificios": 11,
+     "casas": "casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 388.47,
+      "piedra": 862.14,
+      "piel": 77.07,
+      "hueso": 144.68,
+      "hierbas": 17.96,
+      "madera": 2.46
+     }
+    }
+   ]
+  }
+ ],
+ "actividades": {
+  "jugar": 0.32,
+  "experimentar": 0.18,
+  "pastorear": 0.16,
+  "recolectar": 0.15,
+  "pescar": 0.09,
+  "cazar": 0.03,
+  "picar": 0.03,
+  "vigilar": 0.03,
+  "descansar": 0.01,
+  "cultivar": 0.01,
+  "barro": 0,
+  "lenar": 0,
+  "construir": 0,
+  "viajar": 0,
+  "defender": 0,
+  "asaltar": 0
+ },
+ "migraciones": [
+  {
+   "anio": 83,
+   "persona": "Sekis",
+   "id": 79,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 46,
+   "pobAAntes": 72,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermana Fasa."
+  },
+  {
+   "anio": 83,
+   "persona": "Fali",
+   "id": 91,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 46,
+   "pobAAntes": 72,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Riñe."
+  },
+  {
+   "anio": 83,
+   "persona": "Lili",
+   "id": 109,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 46,
+   "pobAAntes": 72,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Velas."
+  },
+  {
+   "anio": 83,
+   "persona": "Laleli",
+   "id": 111,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 46,
+   "pobAAntes": 72,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Rafakes."
+  },
+  {
+   "anio": 83,
+   "persona": "Laviri",
+   "id": 129,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 46,
+   "pobAAntes": 72,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Ñesi."
+  },
+  {
+   "anio": 83,
+   "persona": "Kilara",
+   "id": 137,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 46,
+   "pobAAntes": 72,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Ñesi."
+  },
+  {
+   "anio": 83,
+   "persona": "Lesa",
+   "id": 176,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 46,
+   "pobAAntes": 72,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere aprender la agricultura; Sekis lo sabe."
+  },
+  {
+   "anio": 83,
+   "persona": "Ñifa",
+   "id": 183,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 46,
+   "pobAAntes": 72,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 83,
+   "persona": "Rire",
+   "id": 202,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 46,
+   "pobAAntes": 72,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 83,
+   "persona": "Fali",
+   "id": 206,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 46,
+   "pobAAntes": 72,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 83,
+   "persona": "Zafas",
+   "id": 207,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 46,
+   "pobAAntes": 72,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 83,
+   "persona": "Kera",
+   "id": 215,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 46,
+   "pobAAntes": 72,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 83,
+   "persona": "Resaña",
+   "id": 216,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 46,
+   "pobAAntes": 72,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 83,
+   "persona": "Seva",
+   "id": 224,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 46,
+   "pobAAntes": 72,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 83,
+   "persona": "Fazisi",
+   "id": 126,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 32,
+   "pobAAntes": 86,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su padre Saki."
+  },
+  {
+   "anio": 83,
+   "persona": "Seliri",
+   "id": 130,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 32,
+   "pobAAntes": 86,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Velas."
+  },
+  {
+   "anio": 83,
+   "persona": "Siris",
+   "id": 124,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 30,
+   "pobAAntes": 88,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su padre Zañes."
+  },
+  {
+   "anio": 83,
+   "persona": "Vekas",
+   "id": 131,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 30,
+   "pobAAntes": 88,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Ñesi."
+  },
+  {
+   "anio": 83,
+   "persona": "Lare",
+   "id": 132,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 30,
+   "pobAAntes": 88,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Jila."
+  },
+  {
+   "anio": 83,
+   "persona": "Vises",
+   "id": 151,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 30,
+   "pobAAntes": 88,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su padre Fakas."
+  },
+  {
+   "anio": 83,
+   "persona": "Kefa",
+   "id": 211,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 30,
+   "pobAAntes": 88,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 83,
+   "persona": "Ara",
+   "id": 123,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 26,
+   "pobAAntes": 92,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su padre Favi."
+  },
+  {
+   "anio": 83,
+   "persona": "Ziveze",
+   "id": 155,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 26,
+   "pobAAntes": 92,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Ilele."
+  },
+  {
+   "anio": 99,
+   "persona": "Riri",
+   "id": 135,
+   "de": "Asi",
+   "a": "Vesise",
+   "deId": 1,
+   "aId": 223,
+   "pobDeAntes": 118,
+   "pobAAntes": 21,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Vesise: aquí se siente sola, y allí vive su hermana Firi."
+  },
+  {
+   "anio": 107,
+   "persona": "Riri",
+   "id": 135,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 11,
+   "pobAAntes": 74,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: aquí se siente sola, y allí vive su hermano Jerasi."
+  },
+  {
+   "anio": 107,
+   "persona": "Iñes",
+   "id": 214,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 53,
+   "pobAAntes": 77,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Vises."
+  },
+  {
+   "anio": 107,
+   "persona": "Eka",
+   "id": 217,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 53,
+   "pobAAntes": 77,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Ziva."
+  },
+  {
+   "anio": 107,
+   "persona": "Seva",
+   "id": 224,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 53,
+   "pobAAntes": 77,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Laviri."
+  },
+  {
+   "anio": 107,
+   "persona": "Varases",
+   "id": 246,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 53,
+   "pobAAntes": 77,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su padre Fezi."
+  },
+  {
+   "anio": 107,
+   "persona": "Kañira",
+   "id": 337,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 53,
+   "pobAAntes": 77,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 107,
+   "persona": "Seje",
+   "id": 133,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 48,
+   "pobAAntes": 82,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermana Ñifa."
+  },
+  {
+   "anio": 107,
+   "persona": "Ñevi",
+   "id": 175,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 48,
+   "pobAAntes": 82,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermana Ñekes."
+  },
+  {
+   "anio": 107,
+   "persona": "Ñafi",
+   "id": 205,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 48,
+   "pobAAntes": 82,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Sakeki."
+  },
+  {
+   "anio": 107,
+   "persona": "Zafas",
+   "id": 207,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 48,
+   "pobAAntes": 82,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Laviri."
+  },
+  {
+   "anio": 107,
+   "persona": "Ñañes",
+   "id": 212,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 48,
+   "pobAAntes": 82,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí no falta la comida."
+  },
+  {
+   "anio": 107,
+   "persona": "Kera",
+   "id": 215,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 48,
+   "pobAAntes": 82,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Laviri."
+  },
+  {
+   "anio": 107,
+   "persona": "Resaña",
+   "id": 216,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 48,
+   "pobAAntes": 82,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Laleli."
+  },
+  {
+   "anio": 107,
+   "persona": "Eji",
+   "id": 255,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 48,
+   "pobAAntes": 82,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Lare."
+  },
+  {
+   "anio": 107,
+   "persona": "Zeke",
+   "id": 269,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 48,
+   "pobAAntes": 82,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 107,
+   "persona": "Jiraka",
+   "id": 297,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 48,
+   "pobAAntes": 82,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 107,
+   "persona": "Fiji",
+   "id": 309,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 48,
+   "pobAAntes": 82,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 107,
+   "persona": "Saña",
+   "id": 318,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 48,
+   "pobAAntes": 82,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 107,
+   "persona": "Rare",
+   "id": 325,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 48,
+   "pobAAntes": 82,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 107,
+   "persona": "Zase",
+   "id": 200,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 35,
+   "pobAAntes": 95,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Rifeva."
+  },
+  {
+   "anio": 107,
+   "persona": "Fali",
+   "id": 206,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 35,
+   "pobAAntes": 95,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Laleli."
+  },
+  {
+   "anio": 107,
+   "persona": "Jiñas",
+   "id": 209,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 35,
+   "pobAAntes": 95,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermana Kera."
+  },
+  {
+   "anio": 107,
+   "persona": "Sesi",
+   "id": 236,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 35,
+   "pobAAntes": 95,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Vises."
+  },
+  {
+   "anio": 107,
+   "persona": "Safizi",
+   "id": 307,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 35,
+   "pobAAntes": 95,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 107,
+   "persona": "Jejis",
+   "id": 331,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 35,
+   "pobAAntes": 95,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 107,
+   "persona": "Leka",
+   "id": 343,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 35,
+   "pobAAntes": 95,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 107,
+   "persona": "Rezas",
+   "id": 160,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 28,
+   "pobAAntes": 102,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermana Lare."
+  },
+  {
+   "anio": 107,
+   "persona": "Sise",
+   "id": 177,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 28,
+   "pobAAntes": 102,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermana Kera."
+  },
+  {
+   "anio": 107,
+   "persona": "Reliji",
+   "id": 270,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 28,
+   "pobAAntes": 102,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 107,
+   "persona": "Vivas",
+   "id": 304,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 28,
+   "pobAAntes": 102,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 107,
+   "persona": "Vevis",
+   "id": 350,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 28,
+   "pobAAntes": 102,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 107,
+   "persona": "Kije",
+   "id": 163,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 23,
+   "pobAAntes": 107,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Rize."
+  },
+  {
+   "anio": 107,
+   "persona": "Jele",
+   "id": 188,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 23,
+   "pobAAntes": 107,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Zikiji."
+  },
+  {
+   "anio": 107,
+   "persona": "Fikaje",
+   "id": 191,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 23,
+   "pobAAntes": 107,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Sakeki."
+  },
+  {
+   "anio": 107,
+   "persona": "Vazi",
+   "id": 208,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 23,
+   "pobAAntes": 107,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Vises."
+  },
+  {
+   "anio": 107,
+   "persona": "Kefa",
+   "id": 211,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 23,
+   "pobAAntes": 107,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Lare."
+  },
+  {
+   "anio": 107,
+   "persona": "Lefakis",
+   "id": 218,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 23,
+   "pobAAntes": 107,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí no falta la comida."
+  },
+  {
+   "anio": 107,
+   "persona": "Reliñi",
+   "id": 268,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 23,
+   "pobAAntes": 107,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 107,
+   "persona": "Alara",
+   "id": 271,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 23,
+   "pobAAntes": 107,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 107,
+   "persona": "Ñafes",
+   "id": 274,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 23,
+   "pobAAntes": 107,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 107,
+   "persona": "Jize",
+   "id": 300,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 23,
+   "pobAAntes": 107,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 107,
+   "persona": "Valasis",
+   "id": 322,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 23,
+   "pobAAntes": 107,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 107,
+   "persona": "Life",
+   "id": 347,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 23,
+   "pobAAntes": 107,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 107,
+   "persona": "Lifi",
+   "id": 351,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 23,
+   "pobAAntes": 107,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 107,
+   "persona": "Ñaña",
+   "id": 354,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 23,
+   "pobAAntes": 107,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 107,
+   "persona": "Ziseves",
+   "id": 356,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 23,
+   "pobAAntes": 107,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 107,
+   "persona": "Visis",
+   "id": 139,
+   "de": "Asi",
+   "a": "Zares",
+   "deId": 1,
+   "aId": 352,
+   "pobDeAntes": 122,
+   "pobAAntes": 8,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere hacerse un nombre y que le escuchen en el consejo."
+  },
+  {
+   "anio": 107,
+   "persona": "Zasi",
+   "id": 159,
+   "de": "Asi",
+   "a": "Zares",
+   "deId": 1,
+   "aId": 352,
+   "pobDeAntes": 122,
+   "pobAAntes": 8,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Zares: aquí no se siente a salvo, y allí vive su hijo Veji."
+  },
+  {
+   "anio": 107,
+   "persona": "Ele",
+   "id": 252,
+   "de": "Asi",
+   "a": "Zares",
+   "deId": 1,
+   "aId": 352,
+   "pobDeAntes": 120,
+   "pobAAntes": 10,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 107,
+   "persona": "Eje",
+   "id": 256,
+   "de": "Asi",
+   "a": "Zares",
+   "deId": 1,
+   "aId": 352,
+   "pobDeAntes": 120,
+   "pobAAntes": 10,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Zares: aquí no se siente a salvo, y allí vive su padre Ñafas."
+  },
+  {
+   "anio": 108,
+   "persona": "Kilara",
+   "id": 137,
+   "de": "Asi",
+   "a": "Zares",
+   "deId": 1,
+   "aId": 352,
+   "pobDeAntes": 118,
+   "pobAAntes": 11,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 108,
+   "persona": "Feñela",
+   "id": 157,
+   "de": "Asi",
+   "a": "Zares",
+   "deId": 1,
+   "aId": 352,
+   "pobDeAntes": 118,
+   "pobAAntes": 11,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Zares: aquí no se siente a salvo, y allí vive su hermana Visis."
+  },
+  {
+   "anio": 108,
+   "persona": "Ñafi",
+   "id": 205,
+   "de": "Asi",
+   "a": "Zares",
+   "deId": 1,
+   "aId": 352,
+   "pobDeAntes": 118,
+   "pobAAntes": 14,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Sueña con fundar su propio pueblo, con tierra para todos y donde mande ella."
+  },
+  {
+   "anio": 108,
+   "persona": "Zafas",
+   "id": 207,
+   "de": "Asi",
+   "a": "Zares",
+   "deId": 1,
+   "aId": 352,
+   "pobDeAntes": 118,
+   "pobAAntes": 14,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Zares: aquí no se siente a salvo, y allí vive su hermano Savi."
+  },
+  {
+   "anio": 108,
+   "persona": "Zeres",
+   "id": 184,
+   "de": "Asi",
+   "a": "Zares",
+   "deId": 1,
+   "aId": 352,
+   "pobDeAntes": 119,
+   "pobAAntes": 16,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere hacerse un nombre y que le escuchen en el consejo."
+  },
+  {
+   "anio": 108,
+   "persona": "Vize",
+   "id": 199,
+   "de": "Asi",
+   "a": "Zares",
+   "deId": 1,
+   "aId": 352,
+   "pobDeAntes": 119,
+   "pobAAntes": 16,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Zares: aquí no se siente a salvo, y allí vive su hermana Ñafi."
+  },
+  {
+   "anio": 109,
+   "persona": "Kilara",
+   "id": 137,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 20,
+   "pobAAntes": 117,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 109,
+   "persona": "Feñela",
+   "id": 157,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 20,
+   "pobAAntes": 117,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: aquí se siente sola, y allí vive su hermana Ñekes."
+  },
+  {
+   "anio": 109,
+   "persona": "Ñafi",
+   "id": 205,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 20,
+   "pobAAntes": 117,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 109,
+   "persona": "Zafas",
+   "id": 207,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 20,
+   "pobAAntes": 117,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: aquí se siente solo, y allí vive su madre Laviri."
+  },
+  {
+   "anio": 109,
+   "persona": "Ñafi",
+   "id": 205,
+   "de": "Asi",
+   "a": "Zares",
+   "deId": 1,
+   "aId": 352,
+   "pobDeAntes": 121,
+   "pobAAntes": 14,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Zares: aquí no se siente a salvo, y allí vive su hermano Vize."
+  },
+  {
+   "anio": 109,
+   "persona": "Zafas",
+   "id": 207,
+   "de": "Asi",
+   "a": "Zares",
+   "deId": 1,
+   "aId": 352,
+   "pobDeAntes": 121,
+   "pobAAntes": 14,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Zares: aquí no se siente a salvo, y allí vive su hermano Savi."
+  },
+  {
+   "anio": 109,
+   "persona": "Kilara",
+   "id": 137,
+   "de": "Asi",
+   "a": "Zares",
+   "deId": 1,
+   "aId": 352,
+   "pobDeAntes": 120,
+   "pobAAntes": 16,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 109,
+   "persona": "Feñela",
+   "id": 157,
+   "de": "Asi",
+   "a": "Zares",
+   "deId": 1,
+   "aId": 352,
+   "pobDeAntes": 120,
+   "pobAAntes": 16,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Zares: aquí no se siente a salvo, y allí vive su hermana Visis."
+  },
+  {
+   "anio": 109,
+   "persona": "Zeres",
+   "id": 184,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 19,
+   "pobAAntes": 118,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere hacerse un nombre y que le escuchen en el consejo."
+  },
+  {
+   "anio": 109,
+   "persona": "Vize",
+   "id": 199,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 19,
+   "pobAAntes": 118,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: aquí se siente solo, y allí vive su hermano Sakeki."
+  },
+  {
+   "anio": 109,
+   "persona": "Ñafi",
+   "id": 205,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 120,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 109,
+   "persona": "Zafas",
+   "id": 207,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 120,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: aquí se siente solo, y allí vive su madre Laviri."
+  },
+  {
+   "anio": 109,
+   "persona": "Vekas",
+   "id": 131,
+   "de": "Asi",
+   "a": "Zares",
+   "deId": 1,
+   "aId": 352,
+   "pobDeAntes": 122,
+   "pobAAntes": 16,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Zares: aquí se siente solo, y allí vive su hermano Kilara."
+  },
+  {
+   "anio": 109,
+   "persona": "Ñare",
+   "id": 294,
+   "de": "Asi",
+   "a": "Zares",
+   "deId": 1,
+   "aId": 352,
+   "pobDeAntes": 122,
+   "pobAAntes": 16,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere aprender el ordeño; Laleli lo sabe."
+  },
+  {
+   "anio": 110,
+   "persona": "Ñafas",
+   "id": 110,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 74,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: aquí no se siente a salvo, y allí no falta la comida."
+  },
+  {
+   "anio": 110,
+   "persona": "Jila",
+   "id": 161,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 74,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: aquí no se siente a salvo, y allí vive su hermano Fali."
+  },
+  {
+   "anio": 110,
+   "persona": "File",
+   "id": 303,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 74,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere aprender la navegación a vela; Ñafas lo sabe."
+  },
+  {
+   "anio": 110,
+   "persona": "Jive",
+   "id": 315,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 74,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 110,
+   "persona": "Zafi",
+   "id": 364,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 74,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 110,
+   "persona": "Leriri",
+   "id": 377,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 74,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 110,
+   "persona": "Vekas",
+   "id": 131,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 12,
+   "pobAAntes": 80,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: aquí no se siente a salvo, y allí vive su hermana Laviri."
+  },
+  {
+   "anio": 110,
+   "persona": "Visis",
+   "id": 139,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 12,
+   "pobAAntes": 80,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere hacerse un nombre y que le escuchen en el consejo."
+  },
+  {
+   "anio": 110,
+   "persona": "Veji",
+   "id": 233,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 12,
+   "pobAAntes": 80,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere hacerse un nombre y que le escuchen en el consejo."
+  },
+  {
+   "anio": 110,
+   "persona": "Safifa",
+   "id": 241,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 12,
+   "pobAAntes": 80,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: aquí no se siente a salvo, y allí vive su madre Ziva."
+  },
+  {
+   "anio": 110,
+   "persona": "Ñare",
+   "id": 294,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 12,
+   "pobAAntes": 80,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere aprender el bronce; Ñafas lo sabe."
+  },
+  {
+   "anio": 110,
+   "persona": "Rifa",
+   "id": 344,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 12,
+   "pobAAntes": 80,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 110,
+   "persona": "Ele",
+   "id": 252,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 6,
+   "pobAAntes": 86,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: aquí no se siente a salvo, y allí vive su madre Rakafe."
+  },
+  {
+   "anio": 110,
+   "persona": "Eje",
+   "id": 256,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 6,
+   "pobAAntes": 86,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: aquí no se siente a salvo, y allí no falta la comida."
+  },
+  {
+   "anio": 110,
+   "persona": "Lava",
+   "id": 380,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 6,
+   "pobAAntes": 86,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 110,
+   "persona": "Seje",
+   "id": 133,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 44,
+   "pobAAntes": 89,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Fali."
+  },
+  {
+   "anio": 110,
+   "persona": "Ñevi",
+   "id": 175,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 44,
+   "pobAAntes": 89,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermana Ñekes."
+  },
+  {
+   "anio": 110,
+   "persona": "Fize",
+   "id": 204,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 44,
+   "pobAAntes": 89,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermana Riri."
+  },
+  {
+   "anio": 110,
+   "persona": "Iñara",
+   "id": 213,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 44,
+   "pobAAntes": 89,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermana Lare."
+  },
+  {
+   "anio": 110,
+   "persona": "Zera",
+   "id": 253,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 44,
+   "pobAAntes": 89,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su padre Rize."
+  },
+  {
+   "anio": 110,
+   "persona": "Jiraka",
+   "id": 297,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 44,
+   "pobAAntes": 89,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere aprender la cantería; Seje lo sabe."
+  },
+  {
+   "anio": 110,
+   "persona": "Saña",
+   "id": 318,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 44,
+   "pobAAntes": 89,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 110,
+   "persona": "Fili",
+   "id": 368,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 44,
+   "pobAAntes": 89,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 110,
+   "persona": "Lañeka",
+   "id": 156,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 36,
+   "pobAAntes": 97,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Rize."
+  },
+  {
+   "anio": 110,
+   "persona": "Sakeki",
+   "id": 164,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 36,
+   "pobAAntes": 97,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí no falta la comida."
+  },
+  {
+   "anio": 110,
+   "persona": "Zeres",
+   "id": 184,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 36,
+   "pobAAntes": 97,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermana Lare."
+  },
+  {
+   "anio": 110,
+   "persona": "Vize",
+   "id": 199,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 36,
+   "pobAAntes": 97,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí no falta la comida."
+  },
+  {
+   "anio": 110,
+   "persona": "Iñes",
+   "id": 214,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 36,
+   "pobAAntes": 97,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Vises."
+  },
+  {
+   "anio": 110,
+   "persona": "Eka",
+   "id": 217,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 36,
+   "pobAAntes": 97,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Ziva."
+  },
+  {
+   "anio": 110,
+   "persona": "Seva",
+   "id": 224,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 36,
+   "pobAAntes": 97,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Laviri."
+  },
+  {
+   "anio": 110,
+   "persona": "Sazevas",
+   "id": 234,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 36,
+   "pobAAntes": 97,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su padre Rize."
+  },
+  {
+   "anio": 110,
+   "persona": "Varases",
+   "id": 246,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 36,
+   "pobAAntes": 97,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su padre Fezi."
+  },
+  {
+   "anio": 110,
+   "persona": "Zeñes",
+   "id": 250,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 36,
+   "pobAAntes": 97,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Vekala."
+  },
+  {
+   "anio": 110,
+   "persona": "Kañira",
+   "id": 337,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 36,
+   "pobAAntes": 97,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 110,
+   "persona": "Vases",
+   "id": 345,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 36,
+   "pobAAntes": 97,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 110,
+   "persona": "Lase",
+   "id": 353,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 36,
+   "pobAAntes": 97,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 110,
+   "persona": "Ase",
+   "id": 355,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 36,
+   "pobAAntes": 97,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 110,
+   "persona": "Ñafi",
+   "id": 205,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 22,
+   "pobAAntes": 111,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí no falta la comida."
+  },
+  {
+   "anio": 110,
+   "persona": "Zafas",
+   "id": 207,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 22,
+   "pobAAntes": 111,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Laviri."
+  },
+  {
+   "anio": 110,
+   "persona": "Faje",
+   "id": 265,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 22,
+   "pobAAntes": 111,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Laviri."
+  },
+  {
+   "anio": 110,
+   "persona": "Keri",
+   "id": 381,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 22,
+   "pobAAntes": 111,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 110,
+   "persona": "Revi",
+   "id": 166,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 115,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hijo Kive."
+  },
+  {
+   "anio": 110,
+   "persona": "Lesa",
+   "id": 176,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 115,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermana Vike."
+  },
+  {
+   "anio": 110,
+   "persona": "Fizis",
+   "id": 230,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 115,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hijo Ñifa."
+  },
+  {
+   "anio": 110,
+   "persona": "Zilafe",
+   "id": 266,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 115,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Lare."
+  },
+  {
+   "anio": 110,
+   "persona": "Reli",
+   "id": 282,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 115,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere aprender los números; Seje lo sabe."
+  },
+  {
+   "anio": 110,
+   "persona": "Reli",
+   "id": 384,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 115,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 110,
+   "persona": "Jele",
+   "id": 188,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 12,
+   "pobAAntes": 121,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermana Riri."
+  },
+  {
+   "anio": 110,
+   "persona": "Fikaje",
+   "id": 191,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 12,
+   "pobAAntes": 121,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí no falta la comida."
+  },
+  {
+   "anio": 110,
+   "persona": "Rasizi",
+   "id": 248,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 12,
+   "pobAAntes": 121,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Jere."
+  },
+  {
+   "anio": 110,
+   "persona": "Alara",
+   "id": 271,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 12,
+   "pobAAntes": 121,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 110,
+   "persona": "Jize",
+   "id": 300,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 12,
+   "pobAAntes": 121,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere aprender la muralla de piedra; Seje lo sabe."
+  },
+  {
+   "anio": 110,
+   "persona": "Valasis",
+   "id": 322,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 12,
+   "pobAAntes": 121,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 110,
+   "persona": "Life",
+   "id": 347,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 12,
+   "pobAAntes": 121,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 110,
+   "persona": "Ziseves",
+   "id": 356,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 12,
+   "pobAAntes": 121,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 111,
+   "persona": "Rakafe",
+   "id": 162,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 50,
+   "pobAAntes": 79,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermana Ñekes."
+  },
+  {
+   "anio": 111,
+   "persona": "Zeki",
+   "id": 289,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 50,
+   "pobAAntes": 79,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 111,
+   "persona": "Riñe",
+   "id": 357,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 50,
+   "pobAAntes": 79,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 111,
+   "persona": "Fize",
+   "id": 204,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 47,
+   "pobAAntes": 82,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermana Riri."
+  },
+  {
+   "anio": 111,
+   "persona": "Iñara",
+   "id": 213,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 47,
+   "pobAAntes": 82,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermana Lare."
+  },
+  {
+   "anio": 111,
+   "persona": "Zera",
+   "id": 253,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 47,
+   "pobAAntes": 82,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su padre Rize."
+  },
+  {
+   "anio": 111,
+   "persona": "Fili",
+   "id": 368,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 47,
+   "pobAAntes": 82,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 111,
+   "persona": "Lañeka",
+   "id": 156,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 43,
+   "pobAAntes": 86,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Rize."
+  },
+  {
+   "anio": 111,
+   "persona": "Sakeki",
+   "id": 164,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 43,
+   "pobAAntes": 86,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí no falta la comida."
+  },
+  {
+   "anio": 111,
+   "persona": "Zeres",
+   "id": 184,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 43,
+   "pobAAntes": 86,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermana Lare."
+  },
+  {
+   "anio": 111,
+   "persona": "Vize",
+   "id": 199,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 43,
+   "pobAAntes": 86,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí no falta la comida."
+  },
+  {
+   "anio": 111,
+   "persona": "Iñes",
+   "id": 214,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 43,
+   "pobAAntes": 86,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Vises."
+  },
+  {
+   "anio": 111,
+   "persona": "Eka",
+   "id": 217,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 43,
+   "pobAAntes": 86,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Ziva."
+  },
+  {
+   "anio": 111,
+   "persona": "Seva",
+   "id": 224,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 43,
+   "pobAAntes": 86,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Laviri."
+  },
+  {
+   "anio": 111,
+   "persona": "Varases",
+   "id": 246,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 43,
+   "pobAAntes": 86,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí no falta la comida."
+  },
+  {
+   "anio": 111,
+   "persona": "Kañira",
+   "id": 337,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 43,
+   "pobAAntes": 86,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 111,
+   "persona": "Ase",
+   "id": 355,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 43,
+   "pobAAntes": 86,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 111,
+   "persona": "Vekala",
+   "id": 140,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 33,
+   "pobAAntes": 96,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Vejevi."
+  },
+  {
+   "anio": 111,
+   "persona": "Fezi",
+   "id": 165,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 33,
+   "pobAAntes": 96,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Vises."
+  },
+  {
+   "anio": 111,
+   "persona": "Kera",
+   "id": 195,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 33,
+   "pobAAntes": 96,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Sise."
+  },
+  {
+   "anio": 111,
+   "persona": "Rifeva",
+   "id": 196,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 33,
+   "pobAAntes": 96,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermana Zase."
+  },
+  {
+   "anio": 111,
+   "persona": "Ñafi",
+   "id": 205,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 33,
+   "pobAAntes": 96,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí no falta la comida."
+  },
+  {
+   "anio": 111,
+   "persona": "Zafas",
+   "id": 207,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 33,
+   "pobAAntes": 96,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Laviri."
+  },
+  {
+   "anio": 111,
+   "persona": "Kera",
+   "id": 215,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 33,
+   "pobAAntes": 96,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Laviri."
+  },
+  {
+   "anio": 111,
+   "persona": "Resaña",
+   "id": 216,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 33,
+   "pobAAntes": 96,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Laleli."
+  },
+  {
+   "anio": 111,
+   "persona": "Faje",
+   "id": 265,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 33,
+   "pobAAntes": 96,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Laviri."
+  },
+  {
+   "anio": 111,
+   "persona": "Sivas",
+   "id": 308,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 33,
+   "pobAAntes": 96,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere aprender la metalurgia del cobre; Vekala lo sabe."
+  },
+  {
+   "anio": 111,
+   "persona": "Fiji",
+   "id": 309,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 33,
+   "pobAAntes": 96,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere aprender el esquileo; Vekala lo sabe."
+  },
+  {
+   "anio": 111,
+   "persona": "Fiñi",
+   "id": 312,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 33,
+   "pobAAntes": 96,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere aprender la aguja de hueso; Vekala lo sabe."
+  },
+  {
+   "anio": 111,
+   "persona": "Rare",
+   "id": 325,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 33,
+   "pobAAntes": 96,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 111,
+   "persona": "Alis",
+   "id": 326,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 33,
+   "pobAAntes": 96,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 111,
+   "persona": "Keri",
+   "id": 381,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 33,
+   "pobAAntes": 96,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 111,
+   "persona": "Jiñas",
+   "id": 209,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 111,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Sise."
+  },
+  {
+   "anio": 111,
+   "persona": "Fizis",
+   "id": 230,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 111,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí no falta la comida."
+  },
+  {
+   "anio": 111,
+   "persona": "Sesi",
+   "id": 236,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 111,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Vises."
+  },
+  {
+   "anio": 111,
+   "persona": "Zilafe",
+   "id": 266,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 111,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Lare."
+  },
+  {
+   "anio": 111,
+   "persona": "Jejis",
+   "id": 331,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 111,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 111,
+   "persona": "Ñifa",
+   "id": 340,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 111,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 111,
+   "persona": "Leka",
+   "id": 343,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 111,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 111,
+   "persona": "Verira",
+   "id": 374,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 111,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 111,
+   "persona": "Jele",
+   "id": 188,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 10,
+   "pobAAntes": 119,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermana Riri."
+  },
+  {
+   "anio": 111,
+   "persona": "Fikaje",
+   "id": 191,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 10,
+   "pobAAntes": 119,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí no falta la comida."
+  },
+  {
+   "anio": 111,
+   "persona": "Rasizi",
+   "id": 248,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 10,
+   "pobAAntes": 119,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Jere."
+  },
+  {
+   "anio": 111,
+   "persona": "Vaka",
+   "id": 258,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 10,
+   "pobAAntes": 119,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Zaka."
+  },
+  {
+   "anio": 111,
+   "persona": "Reliñi",
+   "id": 268,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 10,
+   "pobAAntes": 119,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Kije."
+  },
+  {
+   "anio": 111,
+   "persona": "Alara",
+   "id": 271,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 10,
+   "pobAAntes": 119,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí no falta la comida."
+  },
+  {
+   "anio": 111,
+   "persona": "Jize",
+   "id": 300,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 10,
+   "pobAAntes": 119,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere aprender el hierro; Vekala lo sabe."
+  },
+  {
+   "anio": 111,
+   "persona": "Valasis",
+   "id": 322,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 10,
+   "pobAAntes": 119,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 111,
+   "persona": "Life",
+   "id": 347,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 10,
+   "pobAAntes": 119,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 111,
+   "persona": "Ziseves",
+   "id": 356,
+   "de": "Jakes",
+   "a": "Asi",
+   "deId": 387,
+   "aId": 1,
+   "pobDeAntes": 10,
+   "pobAAntes": 119,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 111,
+   "persona": "Ñafas",
+   "id": 110,
+   "de": "Asi",
+   "a": "Zeli",
+   "deId": 1,
+   "aId": 385,
+   "pobDeAntes": 130,
+   "pobAAntes": 4,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 111,
+   "persona": "Jila",
+   "id": 161,
+   "de": "Asi",
+   "a": "Zeli",
+   "deId": 1,
+   "aId": 385,
+   "pobDeAntes": 130,
+   "pobAAntes": 4,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Zeli: aquí no se siente a salvo, y allí vive su hermana Ñifa."
+  },
+  {
+   "anio": 111,
+   "persona": "File",
+   "id": 303,
+   "de": "Asi",
+   "a": "Zeli",
+   "deId": 1,
+   "aId": 385,
+   "pobDeAntes": 130,
+   "pobAAntes": 4,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 111,
+   "persona": "Jive",
+   "id": 315,
+   "de": "Asi",
+   "a": "Zeli",
+   "deId": 1,
+   "aId": 385,
+   "pobDeAntes": 130,
+   "pobAAntes": 4,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 111,
+   "persona": "Zafi",
+   "id": 364,
+   "de": "Asi",
+   "a": "Zeli",
+   "deId": 1,
+   "aId": 385,
+   "pobDeAntes": 130,
+   "pobAAntes": 4,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 111,
+   "persona": "Leriri",
+   "id": 377,
+   "de": "Asi",
+   "a": "Zeli",
+   "deId": 1,
+   "aId": 385,
+   "pobDeAntes": 130,
+   "pobAAntes": 4,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 111,
+   "persona": "Ñafas",
+   "id": 110,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 10,
+   "pobAAntes": 75,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 111,
+   "persona": "Jila",
+   "id": 161,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 10,
+   "pobAAntes": 75,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: aquí no se siente a salvo, y allí vive su hermana Seje."
+  },
+  {
+   "anio": 111,
+   "persona": "File",
+   "id": 303,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 10,
+   "pobAAntes": 75,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 111,
+   "persona": "Jive",
+   "id": 315,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 10,
+   "pobAAntes": 75,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 111,
+   "persona": "Zafi",
+   "id": 364,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 10,
+   "pobAAntes": 75,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 111,
+   "persona": "Leriri",
+   "id": 377,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 10,
+   "pobAAntes": 75,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 112,
+   "persona": "Ñekes",
+   "id": 134,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 49,
+   "pobAAntes": 81,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermana Visis."
+  },
+  {
+   "anio": 112,
+   "persona": "Ñeja",
+   "id": 182,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 49,
+   "pobAAntes": 81,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hija Vija."
+  },
+  {
+   "anio": 112,
+   "persona": "Zeres",
+   "id": 184,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 49,
+   "pobAAntes": 81,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermana Lare."
+  },
+  {
+   "anio": 112,
+   "persona": "Vize",
+   "id": 199,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 49,
+   "pobAAntes": 81,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Sakeki."
+  },
+  {
+   "anio": 112,
+   "persona": "Fize",
+   "id": 204,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 49,
+   "pobAAntes": 81,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermana Riri."
+  },
+  {
+   "anio": 112,
+   "persona": "Iñara",
+   "id": 213,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 49,
+   "pobAAntes": 81,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermana Lare."
+  },
+  {
+   "anio": 112,
+   "persona": "Seva",
+   "id": 224,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 49,
+   "pobAAntes": 81,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Laviri."
+  },
+  {
+   "anio": 112,
+   "persona": "Varases",
+   "id": 246,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 49,
+   "pobAAntes": 81,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su padre Fezi."
+  },
+  {
+   "anio": 112,
+   "persona": "Ñesi",
+   "id": 306,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 49,
+   "pobAAntes": 81,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 112,
+   "persona": "Kizesi",
+   "id": 332,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 49,
+   "pobAAntes": 81,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 112,
+   "persona": "Fili",
+   "id": 368,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 49,
+   "pobAAntes": 81,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 112,
+   "persona": "Ñafi",
+   "id": 205,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 38,
+   "pobAAntes": 92,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Sakeki."
+  },
+  {
+   "anio": 112,
+   "persona": "Zafas",
+   "id": 207,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 38,
+   "pobAAntes": 92,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Laviri."
+  },
+  {
+   "anio": 112,
+   "persona": "Ñañes",
+   "id": 212,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 38,
+   "pobAAntes": 92,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Lefakis."
+  },
+  {
+   "anio": 112,
+   "persona": "Kera",
+   "id": 215,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 38,
+   "pobAAntes": 92,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Laviri."
+  },
+  {
+   "anio": 112,
+   "persona": "Resaña",
+   "id": 216,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 38,
+   "pobAAntes": 92,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Laleli."
+  },
+  {
+   "anio": 112,
+   "persona": "Eji",
+   "id": 255,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 38,
+   "pobAAntes": 92,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Lare."
+  },
+  {
+   "anio": 112,
+   "persona": "Fiji",
+   "id": 309,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 38,
+   "pobAAntes": 92,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere aprender la cantería; Ñekes lo sabe."
+  },
+  {
+   "anio": 112,
+   "persona": "Rare",
+   "id": 325,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 38,
+   "pobAAntes": 92,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 112,
+   "persona": "Keri",
+   "id": 381,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 38,
+   "pobAAntes": 92,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 112,
+   "persona": "Revi",
+   "id": 166,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 29,
+   "pobAAntes": 101,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hijo Kive."
+  },
+  {
+   "anio": 112,
+   "persona": "Lesa",
+   "id": 176,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 29,
+   "pobAAntes": 101,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermana Vike."
+  },
+  {
+   "anio": 112,
+   "persona": "Jiñas",
+   "id": 209,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 29,
+   "pobAAntes": 101,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Sise."
+  },
+  {
+   "anio": 112,
+   "persona": "Fizis",
+   "id": 230,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 29,
+   "pobAAntes": 101,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hijo Ñifa."
+  },
+  {
+   "anio": 112,
+   "persona": "Sesi",
+   "id": 236,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 29,
+   "pobAAntes": 101,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Vises."
+  },
+  {
+   "anio": 112,
+   "persona": "Ele",
+   "id": 252,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 29,
+   "pobAAntes": 101,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí no falta la comida."
+  },
+  {
+   "anio": 112,
+   "persona": "Eje",
+   "id": 256,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 29,
+   "pobAAntes": 101,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí no falta la comida."
+  },
+  {
+   "anio": 112,
+   "persona": "Zilafe",
+   "id": 266,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 29,
+   "pobAAntes": 101,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Lare."
+  },
+  {
+   "anio": 112,
+   "persona": "Jejis",
+   "id": 331,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 29,
+   "pobAAntes": 101,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 112,
+   "persona": "Leka",
+   "id": 343,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 29,
+   "pobAAntes": 101,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 112,
+   "persona": "Verira",
+   "id": 374,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 29,
+   "pobAAntes": 101,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 112,
+   "persona": "Lava",
+   "id": 380,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 29,
+   "pobAAntes": 101,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 112,
+   "persona": "Ralis",
+   "id": 391,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 29,
+   "pobAAntes": 101,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 112,
+   "persona": "Vazi",
+   "id": 208,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 16,
+   "pobAAntes": 114,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Vises."
+  },
+  {
+   "anio": 112,
+   "persona": "Kefa",
+   "id": 211,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 16,
+   "pobAAntes": 114,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su madre Lare."
+  },
+  {
+   "anio": 112,
+   "persona": "Rasizi",
+   "id": 248,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 16,
+   "pobAAntes": 114,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su hermano Sakeki."
+  },
+  {
+   "anio": 112,
+   "persona": "Alara",
+   "id": 271,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 16,
+   "pobAAntes": 114,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí vive su padre Jele."
+  },
+  {
+   "anio": 112,
+   "persona": "Lifi",
+   "id": 351,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 16,
+   "pobAAntes": 114,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 112,
+   "persona": "Ñafas",
+   "id": 110,
+   "de": "Asi",
+   "a": "Eke",
+   "deId": 1,
+   "aId": 392,
+   "pobDeAntes": 121,
+   "pobAAntes": 11,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 112,
+   "persona": "Jila",
+   "id": 161,
+   "de": "Asi",
+   "a": "Eke",
+   "deId": 1,
+   "aId": 392,
+   "pobDeAntes": 121,
+   "pobAAntes": 11,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Eke: aquí no se siente a salvo, y allí hay sitio."
+  },
+  {
+   "anio": 112,
+   "persona": "File",
+   "id": 303,
+   "de": "Asi",
+   "a": "Eke",
+   "deId": 1,
+   "aId": 392,
+   "pobDeAntes": 121,
+   "pobAAntes": 11,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 112,
+   "persona": "Jive",
+   "id": 315,
+   "de": "Asi",
+   "a": "Eke",
+   "deId": 1,
+   "aId": 392,
+   "pobDeAntes": 121,
+   "pobAAntes": 11,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere aprender la red de pesca; Ñafas lo sabe."
+  },
+  {
+   "anio": 112,
+   "persona": "Zafi",
+   "id": 364,
+   "de": "Asi",
+   "a": "Eke",
+   "deId": 1,
+   "aId": 392,
+   "pobDeAntes": 121,
+   "pobAAntes": 11,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 112,
+   "persona": "Leriri",
+   "id": 377,
+   "de": "Asi",
+   "a": "Eke",
+   "deId": 1,
+   "aId": 392,
+   "pobDeAntes": 121,
+   "pobAAntes": 11,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 117,
+   "persona": "Zevas",
+   "id": 290,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 3,
+   "pobAAntes": 87,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí no falta la comida."
+  },
+  {
+   "anio": 117,
+   "persona": "Zari",
+   "id": 301,
+   "de": "Zeli",
+   "a": "Asi",
+   "deId": 385,
+   "aId": 1,
+   "pobDeAntes": 2,
+   "pobAAntes": 88,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: en su casa ya no caben, y allí no falta la comida."
+  },
+  {
+   "anio": 119,
+   "persona": "Rese",
+   "id": 121,
+   "de": "Sales",
+   "a": "Ñivis",
+   "deId": 327,
+   "aId": 288,
+   "pobDeAntes": 10,
+   "pobAAntes": 15,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Ñivis: aquí no se siente a salvo, y allí vive su hijo Zavari."
+  },
+  {
+   "anio": 119,
+   "persona": "Kilara",
+   "id": 137,
+   "de": "Zares",
+   "a": "Asi",
+   "deId": 352,
+   "aId": 1,
+   "pobDeAntes": 1,
+   "pobAAntes": 90,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: aquí no se siente a salvo, y allí vive su hermana Laviri."
+  },
+  {
+   "anio": 120,
+   "persona": "Fesi",
+   "id": 242,
+   "de": "Sales",
+   "a": "Ñivis",
+   "deId": 327,
+   "aId": 288,
+   "pobDeAntes": 9,
+   "pobAAntes": 18,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere vengar a los suyos, muertos a manos de los de Viji."
+  },
+  {
+   "anio": 120,
+   "persona": "Zejesa",
+   "id": 291,
+   "de": "Sales",
+   "a": "Ñivis",
+   "deId": 327,
+   "aId": 288,
+   "pobDeAntes": 9,
+   "pobAAntes": 18,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Ñivis: aquí no se siente a salvo, y allí vive su amigo Rese."
+  },
+  {
+   "anio": 120,
+   "persona": "Leja",
+   "id": 434,
+   "de": "Sales",
+   "a": "Ñivis",
+   "deId": 327,
+   "aId": 288,
+   "pobDeAntes": 9,
+   "pobAAntes": 18,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 120,
+   "persona": "Lezis",
+   "id": 469,
+   "de": "Sales",
+   "a": "Ñivis",
+   "deId": 327,
+   "aId": 288,
+   "pobDeAntes": 9,
+   "pobAAntes": 18,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 120,
+   "persona": "Jejajas",
+   "id": 480,
+   "de": "Sales",
+   "a": "Ñivis",
+   "deId": 327,
+   "aId": 288,
+   "pobDeAntes": 9,
+   "pobAAntes": 18,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 122,
+   "persona": "Reñis",
+   "id": 279,
+   "de": "Sales",
+   "a": "Ñivis",
+   "deId": 327,
+   "aId": 288,
+   "pobDeAntes": 4,
+   "pobAAntes": 21,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere vengar a los suyos, muertos a manos de los de Viji."
+  },
+  {
+   "anio": 122,
+   "persona": "Ñañis",
+   "id": 311,
+   "de": "Sales",
+   "a": "Ñivis",
+   "deId": 327,
+   "aId": 288,
+   "pobDeAntes": 4,
+   "pobAAntes": 21,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Ñivis: aquí no se siente a salvo, y allí vive su amiga Fesi."
+  },
+  {
+   "anio": 122,
+   "persona": "Lele",
+   "id": 432,
+   "de": "Sales",
+   "a": "Ñivis",
+   "deId": 327,
+   "aId": 288,
+   "pobDeAntes": 4,
+   "pobAAntes": 21,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 123,
+   "persona": "Firi",
+   "id": 127,
+   "de": "Sales",
+   "a": "Ñivis",
+   "deId": 327,
+   "aId": 288,
+   "pobDeAntes": 1,
+   "pobAAntes": 25,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Ñivis: en su casa ya no caben, y allí vive su hija Fesi."
+  },
+  {
+   "anio": 126,
+   "persona": "Rire",
+   "id": 202,
+   "de": "Fiñe",
+   "a": "Viji",
+   "deId": 512,
+   "aId": 398,
+   "pobDeAntes": 48,
+   "pobAAntes": 19,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [
+    "catapulta"
+   ],
+   "motivo": null
+  },
+  {
+   "anio": 126,
+   "persona": "Iñara",
+   "id": 213,
+   "de": "Fiñe",
+   "a": "Viji",
+   "deId": 512,
+   "aId": 398,
+   "pobDeAntes": 48,
+   "pobAAntes": 19,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [
+    "catapulta"
+   ],
+   "motivo": "Quiere irse a Viji: aquí no se siente a salvo, y allí vive su hermana Eresa."
+  },
+  {
+   "anio": 126,
+   "persona": "Sikali",
+   "id": 406,
+   "de": "Fiñe",
+   "a": "Viji",
+   "deId": 512,
+   "aId": 398,
+   "pobDeAntes": 48,
+   "pobAAntes": 19,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [
+    "catapulta"
+   ],
+   "motivo": null
+  },
+  {
+   "anio": 126,
+   "persona": "Faje",
+   "id": 265,
+   "de": "Fiñe",
+   "a": "Viji",
+   "deId": 512,
+   "aId": 398,
+   "pobDeAntes": 45,
+   "pobAAntes": 22,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Viji: aquí no se siente a salvo, y allí vive su hermano Lesa."
+  },
+  {
+   "anio": 126,
+   "persona": "Vija",
+   "id": 275,
+   "de": "Fiñe",
+   "a": "Viji",
+   "deId": 512,
+   "aId": 398,
+   "pobDeAntes": 45,
+   "pobAAntes": 22,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Viji: aquí no se siente a salvo, y allí vive su padre Ñeja."
+  },
+  {
+   "anio": 126,
+   "persona": "Jize",
+   "id": 300,
+   "de": "Fiñe",
+   "a": "Viji",
+   "deId": 512,
+   "aId": 398,
+   "pobDeAntes": 45,
+   "pobAAntes": 22,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Viji: aquí no se siente a salvo, y allí vive su hermana Alara."
+  },
+  {
+   "anio": 126,
+   "persona": "Vivas",
+   "id": 304,
+   "de": "Fiñe",
+   "a": "Viji",
+   "deId": 512,
+   "aId": 398,
+   "pobDeAntes": 45,
+   "pobAAntes": 22,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere hacerse un nombre y que le escuchen en el consejo."
+  },
+  {
+   "anio": 126,
+   "persona": "Viki",
+   "id": 415,
+   "de": "Fiñe",
+   "a": "Viji",
+   "deId": 512,
+   "aId": 398,
+   "pobDeAntes": 45,
+   "pobAAntes": 22,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere aprender las trampas; Riri lo sabe."
+  },
+  {
+   "anio": 126,
+   "persona": "Lare",
+   "id": 490,
+   "de": "Fiñe",
+   "a": "Viji",
+   "deId": 512,
+   "aId": 398,
+   "pobDeAntes": 45,
+   "pobAAntes": 22,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 126,
+   "persona": "Fireje",
+   "id": 507,
+   "de": "Fiñe",
+   "a": "Viji",
+   "deId": 512,
+   "aId": 398,
+   "pobDeAntes": 45,
+   "pobAAntes": 22,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 126,
+   "persona": "Sañe",
+   "id": 516,
+   "de": "Fiñe",
+   "a": "Viji",
+   "deId": 512,
+   "aId": 398,
+   "pobDeAntes": 45,
+   "pobAAntes": 22,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 126,
+   "persona": "Ñalis",
+   "id": 538,
+   "de": "Fiñe",
+   "a": "Viji",
+   "deId": 512,
+   "aId": 398,
+   "pobDeAntes": 45,
+   "pobAAntes": 22,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 126,
+   "persona": "Lela",
+   "id": 310,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 16,
+   "pobAAntes": 59,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: aquí no se siente a salvo, y allí no falta la comida."
+  },
+  {
+   "anio": 126,
+   "persona": "Zazi",
+   "id": 321,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 16,
+   "pobAAntes": 59,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: aquí no se siente a salvo, y allí no falta la comida."
+  },
+  {
+   "anio": 126,
+   "persona": "Reka",
+   "id": 450,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 16,
+   "pobAAntes": 59,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 126,
+   "persona": "Sikas",
+   "id": 476,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 16,
+   "pobAAntes": 59,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 126,
+   "persona": "Fifi",
+   "id": 532,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 16,
+   "pobAAntes": 59,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 126,
+   "persona": "Ñaseri",
+   "id": 220,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 11,
+   "pobAAntes": 64,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 126,
+   "persona": "Live",
+   "id": 232,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 11,
+   "pobAAntes": 64,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: aquí no se siente a salvo, y allí no falta la comida."
+  },
+  {
+   "anio": 126,
+   "persona": "Fezas",
+   "id": 410,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 11,
+   "pobAAntes": 64,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere aprender la rueda; Fijas lo sabe."
+  },
+  {
+   "anio": 126,
+   "persona": "Liñi",
+   "id": 464,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 11,
+   "pobAAntes": 64,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 126,
+   "persona": "Ivava",
+   "id": 479,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 11,
+   "pobAAntes": 64,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 126,
+   "persona": "Fefa",
+   "id": 496,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 11,
+   "pobAAntes": 64,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 126,
+   "persona": "Razakis",
+   "id": 521,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 11,
+   "pobAAntes": 64,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 126,
+   "persona": "Rire",
+   "id": 202,
+   "de": "Viji",
+   "a": "Fiñe",
+   "deId": 398,
+   "aId": 512,
+   "pobDeAntes": 31,
+   "pobAAntes": 36,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Fiñe: aquí no se siente a salvo, y allí vive su padre Kilara."
+  },
+  {
+   "anio": 126,
+   "persona": "Iñara",
+   "id": 213,
+   "de": "Viji",
+   "a": "Fiñe",
+   "deId": 398,
+   "aId": 512,
+   "pobDeAntes": 31,
+   "pobAAntes": 36,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Fiñe: aquí no se siente a salvo, y allí vive su hija Fili."
+  },
+  {
+   "anio": 126,
+   "persona": "Sikali",
+   "id": 406,
+   "de": "Viji",
+   "a": "Fiñe",
+   "deId": 398,
+   "aId": 512,
+   "pobDeAntes": 31,
+   "pobAAntes": 36,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 127,
+   "persona": "Rire",
+   "id": 202,
+   "de": "Fiñe",
+   "a": "Viji",
+   "deId": 512,
+   "aId": 398,
+   "pobDeAntes": 37,
+   "pobAAntes": 29,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 127,
+   "persona": "Iñara",
+   "id": 213,
+   "de": "Fiñe",
+   "a": "Viji",
+   "deId": 512,
+   "aId": 398,
+   "pobDeAntes": 37,
+   "pobAAntes": 29,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Viji: aquí no se siente a salvo, y allí vive su hermana Eresa."
+  },
+  {
+   "anio": 127,
+   "persona": "Sikali",
+   "id": 406,
+   "de": "Fiñe",
+   "a": "Viji",
+   "deId": 512,
+   "aId": 398,
+   "pobDeAntes": 37,
+   "pobAAntes": 29,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 128,
+   "persona": "Rire",
+   "id": 202,
+   "de": "Viji",
+   "a": "Fiñe",
+   "deId": 398,
+   "aId": 512,
+   "pobDeAntes": 32,
+   "pobAAntes": 34,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Fiñe: aquí no se siente a salvo, y allí vive su padre Kilara."
+  },
+  {
+   "anio": 128,
+   "persona": "Iñara",
+   "id": 213,
+   "de": "Viji",
+   "a": "Fiñe",
+   "deId": 398,
+   "aId": 512,
+   "pobDeAntes": 32,
+   "pobAAntes": 34,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Fiñe: aquí no se siente a salvo, y allí vive su hija Fili."
+  },
+  {
+   "anio": 128,
+   "persona": "Sikali",
+   "id": 406,
+   "de": "Viji",
+   "a": "Fiñe",
+   "deId": 398,
+   "aId": 512,
+   "pobDeAntes": 32,
+   "pobAAntes": 34,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 131,
+   "persona": "Fijas",
+   "id": 190,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 3,
+   "pobAAntes": 76,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: aquí no se siente a salvo, y allí vive su hijo Lela."
+  },
+  {
+   "anio": 131,
+   "persona": "Kiñare",
+   "id": 389,
+   "de": "Fiñe",
+   "a": "Viji",
+   "deId": 512,
+   "aId": 398,
+   "pobDeAntes": 37,
+   "pobAAntes": 28,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Viji: aquí no se siente a salvo, y allí vive su hermana Alara."
+  },
+  {
+   "anio": 131,
+   "persona": "Vijavis",
+   "id": 407,
+   "de": "Fiñe",
+   "a": "Viji",
+   "deId": 512,
+   "aId": 398,
+   "pobDeAntes": 37,
+   "pobAAntes": 28,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere vengar a los suyos, muertos a manos de los de Vesise."
+  },
+  {
+   "anio": 132,
+   "persona": "Rakafe",
+   "id": 162,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 35,
+   "pobAAntes": 78,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 132,
+   "persona": "Sase",
+   "id": 210,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 35,
+   "pobAAntes": 78,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: aquí no se siente a salvo, y allí vive su hermano Fijas."
+  },
+  {
+   "anio": 132,
+   "persona": "Zera",
+   "id": 253,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 33,
+   "pobAAntes": 80,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere hacerse un nombre y que le escuchen en el consejo."
+  },
+  {
+   "anio": 132,
+   "persona": "File",
+   "id": 303,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 33,
+   "pobAAntes": 80,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: aquí no se siente a salvo, y allí no falta la comida."
+  },
+  {
+   "anio": 132,
+   "persona": "Leke",
+   "id": 438,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 33,
+   "pobAAntes": 80,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 132,
+   "persona": "Isaki",
+   "id": 545,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 33,
+   "pobAAntes": 80,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 132,
+   "persona": "Velas",
+   "id": 229,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 29,
+   "pobAAntes": 85,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: aquí se siente solo, y allí vive su amiga Rakafe."
+  },
+  {
+   "anio": 132,
+   "persona": "Revi",
+   "id": 166,
+   "de": "Viji",
+   "a": "Fiñe",
+   "deId": 398,
+   "aId": 512,
+   "pobDeAntes": 29,
+   "pobAAntes": 35,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Fiñe: aquí no se siente a salvo, y allí vive su hijo Kive."
+  },
+  {
+   "anio": 133,
+   "persona": "Kara",
+   "id": 430,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 28,
+   "pobAAntes": 84,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: aquí no se siente a salvo, y allí vive su padre Zera."
+  },
+  {
+   "anio": 133,
+   "persona": "Kañari",
+   "id": 444,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 28,
+   "pobAAntes": 84,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 135,
+   "persona": "Vike",
+   "id": 342,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 3,
+   "pobAAntes": 88,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: aquí no se siente a salvo, y allí vive su amigo Fijas."
+  },
+  {
+   "anio": 135,
+   "persona": "Zezekas",
+   "id": 465,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 3,
+   "pobAAntes": 88,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 135,
+   "persona": "Eleli",
+   "id": 625,
+   "de": "Vesise",
+   "a": "Asi",
+   "deId": 223,
+   "aId": 1,
+   "pobDeAntes": 3,
+   "pobAAntes": 88,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 136,
+   "persona": "Zafi",
+   "id": 364,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 29,
+   "pobAAntes": 93,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: aquí no se siente a salvo, y allí vive su hermana File."
+  },
+  {
+   "anio": 136,
+   "persona": "Velala",
+   "id": 477,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 29,
+   "pobAAntes": 93,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 136,
+   "persona": "Zafi",
+   "id": 364,
+   "de": "Asi",
+   "a": "Eke",
+   "deId": 1,
+   "aId": 392,
+   "pobDeAntes": 96,
+   "pobAAntes": 28,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Eke: aquí no se siente a salvo, y allí vive su hermana Jive."
+  },
+  {
+   "anio": 136,
+   "persona": "Velala",
+   "id": 477,
+   "de": "Asi",
+   "a": "Eke",
+   "deId": 1,
+   "aId": 392,
+   "pobDeAntes": 96,
+   "pobAAntes": 28,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 136,
+   "persona": "Zafi",
+   "id": 364,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 31,
+   "pobAAntes": 95,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: aquí no se siente a salvo, y allí vive su hermana File."
+  },
+  {
+   "anio": 136,
+   "persona": "Velala",
+   "id": 477,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 31,
+   "pobAAntes": 95,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 137,
+   "persona": "Zafi",
+   "id": 364,
+   "de": "Asi",
+   "a": "Eke",
+   "deId": 1,
+   "aId": 392,
+   "pobDeAntes": 99,
+   "pobAAntes": 27,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Eke: aquí no se siente a salvo, y allí vive su hermana Jive."
+  },
+  {
+   "anio": 137,
+   "persona": "Velala",
+   "id": 477,
+   "de": "Asi",
+   "a": "Eke",
+   "deId": 1,
+   "aId": 392,
+   "pobDeAntes": 99,
+   "pobAAntes": 27,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 137,
+   "persona": "Rakaras",
+   "id": 298,
+   "de": "Fiñe",
+   "a": "Viji",
+   "deId": 512,
+   "aId": 398,
+   "pobDeAntes": 42,
+   "pobAAntes": 25,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Viji: aquí no se siente a salvo, y allí vive su hermano Faje."
+  },
+  {
+   "anio": 137,
+   "persona": "Lisa",
+   "id": 522,
+   "de": "Fiñe",
+   "a": "Viji",
+   "deId": 512,
+   "aId": 398,
+   "pobDeAntes": 42,
+   "pobAAntes": 25,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere aprender el escudo; Kilara lo sabe."
+  },
+  {
+   "anio": 137,
+   "persona": "Zafi",
+   "id": 364,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 30,
+   "pobAAntes": 94,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Asi: aquí no se siente a salvo, y allí vive su hermana File."
+  },
+  {
+   "anio": 137,
+   "persona": "Velala",
+   "id": 477,
+   "de": "Eke",
+   "a": "Asi",
+   "deId": 392,
+   "aId": 1,
+   "pobDeAntes": 30,
+   "pobAAntes": 94,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 139,
+   "persona": "Zafi",
+   "id": 364,
+   "de": "Asi",
+   "a": "Eke",
+   "deId": 1,
+   "aId": 392,
+   "pobDeAntes": 99,
+   "pobAAntes": 29,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Eke: aquí no se siente a salvo, y allí vive su hermana Jive."
+  },
+  {
+   "anio": 139,
+   "persona": "Velala",
+   "id": 477,
+   "de": "Asi",
+   "a": "Eke",
+   "deId": 1,
+   "aId": 392,
+   "pobDeAntes": 99,
+   "pobAAntes": 29,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Eke: aquí nadie le tiene en cuenta, y allí vive su padre Ifa."
+  },
+  {
+   "anio": 139,
+   "persona": "Revi",
+   "id": 166,
+   "de": "Fiñe",
+   "a": "Kaje",
+   "deId": 512,
+   "aId": 674,
+   "pobDeAntes": 41,
+   "pobAAntes": 12,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Kaje: aquí se siente sola, y allí vive su hermano Zafi."
+  },
+  {
+   "anio": 144,
+   "persona": "Kera",
+   "id": 215,
+   "de": "Fiñe",
+   "a": "Viji",
+   "deId": 512,
+   "aId": 398,
+   "pobDeAntes": 48,
+   "pobAAntes": 35,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Viji: aquí no se siente a salvo, y allí vive su hermano Faje."
+  }
+ ],
+ "acuerdoOpiniones": {
+  "amigos": 0.98,
+  "rivales": 1,
+  "azar": 0.91,
+  "paresAmigos": 140,
+  "paresRivales": 1
+ },
+ "biografias": {
+  "emigra (la aldea existe o existió)": [
+   36,
+   36
+  ],
+  "consejo (cuenta como hito en una aldea real)": [
+   35,
+   35
+  ],
+  "pareja (es su pareja actual)": [
+   140,
+   140
+  ],
+  "lidera (la facción está en la crónica)": [
+   3,
+   3
+  ],
+  "descubre (lo sabe)": [
+   2,
+   2
+  ],
+  "funda (la aldea existe o existió)": [
+   2,
+   2
+  ]
+ },
+ "ciclosMetas": {
+  "cambios": 4648,
+  "vaivenesMenosDeUnAnio": 451,
+  "personas": 715
+ },
+ "cronica": [
+  [
+   3,
+   "epidemia",
+   "Unas fiebres se extienden por Asi."
+  ],
+  [
+   9,
+   "edad",
+   "Asi entra en la Edad de las Herramientas: es el primer pueblo del mundo que llega a ella."
+  ],
+  [
+   14,
+   "epidemia",
+   "Unas fiebres se extienden por Asi."
+  ],
+  [
+   24,
+   "edad",
+   "Asi ha crecido tanto que ya es un pueblo."
+  ],
+  [
+   34,
+   "epidemia",
+   "Unas fiebres se extienden por Asi."
+  ],
+  [
+   38,
+   "epidemia",
+   "Unas fiebres se extienden por Asi."
+  ],
+  [
+   41,
+   "edad",
+   "Asi entra en la Edad del Bronce: es el primer pueblo del mundo que llega a ella."
+  ],
+  [
+   41,
+   "epidemia",
+   "Unas fiebres se extienden por Asi."
+  ],
+  [
+   44,
+   "edad",
+   "Asi entra en la Edad del Hierro: es el primer pueblo del mundo que llega a ella."
+  ],
+  [
+   48,
+   "epidemia",
+   "Unas fiebres se extienden por Asi."
+  ],
+  [
+   60,
+   "edad",
+   "Asi ya es una ciudad: calles de piedra, plaza, talleres y 80 almas."
+  ],
+  [
+   68,
+   "epidemia",
+   "Unas fiebres se extienden por Asi."
+  ],
+  [
+   72,
+   "epidemia",
+   "Unas fiebres se extienden por Asi."
+  ],
+  [
+   83,
+   "fundacion",
+   "Ya no caben todos en Asi: Laleli se pone en camino hacia el norte con 46 personas para fundar Vesise."
+  ],
+  [
+   83,
+   "fundacion",
+   "Tras 18 días de camino, los Vesise llegan a su nueva tierra, al norte de Asi, y levantan allí su aldea. Desde hoy son un pueblo de caminantes y exploradores."
+  ],
+  [
+   83,
+   "migracion",
+   "Sekis y su familia (4 más) dejan Vesise y se van a vivir a Asi: en su casa ya no caben, y allí vive su hermana Fasa."
+  ],
+  [
+   90,
+   "alianza",
+   "Asi y Vesise sellan una alianza: se ayudarán en tiempos de hambre."
+  ],
+  [
+   93,
+   "epidemia",
+   "Unas fiebres se extienden por Asi."
+  ],
+  [
+   96,
+   "cisma",
+   "Hartos de que el consejo no les escuche, los Ñivis abandonan Vesise: 16 personas cargan lo que pueden y siguen a Ikis hacia el suroeste, a tierras lejanas donde vivir a su manera. Forman su propio consejo, con Ikis a la cabeza. Les esperan unos 65 días de camino."
+  ],
+  [
+   96,
+   "fundacion",
+   "Tras 65 días de camino, los Ñivis llegan a su nueva tierra, al suroeste de Vesise, y levantan allí su aldea. Desde hoy son un pueblo de labradores y pastores."
+  ],
+  [
+   99,
+   "migracion",
+   "Riri deja Asi y se va a vivir a Vesise: aquí se siente sola, y allí vive su hermana Firi."
+  ],
+  [
+   102,
+   "cisma",
+   "Hartos de que el consejo no les escuche, los Sales abandonan Vesise: 12 personas cargan lo que pueden y siguen a Zizis hacia el oeste, a tierras lejanas donde vivir a su manera. Forman su propio consejo, con Zizis a la cabeza. Les esperan unos 64 días de camino."
+  ],
+  [
+   102,
+   "fundacion",
+   "Tras 64 días de camino, los Sales llegan a su nueva tierra, al oeste de Vesise, y levantan allí su aldea. Desde hoy son un pueblo de guerreros."
+  ],
+  [
+   107,
+   "fundacion",
+   "Ya no caben todos en Asi: Iñes se pone en camino hacia el suroeste con 51 personas para fundar Zares."
+  ],
+  [
+   107,
+   "fundacion",
+   "Tras 14 días de camino, los Zares llegan a su nueva tierra, al suroeste de Asi, y levantan allí su aldea. Desde hoy son un pueblo de caminantes y exploradores."
+  ],
+  [
+   107,
+   "migracion",
+   "Riri deja Vesise y se va a vivir a Asi: aquí se siente sola, y allí vive su hermano Jerasi."
+  ],
+  [
+   107,
+   "migracion",
+   "Iñes y su familia (2 más) dejan Zares y se van a vivir a Asi: en su casa ya no caben, y allí vive su hermano Vises."
+  ],
+  [
+   107,
+   "migracion",
+   "Zasi y su familia (1 más) dejan Asi y se van a vivir a Zares: aquí no se siente a salvo, y allí vive su hijo Veji."
+  ],
+  [
+   108,
+   "alianza",
+   "Asi y Zares sellan una alianza: se ayudarán en tiempos de hambre."
+  ],
+  [
+   109,
+   "migracion",
+   "Feñela y su familia (1 más) dejan Zares y se van a vivir a Asi: aquí se siente sola, y allí vive su hermana Ñekes."
+  ],
+  [
+   109,
+   "migracion",
+   "Ñafi y su familia (1 más) dejan Asi y se van a vivir a Zares: aquí no se siente a salvo, y allí vive su hermano Vize."
+  ],
+  [
+   110,
+   "fundacion",
+   "Ya no caben todos en Asi: Iñes se pone en camino hacia el suroeste con 45 personas para fundar Zeli."
+  ],
+  [
+   110,
+   "guerra",
+   "El consejo de Zeli decide hacer la guerra a Vesise: les falta comida."
+  ],
+  [
+   110,
+   "asalto",
+   "Vesise rechaza el asalto de 8 guerreros de Zeli (Zeli: sin bajas; Vesise: sin bajas)."
+  ],
+  [
+   110,
+   "guerra",
+   "El consejo de Zeli decide hacer la guerra a Zares: les falta comida."
+  ],
+  [
+   110,
+   "asalto",
+   "Zares rechaza el asalto de 8 guerreros de Zeli (Zeli: 1 muerto; Zares: 1 muerto)."
+  ],
+  [
+   110,
+   "fundacion",
+   "Tras 22 días de camino, los Zeli llegan a su nueva tierra, al suroeste de Asi, y levantan allí su aldea. Desde hoy son un pueblo de caminantes y exploradores."
+  ],
+  [
+   110,
+   "epidemia",
+   "Unas fiebres se extienden por Asi."
+  ],
+  [
+   110,
+   "migracion",
+   "Ñafas y su familia (5 más) dejan Zares y se van a vivir a Asi: aquí no se siente a salvo, y allí no falta la comida."
+  ],
+  [
+   110,
+   "migracion",
+   "Seje y su familia (3 más) dejan Zeli y se van a vivir a Asi: en su casa ya no caben, y allí vive su hermano Fali."
+  ],
+  [
+   111,
+   "fundacion",
+   "Ya no caben todos en Asi: Rakafe se pone en camino hacia el noreste con 50 personas para fundar Jakes."
+  ],
+  [
+   111,
+   "fundacion",
+   "Tras 12 días de camino, los Jakes llegan a su nueva tierra, al noreste de Asi, y levantan allí su aldea. Desde hoy son un pueblo de caminantes y exploradores."
+  ],
+  [
+   111,
+   "redescubrimiento",
+   "Zasivis, de Sales, descubrió por su cuenta la catapulta, sin saber que en otras aldeas ya la conocían."
+  ],
+  [
+   111,
+   "migracion",
+   "Rakafe y su familia (2 más) dejan Jakes y se van a vivir a Asi: en su casa ya no caben, y allí vive su hermana Ñekes."
+  ],
+  [
+   111,
+   "abandono",
+   "Jakes ha quedado vacía. Sus casas se irán convirtiendo en ruinas."
+  ],
+  [
+   111,
+   "migracion",
+   "Jila y su familia (5 más) dejan Asi y se van a vivir a Zeli: aquí no se siente a salvo, y allí vive su hermana Ñifa."
+  ],
+  [
+   111,
+   "epidemia",
+   "Unas fiebres se extienden por Asi."
+  ],
+  [
+   111,
+   "fundacion",
+   "Ya no caben todos en Asi: Safifa se pone en camino hacia el oeste con 49 personas para fundar Eke."
+  ],
+  [
+   111,
+   "guerra",
+   "El consejo de Zeli decide hacer la guerra a Zares: sus graneros están llenos y los propios vacíos."
+  ],
+  [
+   111,
+   "asalto",
+   "2 guerreros de Zeli asaltan Zares y se llevan 1398 raciones de comida (Zeli: sin bajas; Zares: sin bajas)."
+  ],
+  [
+   111,
+   "fundacion",
+   "Tras 14 días de camino, los Eke llegan a su nueva tierra, al oeste de Asi, y levantan allí su aldea. Desde hoy son un pueblo de caminantes y exploradores."
+  ],
+  [
+   111,
+   "migracion",
+   "Jila y su familia (5 más) dejan Zeli y se van a vivir a Asi: aquí no se siente a salvo, y allí vive su hermana Seje."
+  ],
+  [
+   111,
+   "guerra",
+   "El consejo de Vesise decide hacer la guerra a Zeli: sus graneros están llenos y los propios vacíos."
+  ],
+  [
+   111,
+   "asalto",
+   "Zeli rechaza el asalto de 2 guerreros de Vesise (Vesise: 1 muerto; Zeli: sin bajas)."
+  ],
+  [
+   112,
+   "migracion",
+   "Ñekes y su familia (3 más) dejan Eke y se van a vivir a Asi: en su casa ya no caben, y allí vive su hermana Visis."
+  ],
+  [
+   112,
+   "guerra",
+   "El consejo de Sales decide hacer la guerra a Zeli: juran vengar el asalto."
+  ],
+  [
+   112,
+   "asalto",
+   "Zeli rechaza el asalto de 2 guerreros de Sales (Sales: sin bajas; Zeli: sin bajas)."
+  ],
+  [
+   112,
+   "alianza",
+   "Asi y Zeli sellan una alianza: se ayudarán en tiempos de hambre."
+  ],
+  [
+   112,
+   "migracion",
+   "Jila y su familia (5 más) dejan Asi y se van a vivir a Eke: aquí no se siente a salvo, y allí hay sitio."
+  ],
+  [
+   112,
+   "asalto",
+   "Zeli rechaza el asalto de 2 guerreros de Vesise (Vesise: 1 muerto; Zeli: sin bajas)."
+  ],
+  [
+   112,
+   "cisma",
+   "Hartos de que el consejo no les escuche, los Viji abandonan Asi: 29 personas cargan lo que pueden y siguen a Seje hacia el noroeste, a tierras lejanas donde vivir a su manera. Forman su propio consejo, con Seje a la cabeza. Les esperan unos 63 días de camino."
+  ],
+  [
+   112,
+   "guerra",
+   "El consejo de Viji decide hacer la guerra a Sales: sus graneros están llenos y los propios vacíos."
+  ],
+  [
+   112,
+   "asalto",
+   "Sales rechaza el asalto de 6 guerreros de Viji (Viji: 1 muerto; Sales: sin bajas)."
+  ],
+  [
+   112,
+   "paz",
+   "El consejo de Vesise hace las paces con Zeli tras dos derrotas."
+  ],
+  [
+   112,
+   "epidemia",
+   "Unas fiebres se extienden por Asi."
+  ],
+  [
+   112,
+   "fundacion",
+   "Tras 63 días de camino, los Viji llegan a su nueva tierra, al noroeste de Asi, y levantan allí su aldea. Desde hoy son un pueblo de constructores."
+  ],
+  [
+   113,
+   "asalto",
+   "Sales rechaza el asalto de 5 guerreros de Viji (Viji: sin bajas; Sales: sin bajas)."
+  ],
+  [
+   113,
+   "paz",
+   "El consejo de Viji hace las paces con Sales tras dos derrotas."
+  ],
+  [
+   113,
+   "guerra",
+   "El consejo de Sales decide hacer la guerra a Zeli: juran vengar el asalto."
+  ],
+  [
+   113,
+   "asalto",
+   "Zeli rechaza el asalto de 2 guerreros de Sales (Sales: 1 muerto; Zeli: sin bajas)."
+  ],
+  [
+   113,
+   "asalto",
+   "2 guerreros de Sales asaltan Zeli y se llevan 1988 raciones de comida (Sales: sin bajas; Zeli: sin bajas). Con flechas encendidas prenden fuego a sus casas."
+  ],
+  [
+   114,
+   "asalto",
+   "Zeli rechaza el asalto de 2 guerreros de Sales (Sales: sin bajas; Zeli: 1 muerto)."
+  ],
+  [
+   114,
+   "paz",
+   "El consejo de Sales hace las paces con Zeli tras dos derrotas."
+  ],
+  [
+   115,
+   "cisma",
+   "Hartos de que el consejo no les escuche, los Riñi abandonan Viji: 14 personas cargan lo que pueden y siguen a Ñekes hacia el suroeste, a tierras lejanas donde vivir a su manera. Forman su propio consejo, con Ñekes a la cabeza. Les esperan unos 40 días de camino."
+  ],
+  [
+   115,
+   "fundacion",
+   "Tras 40 días de camino, los Riñi llegan a su nueva tierra, al suroeste de Viji, y levantan allí su aldea. Desde hoy son un pueblo de guerreros."
+  ],
+  [
+   115,
+   "redescubrimiento",
+   "Ñeve, de Asi, descubrió por su cuenta la catapulta, sin saber que en otras aldeas ya la conocían."
+  ],
+  [
+   116,
+   "alianza",
+   "Asi y Eke sellan una alianza: se ayudarán en tiempos de hambre."
+  ],
+  [
+   117,
+   "redescubrimiento",
+   "Ñesi, de Riñi, descubrió por su cuenta la catapulta, sin saber que en otras aldeas ya la conocían."
+  ],
+  [
+   117,
+   "guerra",
+   "El consejo de Sales decide hacer la guerra a Zeli: juran vengar el asalto."
+  ],
+  [
+   117,
+   "asalto",
+   "2 guerreros de Sales asaltan Zeli y se llevan 944 raciones de comida (Sales: sin bajas; Zeli: sin bajas). Con flechas encendidas prenden fuego a sus casas."
+  ],
+  [
+   117,
+   "migracion",
+   "Zevas deja Zeli y se va a vivir a Asi: en su casa ya no caben, y allí no falta la comida."
+  ],
+  [
+   117,
+   "asalto",
+   "2 guerreros de Sales asaltan Zeli y se llevan 491 raciones de comida (Sales: sin bajas; Zeli: sin bajas). Con flechas encendidas prenden fuego a sus casas."
+  ],
+  [
+   118,
+   "lobos",
+   "Los lobos atacaron Zeli de noche y se llevaron a Vive (10 años)."
+  ],
+  [
+   118,
+   "abandono",
+   "Zeli ha quedado vacía. Sus casas se irán convirtiendo en ruinas."
+  ],
+  [
+   119,
+   "migracion",
+   "Rese deja Sales y se va a vivir a Ñivis: aquí no se siente a salvo, y allí vive su hijo Zavari."
+  ],
+  [
+   119,
+   "migracion",
+   "Kilara deja Zares y se va a vivir a Asi: aquí no se siente a salvo, y allí vive su hermana Laviri."
+  ],
+  [
+   119,
+   "guerra",
+   "El consejo de Viji decide hacer la guerra a Sales: sus graneros están llenos y los propios vacíos."
+  ],
+  [
+   119,
+   "asalto",
+   "4 guerreros de Viji asaltan Sales y se llevan 3024 raciones de comida (Viji: 1 muerto; Sales: sin bajas). Con flechas encendidas prenden fuego a sus casas."
+  ],
+  [
+   119,
+   "abandono",
+   "Zares ha quedado vacía. Sus casas se irán convirtiendo en ruinas."
+  ],
+  [
+   119,
+   "redescubrimiento",
+   "Rire, de Asi, descubrió por su cuenta la medicina, sin saber que en otras aldeas ya la conocían."
+  ],
+  [
+   119,
+   "redescubrimiento",
+   "Zeres, de Viji, descubrió por su cuenta la medicina, sin saber que en otras aldeas ya la conocían."
+  ],
+  [
+   119,
+   "redescubrimiento",
+   "Ñekes, de Riñi, descubrió por su cuenta la medicina, sin saber que en otras aldeas ya la conocían."
+  ],
+  [
+   120,
+   "guerra",
+   "El consejo de Viji decide hacer la guerra a Sales: no olvidan lo que les hicieron."
+  ],
+  [
+   120,
+   "asalto",
+   "Sales rechaza el asalto de 5 guerreros de Viji (Viji: 1 muerto; Sales: sin bajas)."
+  ],
+  [
+   120,
+   "asalto",
+   "4 guerreros de Viji asaltan Sales y se llevan 2798 raciones de comida (Viji: sin bajas; Sales: 1 muerto). Con flechas encendidas prenden fuego a sus casas."
+  ],
+  [
+   120,
+   "epidemia",
+   "Unas fiebres se extienden por Asi."
+  ],
+  [
+   120,
+   "migracion",
+   "Zejesa y su familia (4 más) dejan Sales y se van a vivir a Ñivis: aquí no se siente a salvo, y allí vive su amigo Rese."
+  ],
+  [
+   121,
+   "guerra",
+   "El consejo de Sales decide hacer la guerra a Viji: juran vengar el asalto."
+  ],
+  [
+   121,
+   "asalto",
+   "4 guerreros de Viji asaltan Sales y se llevan 1652 raciones de comida (Viji: sin bajas; Sales: sin bajas)."
+  ],
+  [
+   121,
+   "alianza",
+   "Ñivis y Sales sellan una alianza: se ayudarán en tiempos de hambre."
+  ],
+  [
+   121,
+   "asalto",
+   "4 guerreros de Viji asaltan Sales y se llevan 1432 raciones de comida (Viji: sin bajas; Sales: sin bajas)."
+  ],
+  [
+   122,
+   "guerra",
+   "El consejo de Sales decide hacer la guerra a Viji: juran vengar el asalto."
+  ],
+  [
+   122,
+   "asalto",
+   "4 guerreros de Viji asaltan Sales y se llevan 1243 raciones de comida (Viji: 1 muerto; Sales: sin bajas)."
+  ],
+  [
+   122,
+   "migracion",
+   "Ñañis y su familia (2 más) dejan Sales y se van a vivir a Ñivis: aquí no se siente a salvo, y allí vive su amiga Fesi."
+  ],
+  [
+   122,
+   "asalto",
+   "4 guerreros de Viji asaltan Sales y se llevan 631 raciones de comida (Viji: sin bajas; Sales: sin bajas)."
+  ],
+  [
+   123,
+   "asalto",
+   "4 guerreros de Viji asaltan Sales y se llevan 314 raciones de comida (Viji: sin bajas; Sales: sin bajas)."
+  ],
+  [
+   123,
+   "asalto",
+   "3 guerreros de Viji asaltan Sales y se llevan 311 raciones de comida (Viji: sin bajas; Sales: sin bajas). Con flechas encendidas prenden fuego a sus casas."
+  ],
+  [
+   123,
+   "epidemia",
+   "Unas fiebres se extienden por Asi."
+  ],
+  [
+   123,
+   "migracion",
+   "Firi deja Sales y se va a vivir a Ñivis: en su casa ya no caben, y allí vive su hija Fesi."
+  ],
+  [
+   123,
+   "abandono",
+   "Sales ha quedado vacía. Sus casas se irán convirtiendo en ruinas."
+  ],
+  [
+   124,
+   "cisma",
+   "Hartos de que el consejo no les escuche, los Fiñe abandonan Asi: 46 personas cargan lo que pueden y siguen a Riri hacia el oeste, a tierras lejanas donde vivir a su manera. Forman su propio consejo, con Riri a la cabeza. Les esperan unos 54 días de camino."
+  ],
+  [
+   124,
+   "guerra",
+   "El consejo de Fiñe decide hacer la guerra a Vesise: sus graneros están llenos y los propios vacíos."
+  ],
+  [
+   124,
+   "asalto",
+   "8 guerreros de Fiñe asaltan Vesise y se llevan 4384 raciones de comida (Fiñe: sin bajas; Vesise: sin bajas). Con flechas encendidas prenden fuego a sus casas."
+  ],
+  [
+   124,
+   "epidemia",
+   "Unas fiebres se extienden por Ñivis."
+  ],
+  [
+   124,
+   "epidemia",
+   "Unas fiebres se extienden por Eke."
+  ],
+  [
+   124,
+   "fundacion",
+   "Tras 54 días de camino, los Fiñe llegan a su nueva tierra, al oeste de Asi, y levantan allí su aldea. Desde hoy son un pueblo de constructores."
+  ],
+  [
+   125,
+   "asalto",
+   "Vesise rechaza el asalto de 8 guerreros de Fiñe (Fiñe: 1 muerto; Vesise: 1 muerto)."
+  ],
+  [
+   126,
+   "guerra",
+   "El consejo de Vesise decide hacer la guerra a Fiñe: no olvidan lo que les hicieron."
+  ],
+  [
+   126,
+   "asalto",
+   "Fiñe rechaza el asalto de 2 guerreros de Vesise (Vesise: sin bajas; Fiñe: 1 muerto)."
+  ],
+  [
+   126,
+   "migracion",
+   "Iñara y su familia (2 más) dejan Fiñe y se van a vivir a Viji: aquí no se siente a salvo, y allí vive su hermana Eresa."
+  ],
+  [
+   126,
+   "migracion",
+   "Lela y su familia (4 más) dejan Vesise y se van a vivir a Asi: aquí no se siente a salvo, y allí no falta la comida."
+  ],
+  [
+   126,
+   "epidemia",
+   "Unas fiebres se extienden por Ñivis."
+  ],
+  [
+   126,
+   "migracion",
+   "Rire y su familia (2 más) dejan Viji y se van a vivir a Fiñe: aquí no se siente a salvo, y allí vive su padre Kilara."
+  ],
+  [
+   127,
+   "guerra",
+   "El consejo de Fiñe decide hacer la guerra a Vesise: no olvidan lo que les hicieron."
+  ],
+  [
+   127,
+   "asalto",
+   "Vesise rechaza el asalto de 6 guerreros de Fiñe (Fiñe: 1 muerto; Vesise: sin bajas). Aun así, sus flechas encendidas prenden algunas casas."
+  ],
+  [
+   127,
+   "migracion",
+   "Iñara y su familia (2 más) dejan Fiñe y se van a vivir a Viji: aquí no se siente a salvo, y allí vive su hermana Eresa."
+  ],
+  [
+   127,
+   "asalto",
+   "6 guerreros de Fiñe asaltan Vesise y se llevan 1539 raciones de comida (Fiñe: sin bajas; Vesise: 1 muerto). Con flechas encendidas prenden fuego a sus casas."
+  ],
+  [
+   128,
+   "asalto",
+   "Vesise rechaza el asalto de 6 guerreros de Fiñe (Fiñe: 1 muerto; Vesise: sin bajas)."
+  ],
+  [
+   128,
+   "paz",
+   "El consejo de Fiñe hace las paces con Vesise tras dos derrotas."
+  ],
+  [
+   128,
+   "migracion",
+   "Rire y su familia (2 más) dejan Viji y se van a vivir a Fiñe: aquí no se siente a salvo, y allí vive su padre Kilara."
+  ],
+  [
+   131,
+   "migracion",
+   "Fijas deja Vesise y se va a vivir a Asi: aquí no se siente a salvo, y allí vive su hijo Lela."
+  ],
+  [
+   131,
+   "guerra",
+   "El consejo de Fiñe decide hacer la guerra a Vesise: sus graneros están llenos y los propios vacíos."
+  ],
+  [
+   131,
+   "asalto",
+   "Vesise rechaza el asalto de 7 guerreros de Fiñe (Fiñe: 1 muerto; Vesise: sin bajas)."
+  ],
+  [
+   131,
+   "alianza",
+   "Viji y Fiñe sellan una alianza: se ayudarán en tiempos de hambre."
+  ],
+  [
+   131,
+   "migracion",
+   "Kiñare y su familia (1 más) dejan Fiñe y se van a vivir a Viji: aquí no se siente a salvo, y allí vive su hermana Alara."
+  ],
+  [
+   131,
+   "epidemia",
+   "Unas fiebres se extienden por Asi."
+  ],
+  [
+   132,
+   "migracion",
+   "Sase y su familia (1 más) dejan Eke y se van a vivir a Asi: aquí no se siente a salvo, y allí vive su hermano Fijas."
+  ],
+  [
+   132,
+   "asalto",
+   "Vesise rechaza el asalto de 6 guerreros de Fiñe (Fiñe: sin bajas; Vesise: sin bajas)."
+  ],
+  [
+   132,
+   "paz",
+   "El consejo de Fiñe hace las paces con Vesise tras dos derrotas."
+  ],
+  [
+   132,
+   "migracion",
+   "Revi deja Viji y se va a vivir a Fiñe: aquí no se siente a salvo, y allí vive su hijo Kive."
+  ],
+  [
+   133,
+   "migracion",
+   "Kara y su familia (1 más) dejan Eke y se van a vivir a Asi: aquí no se siente a salvo, y allí vive su padre Zera."
+  ],
+  [
+   134,
+   "epidemia",
+   "Unas fiebres se extienden por Ñivis."
+  ],
+  [
+   135,
+   "migracion",
+   "Vike y su familia (2 más) dejan Vesise y se van a vivir a Asi: aquí no se siente a salvo, y allí vive su amigo Fijas."
+  ],
+  [
+   135,
+   "abandono",
+   "Vesise ha quedado vacía. Sus casas se irán convirtiendo en ruinas."
+  ],
+  [
+   136,
+   "migracion",
+   "Zafi y su familia (1 más) dejan Eke y se van a vivir a Asi: aquí no se siente a salvo, y allí vive su hermana File."
+  ],
+  [
+   136,
+   "migracion",
+   "Zafi y su familia (1 más) dejan Asi y se van a vivir a Eke: aquí no se siente a salvo, y allí vive su hermana Jive."
+  ],
+  [
+   136,
+   "cisma",
+   "Hartos de que el consejo no les escuche, los Jeke abandonan Ñivis: 9 personas cargan lo que pueden y siguen a Aze hacia el norte, a tierras lejanas donde vivir a su manera. Forman su propio consejo, con Aze a la cabeza. Les esperan unos 39 días de camino."
+  ],
+  [
+   137,
+   "fundacion",
+   "Tras 39 días de camino, los Jeke llegan a su nueva tierra, al norte de Ñivis, y levantan allí su aldea. Desde hoy son un pueblo de labradores y pastores."
+  ],
+  [
+   137,
+   "migracion",
+   "Rakaras y su familia (1 más) dejan Fiñe y se van a vivir a Viji: aquí no se siente a salvo, y allí vive su hermano Faje."
+  ],
+  [
+   137,
+   "migracion",
+   "Zafi y su familia (1 más) dejan Eke y se van a vivir a Asi: aquí no se siente a salvo, y allí vive su hermana File."
+  ],
+  [
+   139,
+   "migracion",
+   "Zafi y su familia (1 más) dejan Asi y se van a vivir a Eke: aquí no se siente a salvo, y allí vive su hermana Jive."
+  ],
+  [
+   139,
+   "cisma",
+   "Hartos de que el consejo no les escuche, los Kaje abandonan Eke: 11 personas cargan lo que pueden y siguen a Leriri hacia el oeste, a tierras lejanas donde vivir a su manera. Forman su propio consejo, con Leriri a la cabeza. Les esperan unos 39 días de camino."
+  ],
+  [
+   139,
+   "fundacion",
+   "Tras 39 días de camino, los Kaje llegan a su nueva tierra, al oeste de Eke, y levantan allí su aldea. Desde hoy son un pueblo de labradores y pastores."
+  ],
+  [
+   139,
+   "migracion",
+   "Revi deja Fiñe y se va a vivir a Kaje: aquí se siente sola, y allí vive su hermano Zafi."
+  ],
+  [
+   140,
+   "epidemia",
+   "Unas fiebres se extienden por Asi."
+  ],
+  [
+   141,
+   "edad",
+   "Riñi ha crecido tanto que ya es un pueblo."
+  ],
+  [
+   141,
+   "epidemia",
+   "Unas fiebres se extienden por Jeke."
+  ],
+  [
+   142,
+   "alianza",
+   "Riñi y Fiñe sellan una alianza: se ayudarán en tiempos de hambre."
+  ],
+  [
+   142,
+   "epidemia",
+   "Unas fiebres se extienden por Asi."
+  ],
+  [
+   143,
+   "epidemia",
+   "Unas fiebres se extienden por Eke."
+  ],
+  [
+   144,
+   "edad",
+   "Viji ha crecido tanto que ya es un pueblo."
+  ],
+  [
+   144,
+   "migracion",
+   "Kera deja Fiñe y se va a vivir a Viji: aquí no se siente a salvo, y allí vive su hermano Faje."
+  ],
+  [
+   144,
+   "epidemia",
+   "Unas fiebres se extienden por Eke."
+  ],
+  [
+   148,
+   "epidemia",
+   "Unas fiebres se extienden por Eke."
+  ],
+  [
+   149,
+   "epidemia",
+   "Unas fiebres se extienden por Asi."
+  ],
+  [
+   150,
+   "alianza",
+   "Asi y Jeke sellan una alianza: se ayudarán en tiempos de hambre."
+  ],
+  [
+   150,
+   "epidemia",
+   "Unas fiebres se extienden por Asi."
+  ]
+ ],
+ "vidas": [
+  {
+   "id": 196,
+   "nombre": "Rifeva",
+   "aldea": "Asi",
+   "edad": 73,
+   "vida": [
+    [
+     90,
+     "muere padre",
+     "Ñiñi"
+    ],
+    [
+     92,
+     "oficio",
+     "pastor"
+    ],
+    [
+     93,
+     "pareja",
+     "Kera"
+    ],
+    [
+     93,
+     "hijo",
+     "Rakake"
+    ],
+    [
+     111,
+     "se va",
+     "Jakes"
+    ],
+    [
+     111,
+     "emigra",
+     "Asi"
+    ],
+    [
+     116,
+     "aprende",
+     "Catapulta"
+    ],
+    [
+     116,
+     "pierde hijo",
+     "Rala"
+    ],
+    [
+     119,
+     "aprende",
+     "Medicina"
+    ],
+    [
+     125,
+     "consejo",
+     "Asi"
+    ],
+    [
+     137,
+     "enviuda",
+     "Kera"
+    ],
+    [
+     142,
+     "pareja",
+     "Ñafi"
+    ],
+    [
+     142,
+     "enviuda",
+     "Ñafi"
+    ],
+    [
+     146,
+     "pareja",
+     "Sesi"
+    ],
+    [
+     150,
+     "pierde hijo",
+     "Fiñi"
+    ],
+    [
+     150,
+     "enviuda",
+     "Sesi"
+    ]
+   ],
+   "meta": null,
+   "recuerdos": [
+    [
+     101,
+     "duelo",
+     "Akiza",
+     0.72
+    ],
+    [
+     109,
+     "duelo",
+     "Zesa",
+     0.72
+    ],
+    [
+     111,
+     "emigro",
+     "Jakes",
+     0.5
+    ],
+    [
+     116,
+     "duelo",
+     "Rala",
+     0.72
+    ],
+    [
+     137,
+     "duelo",
+     "Kera",
+     0.8
+    ],
+    [
+     142,
+     "duelo",
+     "Ñafi",
+     0.8
+    ],
+    [
+     150,
+     "duelo",
+     "Fiñi",
+     0.72
+    ],
+    [
+     150,
+     "duelo",
+     "Sesi",
+     0.8
+    ]
+   ],
+   "lazos": [
+    [
+     "Verira",
+     -0.078
+    ],
+    [
+     "Lela",
+     -0.096
+    ],
+    [
+     "Zazi",
+     -0.045
+    ],
+    [
+     "Reka",
+     -0.047
+    ],
+    [
+     "Likifis",
+     -0.106
+    ],
+    [
+     "Afa",
+     -0.057
+    ],
+    [
+     "Iñeji",
+     -0.057
+    ],
+    [
+     "Leseje",
+     -0.058
+    ],
+    [
+     "Esi",
+     -0.059
+    ]
+   ],
+   "genes": {
+    "curiosidad": 0.459,
+    "sociabilidad": 0.609,
+    "fuerza": 0.522,
+    "destreza": 0.427,
+    "resistencia": 0.434,
+    "fertilidad": 0.493,
+    "longevidad": 0.617,
+    "agresividad": 0.59,
+    "ambicion": 0.479,
+    "prudencia": 0.55,
+    "generosidad": 0.572,
+    "lealtad": 0.462,
+    "paciencia": 0.482
+   }
+  },
+  {
+   "id": 268,
+   "nombre": "Reliñi",
+   "aldea": "Asi",
+   "edad": 59,
+   "vida": [
+    [
+     105,
+     "muere padre",
+     "Esa"
+    ],
+    [
+     106,
+     "oficio",
+     "pastora"
+    ],
+    [
+     107,
+     "se va",
+     "Zares"
+    ],
+    [
+     107,
+     "emigra",
+     "Asi"
+    ],
+    [
+     108,
+     "pareja",
+     "Vaka"
+    ],
+    [
+     111,
+     "se va",
+     "Jakes"
+    ],
+    [
+     111,
+     "emigra",
+     "Asi"
+    ],
+    [
+     114,
+     "hijo",
+     "Vajefis"
+    ],
+    [
+     116,
+     "aprende",
+     "Catapulta"
+    ],
+    [
+     118,
+     "muere madre",
+     "Kije"
+    ],
+    [
+     118,
+     "pierde hija",
+     "Lifes"
+    ],
+    [
+     119,
+     "aprende",
+     "Medicina"
+    ],
+    [
+     140,
+     "enviuda",
+     "Vaka"
+    ],
+    [
+     141,
+     "pareja",
+     "Ilis"
+    ],
+    [
+     146,
+     "pierde hija",
+     "Vajefis"
+    ],
+    [
+     148,
+     "consejo",
+     "Asi"
+    ]
+   ],
+   "meta": null,
+   "recuerdos": [
+    [
+     105,
+     "duelo",
+     "Esa",
+     0.72
+    ],
+    [
+     107,
+     "emigro",
+     "Zares",
+     0.5
+    ],
+    [
+     111,
+     "emigro",
+     "Jakes",
+     0.5
+    ],
+    [
+     118,
+     "duelo",
+     "Kije",
+     0.72
+    ],
+    [
+     118,
+     "duelo",
+     "Lifes",
+     0.72
+    ],
+    [
+     140,
+     "duelo",
+     "Vaka",
+     0.8
+    ],
+    [
+     146,
+     "duelo",
+     "Vajefis",
+     0.72
+    ]
+   ],
+   "lazos": [
+    [
+     "Ilis",
+     0.581
+    ],
+    [
+     "Izas",
+     0.087
+    ],
+    [
+     "Zize",
+     0.051
+    ],
+    [
+     "Sake",
+     0.076
+    ],
+    [
+     "Kasaza",
+     -0.033
+    ],
+    [
+     "Reñas",
+     -0.04
+    ],
+    [
+     "Jejis",
+     -0.078
+    ],
+    [
+     "Fekes",
+     -0.033
+    ],
+    [
+     "Reka",
+     -0.042
+    ],
+    [
+     "Ñevi",
+     -0.057
+    ]
+   ],
+   "genes": {
+    "curiosidad": 0.375,
+    "sociabilidad": 0.547,
+    "fuerza": 0.484,
+    "destreza": 0.567,
+    "resistencia": 0.619,
+    "fertilidad": 0.469,
+    "longevidad": 0.366,
+    "agresividad": 0.476,
+    "ambicion": 0.453,
+    "prudencia": 0.537,
+    "generosidad": 0.677,
+    "lealtad": 0.46,
+    "paciencia": 0.546
+   }
+  },
+  {
+   "id": 265,
+   "nombre": "Faje",
+   "aldea": "Viji",
+   "edad": 59,
+   "vida": [
+    [
+     98,
+     "muere padre",
+     "Fali"
+    ],
+    [
+     106,
+     "oficio",
+     "pastor"
+    ],
+    [
+     110,
+     "se va",
+     "Zeli"
+    ],
+    [
+     110,
+     "emigra",
+     "Asi"
+    ],
+    [
+     111,
+     "se va",
+     "Jakes"
+    ],
+    [
+     111,
+     "emigra",
+     "Asi"
+    ],
+    [
+     113,
+     "pareja",
+     "Jize"
+    ],
+    [
+     116,
+     "aprende",
+     "Catapulta"
+    ],
+    [
+     119,
+     "aprende",
+     "Medicina"
+    ],
+    [
+     121,
+     "hijo",
+     "Lare"
+    ],
+    [
+     124,
+     "se va",
+     "Fiñe"
+    ],
+    [
+     126,
+     "emigra",
+     "Viji"
+    ],
+    [
+     131,
+     "pierde hijo",
+     "Zika"
+    ],
+    [
+     133,
+     "consejo",
+     "Viji"
+    ],
+    [
+     134,
+     "pierde hijo",
+     "Vevi"
+    ]
+   ],
+   "meta": null,
+   "recuerdos": [
+    [
+     98,
+     "duelo",
+     "Fali",
+     0.72
+    ],
+    [
+     110,
+     "emigro",
+     "Zeli",
+     0.5
+    ],
+    [
+     111,
+     "emigro",
+     "Jakes",
+     0.5
+    ],
+    [
+     126,
+     "asalto",
+     "Vesise",
+     0.6
+    ],
+    [
+     126,
+     "emigro",
+     "Fiñe",
+     0.5
+    ],
+    [
+     131,
+     "duelo",
+     "Zika",
+     0.72
+    ],
+    [
+     134,
+     "duelo",
+     "Vevi",
+     0.72
+    ]
+   ],
+   "lazos": [
+    [
+     "Jize",
+     0.433
+    ],
+    [
+     "Valasis",
+     -0.033
+    ],
+    [
+     "Lifi",
+     -0.033
+    ],
+    [
+     "Fivi",
+     0.15
+    ],
+    [
+     "Alisa",
+     0.11
+    ],
+    [
+     "Zalaza",
+     0.03
+    ],
+    [
+     "Fezis",
+     0.03
+    ],
+    [
+     "Revi",
+     0.03
+    ],
+    [
+     "Afi",
+     0.03
+    ]
+   ],
+   "genes": {
+    "curiosidad": 0.506,
+    "sociabilidad": 0.671,
+    "fuerza": 0.447,
+    "destreza": 0.473,
+    "resistencia": 0.443,
+    "fertilidad": 0.542,
+    "longevidad": 0.416,
+    "agresividad": 0.635,
+    "ambicion": 0.414,
+    "prudencia": 0.567,
+    "generosidad": 0.478,
+    "lealtad": 0.555,
+    "paciencia": 0.385
+   }
+  },
+  {
+   "id": 253,
+   "nombre": "Zera",
+   "aldea": "Asi",
+   "edad": 62,
+   "vida": [
+    [
+     103,
+     "oficio",
+     "pastor"
+    ],
+    [
+     110,
+     "se va",
+     "Zeli"
+    ],
+    [
+     110,
+     "emigra",
+     "Asi"
+    ],
+    [
+     111,
+     "se va",
+     "Jakes"
+    ],
+    [
+     111,
+     "emigra",
+     "Asi"
+    ],
+    [
+     111,
+     "se va",
+     "Eke"
+    ],
+    [
+     114,
+     "pareja",
+     "File"
+    ],
+    [
+     115,
+     "hijo",
+     "Kara"
+    ],
+    [
+     116,
+     "aprende",
+     "Catapulta"
+    ],
+    [
+     116,
+     "aprende",
+     "Medicina"
+    ],
+    [
+     132,
+     "emigra",
+     "Asi"
+    ],
+    [
+     147,
+     "consejo",
+     "Asi"
+    ],
+    [
+     147,
+     "enviuda",
+     "File"
+    ]
+   ],
+   "meta": null,
+   "recuerdos": [
+    [
+     110,
+     "emigro",
+     "Zeli",
+     0.5
+    ],
+    [
+     111,
+     "emigro",
+     "Jakes",
+     0.5
+    ],
+    [
+     132,
+     "emigro",
+     "Eke",
+     0.5
+    ],
+    [
+     147,
+     "duelo",
+     "File",
+     0.8
+    ]
+   ],
+   "lazos": [
+    [
+     "Ilis",
+     -0.033
+    ],
+    [
+     "Likifis",
+     -0.033
+    ],
+    [
+     "Lefes",
+     -0.03
+    ],
+    [
+     "Sere",
+     0.03
+    ],
+    [
+     "Kezas",
+     -0.086
+    ],
+    [
+     "Iraji",
+     0.03
+    ],
+    [
+     "Varajas",
+     0.03
+    ],
+    [
+     "Izas",
+     -0.058
+    ],
+    [
+     "Valasis",
+     -0.058
+    ]
+   ],
+   "genes": {
+    "curiosidad": 0.507,
+    "sociabilidad": 0.471,
+    "fuerza": 0.424,
+    "destreza": 0.488,
+    "resistencia": 0.638,
+    "fertilidad": 0.507,
+    "longevidad": 0.543,
+    "agresividad": 0.753,
+    "ambicion": 0.582,
+    "prudencia": 0.583,
+    "generosidad": 0.481,
+    "lealtad": 0.496,
+    "paciencia": 0.317
+   }
+  },
+  {
+   "id": 332,
+   "nombre": "Kizesi",
+   "aldea": "Riñi",
+   "edad": 48,
+   "vida": [
+    [
+     117,
+     "descubre",
+     "Catapulta"
+    ],
+    [
+     117,
+     "oficio",
+     "inventor"
+    ],
+    [
+     118,
+     "consejo",
+     "Riñi"
+    ],
+    [
+     119,
+     "aprende",
+     "Medicina"
+    ],
+    [
+     124,
+     "pareja",
+     "Ñake"
+    ],
+    [
+     124,
+     "hijo",
+     "Safa"
+    ],
+    [
+     125,
+     "pierde hijo",
+     "Safa"
+    ],
+    [
+     128,
+     "muere madre",
+     "Ñekes"
+    ],
+    [
+     131,
+     "enviuda",
+     "Ñake"
+    ],
+    [
+     131,
+     "pareja",
+     "Eke"
+    ],
+    [
+     131,
+     "enviuda",
+     "Eke"
+    ],
+    [
+     132,
+     "pierde hijo",
+     "Ñaje"
+    ],
+    [
+     132,
+     "pareja",
+     "Ralis"
+    ]
+   ],
+   "meta": null,
+   "recuerdos": [
+    [
+     112,
+     "emigro",
+     "Eke",
+     0.5
+    ],
+    [
+     125,
+     "duelo",
+     "Safa",
+     0.72
+    ],
+    [
+     128,
+     "duelo",
+     "Ñekes",
+     0.72
+    ],
+    [
+     131,
+     "duelo",
+     "Ñake",
+     0.8
+    ],
+    [
+     131,
+     "duelo",
+     "Eke",
+     0.8
+    ],
+    [
+     132,
+     "duelo",
+     "Ñaje",
+     0.72
+    ]
+   ],
+   "lazos": [
+    [
+     "Liñise",
+     0.28
+    ],
+    [
+     "Feva",
+     0.28
+    ],
+    [
+     "Veris",
+     0.393
+    ],
+    [
+     "Ralis",
+     0.364
+    ],
+    [
+     "Ñavezes",
+     0.136
+    ],
+    [
+     "Leñes",
+     0.276
+    ],
+    [
+     "Sikela",
+     0.085
+    ],
+    [
+     "Razizes",
+     0.054
+    ],
+    [
+     "#386",
+     -0.033
+    ]
+   ],
+   "genes": {
+    "curiosidad": 0.469,
+    "sociabilidad": 0.564,
+    "fuerza": 0.436,
+    "destreza": 0.426,
+    "resistencia": 0.612,
+    "fertilidad": 0.591,
+    "longevidad": 0.427,
+    "agresividad": 0.601,
+    "ambicion": 0.496,
+    "prudencia": 0.567,
+    "generosidad": 0.706,
+    "lealtad": 0.479,
+    "paciencia": 0.553
+   }
+  },
+  {
+   "id": 364,
+   "nombre": "Zafi",
+   "aldea": "Kaje",
+   "edad": 42,
+   "vida": [
+    [
+     123,
+     "muere padre",
+     "Ñafas"
+    ],
+    [
+     123,
+     "oficio",
+     "recolector"
+    ],
+    [
+     135,
+     "muere madre",
+     "Jila"
+    ],
+    [
+     135,
+     "pareja",
+     "Velala"
+    ],
+    [
+     136,
+     "emigra",
+     "Asi"
+    ],
+    [
+     136,
+     "emigra",
+     "Eke"
+    ],
+    [
+     136,
+     "emigra",
+     "Asi"
+    ],
+    [
+     137,
+     "emigra",
+     "Eke"
+    ],
+    [
+     137,
+     "emigra",
+     "Asi"
+    ],
+    [
+     139,
+     "emigra",
+     "Eke"
+    ],
+    [
+     139,
+     "se va",
+     "Kaje"
+    ],
+    [
+     139,
+     "consejo",
+     "Kaje"
+    ],
+    [
+     139,
+     "hijo",
+     "Jifes"
+    ]
+   ],
+   "meta": null,
+   "recuerdos": [
+    [
+     110,
+     "emigro",
+     "Zares",
+     0.5
+    ],
+    [
+     139,
+     "emigro",
+     "Asi",
+     0.9
+    ],
+    [
+     111,
+     "emigro",
+     "Zeli",
+     0.5
+    ],
+    [
+     123,
+     "duelo",
+     "Ñafas",
+     0.72
+    ],
+    [
+     135,
+     "duelo",
+     "Jila",
+     0.72
+    ],
+    [
+     137,
+     "emigro",
+     "Eke",
+     0.7
+    ]
+   ],
+   "lazos": [
+    [
+     "Zera",
+     0.033
+    ],
+    [
+     "Kelas",
+     0.033
+    ],
+    [
+     "Velala",
+     0.459
+    ],
+    [
+     "Fesisi",
+     0.31
+    ],
+    [
+     "Seki",
+     0.37
+    ],
+    [
+     "Fivis",
+     0.167
+    ],
+    [
+     "Ñere",
+     0.03
+    ]
+   ],
+   "genes": {
+    "curiosidad": 0.321,
+    "sociabilidad": 0.435,
+    "fuerza": 0.432,
+    "destreza": 0.435,
+    "resistencia": 0.643,
+    "fertilidad": 0.439,
+    "longevidad": 0.641,
+    "agresividad": 0.602,
+    "ambicion": 0.453,
+    "prudencia": 0.405,
+    "generosidad": 0.569,
+    "lealtad": 0.444,
+    "paciencia": 0.385
+   }
+  },
+  {
+   "id": 243,
+   "nombre": "Jeña",
+   "aldea": "Ñivis",
+   "edad": 64,
+   "vida": [
+    [
+     102,
+     "oficio",
+     "pastora"
+    ],
+    [
+     102,
+     "pareja",
+     "Zavari"
+    ],
+    [
+     102,
+     "hijo",
+     "Lifes"
+    ],
+    [
+     103,
+     "muere madre",
+     "Vañeñis"
+    ],
+    [
+     111,
+     "pierde hijo",
+     "Fara"
+    ],
+    [
+     113,
+     "muere padre",
+     "Rivi"
+    ],
+    [
+     115,
+     "aprende",
+     "Medicina"
+    ],
+    [
+     122,
+     "pierde hija",
+     "Lifes"
+    ],
+    [
+     134,
+     "consejo",
+     "Ñivis"
+    ],
+    [
+     139,
+     "enviuda",
+     "Zavari"
+    ],
+    [
+     139,
+     "pareja",
+     "Lañi"
+    ],
+    [
+     150,
+     "enviuda",
+     "Lañi"
+    ]
+   ],
+   "meta": null,
+   "recuerdos": [
+    [
+     103,
+     "duelo",
+     "Vañeñis",
+     0.72
+    ],
+    [
+     111,
+     "duelo",
+     "Fara",
+     0.72
+    ],
+    [
+     113,
+     "duelo",
+     "Rivi",
+     0.72
+    ],
+    [
+     122,
+     "duelo",
+     "Lifes",
+     0.72
+    ],
+    [
+     139,
+     "duelo",
+     "Zavari",
+     0.8
+    ],
+    [
+     150,
+     "duelo",
+     "Lañi",
+     0.8
+    ]
+   ],
+   "lazos": [
+    [
+     "Lele",
+     0.078
+    ],
+    [
+     "Aje",
+     0.16
+    ],
+    [
+     "Eve",
+     0.083
+    ],
+    [
+     "Keraji",
+     0.099
+    ],
+    [
+     "Kafes",
+     0.074
+    ],
+    [
+     "Seze",
+     0.197
+    ],
+    [
+     "Leja",
+     -0.055
+    ],
+    [
+     "Vavi",
+     -0.144
+    ]
+   ],
+   "genes": {
+    "curiosidad": 0.49,
+    "sociabilidad": 0.486,
+    "fuerza": 0.507,
+    "destreza": 0.319,
+    "resistencia": 0.543,
+    "fertilidad": 0.576,
+    "longevidad": 0.545,
+    "agresividad": 0.671,
+    "ambicion": 0.586,
+    "prudencia": 0.306,
+    "generosidad": 0.687,
+    "lealtad": 0.644,
+    "paciencia": 0.561
+   }
+  },
+  {
+   "id": 269,
+   "nombre": "Zeke",
+   "aldea": "Eke",
+   "edad": 58,
+   "vida": [
+    [
+     107,
+     "se va",
+     "Zares"
+    ],
+    [
+     107,
+     "emigra",
+     "Asi"
+    ],
+    [
+     108,
+     "oficio",
+     "pastora"
+    ],
+    [
+     108,
+     "pareja",
+     "Ifa"
+    ],
+    [
+     110,
+     "hijo",
+     "Resa"
+    ],
+    [
+     111,
+     "se va",
+     "Eke"
+    ],
+    [
+     116,
+     "aprende",
+     "Catapulta"
+    ],
+    [
+     116,
+     "aprende",
+     "Medicina"
+    ],
+    [
+     130,
+     "pierde hija",
+     "Vazi"
+    ],
+    [
+     137,
+     "consejo",
+     "Eke"
+    ],
+    [
+     142,
+     "lidera",
+     "Vañe"
+    ],
+    [
+     150,
+     "pierde hijo",
+     "Resa"
+    ]
+   ],
+   "meta": null,
+   "recuerdos": [
+    [
+     107,
+     "emigro",
+     "Zares",
+     0.5
+    ],
+    [
+     130,
+     "duelo",
+     "Vazi",
+     0.72
+    ],
+    [
+     150,
+     "duelo",
+     "Resa",
+     0.72
+    ]
+   ],
+   "lazos": [
+    [
+     "Ifa",
+     0.424
+    ],
+    [
+     "Riñe",
+     0.033
+    ],
+    [
+     "Jeñañas",
+     0.402
+    ],
+    [
+     "Valive",
+     0.246
+    ],
+    [
+     "Saki",
+     -0.033
+    ],
+    [
+     "Fazize",
+     0.045
+    ]
+   ],
+   "genes": {
+    "curiosidad": 0.519,
+    "sociabilidad": 0.459,
+    "fuerza": 0.489,
+    "destreza": 0.586,
+    "resistencia": 0.556,
+    "fertilidad": 0.411,
+    "longevidad": 0.578,
+    "agresividad": 0.565,
+    "ambicion": 0.49,
+    "prudencia": 0.427,
+    "generosidad": 0.679,
+    "lealtad": 0.548,
+    "paciencia": 0.33
+   }
+  },
+  {
+   "id": 340,
+   "nombre": "Ñifa",
+   "aldea": "Viji",
+   "edad": 47,
+   "vida": [
+    [
+     103,
+     "muere madre",
+     "Veñeña"
+    ],
+    [
+     116,
+     "herido",
+     "por los lobos"
+    ],
+    [
+     116,
+     "herido",
+     "por los lobos"
+    ],
+    [
+     118,
+     "herido",
+     "por los lobos"
+    ],
+    [
+     120,
+     "oficio",
+     "cantero"
+    ],
+    [
+     122,
+     "pareja",
+     "Saña"
+    ],
+    [
+     125,
+     "hijo",
+     "Zafa"
+    ],
+    [
+     126,
+     "aprende",
+     "Catapulta"
+    ],
+    [
+     130,
+     "pierde hijo",
+     "Sefe"
+    ],
+    [
+     134,
+     "consejo",
+     "Viji"
+    ],
+    [
+     144,
+     "pierde hijo",
+     "Ezive"
+    ],
+    [
+     149,
+     "enviuda",
+     "Saña"
+    ]
+   ],
+   "meta": null,
+   "recuerdos": [
+    [
+     103,
+     "duelo",
+     "Veñeña",
+     0.72
+    ],
+    [
+     111,
+     "emigro",
+     "Jakes",
+     0.5
+    ],
+    [
+     118,
+     "fieras",
+     "lobos",
+     1
+    ],
+    [
+     130,
+     "duelo",
+     "Sefe",
+     0.72
+    ],
+    [
+     144,
+     "duelo",
+     "Ezive",
+     0.72
+    ],
+    [
+     149,
+     "duelo",
+     "Saña",
+     0.8
+    ]
+   ],
+   "lazos": [
+    [
+     "Jiraka",
+     0.33
+    ],
+    [
+     "Fivi",
+     0.37
+    ],
+    [
+     "Lare",
+     0.288
+    ],
+    [
+     "Sañe",
+     0.084
+    ],
+    [
+     "Vaveke",
+     0.292
+    ],
+    [
+     "Fireje",
+     0.095
+    ],
+    [
+     "Lajizas",
+     0.03
+    ]
+   ],
+   "genes": {
+    "curiosidad": 0.401,
+    "sociabilidad": 0.533,
+    "fuerza": 0.544,
+    "destreza": 0.659,
+    "resistencia": 0.46,
+    "fertilidad": 0.584,
+    "longevidad": 0.419,
+    "agresividad": 0.586,
+    "ambicion": 0.507,
+    "prudencia": 0.552,
+    "generosidad": 0.68,
+    "lealtad": 0.457,
+    "paciencia": 0.415
+   }
+  },
+  {
+   "id": 300,
+   "nombre": "Jize",
+   "aldea": "Viji",
+   "edad": 53,
+   "vida": [
+    [
+     112,
+     "oficio",
+     "pastora"
+    ],
+    [
+     113,
+     "pareja",
+     "Faje"
+    ],
+    [
+     116,
+     "aprende",
+     "Catapulta"
+    ],
+    [
+     119,
+     "aprende",
+     "Medicina"
+    ],
+    [
+     121,
+     "hijo",
+     "Lare"
+    ],
+    [
+     124,
+     "se va",
+     "Fiñe"
+    ],
+    [
+     125,
+     "muere madre",
+     "Fikaje"
+    ],
+    [
+     126,
+     "emigra",
+     "Viji"
+    ],
+    [
+     131,
+     "pierde hijo",
+     "Zika"
+    ],
+    [
+     134,
+     "consejo",
+     "Viji"
+    ],
+    [
+     134,
+     "pierde hijo",
+     "Vevi"
+    ]
+   ],
+   "meta": null,
+   "recuerdos": [
+    [
+     107,
+     "emigro",
+     "Zares",
+     0.5
+    ],
+    [
+     110,
+     "emigro",
+     "Zeli",
+     0.5
+    ],
+    [
+     111,
+     "emigro",
+     "Jakes",
+     0.5
+    ],
+    [
+     125,
+     "duelo",
+     "Fikaje",
+     0.72
+    ],
+    [
+     126,
+     "asalto",
+     "Vesise",
+     0.6
+    ],
+    [
+     126,
+     "emigro",
+     "Fiñe",
+     0.5
+    ],
+    [
+     131,
+     "duelo",
+     "Zika",
+     0.72
+    ],
+    [
+     134,
+     "duelo",
+     "Vevi",
+     0.72
+    ]
+   ],
+   "lazos": [
+    [
+     "Faje",
+     0.433
+    ],
+    [
+     "Rifeva",
+     -0.033
+    ],
+    [
+     "Life",
+     -0.033
+    ],
+    [
+     "Fili",
+     -0.033
+    ],
+    [
+     "Fivi",
+     0.171
+    ],
+    [
+     "Favake",
+     0.315
+    ],
+    [
+     "Vaveke",
+     0.272
+    ],
+    [
+     "Ñares",
+     0.03
+    ],
+    [
+     "Revi",
+     0.03
+    ],
+    [
+     "Kiñas",
+     -0.033
+    ]
+   ],
+   "genes": {
+    "curiosidad": 0.595,
+    "sociabilidad": 0.584,
+    "fuerza": 0.489,
+    "destreza": 0.542,
+    "resistencia": 0.682,
+    "fertilidad": 0.428,
+    "longevidad": 0.484,
+    "agresividad": 0.573,
+    "ambicion": 0.507,
+    "prudencia": 0.519,
+    "generosidad": 0.435,
+    "lealtad": 0.506,
+    "paciencia": 0.465
+   }
+  },
+  {
+   "id": 237,
+   "nombre": "Ifa",
+   "aldea": "Eke",
+   "edad": 65,
+   "vida": [
+    [
+     88,
+     "muere madre",
+     "Lili"
+    ],
+    [
+     101,
+     "oficio",
+     "pastor"
+    ],
+    [
+     108,
+     "pareja",
+     "Zeke"
+    ],
+    [
+     110,
+     "hijo",
+     "Resa"
+    ],
+    [
+     111,
+     "se va",
+     "Eke"
+    ],
+    [
+     116,
+     "aprende",
+     "Catapulta"
+    ],
+    [
+     116,
+     "aprende",
+     "Medicina"
+    ],
+    [
+     130,
+     "pierde hija",
+     "Vazi"
+    ],
+    [
+     132,
+     "consejo",
+     "Eke"
+    ],
+    [
+     150,
+     "pierde hijo",
+     "Resa"
+    ]
+   ],
+   "meta": null,
+   "recuerdos": [
+    [
+     88,
+     "duelo",
+     "Lili",
+     0.72
+    ],
+    [
+     130,
+     "duelo",
+     "Vazi",
+     0.72
+    ],
+    [
+     150,
+     "duelo",
+     "Resa",
+     0.72
+    ]
+   ],
+   "lazos": [
+    [
+     "Zeke",
+     0.424
+    ],
+    [
+     "Rejalas",
+     0.236
+    ],
+    [
+     "Valive",
+     0.266
+    ],
+    [
+     "Sileke",
+     0.033
+    ],
+    [
+     "Fazize",
+     0.069
+    ],
+    [
+     "Izi",
+     0.227
+    ],
+    [
+     "Lekes",
+     0.03
+    ],
+    [
+     "Jeñañas",
+     -0.059
+    ]
+   ],
+   "genes": {
+    "curiosidad": 0.489,
+    "sociabilidad": 0.554,
+    "fuerza": 0.56,
+    "destreza": 0.528,
+    "resistencia": 0.64,
+    "fertilidad": 0.453,
+    "longevidad": 0.597,
+    "agresividad": 0.547,
+    "ambicion": 0.531,
+    "prudencia": 0.335,
+    "generosidad": 0.54,
+    "lealtad": 0.685,
+    "paciencia": 0.225
+   }
+  },
+  {
+   "id": 279,
+   "nombre": "Reñis",
+   "aldea": "Ñivis",
+   "edad": 56,
+   "vida": [
+    [
+     109,
+     "oficio",
+     "pastor"
+    ],
+    [
+     111,
+     "aprende",
+     "Catapulta"
+    ],
+    [
+     115,
+     "pareja",
+     "Ñañis"
+    ],
+    [
+     115,
+     "hijo",
+     "Lele"
+    ],
+    [
+     120,
+     "muere padre",
+     "Kezeñi"
+    ],
+    [
+     120,
+     "consejo",
+     "Sales"
+    ],
+    [
+     122,
+     "emigra",
+     "Ñivis"
+    ],
+    [
+     124,
+     "muere madre",
+     "Firi"
+    ],
+    [
+     125,
+     "pierde hijo",
+     "Veja"
+    ],
+    [
+     138,
+     "enviuda",
+     "Ñañis"
+    ]
+   ],
+   "meta": null,
+   "recuerdos": [
+    [
+     122,
+     "asalto",
+     "Viji",
+     1
+    ],
+    [
+     120,
+     "duelo",
+     "Kezeñi",
+     0.72
+    ],
+    [
+     120,
+     "agravio",
+     "Viji",
+     0.9
+    ],
+    [
+     122,
+     "emigro",
+     "Sales",
+     0.5
+    ],
+    [
+     124,
+     "duelo",
+     "Firi",
+     0.72
+    ],
+    [
+     125,
+     "duelo",
+     "Veja",
+     0.72
+    ],
+    [
+     138,
+     "duelo",
+     "Ñañis",
+     0.8
+    ]
+   ],
+   "lazos": [
+    [
+     "Ase",
+     0.242
+    ],
+    [
+     "Vavi",
+     0.296
+    ],
+    [
+     "Kase",
+     0.188
+    ],
+    [
+     "Zere",
+     0.171
+    ],
+    [
+     "Vari",
+     0.315
+    ],
+    [
+     "Jeki",
+     0.154
+    ],
+    [
+     "Ñija",
+     0.03
+    ],
+    [
+     "Jejajas",
+     -0.038
+    ]
+   ],
+   "genes": {
+    "curiosidad": 0.41,
+    "sociabilidad": 0.577,
+    "fuerza": 0.486,
+    "destreza": 0.343,
+    "resistencia": 0.575,
+    "fertilidad": 0.274,
+    "longevidad": 0.534,
+    "agresividad": 0.569,
+    "ambicion": 0.471,
+    "prudencia": 0.409,
+    "generosidad": 0.612,
+    "lealtad": 0.653,
+    "paciencia": 0.383
+   }
+  }
+ ],
+ "tumbasNotables": [
+  {
+   "aldea": "Vesise",
+   "anio": 83,
+   "nombre": "Fivis",
+   "edad": 54,
+   "causa": "vejez",
+   "oficio": "inventor"
+  },
+  {
+   "aldea": "Vesise",
+   "anio": 111,
+   "nombre": "Jevi",
+   "edad": 26,
+   "causa": "combate",
+   "oficio": "pastor"
+  },
+  {
+   "aldea": "Vesise",
+   "anio": 112,
+   "nombre": "Jalaka",
+   "edad": 25,
+   "causa": "combate",
+   "oficio": "pastor"
+  },
+  {
+   "aldea": "Vesise",
+   "anio": 125,
+   "nombre": "Rafes",
+   "edad": 23,
+   "causa": "combate",
+   "oficio": "defender"
+  },
+  {
+   "aldea": "Vesise",
+   "anio": 127,
+   "nombre": "Ñisa",
+   "edad": 19,
+   "causa": "combate",
+   "oficio": "pastora"
+  },
+  {
+   "aldea": "Ñivis",
+   "anio": 105,
+   "nombre": "Ikis",
+   "edad": 66,
+   "causa": "vejez",
+   "oficio": "inventora"
+  },
+  {
+   "aldea": "Sales",
+   "anio": 113,
+   "nombre": "Ezeza",
+   "edad": 26,
+   "causa": "combate",
+   "oficio": "cantero"
+  },
+  {
+   "aldea": "Sales",
+   "anio": 120,
+   "nombre": "Kezeñi",
+   "edad": 59,
+   "causa": "combate",
+   "oficio": "pescador"
+  },
+  {
+   "aldea": "Zares",
+   "anio": 110,
+   "nombre": "Feñela",
+   "edad": 44,
+   "causa": "combate",
+   "oficio": "pastora"
+  },
+  {
+   "aldea": "Zeli",
+   "anio": 110,
+   "nombre": "Jerasi",
+   "edad": 34,
+   "causa": "combate",
+   "oficio": "pastor"
+  },
+  {
+   "aldea": "Zeli",
+   "anio": 114,
+   "nombre": "Ñifa",
+   "edad": 40,
+   "causa": "combate",
+   "oficio": "cantera"
+  },
+  {
+   "aldea": "Viji",
+   "anio": 112,
+   "nombre": "Fali",
+   "edad": 32,
+   "causa": "combate",
+   "oficio": "pastor"
+  },
+  {
+   "aldea": "Viji",
+   "anio": 119,
+   "nombre": "Ñafes",
+   "edad": 25,
+   "causa": "combate",
+   "oficio": "pescador"
+  },
+  {
+   "aldea": "Viji",
+   "anio": 120,
+   "nombre": "Fejes",
+   "edad": 17,
+   "causa": "combate",
+   "oficio": "cantero"
+  },
+  {
+   "aldea": "Viji",
+   "anio": 122,
+   "nombre": "Vilili",
+   "edad": 18,
+   "causa": "combate",
+   "oficio": "asaltar"
+  },
+  {
+   "aldea": "Fiñe",
+   "anio": 125,
+   "nombre": "Eje",
+   "edad": 36,
+   "causa": "combate",
+   "oficio": "pastora"
+  },
+  {
+   "aldea": "Fiñe",
+   "anio": 126,
+   "nombre": "Resaña",
+   "edad": 44,
+   "causa": "combate",
+   "oficio": "defender"
+  },
+  {
+   "aldea": "Fiñe",
+   "anio": 127,
+   "nombre": "Vevis",
+   "edad": 20,
+   "causa": "combate",
+   "oficio": "cantera"
+  },
+  {
+   "aldea": "Fiñe",
+   "anio": 128,
+   "nombre": "Lava",
+   "edad": 18,
+   "causa": "combate",
+   "oficio": "cazador"
+  },
+  {
+   "aldea": "Fiñe",
+   "anio": 131,
+   "nombre": "Iñara",
+   "edad": 50,
+   "causa": "combate",
+   "oficio": "asaltar"
+  }
+ ]
+}

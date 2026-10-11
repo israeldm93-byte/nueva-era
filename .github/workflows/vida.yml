@@ -56,6 +56,8 @@ jobs:
           if [ "$codigo" -eq 0 ]; then
             git fetch --depth=1 origin estado
             git show FETCH_HEAD:mundo.json > estado/mundo.json
+            # Copias del estado tal como estaba antes de cualquier reparación al cargar.
+            for f in $(git ls-tree --name-only FETCH_HEAD | grep '^antes-de-reparar-' || true); do git show "FETCH_HEAD:$f" > "estado/$f"; done
             echo "Mundo recuperado ($(du -h estado/mundo.json | cut -f1))."
             echo "opciones=" >> "$GITHUB_OUTPUT"
           elif [ "$codigo" -eq 2 ]; then
@@ -77,6 +79,7 @@ jobs:
           dir=$(mktemp -d)
           cp estado/mundo.json "$dir/"
           if [ -f estado/anterior.json ]; then cp estado/anterior.json "$dir/"; fi
+          for f in estado/antes-de-reparar-*.json; do if [ -f "$f" ]; then cp "$f" "$dir/"; fi; done
           cd "$dir"
           git init -q -b estado
           git config user.name "nueva-era"

@@ -14,6 +14,7 @@ export const MAX_LAZOS = 10;
 export const MAX_VIDA = 16;
 
 const r2 = (x: number) => Math.round(x * 100) / 100;
+const r4 = (x: number) => Math.round(x * 10000) / 10000;
 
 /** Cuánto pesa hoy un recuerdo: los importantes duran; los demás se desvanecen en unos años. */
 export function vivo(m: Mundo, r: Recuerdo): number {
@@ -59,11 +60,12 @@ export function ajustarLazo(p: Persona, otro: number, delta: number): void {
   if (l) {
     // Cuanto más fuerte es ya un lazo, menos lo mueve un trato más (cariño y rencor se saturan).
     const v = l[1];
-    l[1] = r2(Math.max(-1, Math.min(1, v + (delta > 0 ? delta * (1 - Math.max(0, v)) : delta * (1 + Math.min(0, v))))));
+    // (Con diezmilésimas: con centésimas, un trato pequeño a un lazo ya fuerte se perdía al redondear.)
+    l[1] = r4(Math.max(-1, Math.min(1, v + (delta > 0 ? delta * (1 - Math.max(0, v)) : delta * (1 + Math.min(0, v))))));
     return;
   }
   if (Math.abs(delta) < 0.03) return;
-  lista.push([otro, r2(Math.max(-1, Math.min(1, delta)))]);
+  lista.push([otro, r4(Math.max(-1, Math.min(1, delta)))]);
   if (lista.length > MAX_LAZOS) {
     let peor = 0;
     for (let i = 1; i < lista.length; i++) if (Math.abs(lista[i][1]) < Math.abs(lista[peor][1])) peor = i;
@@ -81,7 +83,7 @@ export function tratar(p: Persona, q: Persona, aP: number, aQ = aP): void {
 export function enfriar(p: Persona, vive: (id: number) => boolean): void {
   if (!p.lazos?.length) return;
   // Cada diez días un poco: un lazo sin trato se apaga en unos años.
-  p.lazos = p.lazos.filter(([id]) => vive(id)).map(([id, v]) => [id, Math.round(v * 0.985 * 1000) / 1000] as [number, number]).filter(([, v]) => Math.abs(v) >= 0.03);
+  p.lazos = p.lazos.filter(([id]) => vive(id)).map(([id, v]) => [id, r4(v * 0.985)] as [number, number]).filter(([, v]) => Math.abs(v) >= 0.03);
 }
 
 /** Un hito de su vida (aprender, casarse, irse, fundar...). Se guardan los primeros y los últimos. */

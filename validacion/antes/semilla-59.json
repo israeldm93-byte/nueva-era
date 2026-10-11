@@ -1,0 +1,9301 @@
+{
+ "origen": "59",
+ "semilla": 59,
+ "anios": 150,
+ "desdeAnio": 1,
+ "hastaAnio": 151,
+ "final": {
+  "saludMedia": 0,
+  "saludMin": 1,
+  "reservasMedia": 0,
+  "reservasMin": 8,
+  "muertes": {
+   "enfermedad": 34,
+   "vejez": 30,
+   "parto": 2
+  },
+  "nacimientos": 58,
+  "actividadAdultos": {},
+  "descansoAdultos": {
+   "viejo": 0,
+   "enfermo": 0,
+   "granero_lleno": 0,
+   "otro": 0
+  },
+  "comidaPorPersonaAnio": {
+   "entra": 0,
+   "sale": 0
+  },
+  "flujos": {
+   "bayas": {
+    "stock": 0,
+    "entra": 0,
+    "sale": 0
+   },
+   "semillas": {
+    "stock": 0,
+    "entra": 0,
+    "sale": 0
+   },
+   "madera": {
+    "stock": 1.72,
+    "entra": 0,
+    "sale": 0
+   },
+   "piedra": {
+    "stock": 498.57,
+    "entra": 0,
+    "sale": 0
+   },
+   "fibra": {
+    "stock": 0.49,
+    "entra": 0,
+    "sale": 0
+   },
+   "hierbas": {
+    "stock": 142.29,
+    "entra": 0,
+    "sale": 0
+   },
+   "carne": {
+    "stock": 0,
+    "entra": 0,
+    "sale": 0
+   },
+   "piel": {
+    "stock": 82.66,
+    "entra": 0,
+    "sale": 0
+   },
+   "hueso": {
+    "stock": 156.63,
+    "entra": 0,
+    "sale": 0
+   },
+   "arcilla": {
+    "stock": 0.68,
+    "entra": 0,
+    "sale": 0
+   },
+   "cria": {
+    "stock": 0.02,
+    "entra": 0,
+    "sale": 0
+   },
+   "cereal": {
+    "stock": 0,
+    "entra": 0,
+    "sale": 0
+   },
+   "huevos": {
+    "stock": 0,
+    "entra": 0,
+    "sale": 0
+   },
+   "malaquita": {
+    "stock": 0.61,
+    "entra": 0,
+    "sale": 0
+   },
+   "hematites": {
+    "stock": 0.47,
+    "entra": 0,
+    "sale": 0
+   },
+   "casiterita": {
+    "stock": 0.25,
+    "entra": 0,
+    "sale": 0
+   },
+   "lana": {
+    "stock": 8.39,
+    "entra": 0,
+    "sale": 0
+   },
+   "pescado": {
+    "stock": 0,
+    "entra": 0,
+    "sale": 0
+   },
+   "leche": {
+    "stock": 0,
+    "entra": 0,
+    "sale": 0
+   }
+  },
+  "saberesAldea": {
+   "min": 53,
+   "max": 53,
+   "todas": 0
+  },
+  "edades": [
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3,
+   3
+  ],
+  "opiniones": {
+   "entropiaMedia": 0,
+   "unanimes": 10,
+   "aldeas": 10,
+   "acuerdoAzar": 1
+  },
+  "invariantesRotas": 66,
+  "invariantesEj": [
+   "Vivok: despensa.bayas = NaN",
+   "Vivok: despensa.semillas = NaN",
+   "Vivok: despensa.carne = NaN",
+   "Vivok: despensa.cereal = NaN",
+   "Vivok: despensa.huevos = NaN"
+  ],
+  "anomalias": 0,
+  "escriturasRotas": 445797,
+  "anio": 151,
+  "poblacion": 326,
+  "aldeas": 10,
+  "saberesMundo": 53,
+  "oficios": {
+   "sin oficio": 218
+  },
+  "entropiaOficios": 0,
+  "metas": {
+   "ninguna": 47,
+   "prestigio": 6,
+   "oficio": 158,
+   "familia": 7
+  },
+  "entropiaMetas": 1.12,
+  "migrantesDecada": 0,
+  "asaltosDecada": 0,
+  "conRival": 2,
+  "detalle": [
+   {
+    "nombre": "Vivok",
+    "pob": 45,
+    "edad": 3,
+    "rango": "ciudad",
+    "saberes": 53,
+    "valor": null,
+    "consejo": "expandir",
+    "guerra": null,
+    "oficios": {},
+    "metas": {
+     "prestigio": 1,
+     "oficio": 26,
+     "familia": 1,
+     "aprender": 3
+    },
+    "edificios": 56,
+    "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+    "porCabeza": {
+     "cereal": null,
+     "piedra": 1113.98,
+     "piel": 191.69,
+     "hueso": 295.33,
+     "hierbas": 529,
+     "madera": 0.94
+    }
+   },
+   {
+    "nombre": "Gochoña",
+    "pob": 42,
+    "edad": 3,
+    "rango": "pueblo",
+    "saberes": 53,
+    "valor": "expandir",
+    "consejo": "expandir",
+    "guerra": null,
+    "oficios": {},
+    "metas": {
+     "oficio": 24,
+     "aprender": 1
+    },
+    "edificios": 21,
+    "casas": "casatejas,casatejas,casatejas,casatejas",
+    "porCabeza": {
+     "cereal": null,
+     "piedra": 230.15,
+     "piel": 88.13,
+     "hueso": 180.05,
+     "hierbas": 127.76,
+     "madera": 1.22
+    }
+   },
+   {
+    "nombre": "Chogeja",
+    "pob": 48,
+    "edad": 3,
+    "rango": "pueblo",
+    "saberes": 53,
+    "valor": "expandir",
+    "consejo": "expandir",
+    "guerra": null,
+    "oficios": {},
+    "metas": {
+     "oficio": 29,
+     "aprender": 2
+    },
+    "edificios": 55,
+    "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+    "porCabeza": {
+     "cereal": null,
+     "piedra": 294.3,
+     "piel": 52.26,
+     "hueso": 84.35,
+     "hierbas": 73.13,
+     "madera": 0.92
+    }
+   },
+   {
+    "nombre": "Fogi",
+    "pob": 67,
+    "edad": 3,
+    "rango": "pueblo",
+    "saberes": 53,
+    "valor": "comida",
+    "consejo": "expandir",
+    "guerra": null,
+    "oficios": {},
+    "metas": {
+     "oficio": 39,
+     "familia": 1
+    },
+    "edificios": 39,
+    "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+    "porCabeza": {
+     "cereal": null,
+     "piedra": 443.97,
+     "piel": 53.95,
+     "hueso": 110.3,
+     "hierbas": 85.39,
+     "madera": 1.02
+    }
+   },
+   {
+    "nombre": "Tiva",
+    "pob": 13,
+    "edad": 3,
+    "rango": "aldea",
+    "saberes": 53,
+    "valor": "comida",
+    "consejo": "expandir",
+    "guerra": null,
+    "oficios": {},
+    "metas": {
+     "oficio": 8,
+     "aprender": 1
+    },
+    "edificios": 11,
+    "casas": "casatejas,casatejas",
+    "porCabeza": {
+     "cereal": null,
+     "piedra": 1101.1,
+     "piel": 262.95,
+     "hueso": 521.45,
+     "hierbas": 75.95,
+     "madera": 3.59
+    }
+   },
+   {
+    "nombre": "Ñive",
+    "pob": 33,
+    "edad": 3,
+    "rango": "aldea",
+    "saberes": 53,
+    "valor": "comida",
+    "consejo": "expandir",
+    "guerra": null,
+    "oficios": {},
+    "metas": {
+     "oficio": 16,
+     "familia": 2
+    },
+    "edificios": 15,
+    "casas": "casatejas,casatejas,casatejas",
+    "porCabeza": {
+     "cereal": null,
+     "piedra": 37.39,
+     "piel": 7.62,
+     "hueso": 36.62,
+     "hierbas": 57.33,
+     "madera": 1.93
+    }
+   },
+   {
+    "nombre": "Gedik",
+    "pob": 20,
+    "edad": 3,
+    "rango": "aldea",
+    "saberes": 53,
+    "valor": "defensa",
+    "consejo": "expandir",
+    "guerra": null,
+    "oficios": {},
+    "metas": {
+     "prestigio": 3,
+     "familia": 2,
+     "aprender": 1
+    },
+    "edificios": 16,
+    "casas": "casatejas,casatejas,casatejas",
+    "porCabeza": {
+     "cereal": null,
+     "piedra": 3.32,
+     "piel": 90.31,
+     "hueso": 200.88,
+     "hierbas": 83.57,
+     "madera": 4.12
+    }
+   },
+   {
+    "nombre": "Vegi",
+    "pob": 18,
+    "edad": 3,
+    "rango": "aldea",
+    "saberes": 53,
+    "valor": "comida",
+    "consejo": "expandir",
+    "guerra": null,
+    "oficios": {},
+    "metas": {
+     "prestigio": 2,
+     "oficio": 5,
+     "aprender": 2
+    },
+    "edificios": 16,
+    "casas": "casatejas,casatejas,casatejas",
+    "porCabeza": {
+     "cereal": null,
+     "piedra": 1278.15,
+     "piel": 63.29,
+     "hueso": 153,
+     "hierbas": 85.76,
+     "madera": 2.34
+    }
+   },
+   {
+    "nombre": "Gochak",
+    "pob": 17,
+    "edad": 3,
+    "rango": "aldea",
+    "saberes": 53,
+    "valor": "comida",
+    "consejo": "expandir",
+    "guerra": null,
+    "oficios": {},
+    "metas": {
+     "oficio": 10,
+     "familia": 1
+    },
+    "edificios": 10,
+    "casas": "casatejas,casatejas",
+    "porCabeza": {
+     "cereal": null,
+     "piedra": 96.43,
+     "piel": 98.6,
+     "hueso": 208.93,
+     "hierbas": 61.04,
+     "madera": 3.77
+    }
+   },
+   {
+    "nombre": "Chochek",
+    "pob": 23,
+    "edad": 3,
+    "rango": "aldea",
+    "saberes": 53,
+    "valor": "comida",
+    "consejo": "expandir",
+    "guerra": null,
+    "oficios": {},
+    "metas": {
+     "oficio": 11,
+     "aprender": 1
+    },
+    "edificios": 3,
+    "casas": "casatejas,casatejas",
+    "porCabeza": {
+     "cereal": null,
+     "piedra": 808.95,
+     "piel": 8.97,
+     "hueso": 19.94,
+     "hierbas": 37.02,
+     "madera": 2.5
+    }
+   }
+  ]
+ },
+ "decadas": [
+  {
+   "saludMedia": 0.98,
+   "saludMin": 0.06,
+   "reservasMedia": 6.02,
+   "reservasMin": 4,
+   "muertes": {
+    "enfermedad": 4,
+    "herida": 2,
+    "vejez": 1
+   },
+   "nacimientos": 10,
+   "actividadAdultos": {
+    "recolectar": 0.68,
+    "cazar": 0.2,
+    "experimentar": 0.09,
+    "picar": 0.01,
+    "lenar": 0.01,
+    "descansar": 0.01,
+    "barro": 0,
+    "jugar": 0
+   },
+   "descansoAdultos": {
+    "viejo": 0,
+    "enfermo": 0.01,
+    "granero_lleno": 0,
+    "otro": 0
+   },
+   "comidaPorPersonaAnio": {
+    "entra": 210.99,
+    "sale": 191.13
+   },
+   "flujos": {
+    "bayas": {
+     "stock": 0,
+     "entra": 14.34,
+     "sale": 14.56
+    },
+    "semillas": {
+     "stock": 195.04,
+     "entra": 166.04,
+     "sale": 145.97
+    },
+    "madera": {
+     "stock": 0.72,
+     "entra": 0.98,
+     "sale": 0.96
+    },
+    "piedra": {
+     "stock": 0.33,
+     "entra": 0.88,
+     "sale": 0.87
+    },
+    "fibra": {
+     "stock": 1.35,
+     "entra": 0.95,
+     "sale": 0.84
+    },
+    "hierbas": {
+     "stock": 67.69,
+     "entra": 7.52,
+     "sale": 0.5
+    },
+    "carne": {
+     "stock": 0,
+     "entra": 30.6,
+     "sale": 30.6
+    },
+    "piel": {
+     "stock": 27.98,
+     "entra": 3.41,
+     "sale": 0.51
+    },
+    "hueso": {
+     "stock": 62.35,
+     "entra": 6.83,
+     "sale": 0.36
+    },
+    "arcilla": {
+     "stock": 0.44,
+     "entra": 0.54,
+     "sale": 0.49
+    },
+    "cria": {
+     "stock": 0.61,
+     "entra": 0.41,
+     "sale": 0.35
+    }
+   },
+   "saberesAldea": {
+    "min": 11,
+    "max": 11,
+    "todas": 0
+   },
+   "edades": [
+    0
+   ],
+   "opiniones": {
+    "entropiaMedia": 0,
+    "unanimes": 1,
+    "aldeas": 1,
+    "acuerdoAzar": 1
+   },
+   "invariantesRotas": 0,
+   "invariantesEj": [],
+   "anomalias": 0,
+   "escriturasRotas": 0,
+   "anio": 11,
+   "poblacion": 19,
+   "aldeas": 1,
+   "saberesMundo": 11,
+   "oficios": {
+    "recolectar": 6
+   },
+   "entropiaOficios": 0,
+   "metas": {
+    "aprender": 2,
+    "prestigio": 2,
+    "ninguna": 2
+   },
+   "entropiaMetas": 1.58,
+   "migrantesDecada": 0,
+   "asaltosDecada": 0,
+   "conRival": 0,
+   "detalle": [
+    {
+     "nombre": "Vivok",
+     "pob": 19,
+     "edad": 0,
+     "rango": "aldea",
+     "saberes": 11,
+     "valor": null,
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "recolectar": 8
+     },
+     "metas": {
+      "aprender": 2,
+      "prestigio": 2
+     },
+     "edificios": 0,
+     "casas": "",
+     "porCabeza": {
+      "cereal": 0,
+      "piedra": 0.33,
+      "piel": 27.98,
+      "hueso": 62.35,
+      "hierbas": 67.69,
+      "madera": 0.72
+     }
+    }
+   ]
+  },
+  {
+   "saludMedia": 0.98,
+   "saludMin": 0.15,
+   "reservasMedia": 6.05,
+   "reservasMin": 4,
+   "muertes": {
+    "enfermedad": 3
+   },
+   "nacimientos": 11,
+   "actividadAdultos": {
+    "recolectar": 0.33,
+    "cazar": 0.3,
+    "experimentar": 0.17,
+    "cultivar": 0.08,
+    "pastorear": 0.07,
+    "lenar": 0.03,
+    "construir": 0.02,
+    "picar": 0.01,
+    "barro": 0,
+    "jugar": 0,
+    "descansar": 0
+   },
+   "descansoAdultos": {
+    "viejo": 0,
+    "enfermo": 0,
+    "granero_lleno": 0,
+    "otro": 0
+   },
+   "comidaPorPersonaAnio": {
+    "entra": 373.89,
+    "sale": 301.12
+   },
+   "flujos": {
+    "bayas": {
+     "stock": 0,
+     "entra": 13.34,
+     "sale": 13.34
+    },
+    "semillas": {
+     "stock": 108.52,
+     "entra": 127.97,
+     "sale": 131.41
+    },
+    "madera": {
+     "stock": 2.9,
+     "entra": 5.34,
+     "sale": 5.05
+    },
+    "piedra": {
+     "stock": 0.27,
+     "entra": 0.91,
+     "sale": 0.91
+    },
+    "fibra": {
+     "stock": 0.41,
+     "entra": 0.6,
+     "sale": 0.66
+    },
+    "hierbas": {
+     "stock": 94.15,
+     "entra": 5.94,
+     "sale": 0.37
+    },
+    "carne": {
+     "stock": 119.66,
+     "entra": 133.23,
+     "sale": 118.91
+    },
+    "piel": {
+     "stock": 105.89,
+     "entra": 10.98,
+     "sale": 0.66
+    },
+    "hueso": {
+     "stock": 219.6,
+     "entra": 21.46,
+     "sale": 0.44
+    },
+    "arcilla": {
+     "stock": 0.46,
+     "entra": 0.67,
+     "sale": 0.65
+    },
+    "cria": {
+     "stock": 0.51,
+     "entra": 2.38,
+     "sale": 2.36
+    },
+    "cereal": {
+     "stock": 517.31,
+     "entra": 98.86,
+     "sale": 36.97
+    },
+    "huevos": {
+     "stock": 0,
+     "entra": 0.49,
+     "sale": 0.49
+    }
+   },
+   "saberesAldea": {
+    "min": 30,
+    "max": 30,
+    "todas": 0
+   },
+   "edades": [
+    1
+   ],
+   "opiniones": {
+    "entropiaMedia": 0,
+    "unanimes": 1,
+    "aldeas": 1,
+    "acuerdoAzar": 1
+   },
+   "invariantesRotas": 0,
+   "invariantesEj": [],
+   "anomalias": 0,
+   "escriturasRotas": 0,
+   "anio": 21,
+   "poblacion": 27,
+   "aldeas": 1,
+   "saberesMundo": 30,
+   "oficios": {
+    "cazar": 7,
+    "experimentar": 2,
+    "sin oficio": 2,
+    "pastorear": 1
+   },
+   "entropiaOficios": 1.61,
+   "metas": {
+    "aprender": 10,
+    "ninguna": 1,
+    "prestigio": 1
+   },
+   "entropiaMetas": 0.82,
+   "migrantesDecada": 0,
+   "asaltosDecada": 0,
+   "conRival": 0,
+   "detalle": [
+    {
+     "nombre": "Vivok",
+     "pob": 27,
+     "edad": 1,
+     "rango": "aldea",
+     "saberes": 30,
+     "valor": null,
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "cazar": 9,
+      "experimentar": 2,
+      "pastorear": 1
+     },
+     "metas": {
+      "aprender": 12,
+      "prestigio": 1
+     },
+     "edificios": 33,
+     "casas": "choza,choza,choza,choza,choza,choza",
+     "porCabeza": {
+      "cereal": 517.31,
+      "piedra": 0.27,
+      "piel": 105.89,
+      "hueso": 219.6,
+      "hierbas": 94.15,
+      "madera": 2.9
+     }
+    }
+   ]
+  },
+  {
+   "saludMedia": 0.99,
+   "saludMin": 0.39,
+   "reservasMedia": 6.07,
+   "reservasMin": 4,
+   "muertes": {
+    "enfermedad": 5
+   },
+   "nacimientos": 12,
+   "actividadAdultos": {
+    "experimentar": 0.27,
+    "pastorear": 0.24,
+    "cazar": 0.24,
+    "cultivar": 0.11,
+    "recolectar": 0.07,
+    "picar": 0.06,
+    "construir": 0.01,
+    "barro": 0,
+    "jugar": 0,
+    "lenar": 0,
+    "descansar": 0
+   },
+   "descansoAdultos": {
+    "viejo": 0,
+    "enfermo": 0,
+    "granero_lleno": 0,
+    "otro": 0
+   },
+   "comidaPorPersonaAnio": {
+    "entra": 560.67,
+    "sale": 409.22
+   },
+   "flujos": {
+    "bayas": {
+     "stock": 0,
+     "entra": 5.24,
+     "sale": 5.24
+    },
+    "semillas": {
+     "stock": 152.56,
+     "entra": 39.13,
+     "sale": 31.32
+    },
+    "madera": {
+     "stock": 1.3,
+     "entra": 2.17,
+     "sale": 2.29
+    },
+    "piedra": {
+     "stock": 136.55,
+     "entra": 17.57,
+     "sale": 1.52
+    },
+    "fibra": {
+     "stock": 0.42,
+     "entra": 0.73,
+     "sale": 0.72
+    },
+    "hierbas": {
+     "stock": 89.95,
+     "entra": 2.36,
+     "sale": 0.57
+    },
+    "carne": {
+     "stock": 23.68,
+     "entra": 156.99,
+     "sale": 165.39
+    },
+    "piel": {
+     "stock": 174.61,
+     "entra": 11.35,
+     "sale": 0.69
+    },
+    "hueso": {
+     "stock": 346.69,
+     "entra": 20.95,
+     "sale": 0.66
+    },
+    "arcilla": {
+     "stock": 0.38,
+     "entra": 1.86,
+     "sale": 1.86
+    },
+    "cria": {
+     "stock": 0,
+     "entra": 2.18,
+     "sale": 2.23
+    },
+    "cereal": {
+     "stock": 1702.16,
+     "entra": 350.49,
+     "sale": 198.46
+    },
+    "huevos": {
+     "stock": 0,
+     "entra": 8.82,
+     "sale": 8.82
+    },
+    "malaquita": {
+     "stock": 0.51,
+     "entra": 0.09,
+     "sale": 0.03
+    },
+    "hematites": {
+     "stock": 1.04,
+     "entra": 0.15,
+     "sale": 0.03
+    },
+    "casiterita": {
+     "stock": 0.85,
+     "entra": 0.14,
+     "sale": 0.04
+    },
+    "lana": {
+     "stock": 0.1,
+     "entra": 0.06,
+     "sale": 0.05
+    }
+   },
+   "saberesAldea": {
+    "min": 42,
+    "max": 42,
+    "todas": 0
+   },
+   "edades": [
+    1
+   ],
+   "opiniones": {
+    "entropiaMedia": 0,
+    "unanimes": 1,
+    "aldeas": 1,
+    "acuerdoAzar": 1
+   },
+   "invariantesRotas": 1,
+   "invariantesEj": [
+    "recursos.caza[7407] = -0.17"
+   ],
+   "anomalias": 0,
+   "escriturasRotas": 0,
+   "anio": 31,
+   "poblacion": 34,
+   "aldeas": 1,
+   "saberesMundo": 42,
+   "oficios": {
+    "sin oficio": 11,
+    "experimentar": 2,
+    "cazar": 2,
+    "pastorear": 4
+   },
+   "entropiaOficios": 1.61,
+   "metas": {
+    "ninguna": 13,
+    "prestigio": 5,
+    "familia": 1
+   },
+   "entropiaMetas": 1.11,
+   "migrantesDecada": 0,
+   "asaltosDecada": 0,
+   "conRival": 1,
+   "detalle": [
+    {
+     "nombre": "Vivok",
+     "pob": 34,
+     "edad": 1,
+     "rango": "aldea",
+     "saberes": 42,
+     "valor": null,
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "experimentar": 2,
+      "cazar": 2,
+      "pastorear": 4
+     },
+     "metas": {
+      "prestigio": 5,
+      "familia": 1,
+      "aprender": 1
+     },
+     "edificios": 37,
+     "casas": "casa,casa,casa,casa,casa,casa",
+     "porCabeza": {
+      "cereal": 1702.16,
+      "piedra": 136.55,
+      "piel": 174.61,
+      "hueso": 346.69,
+      "hierbas": 89.95,
+      "madera": 1.3
+     }
+    }
+   ]
+  },
+  {
+   "saludMedia": 1,
+   "saludMin": 0.57,
+   "reservasMedia": 6.08,
+   "reservasMin": 4,
+   "muertes": {
+    "vejez": 1,
+    "enfermedad": 3
+   },
+   "nacimientos": 22,
+   "actividadAdultos": {
+    "experimentar": 0.31,
+    "pastorear": 0.21,
+    "picar": 0.13,
+    "cazar": 0.11,
+    "recolectar": 0.11,
+    "cultivar": 0.07,
+    "pescar": 0.04,
+    "construir": 0.01,
+    "vigilar": 0.01,
+    "barro": 0,
+    "lenar": 0,
+    "descansar": 0,
+    "jugar": 0
+   },
+   "descansoAdultos": {
+    "viejo": 0,
+    "enfermo": 0,
+    "granero_lleno": 0,
+    "otro": 0
+   },
+   "comidaPorPersonaAnio": {
+    "entra": 363.77,
+    "sale": 314.5
+   },
+   "flujos": {
+    "bayas": {
+     "stock": 0,
+     "entra": 7.01,
+     "sale": 7.01
+    },
+    "semillas": {
+     "stock": 157.06,
+     "entra": 49.87,
+     "sale": 42.75
+    },
+    "madera": {
+     "stock": 0.89,
+     "entra": 1.69,
+     "sale": 1.68
+    },
+    "piedra": {
+     "stock": 520.11,
+     "entra": 56.62,
+     "sale": 3.06
+    },
+    "fibra": {
+     "stock": 0.18,
+     "entra": 0.47,
+     "sale": 0.48
+    },
+    "hierbas": {
+     "stock": 81.85,
+     "entra": 3.29,
+     "sale": 0.43
+    },
+    "carne": {
+     "stock": 39.45,
+     "entra": 71.43,
+     "sale": 68.45
+    },
+    "piel": {
+     "stock": 144.7,
+     "entra": 4.45,
+     "sale": 0.66
+    },
+    "hueso": {
+     "stock": 283.98,
+     "entra": 7.62,
+     "sale": 0.49
+    },
+    "arcilla": {
+     "stock": 0.27,
+     "entra": 0.73,
+     "sale": 0.73
+    },
+    "cria": {
+     "stock": 0.02,
+     "entra": 0.67,
+     "sale": 0.67
+    },
+    "cereal": {
+     "stock": 1427.97,
+     "entra": 216.7,
+     "sale": 177.53
+    },
+    "huevos": {
+     "stock": 0,
+     "entra": 10.01,
+     "sale": 10.01
+    },
+    "malaquita": {
+     "stock": 0.32,
+     "entra": 0.22,
+     "sale": 0.22
+    },
+    "hematites": {
+     "stock": 0.32,
+     "entra": 0.24,
+     "sale": 0.28
+    },
+    "casiterita": {
+     "stock": 0.36,
+     "entra": 0.15,
+     "sale": 0.17
+    },
+    "lana": {
+     "stock": 0,
+     "entra": 0.43,
+     "sale": 0.44
+    },
+    "pescado": {
+     "stock": 0,
+     "entra": 8.75,
+     "sale": 8.75
+    }
+   },
+   "saberesAldea": {
+    "min": 51,
+    "max": 51,
+    "todas": 0
+   },
+   "edades": [
+    3
+   ],
+   "opiniones": {
+    "entropiaMedia": 0,
+    "unanimes": 1,
+    "aldeas": 1,
+    "acuerdoAzar": 1
+   },
+   "invariantesRotas": 1,
+   "invariantesEj": [
+    "recursos.caza[7092] = -0.86"
+   ],
+   "anomalias": 0,
+   "escriturasRotas": 0,
+   "anio": 41,
+   "poblacion": 52,
+   "aldeas": 1,
+   "saberesMundo": 51,
+   "oficios": {
+    "sin oficio": 12,
+    "experimentar": 9,
+    "pastorear": 1
+   },
+   "entropiaOficios": 1.21,
+   "metas": {
+    "ninguna": 13,
+    "prestigio": 9
+   },
+   "entropiaMetas": 0.98,
+   "migrantesDecada": 0,
+   "asaltosDecada": 0,
+   "conRival": 0,
+   "detalle": [
+    {
+     "nombre": "Vivok",
+     "pob": 52,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 51,
+     "valor": null,
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "experimentar": 9,
+      "pastorear": 1
+     },
+     "metas": {
+      "prestigio": 9,
+      "familia": 2,
+      "aprender": 4
+     },
+     "edificios": 42,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 1427.97,
+      "piedra": 520.11,
+      "piel": 144.7,
+      "hueso": 283.98,
+      "hierbas": 81.85,
+      "madera": 0.89
+     }
+    }
+   ]
+  },
+  {
+   "saludMedia": 1,
+   "saludMin": 0.64,
+   "reservasMedia": 6.09,
+   "reservasMin": 4,
+   "muertes": {
+    "enfermedad": 7,
+    "vejez": 4
+   },
+   "nacimientos": 22,
+   "actividadAdultos": {
+    "experimentar": 0.32,
+    "pastorear": 0.16,
+    "recolectar": 0.14,
+    "picar": 0.12,
+    "pescar": 0.1,
+    "vigilar": 0.08,
+    "cultivar": 0.05,
+    "cazar": 0.02,
+    "descansar": 0.01,
+    "barro": 0,
+    "lenar": 0,
+    "jugar": 0,
+    "construir": 0
+   },
+   "descansoAdultos": {
+    "viejo": 0.01,
+    "enfermo": 0,
+    "granero_lleno": 0,
+    "otro": 0
+   },
+   "comidaPorPersonaAnio": {
+    "entra": 324.31,
+    "sale": 303.55
+   },
+   "flujos": {
+    "bayas": {
+     "stock": 0,
+     "entra": 8.34,
+     "sale": 8.34
+    },
+    "semillas": {
+     "stock": 100.93,
+     "entra": 58.32,
+     "sale": 61.55
+    },
+    "madera": {
+     "stock": 1.88,
+     "entra": 1.14,
+     "sale": 1.01
+    },
+    "piedra": {
+     "stock": 805.01,
+     "entra": 42.85,
+     "sale": 0.56
+    },
+    "fibra": {
+     "stock": 0.5,
+     "entra": 0.51,
+     "sale": 0.47
+    },
+    "hierbas": {
+     "stock": 95.6,
+     "entra": 3.64,
+     "sale": 0.49
+    },
+    "carne": {
+     "stock": 0,
+     "entra": 23.73,
+     "sale": 27.4
+    },
+    "piel": {
+     "stock": 120.69,
+     "entra": 0.86,
+     "sale": 0.72
+    },
+    "hueso": {
+     "stock": 235.01,
+     "entra": 0.57,
+     "sale": 0.5
+    },
+    "arcilla": {
+     "stock": 0.38,
+     "entra": 0.52,
+     "sale": 0.51
+    },
+    "cria": {
+     "stock": 0.01,
+     "entra": 0.02,
+     "sale": 0.02
+    },
+    "cereal": {
+     "stock": 1424.28,
+     "entra": 207.53,
+     "sale": 179.88
+    },
+    "huevos": {
+     "stock": 0,
+     "entra": 7.91,
+     "sale": 7.91
+    },
+    "malaquita": {
+     "stock": 0.25,
+     "entra": 0.15,
+     "sale": 0.15
+    },
+    "hematites": {
+     "stock": 0.2,
+     "entra": 0.15,
+     "sale": 0.16
+    },
+    "casiterita": {
+     "stock": 0.2,
+     "entra": 0.15,
+     "sale": 0.16
+    },
+    "lana": {
+     "stock": 0,
+     "entra": 0.29,
+     "sale": 0.29
+    },
+    "pescado": {
+     "stock": 0,
+     "entra": 18.46,
+     "sale": 18.46
+    }
+   },
+   "saberesAldea": {
+    "min": 53,
+    "max": 53,
+    "todas": 0
+   },
+   "edades": [
+    3
+   ],
+   "opiniones": {
+    "entropiaMedia": 0,
+    "unanimes": 1,
+    "aldeas": 1,
+    "acuerdoAzar": 1
+   },
+   "invariantesRotas": 1,
+   "invariantesEj": [
+    "recursos.caza[7092] = -Infinity"
+   ],
+   "anomalias": 0,
+   "escriturasRotas": 0,
+   "anio": 51,
+   "poblacion": 63,
+   "aldeas": 1,
+   "saberesMundo": 53,
+   "oficios": {
+    "experimentar": 6,
+    "pastorear": 5,
+    "sin oficio": 13,
+    "vigilar": 3,
+    "recolectar": 2
+   },
+   "entropiaOficios": 2.03,
+   "metas": {
+    "ninguna": 17,
+    "prestigio": 7,
+    "familia": 5
+   },
+   "entropiaMetas": 1.38,
+   "migrantesDecada": 0,
+   "asaltosDecada": 0,
+   "conRival": 0,
+   "detalle": [
+    {
+     "nombre": "Vivok",
+     "pob": 63,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": null,
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "experimentar": 6,
+      "pastorear": 6,
+      "vigilar": 3,
+      "recolectar": 2
+     },
+     "metas": {
+      "prestigio": 7,
+      "familia": 5,
+      "aprender": 4
+     },
+     "edificios": 46,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 1424.28,
+      "piedra": 805.01,
+      "piel": 120.69,
+      "hueso": 235.01,
+      "hierbas": 95.6,
+      "madera": 1.88
+     }
+    }
+   ]
+  },
+  {
+   "saludMedia": 1,
+   "saludMin": 0.8,
+   "reservasMedia": 6.1,
+   "reservasMin": 4,
+   "muertes": {
+    "enfermedad": 7,
+    "vejez": 3
+   },
+   "nacimientos": 22,
+   "actividadAdultos": {
+    "experimentar": 0.3,
+    "pastorear": 0.24,
+    "recolectar": 0.17,
+    "vigilar": 0.12,
+    "pescar": 0.08,
+    "cultivar": 0.04,
+    "picar": 0.03,
+    "cazar": 0.02,
+    "descansar": 0,
+    "barro": 0,
+    "jugar": 0,
+    "lenar": 0,
+    "construir": 0
+   },
+   "descansoAdultos": {
+    "viejo": 0,
+    "enfermo": 0,
+    "granero_lleno": 0,
+    "otro": 0
+   },
+   "comidaPorPersonaAnio": {
+    "entra": 315.25,
+    "sale": 292.12
+   },
+   "flujos": {
+    "bayas": {
+     "stock": 0,
+     "entra": 10.4,
+     "sale": 10.4
+    },
+    "semillas": {
+     "stock": 212.06,
+     "entra": 72.92,
+     "sale": 58.18
+    },
+    "madera": {
+     "stock": 2.03,
+     "entra": 0.98,
+     "sale": 0.93
+    },
+    "piedra": {
+     "stock": 679.92,
+     "entra": 1.01,
+     "sale": 0.58
+    },
+    "fibra": {
+     "stock": 0.87,
+     "entra": 0.61,
+     "sale": 0.55
+    },
+    "hierbas": {
+     "stock": 112.42,
+     "entra": 4.26,
+     "sale": 0.54
+    },
+    "carne": {
+     "stock": 0,
+     "entra": 36.72,
+     "sale": 36.72
+    },
+    "piel": {
+     "stock": 103.55,
+     "entra": 1.03,
+     "sale": 0.78
+    },
+    "hueso": {
+     "stock": 195.27,
+     "entra": 0.33,
+     "sale": 0.58
+    },
+    "arcilla": {
+     "stock": 2.9,
+     "entra": 0.86,
+     "sale": 0.56
+    },
+    "cria": {
+     "stock": 0.01,
+     "entra": 0,
+     "sale": 0
+    },
+    "cereal": {
+     "stock": 1268.8,
+     "entra": 171.48,
+     "sale": 163.1
+    },
+    "huevos": {
+     "stock": 0,
+     "entra": 9.54,
+     "sale": 9.54
+    },
+    "malaquita": {
+     "stock": 0.2,
+     "entra": 0.19,
+     "sale": 0.19
+    },
+    "hematites": {
+     "stock": 0.18,
+     "entra": 0.19,
+     "sale": 0.18
+    },
+    "casiterita": {
+     "stock": 0.25,
+     "entra": 0.19,
+     "sale": 0.18
+    },
+    "lana": {
+     "stock": 0,
+     "entra": 0.25,
+     "sale": 0.25
+    },
+    "pescado": {
+     "stock": 0,
+     "entra": 14.19,
+     "sale": 14.19
+    }
+   },
+   "saberesAldea": {
+    "min": 53,
+    "max": 53,
+    "todas": 0
+   },
+   "edades": [
+    3
+   ],
+   "opiniones": {
+    "entropiaMedia": 0,
+    "unanimes": 1,
+    "aldeas": 1,
+    "acuerdoAzar": 1
+   },
+   "invariantesRotas": 1,
+   "invariantesEj": [
+    "recursos.caza[7092] = -Infinity"
+   ],
+   "anomalias": 0,
+   "escriturasRotas": 0,
+   "anio": 61,
+   "poblacion": 75,
+   "aldeas": 1,
+   "saberesMundo": 53,
+   "oficios": {
+    "experimentar": 3,
+    "sin oficio": 15,
+    "recolectar": 9,
+    "vigilar": 4,
+    "pastorear": 7
+   },
+   "entropiaOficios": 2.1,
+   "metas": {
+    "ninguna": 26,
+    "prestigio": 9,
+    "familia": 3
+   },
+   "entropiaMetas": 1.16,
+   "migrantesDecada": 0,
+   "asaltosDecada": 0,
+   "conRival": 1,
+   "detalle": [
+    {
+     "nombre": "Vivok",
+     "pob": 75,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": null,
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "experimentar": 3,
+      "recolectar": 10,
+      "vigilar": 4,
+      "pastorear": 10
+     },
+     "metas": {
+      "prestigio": 9,
+      "familia": 4,
+      "aprender": 3
+     },
+     "edificios": 47,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 1268.8,
+      "piedra": 679.92,
+      "piel": 103.55,
+      "hueso": 195.27,
+      "hierbas": 112.42,
+      "madera": 2.03
+     }
+    }
+   ]
+  },
+  {
+   "saludMedia": 1,
+   "saludMin": 0.52,
+   "reservasMedia": 6.1,
+   "reservasMin": 4,
+   "muertes": {
+    "vejez": 3,
+    "enfermedad": 12
+   },
+   "nacimientos": 39,
+   "actividadAdultos": {
+    "experimentar": 0.31,
+    "pastorear": 0.24,
+    "vigilar": 0.17,
+    "recolectar": 0.14,
+    "pescar": 0.06,
+    "cultivar": 0.03,
+    "picar": 0.02,
+    "cazar": 0.02,
+    "descansar": 0.01,
+    "jugar": 0,
+    "construir": 0,
+    "lenar": 0,
+    "barro": 0
+   },
+   "descansoAdultos": {
+    "viejo": 0.01,
+    "enfermo": 0,
+    "granero_lleno": 0,
+    "otro": 0
+   },
+   "comidaPorPersonaAnio": {
+    "entra": 230.77,
+    "sale": 239.52
+   },
+   "flujos": {
+    "bayas": {
+     "stock": 0,
+     "entra": 7.4,
+     "sale": 7.4
+    },
+    "semillas": {
+     "stock": 98.13,
+     "entra": 52.9,
+     "sale": 59.86
+    },
+    "madera": {
+     "stock": 1.14,
+     "entra": 0.82,
+     "sale": 0.87
+    },
+    "piedra": {
+     "stock": 514.65,
+     "entra": 0.54,
+     "sale": 0.59
+    },
+    "fibra": {
+     "stock": 0.39,
+     "entra": 0.48,
+     "sale": 0.51
+    },
+    "hierbas": {
+     "stock": 107.77,
+     "entra": 3.01,
+     "sale": 0.5
+    },
+    "carne": {
+     "stock": 0,
+     "entra": 34.84,
+     "sale": 34.84
+    },
+    "piel": {
+     "stock": 80.44,
+     "entra": 0.98,
+     "sale": 0.76
+    },
+    "hueso": {
+     "stock": 145.4,
+     "entra": 0.24,
+     "sale": 0.53
+    },
+    "arcilla": {
+     "stock": 0.13,
+     "entra": 0.33,
+     "sale": 0.57
+    },
+    "cria": {
+     "stock": 0.01,
+     "entra": 0,
+     "sale": 0
+    },
+    "cereal": {
+     "stock": 945.11,
+     "entra": 117.57,
+     "sale": 119.37
+    },
+    "huevos": {
+     "stock": 0,
+     "entra": 7.8,
+     "sale": 7.8
+    },
+    "malaquita": {
+     "stock": 0.16,
+     "entra": 0.18,
+     "sale": 0.18
+    },
+    "hematites": {
+     "stock": 0.15,
+     "entra": 0.17,
+     "sale": 0.17
+    },
+    "casiterita": {
+     "stock": 0.04,
+     "entra": 0.13,
+     "sale": 0.15
+    },
+    "lana": {
+     "stock": 0,
+     "entra": 0.18,
+     "sale": 0.18
+    },
+    "pescado": {
+     "stock": 0,
+     "entra": 10.25,
+     "sale": 10.25
+    }
+   },
+   "saberesAldea": {
+    "min": 53,
+    "max": 53,
+    "todas": 0
+   },
+   "edades": [
+    3
+   ],
+   "opiniones": {
+    "entropiaMedia": 0,
+    "unanimes": 1,
+    "aldeas": 1,
+    "acuerdoAzar": 1
+   },
+   "invariantesRotas": 1,
+   "invariantesEj": [
+    "recursos.caza[7092] = -Infinity"
+   ],
+   "anomalias": 0,
+   "escriturasRotas": 0,
+   "anio": 71,
+   "poblacion": 99,
+   "aldeas": 1,
+   "saberesMundo": 53,
+   "oficios": {
+    "experimentar": 2,
+    "sin oficio": 22,
+    "pastorear": 9,
+    "recolectar": 4,
+    "vigilar": 8
+   },
+   "entropiaOficios": 1.92,
+   "metas": {
+    "ninguna": 23,
+    "prestigio": 14,
+    "familia": 8
+   },
+   "entropiaMetas": 1.46,
+   "migrantesDecada": 0,
+   "asaltosDecada": 0,
+   "conRival": 0,
+   "detalle": [
+    {
+     "nombre": "Vivok",
+     "pob": 99,
+     "edad": 3,
+     "rango": "ciudad",
+     "saberes": 53,
+     "valor": null,
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "experimentar": 2,
+      "pastorear": 11,
+      "recolectar": 5,
+      "vigilar": 8
+     },
+     "metas": {
+      "prestigio": 14,
+      "familia": 8,
+      "aprender": 2
+     },
+     "edificios": 52,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 945.11,
+      "piedra": 514.65,
+      "piel": 80.44,
+      "hueso": 145.4,
+      "hierbas": 107.77,
+      "madera": 1.14
+     }
+    }
+   ]
+  },
+  {
+   "saludMedia": 1,
+   "saludMin": 0.75,
+   "reservasMedia": 6.1,
+   "reservasMin": 4,
+   "muertes": {
+    "enfermedad": 12,
+    "vejez": 3
+   },
+   "nacimientos": 37,
+   "actividadAdultos": {
+    "experimentar": 0.3,
+    "pastorear": 0.28,
+    "vigilar": 0.18,
+    "recolectar": 0.12,
+    "pescar": 0.05,
+    "cultivar": 0.02,
+    "cazar": 0.02,
+    "picar": 0.02,
+    "barro": 0,
+    "descansar": 0,
+    "lenar": 0,
+    "jugar": 0,
+    "construir": 0
+   },
+   "descansoAdultos": {
+    "viejo": 0,
+    "enfermo": 0,
+    "granero_lleno": 0,
+    "otro": 0
+   },
+   "comidaPorPersonaAnio": {
+    "entra": 228.68,
+    "sale": 218.2
+   },
+   "flujos": {
+    "bayas": {
+     "stock": 0,
+     "entra": 8.01,
+     "sale": 8.01
+    },
+    "semillas": {
+     "stock": 122.4,
+     "entra": 54.41,
+     "sale": 49.72
+    },
+    "madera": {
+     "stock": 5.46,
+     "entra": 1.28,
+     "sale": 0.77
+    },
+    "piedra": {
+     "stock": 420.71,
+     "entra": 0.51,
+     "sale": 0.55
+    },
+    "fibra": {
+     "stock": 0.18,
+     "entra": 0.51,
+     "sale": 0.53
+    },
+    "hierbas": {
+     "stock": 114.38,
+     "entra": 3.42,
+     "sale": 0.51
+    },
+    "carne": {
+     "stock": 0,
+     "entra": 40.27,
+     "sale": 40.27
+    },
+    "piel": {
+     "stock": 68.65,
+     "entra": 1.08,
+     "sale": 0.77
+    },
+    "hueso": {
+     "stock": 116.24,
+     "entra": 0.2,
+     "sale": 0.5
+    },
+    "arcilla": {
+     "stock": 0.58,
+     "entra": 0.61,
+     "sale": 0.56
+    },
+    "cria": {
+     "stock": 0,
+     "entra": 0,
+     "sale": 0
+    },
+    "cereal": {
+     "stock": 825.42,
+     "entra": 110.01,
+     "sale": 104.22
+    },
+    "huevos": {
+     "stock": 0,
+     "entra": 7.7,
+     "sale": 7.7
+    },
+    "malaquita": {
+     "stock": 0.14,
+     "entra": 0.16,
+     "sale": 0.16
+    },
+    "hematites": {
+     "stock": 0.21,
+     "entra": 0.18,
+     "sale": 0.17
+    },
+    "casiterita": {
+     "stock": 0.03,
+     "entra": 0,
+     "sale": 0
+    },
+    "lana": {
+     "stock": 0,
+     "entra": 0.15,
+     "sale": 0.15
+    },
+    "pescado": {
+     "stock": 0,
+     "entra": 8.28,
+     "sale": 8.28
+    }
+   },
+   "saberesAldea": {
+    "min": 53,
+    "max": 53,
+    "todas": 0
+   },
+   "edades": [
+    3
+   ],
+   "opiniones": {
+    "entropiaMedia": 0.57,
+    "unanimes": 0,
+    "aldeas": 1,
+    "acuerdoAzar": 0.78
+   },
+   "invariantesRotas": 1,
+   "invariantesEj": [
+    "recursos.caza[7092] = -Infinity"
+   ],
+   "anomalias": 0,
+   "escriturasRotas": 0,
+   "anio": 81,
+   "poblacion": 121,
+   "aldeas": 1,
+   "saberesMundo": 53,
+   "oficios": {
+    "experimentar": 2,
+    "sin oficio": 19,
+    "pastorear": 28,
+    "vigilar": 9,
+    "recolectar": 1
+   },
+   "entropiaOficios": 1.72,
+   "metas": {
+    "ninguna": 24,
+    "prestigio": 9,
+    "fundar": 21,
+    "familia": 5
+   },
+   "entropiaMetas": 1.77,
+   "migrantesDecada": 0,
+   "asaltosDecada": 0,
+   "conRival": 0,
+   "detalle": [
+    {
+     "nombre": "Vivok",
+     "pob": 121,
+     "edad": 3,
+     "rango": "ciudad",
+     "saberes": 53,
+     "valor": null,
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "experimentar": 2,
+      "pastorear": 36,
+      "vigilar": 10,
+      "recolectar": 2
+     },
+     "metas": {
+      "prestigio": 9,
+      "fundar": 21,
+      "familia": 7,
+      "aprender": 6
+     },
+     "edificios": 56,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 825.42,
+      "piedra": 420.71,
+      "piel": 68.65,
+      "hueso": 116.24,
+      "hierbas": 114.38,
+      "madera": 5.46
+     }
+    }
+   ]
+  },
+  {
+   "saludMedia": 1,
+   "saludMin": 0.3,
+   "reservasMedia": 6.1,
+   "reservasMin": 4,
+   "muertes": {
+    "enfermedad": 18,
+    "vejez": 6,
+    "parto": 2
+   },
+   "nacimientos": 56,
+   "actividadAdultos": {
+    "pastorear": 0.29,
+    "experimentar": 0.29,
+    "vigilar": 0.15,
+    "recolectar": 0.09,
+    "cazar": 0.07,
+    "pescar": 0.04,
+    "picar": 0.04,
+    "cultivar": 0.02,
+    "descansar": 0.01,
+    "jugar": 0,
+    "barro": 0,
+    "construir": 0,
+    "viajar": 0,
+    "lenar": 0
+   },
+   "descansoAdultos": {
+    "viejo": 0.01,
+    "enfermo": 0,
+    "granero_lleno": 0,
+    "otro": 0
+   },
+   "comidaPorPersonaAnio": {
+    "entra": 244.86,
+    "sale": 245.24
+   },
+   "flujos": {
+    "bayas": {
+     "stock": 0,
+     "entra": 6.48,
+     "sale": 6.48
+    },
+    "semillas": {
+     "stock": 137.31,
+     "entra": 46.1,
+     "sale": 42.84
+    },
+    "madera": {
+     "stock": 2.53,
+     "entra": 0.93,
+     "sale": 1.23
+    },
+    "piedra": {
+     "stock": 404.64,
+     "entra": 8.43,
+     "sale": 0.92
+    },
+    "fibra": {
+     "stock": 0.37,
+     "entra": 0.55,
+     "sale": 0.54
+    },
+    "hierbas": {
+     "stock": 111.67,
+     "entra": 2.75,
+     "sale": 0.61
+    },
+    "carne": {
+     "stock": 0.03,
+     "entra": 75.66,
+     "sale": 75.66
+    },
+    "piel": {
+     "stock": 84.03,
+     "entra": 3.98,
+     "sale": 1.02
+    },
+    "hueso": {
+     "stock": 139.85,
+     "entra": 5.72,
+     "sale": 0.52
+    },
+    "arcilla": {
+     "stock": 0.76,
+     "entra": 0.61,
+     "sale": 0.57
+    },
+    "cria": {
+     "stock": 0.01,
+     "entra": 0.48,
+     "sale": 0.48
+    },
+    "cereal": {
+     "stock": 638.66,
+     "entra": 101.67,
+     "sale": 105.31
+    },
+    "huevos": {
+     "stock": 0,
+     "entra": 8.49,
+     "sale": 8.49
+    },
+    "malaquita": {
+     "stock": 0.2,
+     "entra": 0.18,
+     "sale": 0.17
+    },
+    "hematites": {
+     "stock": 0.23,
+     "entra": 0.17,
+     "sale": 0.16
+    },
+    "casiterita": {
+     "stock": 0.11,
+     "entra": 0.04,
+     "sale": 0.03
+    },
+    "lana": {
+     "stock": 0,
+     "entra": 0.21,
+     "sale": 0.21
+    },
+    "pescado": {
+     "stock": 0,
+     "entra": 6.47,
+     "sale": 6.47
+    }
+   },
+   "saberesAldea": {
+    "min": 53,
+    "max": 53,
+    "todas": 0
+   },
+   "edades": [
+    3,
+    3
+   ],
+   "opiniones": {
+    "entropiaMedia": 0.94,
+    "unanimes": 0,
+    "aldeas": 2,
+    "acuerdoAzar": 0.68
+   },
+   "invariantesRotas": 1,
+   "invariantesEj": [
+    "recursos.caza[7092] = -Infinity"
+   ],
+   "anomalias": 0,
+   "escriturasRotas": 0,
+   "anio": 91,
+   "poblacion": 151,
+   "aldeas": 2,
+   "saberesMundo": 53,
+   "oficios": {
+    "sin oficio": 29,
+    "pastorear": 32,
+    "experimentar": 1,
+    "vigilar": 10,
+    "cazar": 1,
+    "recolectar": 4
+   },
+   "entropiaOficios": 1.82,
+   "metas": {
+    "ninguna": 33,
+    "prestigio": 16,
+    "fundar": 21,
+    "familia": 7
+   },
+   "entropiaMetas": 1.82,
+   "migrantesDecada": 53,
+   "asaltosDecada": 0,
+   "conRival": 0,
+   "detalle": [
+    {
+     "nombre": "Vivok",
+     "pob": 122,
+     "edad": 3,
+     "rango": "ciudad",
+     "saberes": 53,
+     "valor": null,
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "pastorear": 38,
+      "experimentar": 1,
+      "vigilar": 10,
+      "recolectar": 1
+     },
+     "metas": {
+      "prestigio": 12,
+      "fundar": 21,
+      "familia": 7,
+      "aprender": 4
+     },
+     "edificios": 56,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 650.51,
+      "piedra": 417.65,
+      "piel": 70.89,
+      "hueso": 112.31,
+      "hierbas": 133.95,
+      "madera": 2.65
+     }
+    },
+    {
+     "nombre": "Gochoña",
+     "pob": 29,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": "expandir",
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "pastorear": 1,
+      "cazar": 1,
+      "recolectar": 3
+     },
+     "metas": {
+      "prestigio": 4,
+      "familia": 1,
+      "aprender": 1
+     },
+     "edificios": 20,
+     "casas": "casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 588.79,
+      "piedra": 349.9,
+      "piel": 139.34,
+      "hueso": 255.75,
+      "hierbas": 17.92,
+      "madera": 1.98
+     }
+    }
+   ]
+  },
+  {
+   "saludMedia": 1,
+   "saludMin": 0.25,
+   "reservasMedia": 6.1,
+   "reservasMin": 4,
+   "muertes": {
+    "enfermedad": 23,
+    "vejez": 8
+   },
+   "nacimientos": 58,
+   "actividadAdultos": {
+    "experimentar": 0.29,
+    "pastorear": 0.24,
+    "recolectar": 0.12,
+    "vigilar": 0.1,
+    "cazar": 0.08,
+    "picar": 0.06,
+    "pescar": 0.05,
+    "cultivar": 0.04,
+    "descansar": 0.01,
+    "barro": 0,
+    "jugar": 0,
+    "construir": 0,
+    "lenar": 0,
+    "viajar": 0
+   },
+   "descansoAdultos": {
+    "viejo": 0.01,
+    "enfermo": 0,
+    "granero_lleno": 0,
+    "otro": 0
+   },
+   "comidaPorPersonaAnio": {
+    "entra": 471.46,
+    "sale": 392.22
+   },
+   "flujos": {
+    "bayas": {
+     "stock": 0,
+     "entra": 11.86,
+     "sale": 11.86
+    },
+    "semillas": {
+     "stock": 174.72,
+     "entra": 65.08,
+     "sale": 59.83
+    },
+    "madera": {
+     "stock": 1.97,
+     "entra": 1.66,
+     "sale": 1.76
+    },
+    "piedra": {
+     "stock": 453.25,
+     "entra": 13.69,
+     "sale": 1.52
+    },
+    "fibra": {
+     "stock": 0.5,
+     "entra": 0.57,
+     "sale": 0.57
+    },
+    "hierbas": {
+     "stock": 119.9,
+     "entra": 3.33,
+     "sale": 0.65
+    },
+    "carne": {
+     "stock": 48.67,
+     "entra": 85.48,
+     "sale": 80.39
+    },
+    "piel": {
+     "stock": 106.76,
+     "entra": 4.68,
+     "sale": 1.06
+    },
+    "hueso": {
+     "stock": 182.64,
+     "entra": 7.61,
+     "sale": 0.53
+    },
+    "arcilla": {
+     "stock": 0.33,
+     "entra": 0.69,
+     "sale": 0.72
+    },
+    "cria": {
+     "stock": 0.29,
+     "entra": 0.56,
+     "sale": 0.53
+    },
+    "cereal": {
+     "stock": 1175.06,
+     "entra": 285.06,
+     "sale": 216.16
+    },
+    "huevos": {
+     "stock": 0,
+     "entra": 10.9,
+     "sale": 10.9
+    },
+    "malaquita": {
+     "stock": 0.49,
+     "entra": 0.21,
+     "sale": 0.18
+    },
+    "hematites": {
+     "stock": 0.44,
+     "entra": 0.2,
+     "sale": 0.17
+    },
+    "casiterita": {
+     "stock": 0.34,
+     "entra": 0.09,
+     "sale": 0.06
+    },
+    "lana": {
+     "stock": 0.53,
+     "entra": 0.27,
+     "sale": 0.21
+    },
+    "pescado": {
+     "stock": 0,
+     "entra": 13.08,
+     "sale": 13.08
+    }
+   },
+   "saberesAldea": {
+    "min": 53,
+    "max": 53,
+    "todas": 0
+   },
+   "edades": [
+    3,
+    3,
+    3,
+    3,
+    3
+   ],
+   "opiniones": {
+    "entropiaMedia": 0.31,
+    "unanimes": 3,
+    "aldeas": 5,
+    "acuerdoAzar": 0.87
+   },
+   "invariantesRotas": 1,
+   "invariantesEj": [
+    "recursos.caza[4217] = -Infinity"
+   ],
+   "anomalias": 0,
+   "escriturasRotas": 0,
+   "anio": 101,
+   "poblacion": 178,
+   "aldeas": 5,
+   "saberesMundo": 53,
+   "oficios": {
+    "pastorear": 34,
+    "sin oficio": 29,
+    "recolectar": 14,
+    "cazar": 13,
+    "pescar": 1,
+    "vigilar": 5
+   },
+   "entropiaOficios": 2.14,
+   "metas": {
+    "ninguna": 61,
+    "prestigio": 15,
+    "familia": 19,
+    "emigrar": 1
+   },
+   "entropiaMetas": 1.37,
+   "migrantesDecada": 22,
+   "asaltosDecada": 0,
+   "conRival": 2,
+   "detalle": [
+    {
+     "nombre": "Vivok",
+     "pob": 72,
+     "edad": 3,
+     "rango": "ciudad",
+     "saberes": 53,
+     "valor": null,
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "pastorear": 20,
+      "recolectar": 7,
+      "vigilar": 4
+     },
+     "metas": {
+      "prestigio": 5,
+      "familia": 11,
+      "emigrar": 1,
+      "aprender": 2
+     },
+     "edificios": 56,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 1281.43,
+      "piedra": 703.27,
+      "piel": 120.7,
+      "hueso": 187.64,
+      "hierbas": 258.84,
+      "madera": 0.67
+     }
+    },
+    {
+     "nombre": "Gochoña",
+     "pob": 35,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": "expandir",
+     "consejo": "defensa",
+     "guerra": null,
+     "oficios": {
+      "recolectar": 9,
+      "vigilar": 2
+     },
+     "metas": {
+      "prestigio": 5,
+      "familia": 2,
+      "aprender": 3
+     },
+     "edificios": 21,
+     "casas": "casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 1414.43,
+      "piedra": 284.95,
+      "piel": 113.52,
+      "hueso": 213.85,
+      "hierbas": 52.32,
+      "madera": 2.03
+     }
+    },
+    {
+     "nombre": "Chogeja",
+     "pob": 25,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": "expandir",
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "pastorear": 16
+     },
+     "metas": {
+      "prestigio": 1,
+      "aprender": 1
+     },
+     "edificios": 53,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 1904.07,
+      "piedra": 447.3,
+      "piel": 84.12,
+      "hueso": 128.63,
+      "hierbas": 22.67,
+      "madera": 2.3
+     }
+    },
+    {
+     "nombre": "Fogi",
+     "pob": 32,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "cazar": 7,
+      "pescar": 1,
+      "pastorear": 1
+     },
+     "metas": {
+      "prestigio": 4,
+      "familia": 2,
+      "aprender": 1
+     },
+     "edificios": 30,
+     "casas": "casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 423.89,
+      "piedra": 210.17,
+      "piel": 93.27,
+      "hueso": 183.83,
+      "hierbas": 6.79,
+      "madera": 4.29
+     }
+    },
+    {
+     "nombre": "Tiva",
+     "pob": 14,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "cazar": 6
+     },
+     "metas": {
+      "familia": 4,
+      "aprender": 1
+     },
+     "edificios": 11,
+     "casas": "casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 444.79,
+      "piedra": 154.44,
+      "piel": 89.41,
+      "hueso": 172.66,
+      "hierbas": 6.49,
+      "madera": 2.61
+     }
+    }
+   ]
+  },
+  {
+   "saludMedia": 1,
+   "saludMin": 0.48,
+   "reservasMedia": 6.1,
+   "reservasMin": 4,
+   "muertes": {
+    "enfermedad": 22,
+    "vejez": 8,
+    "parto": 2
+   },
+   "nacimientos": 103,
+   "actividadAdultos": {
+    "experimentar": 0.33,
+    "pescar": 0.18,
+    "pastorear": 0.14,
+    "recolectar": 0.11,
+    "cazar": 0.07,
+    "picar": 0.06,
+    "vigilar": 0.06,
+    "cultivar": 0.04,
+    "descansar": 0.01,
+    "barro": 0,
+    "viajar": 0,
+    "lenar": 0,
+    "construir": 0,
+    "jugar": 0
+   },
+   "descansoAdultos": {
+    "viejo": 0.01,
+    "enfermo": 0,
+    "granero_lleno": 0,
+    "otro": 0
+   },
+   "comidaPorPersonaAnio": {
+    "entra": 557.93,
+    "sale": 534.06
+   },
+   "flujos": {
+    "bayas": {
+     "stock": 3.59,
+     "entra": 14.09,
+     "sale": 13.67
+    },
+    "semillas": {
+     "stock": 118.04,
+     "entra": 60.11,
+     "sale": 61.34
+    },
+    "madera": {
+     "stock": 2.49,
+     "entra": 1.93,
+     "sale": 1.82
+    },
+    "piedra": {
+     "stock": 467.46,
+     "entra": 18.09,
+     "sale": 1.19
+    },
+    "fibra": {
+     "stock": 0.5,
+     "entra": 0.6,
+     "sale": 0.6
+    },
+    "hierbas": {
+     "stock": 106.24,
+     "entra": 2.98,
+     "sale": 0.6
+    },
+    "carne": {
+     "stock": 8.1,
+     "entra": 58.09,
+     "sale": 61.4
+    },
+    "piel": {
+     "stock": 98.57,
+     "entra": 3.34,
+     "sale": 0.83
+    },
+    "hueso": {
+     "stock": 174.79,
+     "entra": 5.76,
+     "sale": 0.55
+    },
+    "arcilla": {
+     "stock": 0.59,
+     "entra": 0.73,
+     "sale": 0.69
+    },
+    "cria": {
+     "stock": 0.02,
+     "entra": 0.45,
+     "sale": 0.47
+    },
+    "cereal": {
+     "stock": 1064.4,
+     "entra": 351.3,
+     "sale": 325.3
+    },
+    "huevos": {
+     "stock": 2.24,
+     "entra": 13.22,
+     "sale": 12.96
+    },
+    "malaquita": {
+     "stock": 1.04,
+     "entra": 0.25,
+     "sale": 0.17
+    },
+    "hematites": {
+     "stock": 0.62,
+     "entra": 0.21,
+     "sale": 0.17
+    },
+    "casiterita": {
+     "stock": 0.36,
+     "entra": 0.11,
+     "sale": 0.1
+    },
+    "lana": {
+     "stock": 0.36,
+     "entra": 0.34,
+     "sale": 0.35
+    },
+    "pescado": {
+     "stock": 14.63,
+     "entra": 60,
+     "sale": 58.28
+    },
+    "leche": {
+     "stock": 0,
+     "entra": 1.11,
+     "sale": 1.11
+    }
+   },
+   "saberesAldea": {
+    "min": 53,
+    "max": 53,
+    "todas": 0
+   },
+   "edades": [
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
+   ],
+   "opiniones": {
+    "entropiaMedia": 0.59,
+    "unanimes": 3,
+    "aldeas": 8,
+    "acuerdoAzar": 0.7
+   },
+   "invariantesRotas": 1,
+   "invariantesEj": [
+    "recursos.caza[1047] = -Infinity"
+   ],
+   "anomalias": 0,
+   "escriturasRotas": 0,
+   "anio": 111,
+   "poblacion": 249,
+   "aldeas": 8,
+   "saberesMundo": 53,
+   "oficios": {
+    "sin oficio": 22,
+    "recolectar": 8,
+    "pastorear": 19,
+    "pescar": 56,
+    "vigilar": 11
+   },
+   "entropiaOficios": 1.98,
+   "metas": {
+    "ninguna": 71,
+    "prestigio": 30,
+    "familia": 15
+   },
+   "entropiaMetas": 1.32,
+   "migrantesDecada": 36,
+   "asaltosDecada": 0,
+   "conRival": 4,
+   "detalle": [
+    {
+     "nombre": "Vivok",
+     "pob": 63,
+     "edad": 3,
+     "rango": "ciudad",
+     "saberes": 53,
+     "valor": null,
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "recolectar": 3,
+      "vigilar": 9,
+      "pescar": 3,
+      "pastorear": 4
+     },
+     "metas": {
+      "prestigio": 11,
+      "familia": 5,
+      "aprender": 4
+     },
+     "edificios": 56,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 1113.57,
+      "piedra": 799.45,
+      "piel": 137.7,
+      "hueso": 212.51,
+      "hierbas": 325.48,
+      "madera": 1.87
+     }
+    },
+    {
+     "nombre": "Gochoña",
+     "pob": 22,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": "expandir",
+     "consejo": "obras",
+     "guerra": null,
+     "oficios": {
+      "recolectar": 5,
+      "vigilar": 2
+     },
+     "metas": {
+      "prestigio": 2,
+      "aprender": 1
+     },
+     "edificios": 21,
+     "casas": "casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 1128.99,
+      "piedra": 445.39,
+      "piel": 170.78,
+      "hueso": 341.98,
+      "hierbas": 131.75,
+      "madera": 2.4
+     }
+    },
+    {
+     "nombre": "Chogeja",
+     "pob": 27,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": "expandir",
+     "consejo": "obras",
+     "guerra": null,
+     "oficios": {
+      "pastorear": 15
+     },
+     "metas": {
+      "prestigio": 6,
+      "familia": 1
+     },
+     "edificios": 54,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 1223.31,
+      "piedra": 410.93,
+      "piel": 81.6,
+      "hueso": 119.31,
+      "hierbas": 33.51,
+      "madera": 3.73
+     }
+    },
+    {
+     "nombre": "Fogi",
+     "pob": 56,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "pescar": 24
+     },
+     "metas": {
+      "prestigio": 6,
+      "familia": 3,
+      "aprender": 1
+     },
+     "edificios": 36,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 985.31,
+      "piedra": 531.85,
+      "piel": 67.96,
+      "hueso": 133.84,
+      "hierbas": 18.41,
+      "madera": 2.04
+     }
+    },
+    {
+     "nombre": "Tiva",
+     "pob": 15,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "pescar": 8
+     },
+     "metas": {
+      "prestigio": 2,
+      "familia": 2,
+      "aprender": 1
+     },
+     "edificios": 11,
+     "casas": "casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 831.03,
+      "piedra": 925.48,
+      "piel": 196.31,
+      "hueso": 388.52,
+      "hierbas": 21.1,
+      "madera": 2.6
+     }
+    },
+    {
+     "nombre": "Ñive",
+     "pob": 25,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "pescar": 11
+     },
+     "metas": {
+      "prestigio": 2,
+      "familia": 2
+     },
+     "edificios": 15,
+     "casas": "casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 1060.53,
+      "piedra": 54.25,
+      "piel": 24.24,
+      "hueso": 49.36,
+      "hierbas": 9.4,
+      "madera": 4.15
+     }
+    },
+    {
+     "nombre": "Gedik",
+     "pob": 21,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "defensa",
+     "consejo": "saber",
+     "guerra": null,
+     "oficios": {
+      "pescar": 9
+     },
+     "metas": {
+      "prestigio": 1,
+      "familia": 3,
+      "aprender": 2
+     },
+     "edificios": 16,
+     "casas": "casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 1008.73,
+      "piedra": 1.63,
+      "piel": 80.39,
+      "hueso": 147.75,
+      "hierbas": 18.1,
+      "madera": 2.41
+     }
+    },
+    {
+     "nombre": "Vegi",
+     "pob": 20,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "comida",
+     "guerra": null,
+     "oficios": {
+      "pescar": 6
+     },
+     "metas": {
+      "familia": 1
+     },
+     "edificios": 14,
+     "casas": "casatejas,casatejas",
+     "porCabeza": {
+      "cereal": 1083.73,
+      "piedra": 4.06,
+      "piel": 43.18,
+      "hueso": 86.48,
+      "hierbas": 9.17,
+      "madera": 2.03
+     }
+    }
+   ]
+  },
+  {
+   "saludMedia": 1,
+   "saludMin": 0.42,
+   "reservasMedia": 4.85,
+   "reservasMin": 0,
+   "muertes": {
+    "enfermedad": 37,
+    "vejez": 14
+   },
+   "nacimientos": 91,
+   "actividadAdultos": {
+    "experimentar": 0.28,
+    "descansar": 0.21,
+    "pescar": 0.2,
+    "pastorear": 0.08,
+    "recolectar": 0.07,
+    "cazar": 0.04,
+    "picar": 0.04,
+    "vigilar": 0.04,
+    "cultivar": 0.03,
+    "construir": 0,
+    "barro": 0,
+    "lenar": 0,
+    "jugar": 0,
+    "viajar": 0
+   },
+   "descansoAdultos": {
+    "viejo": 0.01,
+    "enfermo": 0,
+    "granero_lleno": 0,
+    "otro": 0.2
+   },
+   "comidaPorPersonaAnio": {
+    "entra": 347.82,
+    "sale": 346.29
+   },
+   "flujos": {
+    "bayas": {
+     "stock": 0,
+     "entra": 13.69,
+     "sale": 13.6
+    },
+    "semillas": {
+     "stock": 0,
+     "entra": 35.87,
+     "sale": 35.91
+    },
+    "madera": {
+     "stock": 2.07,
+     "entra": 1.35,
+     "sale": 1.36
+    },
+    "piedra": {
+     "stock": 428.21,
+     "entra": 3.22,
+     "sale": 0.55
+    },
+    "fibra": {
+     "stock": 0.53,
+     "entra": 0.48,
+     "sale": 0.47
+    },
+    "hierbas": {
+     "stock": 117.32,
+     "entra": 3.16,
+     "sale": 0.48
+    },
+    "carne": {
+     "stock": 0,
+     "entra": 32.55,
+     "sale": 31.78
+    },
+    "piel": {
+     "stock": 96.28,
+     "entra": 1.91,
+     "sale": 0.73
+    },
+    "hueso": {
+     "stock": 176.68,
+     "entra": 3.31,
+     "sale": 0.45
+    },
+    "arcilla": {
+     "stock": 0.53,
+     "entra": 0.5,
+     "sale": 0.49
+    },
+    "cria": {
+     "stock": 0.02,
+     "entra": 0.24,
+     "sale": 0.24
+    },
+    "cereal": {
+     "stock": 0,
+     "entra": 192.59,
+     "sale": 192.17
+    },
+    "huevos": {
+     "stock": 0,
+     "entra": 9.69,
+     "sale": 9.64
+    },
+    "malaquita": {
+     "stock": 0.69,
+     "entra": 0.1,
+     "sale": 0.12
+    },
+    "hematites": {
+     "stock": 0.54,
+     "entra": 0.14,
+     "sale": 0.14
+    },
+    "casiterita": {
+     "stock": 0.28,
+     "entra": 0.08,
+     "sale": 0.08
+    },
+    "lana": {
+     "stock": 0.31,
+     "entra": 0.24,
+     "sale": 0.24
+    },
+    "pescado": {
+     "stock": 0,
+     "entra": 61.49,
+     "sale": 61.26
+    },
+    "leche": {
+     "stock": 0,
+     "entra": 1.94,
+     "sale": 1.94
+    }
+   },
+   "saberesAldea": {
+    "min": 53,
+    "max": 53,
+    "todas": 0
+   },
+   "edades": [
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
+   ],
+   "opiniones": {
+    "entropiaMedia": 0,
+    "unanimes": 10,
+    "aldeas": 10,
+    "acuerdoAzar": 1
+   },
+   "invariantesRotas": 66,
+   "invariantesEj": [
+    "Vivok: despensa.bayas = NaN",
+    "Vivok: despensa.semillas = NaN",
+    "Vivok: despensa.carne = NaN",
+    "Vivok: despensa.cereal = NaN",
+    "Vivok: despensa.huevos = NaN"
+   ],
+   "anomalias": 0,
+   "escriturasRotas": 32059,
+   "anio": 121,
+   "poblacion": 289,
+   "aldeas": 10,
+   "saberesMundo": 53,
+   "oficios": {
+    "sin oficio": 85,
+    "pescar": 40,
+    "recolectar": 3,
+    "vigilar": 3,
+    "cazar": 3,
+    "pastorear": 2
+   },
+   "entropiaOficios": 1.4,
+   "metas": {
+    "ninguna": 95,
+    "prestigio": 25,
+    "familia": 15,
+    "oficio": 1
+   },
+   "entropiaMetas": 1.21,
+   "migrantesDecada": 50,
+   "asaltosDecada": 0,
+   "conRival": 0,
+   "detalle": [
+    {
+     "nombre": "Vivok",
+     "pob": 41,
+     "edad": 3,
+     "rango": "ciudad",
+     "saberes": 53,
+     "valor": null,
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {
+      "vigilar": 3,
+      "pastorear": 1
+     },
+     "metas": {
+      "prestigio": 2,
+      "familia": 5,
+      "oficio": 2
+     },
+     "edificios": 56,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 1222.66,
+      "piel": 210.37,
+      "hueso": 324.14,
+      "hierbas": 538.35,
+      "madera": 2.3
+     }
+    },
+    {
+     "nombre": "Gochoña",
+     "pob": 29,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": "expandir",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "prestigio": 1,
+      "oficio": 1,
+      "aprender": 3
+     },
+     "edificios": 21,
+     "casas": "casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 333.32,
+      "piel": 127.49,
+      "hueso": 260.77,
+      "hierbas": 127.49,
+      "madera": 1.72
+     }
+    },
+    {
+     "nombre": "Chogeja",
+     "pob": 38,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": "expandir",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "prestigio": 2,
+      "familia": 2,
+      "oficio": 2,
+      "aprender": 2
+     },
+     "edificios": 55,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 371.75,
+      "piel": 66.01,
+      "hueso": 106.55,
+      "hierbas": 39.93,
+      "madera": 1.7
+     }
+    },
+    {
+     "nombre": "Fogi",
+     "pob": 67,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {
+      "pescar": 3,
+      "recolectar": 3
+     },
+     "metas": {
+      "prestigio": 9,
+      "familia": 1,
+      "oficio": 6,
+      "aprender": 5
+     },
+     "edificios": 39,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 443.97,
+      "piel": 53.95,
+      "hueso": 110.3,
+      "hierbas": 51.38,
+      "madera": 0.85
+     }
+    },
+    {
+     "nombre": "Tiva",
+     "pob": 19,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {
+      "pescar": 11
+     },
+     "metas": {
+      "familia": 2,
+      "prestigio": 2,
+      "oficio": 1,
+      "aprender": 1
+     },
+     "edificios": 11,
+     "casas": "casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 753.38,
+      "piel": 179.91,
+      "hueso": 356.78,
+      "hierbas": 30.92,
+      "madera": 3.11
+     }
+    },
+    {
+     "nombre": "Ñive",
+     "pob": 24,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {
+      "pescar": 11
+     },
+     "metas": {
+      "familia": 1,
+      "prestigio": 2,
+      "oficio": 1,
+      "aprender": 2
+     },
+     "edificios": 15,
+     "casas": "casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 51.41,
+      "piel": 20.82,
+      "hueso": 50.36,
+      "hierbas": 34.56,
+      "madera": 2.17
+     }
+    },
+    {
+     "nombre": "Gedik",
+     "pob": 21,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "defensa",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {
+      "pescar": 7,
+      "pastorear": 1
+     },
+     "metas": {
+      "prestigio": 5,
+      "oficio": 1,
+      "aprender": 1
+     },
+     "edificios": 16,
+     "casas": "casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 3.16,
+      "piel": 96.06,
+      "hueso": 191.31,
+      "hierbas": 29.59,
+      "madera": 4.25
+     }
+    },
+    {
+     "nombre": "Vegi",
+     "pob": 23,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {
+      "pescar": 7
+     },
+     "metas": {
+      "prestigio": 1,
+      "familia": 4,
+      "oficio": 1,
+      "aprender": 3
+     },
+     "edificios": 16,
+     "casas": "casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 93.56,
+      "piel": 55.8,
+      "hueso": 119.74,
+      "hierbas": 39.59,
+      "madera": 1.83
+     }
+    },
+    {
+     "nombre": "Gochak",
+     "pob": 17,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {
+      "cazar": 3,
+      "pescar": 1
+     },
+     "metas": {
+      "familia": 2,
+      "prestigio": 1
+     },
+     "edificios": 10,
+     "casas": "casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 96.41,
+      "piel": 107.24,
+      "hueso": 208.93,
+      "hierbas": 5.79,
+      "madera": 2.6
+     }
+    },
+    {
+     "nombre": "Chochek",
+     "pob": 10,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "oficio": 1
+     },
+     "edificios": 3,
+     "casas": "casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 67.93,
+      "piel": 33.88,
+      "hueso": 45.87,
+      "hierbas": 12.74,
+      "madera": 4.5
+     }
+    }
+   ]
+  },
+  {
+   "saludMedia": 0.97,
+   "saludMin": 0.62,
+   "reservasMedia": 0,
+   "reservasMin": 0,
+   "muertes": {
+    "vejez": 17,
+    "enfermedad": 19
+   },
+   "nacimientos": 41,
+   "actividadAdultos": {
+    "descansar": 0.91,
+    "picar": 0.09,
+    "recolectar": 0,
+    "jugar": 0,
+    "lenar": 0
+   },
+   "descansoAdultos": {
+    "viejo": 0.01,
+    "enfermo": 0,
+    "granero_lleno": 0,
+    "otro": 0.9
+   },
+   "comidaPorPersonaAnio": {
+    "entra": 3.15,
+    "sale": 3.15
+   },
+   "flujos": {
+    "bayas": {
+     "stock": 0,
+     "entra": 0,
+     "sale": 0
+    },
+    "semillas": {
+     "stock": 0,
+     "entra": 0,
+     "sale": 0
+    },
+    "madera": {
+     "stock": 1.87,
+     "entra": 0.82,
+     "sale": 0.84
+    },
+    "piedra": {
+     "stock": 463.41,
+     "entra": 4.36,
+     "sale": 0
+    },
+    "fibra": {
+     "stock": 0.53,
+     "entra": 0,
+     "sale": 0
+    },
+    "hierbas": {
+     "stock": 133.65,
+     "entra": 1.88,
+     "sale": 0
+    },
+    "carne": {
+     "stock": 0,
+     "entra": 0,
+     "sale": 0
+    },
+    "piel": {
+     "stock": 93.73,
+     "entra": 0,
+     "sale": 0.1
+    },
+    "hueso": {
+     "stock": 173.68,
+     "entra": 0,
+     "sale": 0
+    },
+    "arcilla": {
+     "stock": 0.52,
+     "entra": 0,
+     "sale": 0
+    },
+    "cria": {
+     "stock": 0.02,
+     "entra": 0,
+     "sale": 0
+    },
+    "cereal": {
+     "stock": 0,
+     "entra": 0,
+     "sale": 0
+    },
+    "huevos": {
+     "stock": 0,
+     "entra": 0,
+     "sale": 0
+    },
+    "malaquita": {
+     "stock": 0.67,
+     "entra": 0,
+     "sale": 0
+    },
+    "hematites": {
+     "stock": 0.53,
+     "entra": 0,
+     "sale": 0
+    },
+    "casiterita": {
+     "stock": 0.27,
+     "entra": 0,
+     "sale": 0
+    },
+    "lana": {
+     "stock": 2.95,
+     "entra": 0.46,
+     "sale": 0.19
+    },
+    "pescado": {
+     "stock": 0,
+     "entra": 0,
+     "sale": 0
+    },
+    "leche": {
+     "stock": 0,
+     "entra": 3.15,
+     "sale": 3.15
+    }
+   },
+   "saberesAldea": {
+    "min": 53,
+    "max": 53,
+    "todas": 0
+   },
+   "edades": [
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
+   ],
+   "opiniones": {
+    "entropiaMedia": 0,
+    "unanimes": 10,
+    "aldeas": 10,
+    "acuerdoAzar": 1
+   },
+   "invariantesRotas": 66,
+   "invariantesEj": [
+    "Vivok: despensa.bayas = NaN",
+    "Vivok: despensa.semillas = NaN",
+    "Vivok: despensa.carne = NaN",
+    "Vivok: despensa.cereal = NaN",
+    "Vivok: despensa.huevos = NaN"
+   ],
+   "anomalias": 0,
+   "escriturasRotas": 183669,
+   "anio": 131,
+   "poblacion": 294,
+   "aldeas": 10,
+   "saberesMundo": 53,
+   "oficios": {
+    "sin oficio": 201
+   },
+   "entropiaOficios": 0,
+   "metas": {
+    "ninguna": 85,
+    "prestigio": 17,
+    "familia": 3,
+    "oficio": 96
+   },
+   "entropiaMetas": 1.43,
+   "migrantesDecada": 0,
+   "asaltosDecada": 0,
+   "conRival": 0,
+   "detalle": [
+    {
+     "nombre": "Vivok",
+     "pob": 40,
+     "edad": 3,
+     "rango": "ciudad",
+     "saberes": 53,
+     "valor": null,
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "prestigio": 3,
+      "oficio": 17,
+      "aprender": 1
+     },
+     "edificios": 56,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 1253.23,
+      "piel": 215.66,
+      "hueso": 332.24,
+      "hierbas": 570.97,
+      "madera": 1.33
+     }
+    },
+    {
+     "nombre": "Gochoña",
+     "pob": 31,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": "expandir",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "oficio": 16,
+      "aprender": 3
+     },
+     "edificios": 21,
+     "casas": "casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 311.81,
+      "piel": 119.3,
+      "hueso": 243.94,
+      "hierbas": 140.91,
+      "madera": 2.29
+     }
+    },
+    {
+     "nombre": "Chogeja",
+     "pob": 41,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": "expandir",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "oficio": 18,
+      "aprender": 2
+     },
+     "edificios": 55,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 344.55,
+      "piel": 61.18,
+      "hueso": 98.75,
+      "hierbas": 55.1,
+      "madera": 1.45
+     }
+    },
+    {
+     "nombre": "Fogi",
+     "pob": 68,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "prestigio": 3,
+      "oficio": 27,
+      "aprender": 4
+     },
+     "edificios": 39,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 437.44,
+      "piel": 53.15,
+      "hueso": 108.68,
+      "hierbas": 68.95,
+      "madera": 0.81
+     }
+    },
+    {
+     "nombre": "Tiva",
+     "pob": 14,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "familia": 1,
+      "prestigio": 1,
+      "oficio": 4,
+      "aprender": 1
+     },
+     "edificios": 11,
+     "casas": "casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 1022.45,
+      "piel": 244.16,
+      "hueso": 484.21,
+      "hierbas": 57.18,
+      "madera": 3.31
+     }
+    },
+    {
+     "nombre": "Ñive",
+     "pob": 29,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "prestigio": 1,
+      "oficio": 10,
+      "aprender": 2
+     },
+     "edificios": 15,
+     "casas": "casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 42.55,
+      "piel": 14.62,
+      "hueso": 41.68,
+      "hierbas": 40.93,
+      "madera": 1.47
+     }
+    },
+    {
+     "nombre": "Gedik",
+     "pob": 25,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "defensa",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "familia": 1,
+      "prestigio": 6,
+      "aprender": 2
+     },
+     "edificios": 16,
+     "casas": "casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 2.66,
+      "piel": 78.08,
+      "hueso": 160.7,
+      "hierbas": 39.93,
+      "madera": 2.27
+     }
+    },
+    {
+     "nombre": "Vegi",
+     "pob": 16,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "prestigio": 2,
+      "oficio": 5,
+      "aprender": 1
+     },
+     "edificios": 16,
+     "casas": "casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 651.45,
+      "piel": 76.79,
+      "hueso": 172.13,
+      "hierbas": 77.04,
+      "madera": 2.9
+     }
+    },
+    {
+     "nombre": "Gochak",
+     "pob": 18,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "familia": 1,
+      "prestigio": 1,
+      "oficio": 4,
+      "aprender": 2
+     },
+     "edificios": 10,
+     "casas": "casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 91.07,
+      "piel": 98.79,
+      "hueso": 197.32,
+      "hierbas": 33.95,
+      "madera": 3.84
+     }
+    },
+    {
+     "nombre": "Chochek",
+     "pob": 12,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "oficio": 8
+     },
+     "edificios": 3,
+     "casas": "casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 408.2,
+      "piel": 25.69,
+      "hueso": 38.23,
+      "hierbas": 25.7,
+      "madera": 4.15
+     }
+    }
+   ]
+  },
+  {
+   "saludMedia": 0.95,
+   "saludMin": 0.21,
+   "reservasMedia": 0,
+   "reservasMin": 0,
+   "muertes": {
+    "vejez": 13,
+    "enfermedad": 26
+   },
+   "nacimientos": 79,
+   "actividadAdultos": {
+    "descansar": 0.91,
+    "picar": 0.09,
+    "recolectar": 0,
+    "lenar": 0,
+    "jugar": 0,
+    "barro": 0
+   },
+   "descansoAdultos": {
+    "viejo": 0.01,
+    "enfermo": 0,
+    "granero_lleno": 0,
+    "otro": 0.9
+   },
+   "comidaPorPersonaAnio": {
+    "entra": 3.23,
+    "sale": 3.23
+   },
+   "flujos": {
+    "bayas": {
+     "stock": 0,
+     "entra": 0,
+     "sale": 0
+    },
+    "semillas": {
+     "stock": 0,
+     "entra": 0,
+     "sale": 0
+    },
+    "madera": {
+     "stock": 1.81,
+     "entra": 0.79,
+     "sale": 0.77
+    },
+    "piedra": {
+     "stock": 448.35,
+     "entra": 4.33,
+     "sale": 0
+    },
+    "fibra": {
+     "stock": 0.47,
+     "entra": 0,
+     "sale": 0
+    },
+    "hierbas": {
+     "stock": 125.31,
+     "entra": 0.82,
+     "sale": 0
+    },
+    "carne": {
+     "stock": 0,
+     "entra": 0,
+     "sale": 0
+    },
+    "piel": {
+     "stock": 81.64,
+     "entra": 0,
+     "sale": 0.09
+    },
+    "hueso": {
+     "stock": 152.88,
+     "entra": 0,
+     "sale": 0
+    },
+    "arcilla": {
+     "stock": 0.61,
+     "entra": 0.02,
+     "sale": 0
+    },
+    "cria": {
+     "stock": 0.01,
+     "entra": 0,
+     "sale": 0
+    },
+    "cereal": {
+     "stock": 0,
+     "entra": 0,
+     "sale": 0
+    },
+    "huevos": {
+     "stock": 0,
+     "entra": 0,
+     "sale": 0
+    },
+    "malaquita": {
+     "stock": 0.59,
+     "entra": 0,
+     "sale": 0
+    },
+    "hematites": {
+     "stock": 0.46,
+     "entra": 0,
+     "sale": 0
+    },
+    "casiterita": {
+     "stock": 0.24,
+     "entra": 0,
+     "sale": 0
+    },
+    "lana": {
+     "stock": 5.45,
+     "entra": 0.49,
+     "sale": 0.18
+    },
+    "pescado": {
+     "stock": 0,
+     "entra": 0,
+     "sale": 0
+    },
+    "leche": {
+     "stock": 0,
+     "entra": 3.23,
+     "sale": 3.23
+    }
+   },
+   "saberesAldea": {
+    "min": 53,
+    "max": 53,
+    "todas": 0
+   },
+   "edades": [
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
+   ],
+   "opiniones": {
+    "entropiaMedia": 0,
+    "unanimes": 10,
+    "aldeas": 10,
+    "acuerdoAzar": 1
+   },
+   "invariantesRotas": 66,
+   "invariantesEj": [
+    "Vivok: despensa.bayas = NaN",
+    "Vivok: despensa.semillas = NaN",
+    "Vivok: despensa.carne = NaN",
+    "Vivok: despensa.cereal = NaN",
+    "Vivok: despensa.huevos = NaN"
+   ],
+   "anomalias": 0,
+   "escriturasRotas": 304517,
+   "anio": 141,
+   "poblacion": 334,
+   "aldeas": 10,
+   "saberesMundo": 53,
+   "oficios": {
+    "sin oficio": 233
+   },
+   "entropiaOficios": 0,
+   "metas": {
+    "ninguna": 73,
+    "prestigio": 14,
+    "oficio": 141,
+    "familia": 5
+   },
+   "entropiaMetas": 1.33,
+   "migrantesDecada": 0,
+   "asaltosDecada": 0,
+   "conRival": 2,
+   "detalle": [
+    {
+     "nombre": "Vivok",
+     "pob": 45,
+     "edad": 3,
+     "rango": "ciudad",
+     "saberes": 53,
+     "valor": null,
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "prestigio": 1,
+      "oficio": 22,
+      "aprender": 1
+     },
+     "edificios": 56,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 1113.98,
+      "piel": 191.69,
+      "hueso": 295.33,
+      "hierbas": 514.85,
+      "madera": 1.17
+     }
+    },
+    {
+     "nombre": "Gochoña",
+     "pob": 42,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": "expandir",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "oficio": 20,
+      "familia": 1,
+      "aprender": 1
+     },
+     "edificios": 21,
+     "casas": "casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 230.15,
+      "piel": 88.13,
+      "hueso": 180.05,
+      "hierbas": 109.04,
+      "madera": 1.42
+     }
+    },
+    {
+     "nombre": "Chogeja",
+     "pob": 50,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": "expandir",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "oficio": 22,
+      "aprender": 3
+     },
+     "edificios": 55,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 282.53,
+      "piel": 50.17,
+      "hueso": 80.98,
+      "hierbas": 55.87,
+      "madera": 2.05
+     }
+    },
+    {
+     "nombre": "Fogi",
+     "pob": 69,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "prestigio": 1,
+      "oficio": 37,
+      "familia": 1,
+      "aprender": 1
+     },
+     "edificios": 39,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 431.1,
+      "piel": 52.38,
+      "hueso": 107.1,
+      "hierbas": 75.15,
+      "madera": 0.96
+     }
+    },
+    {
+     "nombre": "Tiva",
+     "pob": 13,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "prestigio": 1,
+      "oficio": 6
+     },
+     "edificios": 11,
+     "casas": "casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 1101.1,
+      "piel": 262.95,
+      "hueso": 521.45,
+      "hierbas": 70.33,
+      "madera": 3.02
+     }
+    },
+    {
+     "nombre": "Ñive",
+     "pob": 30,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "oficio": 12,
+      "familia": 1,
+      "aprender": 3
+     },
+     "edificios": 15,
+     "casas": "casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 41.13,
+      "piel": 11.43,
+      "hueso": 40.29,
+      "hierbas": 49.76,
+      "madera": 1.35
+     }
+    },
+    {
+     "nombre": "Gedik",
+     "pob": 27,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "defensa",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "prestigio": 8,
+      "familia": 2
+     },
+     "edificios": 16,
+     "casas": "casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 2.46,
+      "piel": 69.59,
+      "hueso": 148.8,
+      "hierbas": 50.9,
+      "madera": 3.26
+     }
+    },
+    {
+     "nombre": "Vegi",
+     "pob": 17,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "prestigio": 2,
+      "oficio": 5
+     },
+     "edificios": 16,
+     "casas": "casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 1036.39,
+      "piel": 69.78,
+      "hueso": 162,
+      "hierbas": 74.98,
+      "madera": 2.35
+     }
+    },
+    {
+     "nombre": "Gochak",
+     "pob": 20,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "prestigio": 1,
+      "oficio": 8
+     },
+     "edificios": 10,
+     "casas": "casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 81.97,
+      "piel": 86.36,
+      "hueso": 177.59,
+      "hierbas": 35.4,
+      "madera": 3.07
+     }
+    },
+    {
+     "nombre": "Chochek",
+     "pob": 21,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "oficio": 11
+     },
+     "edificios": 3,
+     "casas": "casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 533.69,
+      "piel": 12.62,
+      "hueso": 21.84,
+      "hierbas": 17.21,
+      "madera": 2.62
+     }
+    }
+   ]
+  },
+  {
+   "saludMedia": 0.92,
+   "saludMin": 0.33,
+   "reservasMedia": 0,
+   "reservasMin": 0,
+   "muertes": {
+    "enfermedad": 34,
+    "vejez": 30,
+    "parto": 2
+   },
+   "nacimientos": 58,
+   "actividadAdultos": {
+    "descansar": 0.91,
+    "picar": 0.09,
+    "recolectar": 0,
+    "lenar": 0,
+    "jugar": 0,
+    "barro": 0
+   },
+   "descansoAdultos": {
+    "viejo": 0.03,
+    "enfermo": 0,
+    "granero_lleno": 0,
+    "otro": 0.88
+   },
+   "comidaPorPersonaAnio": {
+    "entra": 3.04,
+    "sale": 3.04
+   },
+   "flujos": {
+    "bayas": {
+     "stock": 0,
+     "entra": 0,
+     "sale": 0
+    },
+    "semillas": {
+     "stock": 0,
+     "entra": 0,
+     "sale": 0
+    },
+    "madera": {
+     "stock": 1.72,
+     "entra": 0.71,
+     "sale": 0.73
+    },
+    "piedra": {
+     "stock": 498.57,
+     "entra": 3.86,
+     "sale": 0
+    },
+    "fibra": {
+     "stock": 0.49,
+     "entra": 0,
+     "sale": 0
+    },
+    "hierbas": {
+     "stock": 142.29,
+     "entra": 1.37,
+     "sale": 0
+    },
+    "carne": {
+     "stock": 0,
+     "entra": 0,
+     "sale": 0
+    },
+    "piel": {
+     "stock": 82.66,
+     "entra": 0,
+     "sale": 0.1
+    },
+    "hueso": {
+     "stock": 156.63,
+     "entra": 0,
+     "sale": 0
+    },
+    "arcilla": {
+     "stock": 0.68,
+     "entra": 0.01,
+     "sale": 0
+    },
+    "cria": {
+     "stock": 0.02,
+     "entra": 0,
+     "sale": 0
+    },
+    "cereal": {
+     "stock": 0,
+     "entra": 0,
+     "sale": 0
+    },
+    "huevos": {
+     "stock": 0,
+     "entra": 0,
+     "sale": 0
+    },
+    "malaquita": {
+     "stock": 0.61,
+     "entra": 0,
+     "sale": 0
+    },
+    "hematites": {
+     "stock": 0.47,
+     "entra": 0,
+     "sale": 0
+    },
+    "casiterita": {
+     "stock": 0.25,
+     "entra": 0,
+     "sale": 0
+    },
+    "lana": {
+     "stock": 8.39,
+     "entra": 0.46,
+     "sale": 0.18
+    },
+    "pescado": {
+     "stock": 0,
+     "entra": 0,
+     "sale": 0
+    },
+    "leche": {
+     "stock": 0,
+     "entra": 3.04,
+     "sale": 3.04
+    }
+   },
+   "saberesAldea": {
+    "min": 53,
+    "max": 53,
+    "todas": 0
+   },
+   "edades": [
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3,
+    3
+   ],
+   "opiniones": {
+    "entropiaMedia": 0,
+    "unanimes": 10,
+    "aldeas": 10,
+    "acuerdoAzar": 1
+   },
+   "invariantesRotas": 66,
+   "invariantesEj": [
+    "Vivok: despensa.bayas = NaN",
+    "Vivok: despensa.semillas = NaN",
+    "Vivok: despensa.carne = NaN",
+    "Vivok: despensa.cereal = NaN",
+    "Vivok: despensa.huevos = NaN"
+   ],
+   "anomalias": 0,
+   "escriturasRotas": 445797,
+   "anio": 151,
+   "poblacion": 326,
+   "aldeas": 10,
+   "saberesMundo": 53,
+   "oficios": {
+    "sin oficio": 218
+   },
+   "entropiaOficios": 0,
+   "metas": {
+    "ninguna": 47,
+    "prestigio": 6,
+    "oficio": 158,
+    "familia": 7
+   },
+   "entropiaMetas": 1.12,
+   "migrantesDecada": 0,
+   "asaltosDecada": 0,
+   "conRival": 2,
+   "detalle": [
+    {
+     "nombre": "Vivok",
+     "pob": 45,
+     "edad": 3,
+     "rango": "ciudad",
+     "saberes": 53,
+     "valor": null,
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "prestigio": 1,
+      "oficio": 26,
+      "familia": 1,
+      "aprender": 3
+     },
+     "edificios": 56,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 1113.98,
+      "piel": 191.69,
+      "hueso": 295.33,
+      "hierbas": 529,
+      "madera": 0.94
+     }
+    },
+    {
+     "nombre": "Gochoña",
+     "pob": 42,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": "expandir",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "oficio": 24,
+      "aprender": 1
+     },
+     "edificios": 21,
+     "casas": "casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 230.15,
+      "piel": 88.13,
+      "hueso": 180.05,
+      "hierbas": 127.76,
+      "madera": 1.22
+     }
+    },
+    {
+     "nombre": "Chogeja",
+     "pob": 48,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": "expandir",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "oficio": 29,
+      "aprender": 2
+     },
+     "edificios": 55,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 294.3,
+      "piel": 52.26,
+      "hueso": 84.35,
+      "hierbas": 73.13,
+      "madera": 0.92
+     }
+    },
+    {
+     "nombre": "Fogi",
+     "pob": 67,
+     "edad": 3,
+     "rango": "pueblo",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "oficio": 39,
+      "familia": 1
+     },
+     "edificios": 39,
+     "casas": "casatejas,casatejas,casatejas,casatejas,casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 443.97,
+      "piel": 53.95,
+      "hueso": 110.3,
+      "hierbas": 85.39,
+      "madera": 1.02
+     }
+    },
+    {
+     "nombre": "Tiva",
+     "pob": 13,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "oficio": 8,
+      "aprender": 1
+     },
+     "edificios": 11,
+     "casas": "casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 1101.1,
+      "piel": 262.95,
+      "hueso": 521.45,
+      "hierbas": 75.95,
+      "madera": 3.59
+     }
+    },
+    {
+     "nombre": "Ñive",
+     "pob": 33,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "oficio": 16,
+      "familia": 2
+     },
+     "edificios": 15,
+     "casas": "casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 37.39,
+      "piel": 7.62,
+      "hueso": 36.62,
+      "hierbas": 57.33,
+      "madera": 1.93
+     }
+    },
+    {
+     "nombre": "Gedik",
+     "pob": 20,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "defensa",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "prestigio": 3,
+      "familia": 2,
+      "aprender": 1
+     },
+     "edificios": 16,
+     "casas": "casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 3.32,
+      "piel": 90.31,
+      "hueso": 200.88,
+      "hierbas": 83.57,
+      "madera": 4.12
+     }
+    },
+    {
+     "nombre": "Vegi",
+     "pob": 18,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "prestigio": 2,
+      "oficio": 5,
+      "aprender": 2
+     },
+     "edificios": 16,
+     "casas": "casatejas,casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 1278.15,
+      "piel": 63.29,
+      "hueso": 153,
+      "hierbas": 85.76,
+      "madera": 2.34
+     }
+    },
+    {
+     "nombre": "Gochak",
+     "pob": 17,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "oficio": 10,
+      "familia": 1
+     },
+     "edificios": 10,
+     "casas": "casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 96.43,
+      "piel": 98.6,
+      "hueso": 208.93,
+      "hierbas": 61.04,
+      "madera": 3.77
+     }
+    },
+    {
+     "nombre": "Chochek",
+     "pob": 23,
+     "edad": 3,
+     "rango": "aldea",
+     "saberes": 53,
+     "valor": "comida",
+     "consejo": "expandir",
+     "guerra": null,
+     "oficios": {},
+     "metas": {
+      "oficio": 11,
+      "aprender": 1
+     },
+     "edificios": 3,
+     "casas": "casatejas,casatejas",
+     "porCabeza": {
+      "cereal": null,
+      "piedra": 808.95,
+      "piel": 8.97,
+      "hueso": 19.94,
+      "hierbas": 37.02,
+      "madera": 2.5
+     }
+    }
+   ]
+  }
+ ],
+ "actividades": {
+  "descansar": 0.31,
+  "jugar": 0.28,
+  "recolectar": 0.11,
+  "experimentar": 0.1,
+  "pastorear": 0.06,
+  "picar": 0.05,
+  "vigilar": 0.03,
+  "pescar": 0.03,
+  "cazar": 0.02,
+  "cultivar": 0.01,
+  "barro": 0,
+  "lenar": 0,
+  "construir": 0,
+  "viajar": 0
+ },
+ "migraciones": [
+  {
+   "anio": 82,
+   "persona": "Kofe",
+   "id": 84,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 52,
+   "pobAAntes": 74,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Vivok: en su casa ya no caben, y allí vive su padre Redi."
+  },
+  {
+   "anio": 82,
+   "persona": "Rako",
+   "id": 97,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 52,
+   "pobAAntes": 74,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Vivok: en su casa ya no caben, y allí vive su padre Jiga."
+  },
+  {
+   "anio": 82,
+   "persona": "Efeke",
+   "id": 101,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 52,
+   "pobAAntes": 74,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Vivok: en su casa ya no caben, y allí vive su hermana Akefe."
+  },
+  {
+   "anio": 82,
+   "persona": "Vitate",
+   "id": 114,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 52,
+   "pobAAntes": 74,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Vivok: en su casa ya no caben, y allí vive su madre Joñek."
+  },
+  {
+   "anio": 82,
+   "persona": "Chijo",
+   "id": 126,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 52,
+   "pobAAntes": 74,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Vivok: en su casa ya no caben, y allí vive su madre Akefe."
+  },
+  {
+   "anio": 82,
+   "persona": "Chako",
+   "id": 134,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 52,
+   "pobAAntes": 74,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Vivok: en su casa ya no caben, y allí vive su amigo Vaketo."
+  },
+  {
+   "anio": 82,
+   "persona": "Joti",
+   "id": 154,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 52,
+   "pobAAntes": 74,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere aprender el comercio; Kofe lo sabe."
+  },
+  {
+   "anio": 82,
+   "persona": "Agocho",
+   "id": 166,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 52,
+   "pobAAntes": 74,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 82,
+   "persona": "Gire",
+   "id": 175,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 52,
+   "pobAAntes": 74,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 82,
+   "persona": "Fari",
+   "id": 182,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 52,
+   "pobAAntes": 74,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 82,
+   "persona": "Jivoki",
+   "id": 199,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 52,
+   "pobAAntes": 74,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 82,
+   "persona": "Tida",
+   "id": 201,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 52,
+   "pobAAntes": 74,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 82,
+   "persona": "Fafe",
+   "id": 95,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 40,
+   "pobAAntes": 86,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Vivok: en su casa ya no caben, y allí vive su madre Eña."
+  },
+  {
+   "anio": 82,
+   "persona": "Ñedok",
+   "id": 103,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 40,
+   "pobAAntes": 86,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Vivok: en su casa ya no caben, y allí vive su hermana Akefe."
+  },
+  {
+   "anio": 82,
+   "persona": "Rife",
+   "id": 135,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 40,
+   "pobAAntes": 86,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Vivok: en su casa ya no caben, y allí no falta la comida."
+  },
+  {
+   "anio": 82,
+   "persona": "Rojo",
+   "id": 137,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 40,
+   "pobAAntes": 86,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Vivok: en su casa ya no caben, y allí vive su madre Añi."
+  },
+  {
+   "anio": 82,
+   "persona": "Gaga",
+   "id": 158,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 40,
+   "pobAAntes": 86,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere aprender las tejas; Kofe lo sabe."
+  },
+  {
+   "anio": 82,
+   "persona": "Jochechek",
+   "id": 171,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 40,
+   "pobAAntes": 86,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 82,
+   "persona": "Kojek",
+   "id": 187,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 40,
+   "pobAAntes": 86,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 82,
+   "persona": "Fega",
+   "id": 191,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 40,
+   "pobAAntes": 86,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 82,
+   "persona": "Akofi",
+   "id": 210,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 40,
+   "pobAAntes": 86,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 82,
+   "persona": "Fidi",
+   "id": 116,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 31,
+   "pobAAntes": 95,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Vivok: en su casa ya no caben, y allí vive su hermano Detofe."
+  },
+  {
+   "anio": 82,
+   "persona": "Rago",
+   "id": 132,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 31,
+   "pobAAntes": 95,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Vivok: en su casa ya no caben, y allí vive su madre Eña."
+  },
+  {
+   "anio": 82,
+   "persona": "Jeje",
+   "id": 87,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 29,
+   "pobAAntes": 97,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Vivok: en su casa ya no caben, y allí vive su hermano Vaketo."
+  },
+  {
+   "anio": 82,
+   "persona": "Jigik",
+   "id": 107,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 29,
+   "pobAAntes": 97,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Vivok: en su casa ya no caben, y allí vive su hermano Tajaki."
+  },
+  {
+   "anio": 82,
+   "persona": "Feño",
+   "id": 108,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 29,
+   "pobAAntes": 97,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Vivok: en su casa ya no caben, y allí vive su hermana Refik."
+  },
+  {
+   "anio": 82,
+   "persona": "Gekote",
+   "id": 118,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 29,
+   "pobAAntes": 97,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Vivok: en su casa ya no caben, y allí vive su madre Akefe."
+  },
+  {
+   "anio": 82,
+   "persona": "Ekada",
+   "id": 127,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 29,
+   "pobAAntes": 97,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Vivok: en su casa ya no caben, y allí vive su madre Jafi."
+  },
+  {
+   "anio": 82,
+   "persona": "Jatacho",
+   "id": 141,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 29,
+   "pobAAntes": 97,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 82,
+   "persona": "Vikechik",
+   "id": 160,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 29,
+   "pobAAntes": 97,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere aprender el horno; Kofe lo sabe."
+  },
+  {
+   "anio": 82,
+   "persona": "Voveto",
+   "id": 168,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 29,
+   "pobAAntes": 97,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 82,
+   "persona": "Ñare",
+   "id": 186,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 29,
+   "pobAAntes": 97,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 82,
+   "persona": "Digori",
+   "id": 205,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 29,
+   "pobAAntes": 97,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 82,
+   "persona": "Jato",
+   "id": 206,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 29,
+   "pobAAntes": 97,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 82,
+   "persona": "Roja",
+   "id": 88,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 108,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Vivok: en su casa ya no caben, y allí vive su padre Redi."
+  },
+  {
+   "anio": 82,
+   "persona": "Defofo",
+   "id": 89,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 108,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Vivok: en su casa ya no caben, y allí vive su hermana Refik."
+  },
+  {
+   "anio": 82,
+   "persona": "Ekajek",
+   "id": 128,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 108,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Vivok: en su casa ya no caben, y allí vive su madre Fitadok."
+  },
+  {
+   "anio": 82,
+   "persona": "Rijek",
+   "id": 145,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 108,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 82,
+   "persona": "Chekije",
+   "id": 163,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 108,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 82,
+   "persona": "Vode",
+   "id": 173,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 108,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 82,
+   "persona": "Gakire",
+   "id": 184,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 108,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 82,
+   "persona": "Jichok",
+   "id": 208,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 108,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 82,
+   "persona": "Taride",
+   "id": 136,
+   "de": "Vivok",
+   "a": "Gochoña",
+   "deId": 1,
+   "aId": 207,
+   "pobDeAntes": 119,
+   "pobAAntes": 12,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Gochoña: aquí no se siente a salvo, y allí vive su hermano Viñe."
+  },
+  {
+   "anio": 82,
+   "persona": "Ditok",
+   "id": 148,
+   "de": "Vivok",
+   "a": "Gochoña",
+   "deId": 1,
+   "aId": 207,
+   "pobDeAntes": 119,
+   "pobAAntes": 12,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 82,
+   "persona": "Ekajek",
+   "id": 128,
+   "de": "Vivok",
+   "a": "Gochoña",
+   "deId": 1,
+   "aId": 207,
+   "pobDeAntes": 117,
+   "pobAAntes": 15,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Gochoña: aquí no se siente a salvo, y allí vive su hermana Kote."
+  },
+  {
+   "anio": 82,
+   "persona": "Rijek",
+   "id": 145,
+   "de": "Vivok",
+   "a": "Gochoña",
+   "deId": 1,
+   "aId": 207,
+   "pobDeAntes": 117,
+   "pobAAntes": 15,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 83,
+   "persona": "Kova",
+   "id": 129,
+   "de": "Vivok",
+   "a": "Gochoña",
+   "deId": 1,
+   "aId": 207,
+   "pobDeAntes": 115,
+   "pobAAntes": 16,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Gochoña: aquí no se siente a salvo, y allí vive su hermano Ditok."
+  },
+  {
+   "anio": 83,
+   "persona": "Jefi",
+   "id": 130,
+   "de": "Vivok",
+   "a": "Gochoña",
+   "deId": 1,
+   "aId": 207,
+   "pobDeAntes": 115,
+   "pobAAntes": 16,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere hacerse un nombre y que le escuchen en el consejo."
+  },
+  {
+   "anio": 85,
+   "persona": "Fitadok",
+   "id": 56,
+   "de": "Vivok",
+   "a": "Gochoña",
+   "deId": 1,
+   "aId": 207,
+   "pobDeAntes": 114,
+   "pobAAntes": 22,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere hacerse un nombre y que le escuchen en el consejo."
+  },
+  {
+   "anio": 85,
+   "persona": "Jifi",
+   "id": 72,
+   "de": "Vivok",
+   "a": "Gochoña",
+   "deId": 1,
+   "aId": 207,
+   "pobDeAntes": 114,
+   "pobAAntes": 22,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Gochoña: aquí no se siente a salvo, y allí vive su hija Kote."
+  },
+  {
+   "anio": 85,
+   "persona": "Ekak",
+   "id": 142,
+   "de": "Vivok",
+   "a": "Gochoña",
+   "deId": 1,
+   "aId": 207,
+   "pobDeAntes": 114,
+   "pobAAntes": 22,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Gochoña: aquí no se siente a salvo, y allí vive su madre Ive."
+  },
+  {
+   "anio": 85,
+   "persona": "Kega",
+   "id": 147,
+   "de": "Vivok",
+   "a": "Gochoña",
+   "deId": 1,
+   "aId": 207,
+   "pobDeAntes": 114,
+   "pobAAntes": 22,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 85,
+   "persona": "Kito",
+   "id": 226,
+   "de": "Vivok",
+   "a": "Gochoña",
+   "deId": 1,
+   "aId": 207,
+   "pobDeAntes": 114,
+   "pobAAntes": 22,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 91,
+   "persona": "Vivi",
+   "id": 162,
+   "de": "Vivok",
+   "a": "Gochoña",
+   "deId": 1,
+   "aId": 207,
+   "pobDeAntes": 121,
+   "pobAAntes": 31,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Sueña con fundar su propio pueblo, con tierra para todos y donde mande ella."
+  },
+  {
+   "anio": 91,
+   "persona": "Vode",
+   "id": 173,
+   "de": "Vivok",
+   "a": "Gochoña",
+   "deId": 1,
+   "aId": 207,
+   "pobDeAntes": 121,
+   "pobAAntes": 31,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Gochoña: aquí nadie le tiene en cuenta, y allí vive su hermano Rijek."
+  },
+  {
+   "anio": 92,
+   "persona": "Vivi",
+   "id": 162,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 33,
+   "pobAAntes": 72,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Vivok: aquí no se siente a salvo, y allí vive su padre Kaje."
+  },
+  {
+   "anio": 92,
+   "persona": "Vode",
+   "id": 173,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 33,
+   "pobAAntes": 72,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Vivok: aquí nadie le tiene en cuenta, y allí vive su hermano Rafo."
+  },
+  {
+   "anio": 92,
+   "persona": "Fitadok",
+   "id": 56,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 31,
+   "pobAAntes": 74,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Vivok: aquí no se siente a salvo, y allí vive su hermana Koñe."
+  },
+  {
+   "anio": 92,
+   "persona": "Jifi",
+   "id": 72,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 31,
+   "pobAAntes": 74,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 96,
+   "persona": "Gojejo",
+   "id": 86,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 72,
+   "pobAAntes": 30,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: aquí se siente sola, y allí vive su hija Teñe."
+  },
+  {
+   "anio": 96,
+   "persona": "Akefe",
+   "id": 58,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 71,
+   "pobAAntes": 31,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: aquí no se siente a salvo, y allí vive su hija Dedo."
+  },
+  {
+   "anio": 97,
+   "persona": "Jifi",
+   "id": 72,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 70,
+   "pobAAntes": 32,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: aquí se siente solo, y allí vive su hermana Akefe."
+  },
+  {
+   "anio": 97,
+   "persona": "Vero",
+   "id": 188,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 71,
+   "pobAAntes": 33,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: aquí no se siente a salvo, y allí vive su hermano Chedo."
+  },
+  {
+   "anio": 97,
+   "persona": "Jato",
+   "id": 206,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 71,
+   "pobAAntes": 33,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 98,
+   "persona": "Tichok",
+   "id": 179,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 71,
+   "pobAAntes": 35,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: aquí no se siente a salvo, y allí vive su hermano Chedo."
+  },
+  {
+   "anio": 98,
+   "persona": "Ritache",
+   "id": 181,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 71,
+   "pobAAntes": 35,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 98,
+   "persona": "Kide",
+   "id": 300,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 71,
+   "pobAAntes": 35,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 98,
+   "persona": "Jigik",
+   "id": 107,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 68,
+   "pobAAntes": 38,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere hacerse un nombre y que le escuchen en el consejo."
+  },
+  {
+   "anio": 98,
+   "persona": "Gekote",
+   "id": 118,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 68,
+   "pobAAntes": 38,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: aquí no se siente a salvo, y allí vive su hermana Dedo."
+  },
+  {
+   "anio": 98,
+   "persona": "Datek",
+   "id": 238,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 68,
+   "pobAAntes": 38,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 99,
+   "persona": "Jigik",
+   "id": 107,
+   "de": "Tiva",
+   "a": "Fogi",
+   "deId": 318,
+   "aId": 294,
+   "pobDeAntes": 18,
+   "pobAAntes": 28,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Fogi: en su casa ya no caben, y allí vive su hermano Tajaki."
+  },
+  {
+   "anio": 99,
+   "persona": "Gekote",
+   "id": 118,
+   "de": "Tiva",
+   "a": "Fogi",
+   "deId": 318,
+   "aId": 294,
+   "pobDeAntes": 18,
+   "pobAAntes": 28,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Fogi: en su casa ya no caben, y allí vive su hermana Chijo."
+  },
+  {
+   "anio": 99,
+   "persona": "Koñafa",
+   "id": 174,
+   "de": "Tiva",
+   "a": "Fogi",
+   "deId": 318,
+   "aId": 294,
+   "pobDeAntes": 18,
+   "pobAAntes": 28,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Fogi: en su casa ya no caben, y allí vive su hermano Vitate."
+  },
+  {
+   "anio": 99,
+   "persona": "Kojek",
+   "id": 187,
+   "de": "Tiva",
+   "a": "Fogi",
+   "deId": 318,
+   "aId": 294,
+   "pobDeAntes": 18,
+   "pobAAntes": 28,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Fogi: en su casa ya no caben, y allí vive su padre Ñedok."
+  },
+  {
+   "anio": 99,
+   "persona": "Datek",
+   "id": 238,
+   "de": "Tiva",
+   "a": "Fogi",
+   "deId": 318,
+   "aId": 294,
+   "pobDeAntes": 18,
+   "pobAAntes": 28,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere aprender la cantería; Gojejo lo sabe."
+  },
+  {
+   "anio": 101,
+   "persona": "Ivegik",
+   "id": 180,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 72,
+   "pobAAntes": 14,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 101,
+   "persona": "Ñadaji",
+   "id": 217,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 72,
+   "pobAAntes": 14,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: aquí no se siente a salvo, y allí vive su hermana Agocho."
+  },
+  {
+   "anio": 101,
+   "persona": "Rañe",
+   "id": 149,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 71,
+   "pobAAntes": 16,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 101,
+   "persona": "Fegajo",
+   "id": 192,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 71,
+   "pobAAntes": 16,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: aquí no se siente a salvo, y allí vive su hermana Ivegik."
+  },
+  {
+   "anio": 101,
+   "persona": "Geke",
+   "id": 338,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 71,
+   "pobAAntes": 16,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 101,
+   "persona": "Kaje",
+   "id": 82,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 68,
+   "pobAAntes": 19,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: aquí no se siente a salvo, y allí vive su hija Ivegik."
+  },
+  {
+   "anio": 101,
+   "persona": "Vivi",
+   "id": 162,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 68,
+   "pobAAntes": 20,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: aquí no se siente a salvo, y allí vive su padre Kaje."
+  },
+  {
+   "anio": 101,
+   "persona": "Vode",
+   "id": 173,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 68,
+   "pobAAntes": 20,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere hacerse un nombre y que le escuchen en el consejo."
+  },
+  {
+   "anio": 102,
+   "persona": "Fari",
+   "id": 182,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 64,
+   "pobAAntes": 23,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: aquí no se siente a salvo, y allí vive su hermana Agocho."
+  },
+  {
+   "anio": 102,
+   "persona": "Feja",
+   "id": 235,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 64,
+   "pobAAntes": 23,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 102,
+   "persona": "Chite",
+   "id": 122,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 62,
+   "pobAAntes": 26,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: aquí no se siente a salvo, y allí vive su padre Tifok."
+  },
+  {
+   "anio": 102,
+   "persona": "Rivek",
+   "id": 263,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 62,
+   "pobAAntes": 26,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 102,
+   "persona": "Ege",
+   "id": 165,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 60,
+   "pobAAntes": 28,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: aquí no se siente a salvo, y allí vive su hermana Fechija."
+  },
+  {
+   "anio": 102,
+   "persona": "Giñi",
+   "id": 196,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 60,
+   "pobAAntes": 28,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 102,
+   "persona": "Gavik",
+   "id": 306,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 60,
+   "pobAAntes": 28,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 102,
+   "persona": "Ride",
+   "id": 333,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 60,
+   "pobAAntes": 28,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 102,
+   "persona": "Rañejak",
+   "id": 185,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 56,
+   "pobAAntes": 33,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 102,
+   "persona": "Keja",
+   "id": 225,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 56,
+   "pobAAntes": 33,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: aquí no se siente a salvo, y allí vive su padre Kaje."
+  },
+  {
+   "anio": 102,
+   "persona": "Kode",
+   "id": 346,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 56,
+   "pobAAntes": 33,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 106,
+   "persona": "Veka",
+   "id": 200,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 58,
+   "pobAAntes": 20,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: aquí no se siente a salvo, y allí vive su madre Chite."
+  },
+  {
+   "anio": 106,
+   "persona": "Cheñe",
+   "id": 255,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 58,
+   "pobAAntes": 20,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 106,
+   "persona": "Vero",
+   "id": 188,
+   "de": "Tiva",
+   "a": "Fogi",
+   "deId": 318,
+   "aId": 294,
+   "pobDeAntes": 17,
+   "pobAAntes": 42,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 106,
+   "persona": "Jato",
+   "id": 206,
+   "de": "Tiva",
+   "a": "Fogi",
+   "deId": 318,
+   "aId": 294,
+   "pobDeAntes": 17,
+   "pobAAntes": 42,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Fogi: aquí no se siente a salvo, y allí vive su madre Jigik."
+  },
+  {
+   "anio": 106,
+   "persona": "Tiko",
+   "id": 358,
+   "de": "Tiva",
+   "a": "Fogi",
+   "deId": 318,
+   "aId": 294,
+   "pobDeAntes": 17,
+   "pobAAntes": 42,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 106,
+   "persona": "Jichak",
+   "id": 386,
+   "de": "Tiva",
+   "a": "Fogi",
+   "deId": 318,
+   "aId": 294,
+   "pobDeAntes": 17,
+   "pobAAntes": 42,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 107,
+   "persona": "Jefi",
+   "id": 130,
+   "de": "Gochoña",
+   "a": "Ñive",
+   "deId": 207,
+   "aId": 343,
+   "pobDeAntes": 24,
+   "pobAAntes": 13,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere hacerse un nombre y que le escuchen en el consejo."
+  },
+  {
+   "anio": 107,
+   "persona": "Jochechek",
+   "id": 171,
+   "de": "Gochoña",
+   "a": "Ñive",
+   "deId": 207,
+   "aId": 343,
+   "pobDeAntes": 24,
+   "pobAAntes": 13,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Ñive: aquí no se siente a salvo, y allí vive su hermana Gaga."
+  },
+  {
+   "anio": 107,
+   "persona": "Gikefa",
+   "id": 283,
+   "de": "Gochoña",
+   "a": "Ñive",
+   "deId": 207,
+   "aId": 343,
+   "pobDeAntes": 24,
+   "pobAAntes": 13,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere aprender la metalurgia del cobre; Viñe lo sabe."
+  },
+  {
+   "anio": 107,
+   "persona": "Fote",
+   "id": 301,
+   "de": "Gochoña",
+   "a": "Ñive",
+   "deId": 207,
+   "aId": 343,
+   "pobDeAntes": 24,
+   "pobAAntes": 13,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 107,
+   "persona": "Rore",
+   "id": 357,
+   "de": "Gochoña",
+   "a": "Ñive",
+   "deId": 207,
+   "aId": 343,
+   "pobDeAntes": 24,
+   "pobAAntes": 13,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 107,
+   "persona": "Fañekik",
+   "id": 369,
+   "de": "Gochoña",
+   "a": "Ñive",
+   "deId": 207,
+   "aId": 343,
+   "pobDeAntes": 24,
+   "pobAAntes": 13,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 107,
+   "persona": "Viñe",
+   "id": 120,
+   "de": "Gochoña",
+   "a": "Vivok",
+   "deId": 207,
+   "aId": 1,
+   "pobDeAntes": 18,
+   "pobAAntes": 57,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Vivok: aquí se siente solo, y allí vive su hermana Rafa."
+  },
+  {
+   "anio": 108,
+   "persona": "Efejik",
+   "id": 243,
+   "de": "Gochoña",
+   "a": "Ñive",
+   "deId": 207,
+   "aId": 343,
+   "pobDeAntes": 20,
+   "pobAAntes": 21,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Ñive: aquí no se siente a salvo, y allí vive su madre Jefi."
+  },
+  {
+   "anio": 108,
+   "persona": "Chivak",
+   "id": 258,
+   "de": "Gochoña",
+   "a": "Ñive",
+   "deId": 207,
+   "aId": 343,
+   "pobDeAntes": 20,
+   "pobAAntes": 21,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 109,
+   "persona": "Goge",
+   "id": 197,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 60,
+   "pobAAntes": 24,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: aquí no se siente a salvo, y allí vive su hermano Cheñe."
+  },
+  {
+   "anio": 109,
+   "persona": "Dorok",
+   "id": 278,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 60,
+   "pobAAntes": 24,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 113,
+   "persona": "Fitak",
+   "id": 276,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 68,
+   "pobAAntes": 24,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 113,
+   "persona": "Rafañi",
+   "id": 292,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 68,
+   "pobAAntes": 24,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: aquí no se siente a salvo, y allí vive su hermana Goge."
+  },
+  {
+   "anio": 113,
+   "persona": "Igoñek",
+   "id": 487,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 68,
+   "pobAAntes": 24,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 113,
+   "persona": "Kake",
+   "id": 247,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 67,
+   "pobAAntes": 28,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: aquí no se siente a salvo, y allí vive su hermana Goge."
+  },
+  {
+   "anio": 113,
+   "persona": "Fevafe",
+   "id": 309,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 67,
+   "pobAAntes": 28,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 115,
+   "persona": "Voña",
+   "id": 307,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 67,
+   "pobAAntes": 32,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: aquí no se siente a salvo, y allí vive su hermano Dorok."
+  },
+  {
+   "anio": 115,
+   "persona": "Ñakak",
+   "id": 314,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 67,
+   "pobAAntes": 32,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 116,
+   "persona": "Ajiki",
+   "id": 183,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 66,
+   "pobAAntes": 16,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: aquí no se siente a salvo, y allí vive su hermano Techifik."
+  },
+  {
+   "anio": 116,
+   "persona": "Kiga",
+   "id": 466,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 66,
+   "pobAAntes": 16,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 116,
+   "persona": "Dora",
+   "id": 492,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 66,
+   "pobAAntes": 16,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 116,
+   "persona": "Derek",
+   "id": 509,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 66,
+   "pobAAntes": 16,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 116,
+   "persona": "Fitak",
+   "id": 276,
+   "de": "Ñerok",
+   "a": "Gedik",
+   "deId": 543,
+   "aId": 374,
+   "pobDeAntes": 15,
+   "pobAAntes": 13,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Gedik: en su casa ya no caben, y allí no falta la comida."
+  },
+  {
+   "anio": 116,
+   "persona": "Rafañi",
+   "id": 292,
+   "de": "Ñerok",
+   "a": "Gedik",
+   "deId": 543,
+   "aId": 374,
+   "pobDeAntes": 15,
+   "pobAAntes": 13,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: en su casa ya no caben, y allí vive su hermano Cheñe."
+  },
+  {
+   "anio": 116,
+   "persona": "Igoñek",
+   "id": 487,
+   "de": "Ñerok",
+   "a": "Gedik",
+   "deId": 543,
+   "aId": 374,
+   "pobDeAntes": 15,
+   "pobAAntes": 13,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 116,
+   "persona": "Echak",
+   "id": 516,
+   "de": "Ñerok",
+   "a": "Gedik",
+   "deId": 543,
+   "aId": 374,
+   "pobDeAntes": 15,
+   "pobAAntes": 13,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 116,
+   "persona": "Kake",
+   "id": 247,
+   "de": "Ñerok",
+   "a": "Chogeja",
+   "deId": 543,
+   "aId": 273,
+   "pobDeAntes": 11,
+   "pobAAntes": 20,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: en su casa ya no caben, y allí vive su hermano Cheñe."
+  },
+  {
+   "anio": 116,
+   "persona": "Voña",
+   "id": 307,
+   "de": "Ñerok",
+   "a": "Gedik",
+   "deId": 543,
+   "aId": 374,
+   "pobDeAntes": 11,
+   "pobAAntes": 17,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Gedik: en su casa ya no caben, y allí no falta la comida."
+  },
+  {
+   "anio": 116,
+   "persona": "Fevafe",
+   "id": 309,
+   "de": "Ñerok",
+   "a": "Chogeja",
+   "deId": 543,
+   "aId": 273,
+   "pobDeAntes": 11,
+   "pobAAntes": 20,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Gedik: en su casa ya no caben, y allí no falta la comida."
+  },
+  {
+   "anio": 116,
+   "persona": "Ñakak",
+   "id": 314,
+   "de": "Ñerok",
+   "a": "Gedik",
+   "deId": 543,
+   "aId": 374,
+   "pobDeAntes": 11,
+   "pobAAntes": 17,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Gedik: en su casa ya no caben, y allí no falta la comida."
+  },
+  {
+   "anio": 116,
+   "persona": "Roje",
+   "id": 248,
+   "de": "Ñerok",
+   "a": "Chogeja",
+   "deId": 543,
+   "aId": 273,
+   "pobDeAntes": 7,
+   "pobAAntes": 22,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: en su casa ya no caben, y allí vive su amiga Fechija."
+  },
+  {
+   "anio": 116,
+   "persona": "Rivek",
+   "id": 263,
+   "de": "Ñerok",
+   "a": "Chogeja",
+   "deId": 543,
+   "aId": 273,
+   "pobDeAntes": 7,
+   "pobAAntes": 22,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: en su casa ya no caben, y allí vive su amigo Techifik."
+  },
+  {
+   "anio": 116,
+   "persona": "Dorok",
+   "id": 278,
+   "de": "Ñerok",
+   "a": "Gedik",
+   "deId": 543,
+   "aId": 374,
+   "pobDeAntes": 7,
+   "pobAAntes": 19,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Gedik: en su casa ya no caben, y allí no falta la comida."
+  },
+  {
+   "anio": 116,
+   "persona": "Kikevak",
+   "id": 447,
+   "de": "Ñerok",
+   "a": "Chogeja",
+   "deId": 543,
+   "aId": 273,
+   "pobDeAntes": 7,
+   "pobAAntes": 22,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 116,
+   "persona": "Joro",
+   "id": 512,
+   "de": "Ñerok",
+   "a": "Gedik",
+   "deId": 543,
+   "aId": 374,
+   "pobDeAntes": 7,
+   "pobAAntes": 19,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 117,
+   "persona": "Fochak",
+   "id": 326,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 63,
+   "pobAAntes": 26,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: aquí no se siente a salvo, y allí vive su hermana Kake."
+  },
+  {
+   "anio": 117,
+   "persona": "Oka",
+   "id": 337,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 63,
+   "pobAAntes": 26,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 117,
+   "persona": "Gedok",
+   "id": 115,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 61,
+   "pobAAntes": 29,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: aquí no se siente a salvo, y allí vive su hija Kake."
+  },
+  {
+   "anio": 117,
+   "persona": "Teva",
+   "id": 131,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 61,
+   "pobAAntes": 29,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 118,
+   "persona": "Egek",
+   "id": 212,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 60,
+   "pobAAntes": 31,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 118,
+   "persona": "Iko",
+   "id": 262,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 60,
+   "pobAAntes": 31,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: aquí no se siente a salvo, y allí vive su madre Teva."
+  },
+  {
+   "anio": 118,
+   "persona": "Vakak",
+   "id": 362,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 60,
+   "pobAAntes": 31,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 118,
+   "persona": "Ekokik",
+   "id": 427,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 60,
+   "pobAAntes": 31,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 118,
+   "persona": "Gichove",
+   "id": 444,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 60,
+   "pobAAntes": 31,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 118,
+   "persona": "Ñiriva",
+   "id": 459,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 60,
+   "pobAAntes": 31,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 118,
+   "persona": "Kotak",
+   "id": 481,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 60,
+   "pobAAntes": 31,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 118,
+   "persona": "Deravi",
+   "id": 503,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 60,
+   "pobAAntes": 31,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 118,
+   "persona": "Chade",
+   "id": 228,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 51,
+   "pobAAntes": 39,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 118,
+   "persona": "Dajachi",
+   "id": 250,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 51,
+   "pobAAntes": 39,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: aquí no se siente a salvo, y allí vive su hermano Egek."
+  },
+  {
+   "anio": 118,
+   "persona": "Ñachori",
+   "id": 366,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 51,
+   "pobAAntes": 39,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 118,
+   "persona": "Kafik",
+   "id": 388,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 51,
+   "pobAAntes": 39,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 118,
+   "persona": "Fevoki",
+   "id": 407,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 51,
+   "pobAAntes": 39,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere aprender el calendario; Viñe lo sabe."
+  },
+  {
+   "anio": 118,
+   "persona": "Vafi",
+   "id": 428,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 51,
+   "pobAAntes": 39,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 118,
+   "persona": "Gañak",
+   "id": 473,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 51,
+   "pobAAntes": 39,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 118,
+   "persona": "Toti",
+   "id": 511,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 51,
+   "pobAAntes": 39,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 118,
+   "persona": "Feji",
+   "id": 554,
+   "de": "Vivok",
+   "a": "Chogeja",
+   "deId": 1,
+   "aId": 273,
+   "pobDeAntes": 51,
+   "pobAAntes": 39,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 118,
+   "persona": "Roje",
+   "id": 248,
+   "de": "Chochek",
+   "a": "Chogeja",
+   "deId": 581,
+   "aId": 273,
+   "pobDeAntes": 16,
+   "pobAAntes": 33,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: en su casa ya no caben, y allí vive su hermano Chare."
+  },
+  {
+   "anio": 118,
+   "persona": "Rivek",
+   "id": 263,
+   "de": "Chochek",
+   "a": "Chogeja",
+   "deId": 581,
+   "aId": 273,
+   "pobDeAntes": 16,
+   "pobAAntes": 33,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: en su casa ya no caben, y allí vive su hermana Veka."
+  },
+  {
+   "anio": 118,
+   "persona": "Kikevak",
+   "id": 447,
+   "de": "Chochek",
+   "a": "Chogeja",
+   "deId": 581,
+   "aId": 273,
+   "pobDeAntes": 16,
+   "pobAAntes": 33,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": null
+  },
+  {
+   "anio": 118,
+   "persona": "Kake",
+   "id": 247,
+   "de": "Chochek",
+   "a": "Chogeja",
+   "deId": 581,
+   "aId": 273,
+   "pobDeAntes": 13,
+   "pobAAntes": 36,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: en su casa ya no caben, y allí vive su padre Gedok."
+  },
+  {
+   "anio": 118,
+   "persona": "Fevafe",
+   "id": 309,
+   "de": "Chochek",
+   "a": "Chogeja",
+   "deId": 581,
+   "aId": 273,
+   "pobDeAntes": 13,
+   "pobAAntes": 36,
+   "saberesPerdidosDe": [],
+   "saberesGanadosA": [],
+   "motivo": "Quiere irse a Chogeja: en su casa ya no caben, y allí vive su hijo Keketek."
+  }
+ ],
+ "mudanzas": {
+  "total": 161,
+  "personas": 125,
+  "vueltas": 15,
+  "conTresOMas": 9,
+  "maxMudanzas": 4,
+  "porMilPersonasAnio": 7.51
+ },
+ "anomalias": {
+  "total": 0,
+  "ejemplos": []
+ },
+ "acuerdoOpiniones": {
+  "amigos": 1,
+  "rivales": 1,
+  "azar": 1,
+  "paresAmigos": 216,
+  "paresRivales": 2
+ },
+ "biografias": {
+  "consejo (cuenta como hito en una aldea real)": [
+   43,
+   43
+  ],
+  "pareja (es su pareja actual)": [
+   182,
+   182
+  ],
+  "lidera (la facción está en la crónica)": [
+   2,
+   2
+  ],
+  "emigra (la aldea existe o existió)": [
+   16,
+   16
+  ]
+ },
+ "ciclosMetas": {
+  "cambios": 3694,
+  "vaivenesMenosDeUnAnio": 452,
+  "personas": 677,
+  "cambiosPorPersonaAnio": 0.17
+ },
+ "cronica": [
+  [
+   15,
+   "edad",
+   "Vivok entra en la Edad de las Herramientas: es el primer pueblo del mundo que llega a ella."
+  ],
+  [
+   31,
+   "edad",
+   "Vivok ha crecido tanto que ya es un pueblo."
+  ],
+  [
+   31,
+   "epidemia",
+   "Unas fiebres se extienden por Vivok."
+  ],
+  [
+   33,
+   "epidemia",
+   "Unas fiebres se extienden por Vivok."
+  ],
+  [
+   36,
+   "edad",
+   "Vivok entra en la Edad del Bronce: es el primer pueblo del mundo que llega a ella."
+  ],
+  [
+   38,
+   "edad",
+   "Vivok entra en la Edad del Hierro: es el primer pueblo del mundo que llega a ella."
+  ],
+  [
+   41,
+   "epidemia",
+   "Unas fiebres se extienden por Vivok."
+  ],
+  [
+   45,
+   "epidemia",
+   "Unas fiebres se extienden por Vivok."
+  ],
+  [
+   49,
+   "epidemia",
+   "Unas fiebres se extienden por Vivok."
+  ],
+  [
+   53,
+   "epidemia",
+   "Unas fiebres se extienden por Vivok."
+  ],
+  [
+   62,
+   "edad",
+   "Vivok ya es una ciudad: calles de piedra, plaza, talleres y 80 almas."
+  ],
+  [
+   67,
+   "epidemia",
+   "Unas fiebres se extienden por Vivok."
+  ],
+  [
+   78,
+   "epidemia",
+   "Unas fiebres se extienden por Vivok."
+  ],
+  [
+   81,
+   "fundacion",
+   "Ya no caben todos en Vivok: Jeje se pone en camino hacia el suroeste con 50 personas para fundar Gochoña."
+  ],
+  [
+   81,
+   "fundacion",
+   "Tras 14 días de camino, los Gochoña llegan a su nueva tierra, al suroeste de Vivok, y levantan allí su aldea. Desde hoy son un pueblo de caminantes y exploradores."
+  ],
+  [
+   82,
+   "migracion",
+   "Kofe y su familia (4 más) dejan Gochoña y se van a vivir a Vivok: en su casa ya no caben, y allí vive su padre Redi."
+  ],
+  [
+   82,
+   "migracion",
+   "Taride y su familia (1 más) dejan Vivok y se van a vivir a Gochoña: aquí no se siente a salvo, y allí vive su hermano Viñe."
+  ],
+  [
+   84,
+   "alianza",
+   "Vivok y Gochoña sellan una alianza: se ayudarán en tiempos de hambre."
+  ],
+  [
+   85,
+   "migracion",
+   "Jifi y su familia (1 más) dejan Vivok y se van a vivir a Gochoña: aquí no se siente a salvo, y allí vive su hija Kote."
+  ],
+  [
+   89,
+   "epidemia",
+   "Unas fiebres se extienden por Vivok."
+  ],
+  [
+   91,
+   "migracion",
+   "Vode y su familia (1 más) dejan Vivok y se van a vivir a Gochoña: aquí nadie le tiene en cuenta, y allí vive su hermano Rijek."
+  ],
+  [
+   92,
+   "fundacion",
+   "Ya no caben todos en Vivok: Fafe se pone en camino hacia el norte con 48 personas para fundar Chogeja."
+  ],
+  [
+   92,
+   "fundacion",
+   "Tras 11 días de camino, los Chogeja llegan a su nueva tierra, al norte de Vivok, y levantan allí su aldea. Desde hoy son un pueblo de caminantes y exploradores."
+  ],
+  [
+   92,
+   "migracion",
+   "Vivi y su familia (1 más) dejan Gochoña y se van a vivir a Vivok: aquí no se siente a salvo, y allí vive su padre Kaje."
+  ],
+  [
+   95,
+   "cisma",
+   "Hartos de que el consejo no les escuche, los Fogi abandonan Chogeja: 22 personas cargan lo que pueden y siguen a Vitate hacia el este, a tierras lejanas donde vivir a su manera. Forman su propio consejo, con Vitate a la cabeza. Les esperan unos 65 días de camino."
+  ],
+  [
+   96,
+   "fundacion",
+   "Tras 65 días de camino, los Fogi llegan a su nueva tierra, al este de Chogeja, y levantan allí su aldea. Desde hoy son un pueblo de labradores y pastores."
+  ],
+  [
+   96,
+   "migracion",
+   "Gojejo deja Vivok y se va a vivir a Chogeja: aquí se siente sola, y allí vive su hija Teñe."
+  ],
+  [
+   97,
+   "migracion",
+   "Vero y su familia (1 más) dejan Vivok y se van a vivir a Chogeja: aquí no se siente a salvo, y allí vive su hermano Chedo."
+  ],
+  [
+   98,
+   "cisma",
+   "Hartos de que el consejo no les escuche, los Tiva abandonan Chogeja: 18 personas cargan lo que pueden y siguen a Fidi hacia el este, a tierras lejanas donde vivir a su manera. Forman su propio consejo, con Fidi a la cabeza. Les esperan unos 60 días de camino."
+  ],
+  [
+   99,
+   "fundacion",
+   "Tras 60 días de camino, los Tiva llegan a su nueva tierra, al este de Chogeja, y levantan allí su aldea. Desde hoy son un pueblo de labradores y pastores."
+  ],
+  [
+   99,
+   "migracion",
+   "Jigik y su familia (2 más) dejan Tiva y se van a vivir a Fogi: en su casa ya no caben, y allí vive su hermano Tajaki."
+  ],
+  [
+   99,
+   "edad",
+   "Fogi ha crecido tanto que ya es un pueblo."
+  ],
+  [
+   100,
+   "alianza",
+   "Vivok y Chogeja sellan una alianza: se ayudarán en tiempos de hambre."
+  ],
+  [
+   101,
+   "cisma",
+   "Hartos de que el consejo no les escuche, los Ñive abandonan Chogeja: 12 personas cargan lo que pueden y siguen a Jochechek hacia el sur, a tierras lejanas donde vivir a su manera. Forman su propio consejo, con Jochechek a la cabeza. Les esperan unos 52 días de camino."
+  ],
+  [
+   101,
+   "migracion",
+   "Ñadaji y su familia (1 más) dejan Vivok y se van a vivir a Chogeja: aquí no se siente a salvo, y allí vive su hermana Agocho."
+  ],
+  [
+   101,
+   "fundacion",
+   "Tras 52 días de camino, los Ñive llegan a su nueva tierra, al sur de Chogeja, y levantan allí su aldea. Desde hoy son un pueblo de labradores y pastores."
+  ],
+  [
+   101,
+   "epidemia",
+   "Unas fiebres se extienden por Fogi."
+  ],
+  [
+   102,
+   "migracion",
+   "Fari y su familia (1 más) dejan Vivok y se van a vivir a Chogeja: aquí no se siente a salvo, y allí vive su hermana Agocho."
+  ],
+  [
+   103,
+   "cisma",
+   "Hartos de que el consejo no les escuche, los Gedik abandonan Gochoña: 19 personas cargan lo que pueden y siguen a Rijek hacia el noreste, a tierras lejanas donde vivir a su manera. Forman su propio consejo, con Rijek a la cabeza. Les esperan unos 40 días de camino."
+  ],
+  [
+   103,
+   "cisma",
+   "Hartos de que el consejo no les escuche, los Vegi abandonan Chogeja: 16 personas cargan lo que pueden y siguen a Teñe hacia el sureste, a tierras lejanas donde vivir a su manera. Forman su propio consejo, con Teñe a la cabeza. Les esperan unos 53 días de camino."
+  ],
+  [
+   103,
+   "fundacion",
+   "Tras 40 días de camino, los Gedik llegan a su nueva tierra, al noreste de Gochoña, y levantan allí su aldea. Desde hoy son un pueblo de guerreros."
+  ],
+  [
+   103,
+   "epidemia",
+   "Unas fiebres se extienden por Vivok."
+  ],
+  [
+   103,
+   "fundacion",
+   "Tras 53 días de camino, los Vegi llegan a su nueva tierra, al sureste de Chogeja, y levantan allí su aldea. Desde hoy son un pueblo de labradores y pastores."
+  ],
+  [
+   105,
+   "epidemia",
+   "Unas fiebres se extienden por Vivok."
+  ],
+  [
+   106,
+   "migracion",
+   "Veka y su familia (1 más) dejan Vivok y se van a vivir a Chogeja: aquí no se siente a salvo, y allí vive su madre Chite."
+  ],
+  [
+   106,
+   "migracion",
+   "Jato y su familia (3 más) dejan Tiva y se van a vivir a Fogi: aquí no se siente a salvo, y allí vive su madre Jigik."
+  ],
+  [
+   107,
+   "migracion",
+   "Jochechek y su familia (5 más) dejan Gochoña y se van a vivir a Ñive: aquí no se siente a salvo, y allí vive su hermana Gaga."
+  ],
+  [
+   107,
+   "migracion",
+   "Viñe deja Gochoña y se va a vivir a Vivok: aquí se siente solo, y allí vive su hermana Rafa."
+  ],
+  [
+   108,
+   "epidemia",
+   "Unas fiebres se extienden por Gochoña."
+  ],
+  [
+   108,
+   "migracion",
+   "Efejik y su familia (1 más) dejan Gochoña y se van a vivir a Ñive: aquí no se siente a salvo, y allí vive su madre Jefi."
+  ],
+  [
+   109,
+   "alianza",
+   "Gochoña y Ñive sellan una alianza: se ayudarán en tiempos de hambre."
+  ],
+  [
+   109,
+   "migracion",
+   "Goge y su familia (1 más) dejan Vivok y se van a vivir a Chogeja: aquí no se siente a salvo, y allí vive su hermano Cheñe."
+  ],
+  [
+   109,
+   "alianza",
+   "Chogeja y Ñive sellan una alianza: se ayudarán en tiempos de hambre."
+  ],
+  [
+   110,
+   "alianza",
+   "Chogeja y Vegi sellan una alianza: se ayudarán en tiempos de hambre."
+  ],
+  [
+   113,
+   "migracion",
+   "Rafañi y su familia (2 más) dejan Vivok y se van a vivir a Chogeja: aquí no se siente a salvo, y allí vive su hermana Goge."
+  ],
+  [
+   113,
+   "cisma",
+   "Hartos de que el consejo no les escuche, los Gochak abandonan Gedik: 10 personas cargan lo que pueden y siguen a Vifa hacia el sur, a tierras lejanas donde vivir a su manera. Forman su propio consejo, con Vifa a la cabeza. Les esperan unos 62 días de camino."
+  ],
+  [
+   114,
+   "fundacion",
+   "Tras 62 días de camino, los Gochak llegan a su nueva tierra, al sur de Gedik, y levantan allí su aldea. Desde hoy son un pueblo de labradores y pastores."
+  ],
+  [
+   114,
+   "alianza",
+   "Chogeja y Gedik sellan una alianza: se ayudarán en tiempos de hambre."
+  ],
+  [
+   115,
+   "migracion",
+   "Voña y su familia (1 más) dejan Vivok y se van a vivir a Chogeja: aquí no se siente a salvo, y allí vive su hermano Dorok."
+  ],
+  [
+   115,
+   "cisma",
+   "Hartos de que el consejo no les escuche, los Ñerok abandonan Chogeja: 17 personas cargan lo que pueden y siguen a Goge hacia el este, a tierras lejanas donde vivir a su manera. Forman su propio consejo, con Goge a la cabeza. Les esperan unos 40 días de camino."
+  ],
+  [
+   116,
+   "fundacion",
+   "Tras 40 días de camino, los Ñerok llegan a su nueva tierra, al este de Chogeja, y levantan allí su aldea. Desde hoy son un pueblo de labradores y pastores."
+  ],
+  [
+   116,
+   "migracion",
+   "Fitak y su familia (3 más) dejan Ñerok y se van a vivir a Gedik: en su casa ya no caben, y allí no falta la comida."
+  ],
+  [
+   116,
+   "migracion",
+   "Kake y su familia (1 más) dejan Ñerok y se van a vivir a Chogeja: en su casa ya no caben, y allí vive su hermano Cheñe."
+  ],
+  [
+   117,
+   "migracion",
+   "Fochak y su familia (1 más) dejan Vivok y se van a vivir a Chogeja: aquí no se siente a salvo, y allí vive su hermana Kake."
+  ],
+  [
+   117,
+   "epidemia",
+   "Unas fiebres se extienden por Ñive."
+  ],
+  [
+   118,
+   "cisma",
+   "Hartos de que el consejo no les escuche, los Chochek abandonan Chogeja: 16 personas cargan lo que pueden y siguen a Techifik hacia el sureste, a tierras lejanas donde vivir a su manera. Forman su propio consejo, con Techifik a la cabeza. Les esperan unos 33 días de camino."
+  ],
+  [
+   118,
+   "fundacion",
+   "Tras 33 días de camino, los Chochek llegan a su nueva tierra, al sureste de Chogeja, y levantan allí su aldea. Desde hoy son un pueblo de labradores y pastores."
+  ],
+  [
+   118,
+   "migracion",
+   "Roje y su familia (2 más) dejan Chochek y se van a vivir a Chogeja: en su casa ya no caben, y allí vive su hermano Chare."
+  ],
+  [
+   118,
+   "abandono",
+   "Ñerok ha quedado vacía. Sus casas se irán convirtiendo en ruinas."
+  ],
+  [
+   120,
+   "epidemia",
+   "Unas fiebres se extienden por Fogi."
+  ],
+  [
+   122,
+   "epidemia",
+   "Unas fiebres se extienden por Gedik."
+  ],
+  [
+   123,
+   "alianza",
+   "Ñive y Vegi sellan una alianza: se ayudarán en tiempos de hambre."
+  ],
+  [
+   123,
+   "epidemia",
+   "Unas fiebres se extienden por Vegi."
+  ],
+  [
+   129,
+   "alianza",
+   "Fogi y Vegi sellan una alianza: se ayudarán en tiempos de hambre."
+  ],
+  [
+   129,
+   "alianza",
+   "Chogeja y Chochek sellan una alianza: se ayudarán en tiempos de hambre."
+  ],
+  [
+   132,
+   "alianza",
+   "Vegi y Gochak sellan una alianza: se ayudarán en tiempos de hambre."
+  ],
+  [
+   132,
+   "alianza",
+   "Vegi y Chochek sellan una alianza: se ayudarán en tiempos de hambre."
+  ],
+  [
+   134,
+   "alianza",
+   "Tiva y Gedik sellan una alianza: se ayudarán en tiempos de hambre."
+  ],
+  [
+   134,
+   "epidemia",
+   "Unas fiebres se extienden por Chogeja."
+  ],
+  [
+   134,
+   "epidemia",
+   "Unas fiebres se extienden por Fogi."
+  ],
+  [
+   135,
+   "epidemia",
+   "Unas fiebres se extienden por Vivok."
+  ],
+  [
+   136,
+   "alianza",
+   "Vivok y Gochak sellan una alianza: se ayudarán en tiempos de hambre."
+  ],
+  [
+   136,
+   "alianza",
+   "Tiva y Chochek sellan una alianza: se ayudarán en tiempos de hambre."
+  ],
+  [
+   138,
+   "epidemia",
+   "Unas fiebres se extienden por Chogeja."
+  ],
+  [
+   140,
+   "epidemia",
+   "Unas fiebres se extienden por Gedik."
+  ],
+  [
+   141,
+   "epidemia",
+   "Unas fiebres se extienden por Chogeja."
+  ],
+  [
+   141,
+   "epidemia",
+   "Unas fiebres se extienden por Tiva."
+  ],
+  [
+   143,
+   "epidemia",
+   "Unas fiebres se extienden por Vivok."
+  ],
+  [
+   144,
+   "epidemia",
+   "Unas fiebres se extienden por Fogi."
+  ],
+  [
+   148,
+   "epidemia",
+   "Unas fiebres se extienden por Chogeja."
+  ]
+ ],
+ "vidas": [
+  {
+   "id": 276,
+   "nombre": "Fitak",
+   "aldea": "Gedik",
+   "edad": 58,
+   "vida": [
+    [
+     104,
+     "muere padre",
+     "Rafo"
+    ],
+    [
+     108,
+     "oficio",
+     "pastora"
+    ],
+    [
+     111,
+     "pareja",
+     "Rafañi"
+    ],
+    [
+     111,
+     "hijo",
+     "Igoñek"
+    ],
+    [
+     113,
+     "emigra",
+     "Chogeja"
+    ],
+    [
+     115,
+     "se va",
+     "Ñerok"
+    ],
+    [
+     115,
+     "consejo",
+     "Ñerok"
+    ],
+    [
+     115,
+     "pierde hijo",
+     "Fechak"
+    ],
+    [
+     116,
+     "emigra",
+     "Gedik"
+    ],
+    [
+     128,
+     "pierde hija",
+     "Gejik"
+    ],
+    [
+     130,
+     "enviuda",
+     "Rafañi"
+    ],
+    [
+     131,
+     "pareja",
+     "Idaga"
+    ],
+    [
+     140,
+     "pierde hijo",
+     "Igoñek"
+    ],
+    [
+     149,
+     "pierde hijo",
+     "Echak"
+    ],
+    [
+     150,
+     "enviuda",
+     "Idaga"
+    ]
+   ],
+   "meta": null,
+   "recuerdos": [
+    [
+     104,
+     "duelo",
+     "Rafo",
+     0.72
+    ],
+    [
+     115,
+     "duelo",
+     "Fechak",
+     0.72
+    ],
+    [
+     116,
+     "emigro",
+     "Ñerok",
+     0.5
+    ],
+    [
+     128,
+     "duelo",
+     "Gejik",
+     0.72
+    ],
+    [
+     130,
+     "duelo",
+     "Rafañi",
+     0.8
+    ],
+    [
+     140,
+     "duelo",
+     "Igoñek",
+     0.72
+    ],
+    [
+     149,
+     "duelo",
+     "Echak",
+     0.72
+    ],
+    [
+     150,
+     "duelo",
+     "Idaga",
+     0.8
+    ]
+   ],
+   "lazos": [
+    [
+     "Ñakak",
+     0.388
+    ],
+    [
+     "Iro",
+     0.178
+    ],
+    [
+     "Joro",
+     0.217
+    ],
+    [
+     "Eñikok",
+     0.033
+    ],
+    [
+     "Ekeñek",
+     0.164
+    ],
+    [
+     "Gige",
+     0.276
+    ],
+    [
+     "Davak",
+     0.198
+    ],
+    [
+     "Ajak",
+     0.167
+    ],
+    [
+     "Ñafe",
+     0.054
+    ]
+   ],
+   "genes": {
+    "curiosidad": 0.452,
+    "sociabilidad": 0.586,
+    "fuerza": 0.452,
+    "destreza": 0.477,
+    "resistencia": 0.638,
+    "fertilidad": 0.501,
+    "longevidad": 0.479,
+    "agresividad": 0.674,
+    "ambicion": 0.43,
+    "prudencia": 0.464,
+    "generosidad": 0.285,
+    "lealtad": 0.557,
+    "paciencia": 0.688
+   }
+  },
+  {
+   "id": 191,
+   "nombre": "Fega",
+   "aldea": "Fogi",
+   "edad": 72,
+   "vida": [
+    [
+     92,
+     "se va",
+     "Chogeja"
+    ],
+    [
+     93,
+     "oficio",
+     "cantera"
+    ],
+    [
+     94,
+     "muere madre",
+     "Fafe"
+    ],
+    [
+     95,
+     "se va",
+     "Fogi"
+    ],
+    [
+     97,
+     "pareja",
+     "Tajaki"
+    ],
+    [
+     100,
+     "enviuda",
+     "Tajaki"
+    ],
+    [
+     102,
+     "pareja",
+     "Ejiñek"
+    ],
+    [
+     103,
+     "hijo",
+     "Fechak"
+    ],
+    [
+     116,
+     "enviuda",
+     "Ejiñek"
+    ],
+    [
+     118,
+     "muere padre",
+     "Ñedok"
+    ],
+    [
+     120,
+     "pareja",
+     "Jatacho"
+    ],
+    [
+     120,
+     "enviuda",
+     "Jatacho"
+    ],
+    [
+     130,
+     "consejo",
+     "Fogi"
+    ],
+    [
+     149,
+     "pareja",
+     "Jivoki"
+    ]
+   ],
+   "meta": null,
+   "recuerdos": [
+    [
+     82,
+     "emigro",
+     "Gochoña",
+     0.5
+    ],
+    [
+     94,
+     "duelo",
+     "Fafe",
+     0.72
+    ],
+    [
+     100,
+     "duelo",
+     "Tajaki",
+     0.8
+    ],
+    [
+     116,
+     "duelo",
+     "Ejiñek",
+     0.8
+    ],
+    [
+     118,
+     "duelo",
+     "Ñedok",
+     0.72
+    ],
+    [
+     120,
+     "duelo",
+     "Jatacho",
+     0.8
+    ]
+   ],
+   "lazos": [
+    [
+     "Datek",
+     0.094
+    ],
+    [
+     "Acha",
+     0.083
+    ],
+    [
+     "Tiko",
+     0.099
+    ],
+    [
+     "Ñagi",
+     0.102
+    ],
+    [
+     "Gigoto",
+     0.102
+    ],
+    [
+     "Jefi",
+     0.097
+    ],
+    [
+     "Rejok",
+     0.089
+    ],
+    [
+     "Arevek",
+     0.048
+    ],
+    [
+     "Jivoki",
+     0.71
+    ]
+   ],
+   "genes": {
+    "curiosidad": 0.518,
+    "sociabilidad": 0.553,
+    "fuerza": 0.574,
+    "destreza": 0.584,
+    "resistencia": 0.692,
+    "fertilidad": 0.424,
+    "longevidad": 0.633,
+    "agresividad": 0.588,
+    "ambicion": 0.45,
+    "prudencia": 0.597,
+    "generosidad": 0.605,
+    "lealtad": 0.371,
+    "paciencia": 0.619
+   }
+  },
+  {
+   "id": 248,
+   "nombre": "Roje",
+   "aldea": "Chogeja",
+   "edad": 62,
+   "vida": [
+    [
+     94,
+     "muere madre",
+     "Toje"
+    ],
+    [
+     95,
+     "muere padre",
+     "Vagek"
+    ],
+    [
+     103,
+     "oficio",
+     "pastor"
+    ],
+    [
+     106,
+     "pareja",
+     "Rivek"
+    ],
+    [
+     108,
+     "hijo",
+     "Kikevak"
+    ],
+    [
+     115,
+     "se va",
+     "Ñerok"
+    ],
+    [
+     115,
+     "consejo",
+     "Ñerok"
+    ],
+    [
+     116,
+     "emigra",
+     "Chogeja"
+    ],
+    [
+     116,
+     "pierde hija",
+     "Dorok"
+    ],
+    [
+     118,
+     "se va",
+     "Chochek"
+    ],
+    [
+     118,
+     "emigra",
+     "Chogeja"
+    ],
+    [
+     144,
+     "enviuda",
+     "Rivek"
+    ]
+   ],
+   "meta": null,
+   "recuerdos": [
+    [
+     94,
+     "duelo",
+     "Toje",
+     0.72
+    ],
+    [
+     95,
+     "duelo",
+     "Vagek",
+     0.72
+    ],
+    [
+     116,
+     "emigro",
+     "Ñerok",
+     0.5
+    ],
+    [
+     116,
+     "duelo",
+     "Dorok",
+     0.72
+    ],
+    [
+     118,
+     "emigro",
+     "Chochek",
+     0.5
+    ],
+    [
+     144,
+     "duelo",
+     "Rivek",
+     0.8
+    ]
+   ],
+   "lazos": [
+    [
+     "Kiko",
+     0.089
+    ],
+    [
+     "Ekokik",
+     0.124
+    ],
+    [
+     "Toñe",
+     0.148
+    ],
+    [
+     "Gegiñek",
+     0.156
+    ],
+    [
+     "Oño",
+     0.108
+    ],
+    [
+     "Dafek",
+     0.084
+    ],
+    [
+     "Koja",
+     0.1
+    ],
+    [
+     "Fifi",
+     0.038
+    ],
+    [
+     "Kodi",
+     0.047
+    ]
+   ],
+   "genes": {
+    "curiosidad": 0.451,
+    "sociabilidad": 0.646,
+    "fuerza": 0.401,
+    "destreza": 0.539,
+    "resistencia": 0.537,
+    "fertilidad": 0.425,
+    "longevidad": 0.507,
+    "agresividad": 0.608,
+    "ambicion": 0.493,
+    "prudencia": 0.455,
+    "generosidad": 0.623,
+    "lealtad": 0.495,
+    "paciencia": 0.567
+   }
+  },
+  {
+   "id": 232,
+   "nombre": "Chare",
+   "aldea": "Chogeja",
+   "edad": 65,
+   "vida": [
+    [
+     94,
+     "muere madre",
+     "Toje"
+    ],
+    [
+     95,
+     "muere padre",
+     "Vagek"
+    ],
+    [
+     100,
+     "oficio",
+     "pastor"
+    ],
+    [
+     101,
+     "pareja",
+     "Agocho"
+    ],
+    [
+     103,
+     "hijo",
+     "Jita"
+    ],
+    [
+     113,
+     "enviuda",
+     "Agocho"
+    ],
+    [
+     116,
+     "pareja",
+     "Ride"
+    ],
+    [
+     127,
+     "consejo",
+     "Chogeja"
+    ],
+    [
+     140,
+     "enviuda",
+     "Ride"
+    ],
+    [
+     146,
+     "pareja",
+     "Fari"
+    ],
+    [
+     148,
+     "enviuda",
+     "Fari"
+    ]
+   ],
+   "meta": null,
+   "recuerdos": [
+    [
+     94,
+     "duelo",
+     "Toje",
+     0.72
+    ],
+    [
+     95,
+     "duelo",
+     "Vagek",
+     0.72
+    ],
+    [
+     113,
+     "duelo",
+     "Agocho",
+     0.8
+    ],
+    [
+     140,
+     "duelo",
+     "Ride",
+     0.8
+    ],
+    [
+     148,
+     "duelo",
+     "Fari",
+     0.8
+    ]
+   ],
+   "lazos": [
+    [
+     "Jetik",
+     0.033
+    ],
+    [
+     "Kikevak",
+     0.398
+    ],
+    [
+     "Dora",
+     0.146
+    ],
+    [
+     "Deda",
+     0.123
+    ],
+    [
+     "Deravi",
+     0.132
+    ],
+    [
+     "Tefife",
+     0.164
+    ],
+    [
+     "Edo",
+     0.146
+    ],
+    [
+     "Vitecha",
+     0.081
+    ],
+    [
+     "Goñoka",
+     0.033
+    ]
+   ],
+   "genes": {
+    "curiosidad": 0.545,
+    "sociabilidad": 0.635,
+    "fuerza": 0.385,
+    "destreza": 0.491,
+    "resistencia": 0.519,
+    "fertilidad": 0.353,
+    "longevidad": 0.377,
+    "agresividad": 0.67,
+    "ambicion": 0.338,
+    "prudencia": 0.466,
+    "generosidad": 0.534,
+    "lealtad": 0.642,
+    "paciencia": 0.652
+   }
+  },
+  {
+   "id": 320,
+   "nombre": "Togoro",
+   "aldea": "Gedik",
+   "edad": 52,
+   "vida": [
+    [
+     114,
+     "oficio",
+     "pescador"
+    ],
+    [
+     114,
+     "pareja",
+     "Chofok"
+    ],
+    [
+     115,
+     "hijo",
+     "Oñik"
+    ],
+    [
+     116,
+     "enviuda",
+     "Chofok"
+    ],
+    [
+     116,
+     "pareja",
+     "Tevo"
+    ],
+    [
+     117,
+     "pierde hija",
+     "Oñik"
+    ],
+    [
+     120,
+     "muere madre",
+     "Taride"
+    ],
+    [
+     140,
+     "consejo",
+     "Gedik"
+    ],
+    [
+     141,
+     "pierde hijo",
+     "Ñachi"
+    ],
+    [
+     143,
+     "pierde hijo",
+     "Ijade"
+    ],
+    [
+     145,
+     "muere padre",
+     "Gechoro"
+    ]
+   ],
+   "meta": null,
+   "recuerdos": [
+    [
+     116,
+     "duelo",
+     "Chofok",
+     0.8
+    ],
+    [
+     117,
+     "duelo",
+     "Oñik",
+     0.72
+    ],
+    [
+     120,
+     "duelo",
+     "Taride",
+     0.72
+    ],
+    [
+     141,
+     "duelo",
+     "Ñachi",
+     0.72
+    ],
+    [
+     143,
+     "duelo",
+     "Ijade",
+     0.72
+    ],
+    [
+     145,
+     "duelo",
+     "Gechoro",
+     0.72
+    ]
+   ],
+   "lazos": [
+    [
+     "Dajok",
+     0.033
+    ],
+    [
+     "Choño",
+     0.31
+    ],
+    [
+     "Tevo",
+     0.35
+    ],
+    [
+     "Gige",
+     0.28
+    ],
+    [
+     "Fekiñi",
+     0.116
+    ],
+    [
+     "Egok",
+     0.03
+    ],
+    [
+     "Ñafe",
+     0.03
+    ]
+   ],
+   "genes": {
+    "curiosidad": 0.359,
+    "sociabilidad": 0.619,
+    "fuerza": 0.487,
+    "destreza": 0.595,
+    "resistencia": 0.647,
+    "fertilidad": 0.563,
+    "longevidad": 0.522,
+    "agresividad": 0.456,
+    "ambicion": 0.565,
+    "prudencia": 0.377,
+    "generosidad": 0.301,
+    "lealtad": 0.345,
+    "paciencia": 0.59
+   }
+  },
+  {
+   "id": 213,
+   "nombre": "Rigije",
+   "aldea": "Ñive",
+   "edad": 68,
+   "vida": [
+    [
+     97,
+     "oficio",
+     "pastor"
+    ],
+    [
+     98,
+     "pareja",
+     "Fova"
+    ],
+    [
+     101,
+     "se va",
+     "Ñive"
+    ],
+    [
+     102,
+     "hijo",
+     "Viñok"
+    ],
+    [
+     103,
+     "pierde hijo",
+     "Viñok"
+    ],
+    [
+     114,
+     "pierde hijo",
+     "Tarok"
+    ],
+    [
+     119,
+     "enviuda",
+     "Fova"
+    ],
+    [
+     128,
+     "consejo",
+     "Ñive"
+    ],
+    [
+     135,
+     "pareja",
+     "Fote"
+    ],
+    [
+     141,
+     "enviuda",
+     "Fote"
+    ]
+   ],
+   "meta": null,
+   "recuerdos": [
+    [
+     103,
+     "duelo",
+     "Viñok",
+     0.72
+    ],
+    [
+     114,
+     "duelo",
+     "Tarok",
+     0.72
+    ],
+    [
+     119,
+     "duelo",
+     "Fova",
+     0.8
+    ],
+    [
+     141,
+     "duelo",
+     "Fote",
+     0.8
+    ]
+   ],
+   "lazos": [
+    [
+     "Fodak",
+     -0.033
+    ],
+    [
+     "Chare",
+     -0.033
+    ],
+    [
+     "Kechik",
+     0.315
+    ],
+    [
+     "Eji",
+     0.35
+    ],
+    [
+     "Ridache",
+     0.305
+    ],
+    [
+     "Ojak",
+     0.36
+    ],
+    [
+     "Ñado",
+     0.149
+    ],
+    [
+     "Dodi",
+     0.112
+    ]
+   ],
+   "genes": {
+    "curiosidad": 0.39,
+    "sociabilidad": 0.585,
+    "fuerza": 0.5,
+    "destreza": 0.493,
+    "resistencia": 0.46,
+    "fertilidad": 0.468,
+    "longevidad": 0.627,
+    "agresividad": 0.51,
+    "ambicion": 0.389,
+    "prudencia": 0.618,
+    "generosidad": 0.533,
+    "lealtad": 0.597,
+    "paciencia": 0.585
+   }
+  },
+  {
+   "id": 241,
+   "nombre": "Vijik",
+   "aldea": "Fogi",
+   "edad": 63,
+   "vida": [
+    [
+     102,
+     "oficio",
+     "pastora"
+    ],
+    [
+     107,
+     "pareja",
+     "Dareko"
+    ],
+    [
+     107,
+     "hijo",
+     "Rofato"
+    ],
+    [
+     114,
+     "pierde hija",
+     "Rogoda"
+    ],
+    [
+     114,
+     "muere padre",
+     "Vikechik"
+    ],
+    [
+     123,
+     "enviuda",
+     "Dareko"
+    ],
+    [
+     126,
+     "muere madre",
+     "Vikajok"
+    ],
+    [
+     138,
+     "pareja",
+     "Tigak"
+    ],
+    [
+     139,
+     "consejo",
+     "Fogi"
+    ],
+    [
+     140,
+     "pierde hija",
+     "Chedofe"
+    ]
+   ],
+   "meta": null,
+   "recuerdos": [
+    [
+     114,
+     "duelo",
+     "Rogoda",
+     0.72
+    ],
+    [
+     114,
+     "duelo",
+     "Vikechik",
+     0.72
+    ],
+    [
+     123,
+     "duelo",
+     "Dareko",
+     0.8
+    ],
+    [
+     126,
+     "duelo",
+     "Vikajok",
+     0.72
+    ],
+    [
+     140,
+     "duelo",
+     "Chedofe",
+     0.72
+    ]
+   ],
+   "lazos": [
+    [
+     "Ñovi",
+     0.591
+    ],
+    [
+     "Iri",
+     0.053
+    ],
+    [
+     "Gigoto",
+     0.093
+    ],
+    [
+     "Efo",
+     0.1
+    ],
+    [
+     "Jefi",
+     0.087
+    ],
+    [
+     "Ñiva",
+     0.095
+    ],
+    [
+     "Viko",
+     0.097
+    ],
+    [
+     "Tigak",
+     0.591
+    ],
+    [
+     "Keti",
+     0.089
+    ],
+    [
+     "Ore",
+     0.089
+    ]
+   ],
+   "genes": {
+    "curiosidad": 0.628,
+    "sociabilidad": 0.695,
+    "fuerza": 0.561,
+    "destreza": 0.535,
+    "resistencia": 0.503,
+    "fertilidad": 0.641,
+    "longevidad": 0.499,
+    "agresividad": 0.666,
+    "ambicion": 0.414,
+    "prudencia": 0.465,
+    "generosidad": 0.398,
+    "lealtad": 0.433,
+    "paciencia": 0.601
+   }
+  },
+  {
+   "id": 242,
+   "nombre": "Roga",
+   "aldea": "Gochoña",
+   "edad": 63,
+   "vida": [
+    [
+     87,
+     "muere madre",
+     "Ekak"
+    ],
+    [
+     103,
+     "pareja",
+     "Difok"
+    ],
+    [
+     104,
+     "hijo",
+     "Viro"
+    ],
+    [
+     106,
+     "oficio",
+     "recolector"
+    ],
+    [
+     117,
+     "pierde hijo",
+     "Kegefo"
+    ],
+    [
+     128,
+     "muere padre",
+     "Kega"
+    ],
+    [
+     134,
+     "consejo",
+     "Gochoña"
+    ],
+    [
+     149,
+     "enviuda",
+     "Difok"
+    ],
+    [
+     150,
+     "pareja",
+     "Jojik"
+    ],
+    [
+     150,
+     "pierde hija",
+     "Ñava"
+    ]
+   ],
+   "meta": null,
+   "recuerdos": [
+    [
+     87,
+     "duelo",
+     "Ekak",
+     0.72
+    ],
+    [
+     117,
+     "duelo",
+     "Kegefo",
+     0.72
+    ],
+    [
+     128,
+     "duelo",
+     "Kega",
+     0.72
+    ],
+    [
+     149,
+     "duelo",
+     "Difok",
+     0.8
+    ],
+    [
+     150,
+     "duelo",
+     "Ñava",
+     0.72
+    ]
+   ],
+   "lazos": [
+    [
+     "Ede",
+     0.34
+    ],
+    [
+     "Reje",
+     0.28
+    ],
+    [
+     "Chegage",
+     0.174
+    ],
+    [
+     "Ñagodik",
+     0.144
+    ],
+    [
+     "Fokiji",
+     0.35
+    ],
+    [
+     "Kogi",
+     0.156
+    ],
+    [
+     "Ichoke",
+     0.156
+    ],
+    [
+     "Tokichak",
+     0.146
+    ],
+    [
+     "Vogijok",
+     0.15
+    ],
+    [
+     "Jojik",
+     0.553
+    ]
+   ],
+   "genes": {
+    "curiosidad": 0.562,
+    "sociabilidad": 0.672,
+    "fuerza": 0.493,
+    "destreza": 0.422,
+    "resistencia": 0.583,
+    "fertilidad": 0.514,
+    "longevidad": 0.543,
+    "agresividad": 0.576,
+    "ambicion": 0.356,
+    "prudencia": 0.419,
+    "generosidad": 0.649,
+    "lealtad": 0.405,
+    "paciencia": 0.536
+   }
+  },
+  {
+   "id": 309,
+   "nombre": "Fevafe",
+   "aldea": "Chogeja",
+   "edad": 53,
+   "vida": [
+    [
+     113,
+     "pareja",
+     "Kake"
+    ],
+    [
+     113,
+     "emigra",
+     "Chogeja"
+    ],
+    [
+     114,
+     "oficio",
+     "pastor"
+    ],
+    [
+     115,
+     "se va",
+     "Ñerok"
+    ],
+    [
+     116,
+     "emigra",
+     "Chogeja"
+    ],
+    [
+     118,
+     "hijo",
+     "Keketek"
+    ],
+    [
+     118,
+     "se va",
+     "Chochek"
+    ],
+    [
+     118,
+     "emigra",
+     "Chogeja"
+    ],
+    [
+     137,
+     "enviuda",
+     "Kake"
+    ],
+    [
+     149,
+     "consejo",
+     "Chogeja"
+    ]
+   ],
+   "meta": null,
+   "recuerdos": [
+    [
+     113,
+     "emigro",
+     "Vivok",
+     0.5
+    ],
+    [
+     116,
+     "emigro",
+     "Ñerok",
+     0.5
+    ],
+    [
+     118,
+     "emigro",
+     "Chochek",
+     0.5
+    ],
+    [
+     137,
+     "duelo",
+     "Kake",
+     0.8
+    ]
+   ],
+   "lazos": [
+    [
+     "Iko",
+     0.148
+    ],
+    [
+     "Jita",
+     0.099
+    ],
+    [
+     "Ekokik",
+     0.13
+    ],
+    [
+     "Kiga",
+     0.077
+    ],
+    [
+     "Dora",
+     0.12
+    ],
+    [
+     "Derek",
+     0.099
+    ],
+    [
+     "Edo",
+     0.126
+    ],
+    [
+     "Fifi",
+     0.098
+    ],
+    [
+     "Kodi",
+     0.03
+    ],
+    [
+     "Goñira",
+     0.03
+    ]
+   ],
+   "genes": {
+    "curiosidad": 0.384,
+    "sociabilidad": 0.641,
+    "fuerza": 0.558,
+    "destreza": 0.523,
+    "resistencia": 0.442,
+    "fertilidad": 0.495,
+    "longevidad": 0.52,
+    "agresividad": 0.588,
+    "ambicion": 0.394,
+    "prudencia": 0.475,
+    "generosidad": 0.441,
+    "lealtad": 0.654,
+    "paciencia": 0.497
+   }
+  },
+  {
+   "id": 332,
+   "nombre": "Goje",
+   "aldea": "Vivok",
+   "edad": 51,
+   "vida": [
+    [
+     116,
+     "oficio",
+     "guardiana"
+    ],
+    [
+     117,
+     "muere padre",
+     "Rojo"
+    ],
+    [
+     121,
+     "pareja",
+     "Chidi"
+    ],
+    [
+     129,
+     "hijo",
+     "Govo"
+    ],
+    [
+     132,
+     "enviuda",
+     "Chidi"
+    ],
+    [
+     134,
+     "muere madre",
+     "Rife"
+    ],
+    [
+     134,
+     "pareja",
+     "Ñovegik"
+    ],
+    [
+     137,
+     "consejo",
+     "Vivok"
+    ],
+    [
+     141,
+     "pierde hija",
+     "Kicha"
+    ],
+    [
+     144,
+     "enviuda",
+     "Ñovegik"
+    ]
+   ],
+   "meta": null,
+   "recuerdos": [
+    [
+     117,
+     "duelo",
+     "Rojo",
+     0.72
+    ],
+    [
+     132,
+     "duelo",
+     "Chidi",
+     0.8
+    ],
+    [
+     134,
+     "duelo",
+     "Rife",
+     0.72
+    ],
+    [
+     141,
+     "duelo",
+     "Kicha",
+     0.72
+    ],
+    [
+     144,
+     "duelo",
+     "Ñovegik",
+     0.8
+    ]
+   ],
+   "lazos": [
+    [
+     "Chiñok",
+     0.34
+    ],
+    [
+     "Oje",
+     0.368
+    ],
+    [
+     "Dija",
+     0.097
+    ],
+    [
+     "Kago",
+     0.092
+    ],
+    [
+     "Iki",
+     0.102
+    ],
+    [
+     "Rade",
+     0.147
+    ],
+    [
+     "Chekege",
+     0.089
+    ],
+    [
+     "Takoti",
+     0.033
+    ],
+    [
+     "Rojedo",
+     0.09
+    ],
+    [
+     "Reñife",
+     0.03
+    ]
+   ],
+   "genes": {
+    "curiosidad": 0.409,
+    "sociabilidad": 0.581,
+    "fuerza": 0.652,
+    "destreza": 0.546,
+    "resistencia": 0.339,
+    "fertilidad": 0.423,
+    "longevidad": 0.698,
+    "agresividad": 0.534,
+    "ambicion": 0.555,
+    "prudencia": 0.746,
+    "generosidad": 0.478,
+    "lealtad": 0.635,
+    "paciencia": 0.675
+   }
+  },
+  {
+   "id": 334,
+   "nombre": "Ñevak",
+   "aldea": "Gedik",
+   "edad": 50,
+   "vida": [
+    [
+     105,
+     "muere madre",
+     "Ekajek"
+    ],
+    [
+     115,
+     "oficio",
+     "pescador"
+    ],
+    [
+     118,
+     "pareja",
+     "Darok"
+    ],
+    [
+     131,
+     "muere padre",
+     "Rijek"
+    ],
+    [
+     146,
+     "enviuda",
+     "Darok"
+    ],
+    [
+     146,
+     "pareja",
+     "Gete"
+    ],
+    [
+     147,
+     "hijo",
+     "Chide"
+    ],
+    [
+     148,
+     "pierde hijo",
+     "Chide"
+    ],
+    [
+     149,
+     "enviuda",
+     "Gete"
+    ],
+    [
+     150,
+     "pareja",
+     "Ñakak"
+    ]
+   ],
+   "meta": {
+    "tipo": "prestigio",
+    "desde": 14314,
+    "motivo": "Quiere hacerse un nombre y que le escuchen en el consejo."
+   },
+   "recuerdos": [
+    [
+     105,
+     "duelo",
+     "Ekajek",
+     0.72
+    ],
+    [
+     131,
+     "duelo",
+     "Rijek",
+     0.72
+    ],
+    [
+     146,
+     "duelo",
+     "Darok",
+     0.8
+    ],
+    [
+     148,
+     "duelo",
+     "Chide",
+     0.72
+    ],
+    [
+     149,
+     "duelo",
+     "Gete",
+     0.8
+    ]
+   ],
+   "lazos": [
+    [
+     "Tevo",
+     0.398
+    ],
+    [
+     "Dajok",
+     0.033
+    ],
+    [
+     "Choño",
+     0.433
+    ],
+    [
+     "Joro",
+     0.32
+    ],
+    [
+     "Afogo",
+     0.372
+    ],
+    [
+     "Fekiñi",
+     0.278
+    ],
+    [
+     "Davak",
+     0.188
+    ],
+    [
+     "Goji",
+     0.286
+    ],
+    [
+     "Rajak",
+     0.03
+    ],
+    [
+     "Ñakak",
+     0.526
+    ]
+   ],
+   "genes": {
+    "curiosidad": 0.37,
+    "sociabilidad": 0.63,
+    "fuerza": 0.455,
+    "destreza": 0.558,
+    "resistencia": 0.528,
+    "fertilidad": 0.531,
+    "longevidad": 0.358,
+    "agresividad": 0.674,
+    "ambicion": 0.526,
+    "prudencia": 0.453,
+    "generosidad": 0.508,
+    "lealtad": 0.576,
+    "paciencia": 0.646
+   }
+  },
+  {
+   "id": 199,
+   "nombre": "Jivoki",
+   "aldea": "Fogi",
+   "edad": 70,
+   "vida": [
+    [
+     95,
+     "oficio",
+     "pastor"
+    ],
+    [
+     95,
+     "se va",
+     "Fogi"
+    ],
+    [
+     98,
+     "pareja",
+     "Digori"
+    ],
+    [
+     98,
+     "hijo",
+     "Acha"
+    ],
+    [
+     108,
+     "muere padre",
+     "Vitate"
+    ],
+    [
+     119,
+     "consejo",
+     "Fogi"
+    ],
+    [
+     121,
+     "muere madre",
+     "Chijo"
+    ],
+    [
+     146,
+     "enviuda",
+     "Digori"
+    ],
+    [
+     149,
+     "pareja",
+     "Fega"
+    ]
+   ],
+   "meta": null,
+   "recuerdos": [
+    [
+     82,
+     "emigro",
+     "Gochoña",
+     0.5
+    ],
+    [
+     108,
+     "duelo",
+     "Vitate",
+     0.72
+    ],
+    [
+     121,
+     "duelo",
+     "Chijo",
+     0.72
+    ],
+    [
+     146,
+     "duelo",
+     "Digori",
+     0.8
+    ]
+   ],
+   "lazos": [
+    [
+     "Tiko",
+     0.154
+    ],
+    [
+     "Iri",
+     0.078
+    ],
+    [
+     "Ñirak",
+     0.083
+    ],
+    [
+     "Dañago",
+     0.049
+    ],
+    [
+     "Tañak",
+     0.158
+    ],
+    [
+     "Viko",
+     0.086
+    ],
+    [
+     "Echek",
+     0.096
+    ],
+    [
+     "Keti",
+     0.093
+    ],
+    [
+     "Kiñege",
+     0.03
+    ],
+    [
+     "Fega",
+     0.699
+    ]
+   ],
+   "genes": {
+    "curiosidad": 0.569,
+    "sociabilidad": 0.512,
+    "fuerza": 0.536,
+    "destreza": 0.484,
+    "resistencia": 0.47,
+    "fertilidad": 0.389,
+    "longevidad": 0.468,
+    "agresividad": 0.541,
+    "ambicion": 0.405,
+    "prudencia": 0.441,
+    "generosidad": 0.51,
+    "lealtad": 0.546,
+    "paciencia": 0.438
+   }
+  }
+ ],
+ "tumbasNotables": [
+  {
+   "aldea": "Chogeja",
+   "anio": 97,
+   "nombre": "Akefe",
+   "edad": 66,
+   "causa": "vejez",
+   "oficio": "inventora"
+  }
+ ]
+}

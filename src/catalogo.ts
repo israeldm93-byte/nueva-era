@@ -26,7 +26,7 @@ export interface Material {
   nombre: string;
   /** Lo que alimenta cada unidad. */
   comida?: number;
-  /** Fracción que se estropea cada día. */
+  /** Fracción que se estropea cada día (la comida; también las hierbas, que se secan, y las pieles y huesos, que se ajan). */
   pudre?: number;
   /** Cuánto se aprecia cada unidad al decidir en qué trabajar. */
   peso: number;
@@ -35,15 +35,15 @@ export interface Material {
 export const MATERIALES: Material[] = [
   { id: 'madera', nombre: 'madera', peso: 0.5 },
   { id: 'piedra', nombre: 'piedra', peso: 0.5 },
-  { id: 'fibra', nombre: 'fibra', peso: 0.6 },
-  { id: 'hierbas', nombre: 'hierbas', peso: 0.8 },
+  { id: 'fibra', nombre: 'fibra', pudre: 0.003, peso: 0.6 },
+  { id: 'hierbas', nombre: 'hierbas', pudre: 0.008, peso: 0.8 },
   { id: 'bayas', nombre: 'bayas', comida: 0.5, pudre: 0.04, peso: 1 },
   { id: 'semillas', nombre: 'semillas', comida: 0.45, pudre: 0.004, peso: 1 },
   { id: 'carne', nombre: 'carne', comida: 1, pudre: 0.035, peso: 1 },
   { id: 'pescado', nombre: 'pescado', comida: 0.8, pudre: 0.05, peso: 1 },
   { id: 'cereal', nombre: 'cereal', comida: 0.6, pudre: 0.003, peso: 1 },
-  { id: 'piel', nombre: 'pieles', peso: 1.5 },
-  { id: 'hueso', nombre: 'hueso', peso: 0.5 },
+  { id: 'piel', nombre: 'pieles', pudre: 0.0015, peso: 1.5 },
+  { id: 'hueso', nombre: 'hueso', pudre: 0.0008, peso: 0.5 },
   { id: 'arcilla', nombre: 'arcilla', peso: 0.5 },
   { id: 'malaquita', nombre: 'malaquita', peso: 1.5 },
   { id: 'casiterita', nombre: 'casiterita', peso: 1.5 },
@@ -52,7 +52,7 @@ export const MATERIALES: Material[] = [
   { id: 'huevos', nombre: 'huevos', comida: 0.6, pudre: 0.03, peso: 1 },
   { id: 'leche', nombre: 'leche', comida: 0.7, pudre: 0.2, peso: 1 },
   { id: 'queso', nombre: 'queso', comida: 1.1, pudre: 0.003, peso: 1 },
-  { id: 'lana', nombre: 'lana', peso: 0.6 },
+  { id: 'lana', nombre: 'lana', pudre: 0.001, peso: 0.6 },
 ];
 
 export const MATERIAL: Record<string, Material> = Object.fromEntries(MATERIALES.map((x) => [x.id, x]));

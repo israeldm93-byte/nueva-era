@@ -13,6 +13,7 @@ import { RITMO_SABER } from './config.ts';
 import { anotar, como } from './cronica.ts';
 import { entiende, inventarPalabra, nombrar, palabraDe } from './lenguaje.ts';
 import { afamar, hito, lazo } from './memoria.ts';
+import { apuntar } from './economia.ts';
 import type { Aldea, Idea, Mundo, Persona } from './tipos.ts';
 
 const r2 = (x: number) => Math.round(x * 100) / 100;
@@ -155,7 +156,7 @@ export function experimentar(m: Mundo, p: Persona, a: Aldea, rapidez: number): {
 
   // Se prueba con cosas reales: hay que tenerlas y algo se gasta.
   for (const c of cosas) if (MATERIAL[c] && (a.despensa[c] ?? 0) < 1) return nada;
-  for (const c of cosas) if (MATERIAL[c]) a.despensa[c] = r2(a.despensa[c] - (MINERALES.includes(c) ? 0.1 : 0.3));
+  for (const c of cosas) if (MATERIAL[c]) apuntar(a, c, (a.despensa[c] ?? 0) - (MINERALES.includes(c) ? 0.1 : 0.3));
 
   let mejor = 0;
   let objetivo: Tecnica | null = null;

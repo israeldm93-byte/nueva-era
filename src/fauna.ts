@@ -220,7 +220,7 @@ function lobos(m: Mundo, f: Fiera, dia: Dia): void {
   f.hambre = r2(Math.min(1, f.hambre + (invierno ? 0.06 : 0.035) * (0.6 + f.n / 10)));
   const presas = m.recursos.caza[aqui];
   if (presas >= 1 && prob((invierno ? 0.12 : 0.3) * Math.min(1, presas / 4))) {
-    m.recursos.caza[aqui] = r2(presas - 1);
+    m.recursos.caza[aqui] = r2(Math.max(0, presas - 1));
     f.hambre = r2(Math.max(0, f.hambre - 0.3));
   }
   // Famélicos mucho tiempo, los más débiles mueren y la manada mengua.
@@ -454,7 +454,7 @@ function atacarAldea(m: Mundo, f: Fiera, a: Aldea, dia: Dia): void {
     const corral = a.edificios.find((e) => e.tipo === 'corral' && (e.animales ?? 0) >= 1);
     if (corral && prob(0.65)) {
       const muertos = Math.min(Math.floor(corral.animales ?? 0), 1 + entero(3));
-      corral.animales = r2((corral.animales ?? 0) - muertos);
+      corral.animales = (corral.animales ?? 0) - muertos;
       if (aviso(m, `corral-${a.id}`, 60)) {
         anotar(m, 'lobos', `Los lobos entran de noche en el corral de ${a.nombre} y matan ${muertos === 1 ? 'un animal' : `${muertos} animales`}.`, a.id);
       }
@@ -495,10 +495,10 @@ function oso(m: Mundo, f: Fiera, dia: Dia): void {
   const k = masa[aqui];
   f.hambre = r2(Math.min(1, f.hambre + 0.03));
   if (m.recursos.bayas[aqui] >= 2) {
-    m.recursos.bayas[aqui] = r2(m.recursos.bayas[aqui] - 2);
+    m.recursos.bayas[aqui] = r2(Math.max(0, m.recursos.bayas[aqui] - 2));
     f.hambre = r2(Math.max(0, f.hambre - 0.25));
   } else if (m.recursos.caza[aqui] >= 1 && prob(0.15)) {
-    m.recursos.caza[aqui] = r2(m.recursos.caza[aqui] - 1);
+    m.recursos.caza[aqui] = r2(Math.max(0, m.recursos.caza[aqui] - 1));
     f.hambre = r2(Math.max(0, f.hambre - 0.4));
   }
   // Huye de las aldeas (pero no de quien trabaja en el bosque).

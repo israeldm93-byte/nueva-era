@@ -16,6 +16,7 @@ import {
   EDIFICIO,
   ESTEPA,
   MATERIAL,
+  MATERIALES,
   MINERALES,
   MONTANA,
   NIVEL_CASA,
@@ -50,9 +51,21 @@ const INSPIRA: Record<string, string[]> = {
   cultivar: ['semillas', 'tierra'],
   construir: ['madera', 'piedra'],
 };
-import type { Aldea, Mundo, Persona } from './tipos.ts';
+import type { Aldea, Edificio, Mundo, Persona } from './tipos.ts';
+import { anomalia, valida } from './anomalias.ts';
 
 const r2 = (x: number) => Math.round(x * 100) / 100;
+/** Para medias y avances que cambian a pasos pequeños: con centésimas se quedaban atascados. */
+const r4 = (x: number) => Math.round(x * 10000) / 10000;
+
+/**
+ * Media que se acerca a lo último visto (lo que se espera de un trabajo, la recompensa
+ * habitual). Con centésimas, si la diferencia era pequeña el paso se redondeaba a cero y
+ * la media no llegaba nunca; con diezmilésimas llega, sin pasarse.
+ */
+export function acercar(actual: number, visto: number, paso: number): number {
+  return r4(actual + paso * (visto - actual));
+}
 const clamp = (x: number, a: number, b: number) => Math.max(a, Math.min(b, x));
 const lejania = (d: number) => 1 / (1 + 0.07 * d);
 /**
@@ -177,9 +190,27 @@ export function cuantos(a: Aldea, tipo: string): number {
   return n;
 }
 
+/**
+ * Deja en la despensa una cantidad nueva de algo. Es el único sitio por el que debe
+ * cambiar una despensa: si la cuenta llegara rota (NaN, infinita o negativa), no se
+ * escribe y queda registrada como anomalía (así un error no se contagia a la comida ni,
+ * con ella, a la salud de nadie).
+ */
+export function apuntar(a: Aldea, mat: string, valor: number): void {
+  if (!valida(valor)) {
+    anomalia(`${a.nombre}: ${mat} = ${valor}`);
+    return;
+  }
+  a.despensa[mat] = r2(Math.max(0, valor));
+}
+
 export function guardar(a: Aldea, mat: string, n: number): void {
+  if (!Number.isFinite(n)) {
+    anomalia(`${a.nombre}: se intentó guardar ${n} de ${mat}`);
+    return;
+  }
   if (n <= 0) return;
-  a.despensa[mat] = r2((a.despensa[mat] ?? 0) + n);
+  apuntar(a, mat, (a.despensa[mat] ?? 0) + n);
   if (!a.vistos.includes(mat)) a.vistos.push(mat);
 }
 
@@ -251,7 +282,8 @@ export function contexto(m: Mundo, a: Aldea, gente: Persona[], est: number): Con
   const semillas = (a.despensa.cereal ?? 0) + (a.despensa.semillas ?? 0);
   for (const e of a.edificios) {
     if (e.tipo !== 'campo') continue;
-    if (est === 0 && e.fase === 0 && ((e.trabajo ?? 0) > 0 || semillas >= 4)) camposPorTrabajar++;
+    // Con el granero lleno para años no se siembra más (lo sembrado sí se cuida y se siega).
+    if (est === 0 && e.fase === 0 && ((e.trabajo ?? 0) > 0 || semillas >= 4) && semillas < gente.length * 300) camposPorTrabajar++;
     if (est === 1 && e.fase === 1 && (e.cuidado ?? 0) < 3) camposPorTrabajar++;
     if (est === 2 && e.fase === 1) camposPorTrabajar++;
   }
@@ -307,7 +339,7 @@ export function asentarAprendizaje(m: Mundo, c: Contexto): void {
       if (ventaja > 0 === h.pensado.salidas[h.k] > 0) m.anual.aciertos++;
     }
     aprender(h.p.mente, h.pensado, h.k, ventaja, h.x);
-    h.p.recompensa = r2(h.p.recompensa + 0.05 * (h.r - h.p.recompensa));
+    h.p.recompensa = acercar(h.p.recompensa, h.r, 0.05);
   }
   c.hoy = [];
 }
@@ -502,7 +534,7 @@ function hacerOficio(m: Mundo, p: Persona, c: Contexto, act: string, eficiencia:
   }
   if (obtenido !== null && eficiencia === 1) {
     // Aprendizaje por refuerzo: lo esperado se acerca a lo obtenido.
-    p.valor[act] = r2(p.valor[act] + 0.15 * (obtenido - p.valor[act]));
+    p.valor[act] = acercar(p.valor[act], obtenido, 0.15);
   }
   // Trabajando con las manos a veces se le ocurre algo (que habrá que probar).
   const materias = INSPIRA[act];
@@ -544,7 +576,8 @@ function recolectar(m: Mundo, p: Persona, c: Contexto, eficiencia: number): numb
     R.fibra[i] = r2(R.fibra[i] - f);
     guardar(a, 'fibra', f);
   }
-  if (R.hierbas[i] > 0.5 && (c.precio.hierbas > 0.05 || prob(0.2))) {
+  // Hierbas solo si hacen falta (o unas pocas para probar, si aún no hay).
+  if (R.hierbas[i] > 0.5 && (c.precio.hierbas > 0.05 || ((a.despensa.hierbas ?? 0) < 3 && prob(0.2)))) {
     const h = r2(Math.min(R.hierbas[i], 1));
     R.hierbas[i] = r2(R.hierbas[i] - h);
     guardar(a, 'hierbas', h);
@@ -568,14 +601,14 @@ function cazar(m: Mundo, p: Persona, c: Contexto): number {
     p.causa = 'herida';
   }
   if (sabe(p, 'trampa') && prob(0.12)) {
-    R.caza[i] = r2(R.caza[i] - 1);
+    R.caza[i] = r2(Math.max(0, R.caza[i] - 1));
     guardar(a, 'cria', 1);
     return 0;
   }
   const exito =
     0.3 * (0.6 + 0.4 * p.genes.fuerza + 0.3 * p.genes.destreza) * (lanza ? 1.8 : 1) * (arco ? 1.3 : 1) * (sabe(p, 'trampa') ? 1.15 : 1) * c.herramienta * Math.min(1, R.caza[i] / 2);
   if (!prob(exito)) return 0;
-  R.caza[i] = r2(R.caza[i] - 1);
+  R.caza[i] = r2(Math.max(0, R.caza[i] - 1));
   const carne = r2((6 + 6 * azar()) * (sabe(p, 'lasca') ? 1.3 : 1));
   guardar(a, 'carne', carne);
   guardar(a, 'piel', 1);
@@ -657,18 +690,22 @@ function picar(m: Mundo, p: Persona, c: Contexto): number {
   if (i < 0) return 0;
   situar(m, p, i);
   const fuerza = (0.6 + 0.6 * p.genes.fuerza) * c.herramienta * viaje;
-  const n = r2(Math.min(R.piedra[i], 3 * fuerza * c.acarreo));
+  // La piedra solo se acarrea si hace falta: quien va a por mena deja el cascajo en la cantera.
+  const n = c.precio.piedra > 0.02 ? r2(Math.min(R.piedra[i], 3 * fuerza * c.acarreo)) : 0;
   R.piedra[i] = r2(R.piedra[i] - n);
   guardar(a, 'piedra', n);
+  let valor = n;
   for (const mineral of MINERALES) {
     // Lo que ya sobra en la despensa se deja en la veta.
     if (R[mineral][i] > 0 && (minerales || prob(0.25)) && c.precio[mineral] > 0.05) {
       const k = r2(Math.min(R[mineral][i], 1.5 * fuerza));
       R[mineral][i] = r2(R[mineral][i] - k);
       guardar(a, mineral, k);
+      // Lo que vale la mena, en piedras (para que quien pica sepa lo que de verdad rindió).
+      valor += (k * c.precio[mineral]) / Math.max(c.precio.piedra, 0.02);
     }
   }
-  return n;
+  return r2(valor);
 }
 
 function barro(m: Mundo, p: Persona, c: Contexto): number {
@@ -702,7 +739,7 @@ function pastorear(m: Mundo, p: Persona, c: Contexto): number {
   let carne = r2(Math.min(3, animales * 0.15) * (0.8 + 0.4 * p.genes.destreza) * raza);
   if (prob(0.05)) guardar(a, 'piel', 1);
   if (animales > 14 && prob(0.15)) {
-    corral.animales = r2(animales - 1);
+    corral.animales = animales - 1;
     carne = r2(carne + 8 * raza);
     guardar(a, 'piel', 1);
     guardar(a, 'hueso', 2);
@@ -722,7 +759,7 @@ function cultivar(m: Mundo, p: Persona, c: Contexto): number {
       // Sembrar gasta grano: primero del cultivado, si no, del silvestre.
       const de = (a.despensa.cereal ?? 0) >= 4 ? 'cereal' : 'semillas';
       if ((a.despensa[de] ?? 0) < 4) return 0;
-      a.despensa[de] = r2(a.despensa[de] - 4);
+      apuntar(a, de, a.despensa[de] - 4);
     }
     p.x = campo.x;
     p.y = campo.y;
@@ -780,7 +817,7 @@ function obraLista(a: Aldea): boolean {
   return a.obra.pagada || costeObra(a) !== null;
 }
 
-function construir(m: Mundo, p: Persona, c: Contexto): number {
+export function construir(m: Mundo, p: Persona, c: Contexto): number {
   const a = c.a;
   const obra = a.obra;
   if (!obra || !obraLista(a)) return 0;
@@ -788,14 +825,14 @@ function construir(m: Mundo, p: Persona, c: Contexto): number {
   if (!obra.pagada) {
     // Con lo que haya: si no hay madera para la cerca, de piedra seca.
     const pago = costeObra(a)!;
-    for (const [k, v] of Object.entries(pago.coste)) a.despensa[k] = r2(a.despensa[k] - v);
+    for (const [k, v] of Object.entries(pago.coste)) apuntar(a, k, (a.despensa[k] ?? 0) - v);
     if (pago.material) obra.material = pago.material;
     obra.pagada = true;
   }
   p.x = obra.x;
   p.y = obra.y;
   const ritmo = (0.6 + 0.4 * p.genes.fuerza) * (sabe(p, 'hacha') ? 1.2 : 1) * c.herramienta * (conoce(a, 'numeros') ? 1.15 : 1);
-  obra.progreso = r2(obra.progreso + ritmo / tipo.trabajo);
+  obra.progreso = r4(obra.progreso + ritmo / tipo.trabajo);
   if (obra.progreso >= 1) terminarObra(m, a);
   return ritmo;
 }
@@ -845,7 +882,7 @@ function terminarObra(m: Mundo, a: Aldea): void {
     const n = Math.min(Math.floor(a.despensa.cria ?? 0), 6);
     e.animales = n;
     e.especie = especieCorral(m, a);
-    a.despensa.cria = r2((a.despensa.cria ?? 0) - n);
+    apuntar(a, 'cria', (a.despensa.cria ?? 0) - n);
   }
   if (obra.tipo === 'gallinero') {
     // Se empieza con unas cuantas aves del campo atrapadas con cestas.
@@ -901,7 +938,7 @@ export function muroDe(a: Aldea): Aldea['edificios'][number] | undefined {
 }
 
 /** Ritmo al que cría cada especie (por día) en el corral. */
-const RITMO_CRIA: Record<string, number> = { oveja: 0.0025, cabra: 0.003, cerdo: 0.004, vaca: 0.0015, caballo: 0.0015 };
+export const RITMO_CRIA: Record<string, number> = { oveja: 0.0025, cabra: 0.003, cerdo: 0.004, vaca: 0.0015, caballo: 0.0015 };
 /** Lo que da de carne cada especie respecto a la oveja. */
 const CARNE: Record<string, number> = { oveja: 1, cabra: 0.9, cerdo: 1.4, vaca: 1.3, caballo: 0.5 };
 
@@ -951,6 +988,9 @@ function articulo(t: TipoEdificio): string {
   const fem = ['hoguera', 'choza', 'casa de adobe', 'casa de piedra', 'casa de tejas', 'torre de vigía', 'plaza empedrada', 'cerca', 'granja', 'empalizada', 'muralla', 'casa de las tablillas'].includes(n);
   return `${fem ? 'una' : 'un'} ${n}`;
 }
+
+/** Materiales que no son comida y se estropean. */
+const AJABLES = MATERIALES.filter((x) => !x.comida && x.pudre).map((x) => x.id);
 
 /** Cada pocos días la aldea decide qué construir después. */
 export function planificar(m: Mundo, a: Aldea, gente: Persona[]): void {
@@ -1118,12 +1158,32 @@ function lugarPara(m: Mundo, a: Aldea, tipo: string): number {
   });
 }
 
+/**
+ * Los animales son individuos: se cuentan en enteros. Lo que crían cada día (una fracción
+ * de animal) se acumula y, al completar uno, nace. Así un rebaño pequeño crece despacio
+ * pero crece (redondeando cada día a centésimas, dos vacas no llegaban nunca a tres), y si
+ * hay más de los que caben, se pierden de uno en uno.
+ */
+export function criar(e: Edificio, fraccion: number): void {
+  // La fracción se guarda con toda su precisión: solo el número de animales es entero.
+  const g = (e.gestacion ?? 0) + fraccion;
+  const k = Math.trunc(g);
+  e.animales = Math.max(0, (e.animales ?? 0) + k);
+  e.gestacion = g - k;
+}
+
 /** La comida se estropea, los animales crían y la hoguera quema leña. */
 export function mantener(m: Mundo, a: Aldea, est: number, diaDelAnio: number): boolean {
   const conserva = (tiene(a, 'almacen') ? 0.4 : 1) * (conoce(a, 'numeros') ? 0.8 : 1);
   for (const mat of ORDEN_COMER) {
     const v = a.despensa[mat];
-    if (v) a.despensa[mat] = r2(v - v * (MATERIAL[mat].pudre ?? 0) * conserva);
+    if (v) apuntar(a, mat, v - v * (MATERIAL[mat].pudre ?? 0) * conserva);
+  }
+  // Lo que no es comida también se echa a perder con el tiempo: las hierbas se secan y las
+  // pieles, la lana, la fibra y los huesos se ajan. Guardar de más no sale gratis.
+  for (const mat of AJABLES) {
+    const v = a.despensa[mat];
+    if (v) apuntar(a, mat, v - v * (MATERIAL[mat].pudre ?? 0));
   }
   const corrales = a.edificios.filter((e) => e.tipo === 'corral');
   const cabe = capacidadCorral(a);
@@ -1132,11 +1192,11 @@ export function mantener(m: Mundo, a: Aldea, est: number, diaDelAnio: number): b
       const hueco = Math.min(Math.floor(a.despensa.cria), cabe - (c.animales ?? 0));
       if (hueco > 0) {
         c.animales = (c.animales ?? 0) + hueco;
-        a.despensa.cria = r2(a.despensa.cria - hueco);
+        apuntar(a, 'cria', a.despensa.cria - hueco);
       }
     }
     // Sin corral, las crías se escapan o se mueren.
-    a.despensa.cria = r2(a.despensa.cria * 0.99);
+    apuntar(a, 'cria', a.despensa.cria * 0.99);
   }
   // Crían cada uno a su ritmo; con granja (establo y pajar), más.
   const granja = tiene(a, 'granja') ? 1.4 : 1;
@@ -1144,7 +1204,7 @@ export function mantener(m: Mundo, a: Aldea, est: number, diaDelAnio: number): b
     const n = c.animales ?? 0;
     const esp = c.especie ?? 'oveja';
     const establo = esp === 'caballo' && tiene(a, 'establo') ? 1.6 : 1;
-    if (n >= 2) c.animales = r2(n + n * (RITMO_CRIA[esp] ?? 0.0025) * granja * establo * (1 - n / cabe));
+    if (n >= 2) criar(c, n * (RITMO_CRIA[esp] ?? 0.0025) * granja * establo * (1 - n / cabe));
     // Leche de cabras y vacas; lana de las ovejas en primavera.
     if (n >= 1 && conoce(a, 'ordeno') && (esp === 'cabra' || esp === 'vaca')) guardar(a, 'leche', r2(n * (esp === 'vaca' ? 0.1 : 0.05)));
     if (n >= 1 && conoce(a, 'esquileo') && esp === 'oveja' && est === 0) guardar(a, 'lana', r2(n * 0.02));
@@ -1154,12 +1214,12 @@ export function mantener(m: Mundo, a: Aldea, est: number, diaDelAnio: number): b
     if (g.tipo !== 'gallinero') continue;
     const n = g.animales ?? 0;
     if (n >= 1 && est !== 3) guardar(a, 'huevos', r2(n * 0.08));
-    if (n >= 2) g.animales = r2(n + n * 0.006 * (1 - n / 30));
+    if (n >= 2) criar(g, n * 0.006 * (1 - n / 30));
   }
   // La leche que sobra se cuaja en quesos que aguantan meses.
   if (conoce(a, 'queseria') && (a.despensa.leche ?? 0) > 2) {
     const q = r2(a.despensa.leche * 0.3);
-    a.despensa.leche = r2(a.despensa.leche - q);
+    apuntar(a, 'leche', a.despensa.leche - q);
     guardar(a, 'queso', r2(q * 0.6));
   }
   if (est === 3 && diaDelAnio === 90) {
@@ -1170,7 +1230,7 @@ export function mantener(m: Mundo, a: Aldea, est: number, diaDelAnio: number): b
   if (tiene(a, 'hoguera')) {
     const lena = est === 3 ? 0.5 : 0.1;
     if ((a.despensa.madera ?? 0) >= lena) {
-      a.despensa.madera = r2(a.despensa.madera - lena);
+      apuntar(a, 'madera', a.despensa.madera - lena);
       encendida = true;
     }
   }
@@ -1192,7 +1252,7 @@ export function comer(m: Mundo, a: Aldea, gente: Persona[]): void {
     const n = alimento(a, mat);
     if (v <= 0 || n <= 0) continue;
     const toma = Math.min(v * n, quiere - hay);
-    a.despensa[mat] = r2(v - toma / n);
+    apuntar(a, mat, v - toma / n);
     hay += toma;
     if (hay >= quiere - 1e-9) break;
   }
@@ -1200,6 +1260,11 @@ export function comer(m: Mundo, a: Aldea, gente: Persona[]): void {
   gente.forEach((p, k) => {
     const nec = necesidad(m, p);
     let r = p.reservas + (f * racion[k]) / nec - 1;
+    if (!Number.isFinite(r)) {
+      // Nunca debería pasar (las despensas están protegidas); si pasa, no se contagia.
+      anomalia(`${p.nombre}: reservas = ${r}`);
+      return;
+    }
     if (r < 0) {
       p.salud = r2(p.salud + 0.04 * r);
       p.causa = 'hambre';

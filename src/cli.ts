@@ -73,7 +73,18 @@ function avanzarHastaAhora(): void {
   const ahora = args.ahora ? new Date(args.ahora) : new Date();
   let m: Mundo;
   if (existsSync(ruta)) {
-    m = migrar(JSON.parse(readFileSync(ruta, 'utf8')) as Mundo);
+    const texto = readFileSync(ruta, 'utf8');
+    const crudo = JSON.parse(texto) as Mundo;
+    const ultima = JSON.stringify(crudo.reparaciones?.at(-1) ?? null);
+    m = migrar(crudo);
+    // Si al cargar hubo que reparar algo, el estado tal como estaba se guarda aparte (y no
+    // se borra en las ejecuciones siguientes): siempre se puede volver atrás.
+    if (JSON.stringify(m.reparaciones?.at(-1) ?? null) !== ultima) {
+      const copia = join(dirname(ruta), `antes-de-reparar-${crudo.t}.json`);
+      writeFileSync(copia, texto);
+      console.log(`Se repararon datos al cargar; el estado original queda en ${copia}.`);
+      for (const r of (m.reparaciones ?? []).filter((x) => x.t === m.t)) console.log(`  ${r.ruta}: ${r.antes} → ${r.despues} (${r.criterio}${r.recuperable ? '' : '; no recuperable'})`);
+    }
   } else {
     // Nunca se crea un mundo nuevo por accidente (por ejemplo, si falló la descarga del estado).
     if (!args.crear) throw new Error(`No existe ${ruta}. Usa --crear para que nazca un mundo nuevo.`);

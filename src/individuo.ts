@@ -207,6 +207,11 @@ export function revisarMeta(m: Mundo, p: Persona, a: Aldea, gente: Persona[], pa
   let mejor: [number, string, () => Meta] | null = null;
   for (const o of opciones) if (!mejor || o[0] > mejor[0]) mejor = o;
   const actual = p.meta ? opciones.find(([, tipo]) => tipo === p.meta!.tipo) : null;
+  // Lo que uno se propone se mantiene un tiempo (más cuanto más paciente), salvo que deje
+  // de ser posible o que apriete algo urgente (el hambre de verdad).
+  const urgente = !!mejor && mejor[1] === 'sobrevivir' && mejor[0] >= 1.1 && p.meta?.tipo !== 'sobrevivir';
+  const compromiso = 30 + 150 * g.paciencia;
+  if (p.meta && actual && !urgente && m.t - p.meta.desde < compromiso) return;
   if (p.meta && actual && (!mejor || actual[0] >= mejor[0] * 0.8) && actual[0] >= META_VALIDA_MIN * 0.8) return;
   if (!mejor || mejor[0] < META_VALIDA_MIN) {
     p.meta = null;
@@ -258,7 +263,15 @@ export function vidas(m: Mundo, ix: Indices, vivas: Aldea[]): void {
       if (p.id % 10 !== turno || p.muerto) continue;
       pan ??= panorama(m, a, gente);
       // La práctica se va olvidando si no se ejerce; el oficio, una vez ganado, queda.
-      if (p.practica) for (const k of Object.keys(p.practica)) p.practica[k] = Math.round(p.practica[k] * 0.97 * 10) / 10;
+      // (Con décimas, por debajo de 1,6 días el 3 % se perdía al redondear y nunca se olvidaba
+      // del todo: ahora con centésimas, y lo que baja de un día se da por olvidado.)
+      if (p.practica) {
+        for (const k of Object.keys(p.practica)) {
+          const v = p.practica[k] * 0.97;
+          if (v < 1) delete p.practica[k];
+          else p.practica[k] = Math.round(v * 100) / 100;
+        }
+      }
       const o = oficio(p);
       if (o && !p.vida?.some((h) => h[1] === 'oficio')) hito(m, p, 'oficio', nombreOficio(p, o));
       enfriar(p, vive);

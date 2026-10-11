@@ -5,7 +5,7 @@
 
 import { AGUA, MONTANA, ORDEN_COMER } from './catalogo.ts';
 import { anotar } from './cronica.ts';
-import { aCaballo, deTiro } from './economia.ts';
+import { aCaballo, apuntar, deTiro } from './economia.ts';
 import { direccion } from './mapa.ts';
 import { distancia } from './matematicas.ts';
 import type { Aldea, Mundo, Persona } from './tipos.ts';
@@ -32,8 +32,8 @@ export function cargar(origen: Aldea, b: Aldea, personas: number, parte: number)
   for (const [k, v] of Object.entries(origen.despensa)) {
     const lleva = r2(Math.min(v * parte, (CARGA[k] ?? 0) * personas * bestias));
     if (lleva <= 0) continue;
-    b.despensa[k] = lleva;
-    origen.despensa[k] = r2(v - lleva);
+    apuntar(b, k, lleva);
+    apuntar(origen, k, v - lleva);
   }
 }
 

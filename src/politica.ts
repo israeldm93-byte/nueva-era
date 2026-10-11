@@ -12,9 +12,10 @@ import { prob } from './azar.ts';
 import { DIAS_ANIO, EDAD_ADULTA } from './config.ts';
 import { ORDEN_COMER } from './catalogo.ts';
 import { anotar, listar } from './cronica.ts';
-import { aCaballo, casaMejor, comidaTotal, conoce, guardar, plazas, situacion, tiene, type Contexto } from './economia.ts';
+import { aCaballo, apuntar, casaMejor, comidaTotal, conoce, guardar, plazas, situacion, tiene, type Contexto } from './economia.ts';
 import { mayuscula, inventarPalabra } from './lenguaje.ts';
 import { edadSegun } from './edades.ts';
+import { oficio } from './individuo.ts';
 import { afamar, ajustarLazo, hito, lazo, memoria, recordar, tratar } from './memoria.ts';
 import { cargar, partir } from './exodo.ts';
 import { buscarSitio, direccion } from './mapa.ts';
@@ -25,6 +26,8 @@ import { limiteAldea, morir } from './sociedad.ts';
 import type { Aldea, Faccion, Mundo, Persona, Relacion } from './tipos.ts';
 
 const r2 = (x: number) => Math.round(x * 100) / 100;
+/** Para lo que cambia a pasos pequeños (afinidad, miedo): sin perder los incrementos. */
+const r4 = (x: number) => Math.round(x * 10000) / 10000;
 
 export const FRASE: Record<string, string> = {
   comida: 'hay que conseguir más comida',
@@ -72,11 +75,32 @@ function necesidadesHoy(a: Aldea, gente: Persona[], c: Contexto): Record<string,
   };
 }
 
+/** A qué prioridad empuja su oficio. */
+const OFICIO_PRIORIDAD: Record<string, string> = {
+  cultivar: 'comida', pastorear: 'comida', pescar: 'comida', recolectar: 'comida', cazar: 'comida',
+  construir: 'obras', picar: 'obras', barro: 'obras', lenar: 'invierno', experimentar: 'saber', vigilar: 'defensa',
+};
+/** A qué prioridad empuja lo que persigue. */
+const META_PRIORIDAD: Record<string, [string, number]> = {
+  fundar: ['expandir', 0.3], emigrar: ['expandir', 0.15], sobrevivir: ['comida', 0.25], aprender: ['saber', 0.15],
+  prestigio: ['obras', 0.1], familia: ['obras', 0.1], vengar: ['defensa', 0.3],
+};
+
+/** Lo que tira de cada cual por su propio interés (su oficio y su meta). */
+export function interes(p: Persona, pr: string, o: string | null): number {
+  let v = 0;
+  if (o && OFICIO_PRIORIDAD[o] === pr) v += 0.15;
+  const mp = p.meta ? META_PRIORIDAD[p.meta.tipo] : undefined;
+  if (mp && mp[0] === pr) v += mp[1];
+  return v;
+}
+
 /** Lo que cada uno piensa que habría que hacer: necesidades vistas a través de su mente. */
 function opinar(m: Mundo, p: Persona, c: Contexto, nec: Record<string, number>): string {
   const valores: Record<string, number> = {};
   const e = edad(m, p);
   const s = pensar(p.mente, entradas(situacion(p, c, e, false))).salidas;
+  const o = oficio(p);
   const media = (acts: string[]) => acts.reduce((t, k) => t + s[ACCIONES.indexOf(k)], 0) / acts.length;
   let mejor = PRIORIDADES[0];
   let max = -Infinity;
@@ -96,9 +120,11 @@ function opinar(m: Mundo, p: Persona, c: Contexto, nec: Record<string, number>):
     // Lo vivido pesa: quien pasó hambre piensa en la comida; quien sufrió asaltos o perdió
     // a los suyos a manos de otros, en defenderse (y quien quiere vengarse, más).
     if (pr === 'comida') v += 0.25 * memoria(m, p, 'hambre');
-    if (pr === 'defensa') v += 0.3 * memoria(m, p, 'asalto') + 0.15 * memoria(m, p, 'fieras') + (p.meta?.tipo === 'vengar' ? 0.3 : 0);
+    if (pr === 'defensa') v += 0.3 * memoria(m, p, 'asalto') + 0.15 * memoria(m, p, 'fieras');
     // Lo que les hizo ser un pueblo sigue pesando en lo que piensan sus hijos y nietos.
     if (pr === c.a.valor) v += 0.12;
+    // Y cada cual mira también por lo suyo: su oficio y lo que persigue en la vida.
+    v += interes(p, pr, o);
     valores[pr] = v;
     if (v > max) {
       max = v;
@@ -153,7 +179,9 @@ export function noche(m: Mundo, a: Aldea, gente: Persona[], c: Contexto): void {
     anotar(m, 'consejo', `El consejo de ${a.nombre} (${listar(miembros.slice(0, 3).map(([p]) => p.nombre))}) decide que ${FRASE[cs.prioridad]}.`, a.id);
   }
   // El miedo se va olvidando si no pasa nada; cada mes se repiensa la guerra.
-  a.amenaza = r2(a.amenaza * 0.99);
+  // (Con centésimas, ×0,99 se redondeaba otra vez a lo mismo por debajo de 0,5 y el miedo
+  // no se pasaba nunca: ahora con diezmilésimas, y lo que queda por debajo de 0,01 es nada.)
+  a.amenaza = a.amenaza < 0.01 ? 0 : r4(a.amenaza * 0.99);
   if ((m.t + a.id) % 30 === 0) repensarGuerra(m, a);
 }
 
@@ -162,9 +190,11 @@ export function persuadir(m: Mundo, hablante: Persona, oyente: Persona): void {
   if (hablante.opinion === oyente.opinion) return;
   if (edad(m, hablante) < EDAD_ADULTA || edad(m, oyente) < EDAD_ADULTA) return;
   const prestigio = Math.min(2, 0.5 + respeto(m, hablante) / 3);
-  // A un amigo se le hace más caso; a un rival, casi ninguno.
+  // A un amigo se le hace más caso; a un rival, casi ninguno. Y a quien defiende lo que le
+  // toca de cerca (su oficio, lo que persigue) cuesta mucho más convencerle.
   const aprecio = Math.max(0.15, 1 + 0.6 * lazo(oyente, hablante.id));
-  if (prob(0.06 * (0.5 + oyente.genes.sociabilidad) * prestigio * aprecio)) {
+  const conviccion = interes(oyente, oyente.opinion, oficio(oyente)) > 0 ? 0.35 : 1;
+  if (prob(0.06 * (0.5 + oyente.genes.sociabilidad) * prestigio * aprecio * conviccion)) {
     oyente.opinion = hablante.opinion;
     tratar(oyente, hablante, 0.02);
   }
@@ -437,7 +467,7 @@ export function asaltar(m: Mundo, A: Aldea, B: Aldea, ga: Persona[], gb: Persona
       const v = B.despensa[mat] ?? 0;
       const lleva = r2(v * 0.35);
       if (lleva <= 0) continue;
-      B.despensa[mat] = r2(v - lleva);
+      apuntar(B, mat, v - lleva);
       guardar(A, mat, lleva);
       botin += lleva;
     }
@@ -474,7 +504,7 @@ export function convivir(m: Mundo, A: Aldea, B: Aldea, escasezA: number, escasez
   const rel = relacion(m, A.id, B.id);
   // Vecinos demasiado cerca y con hambre se disputan las mismas tierras.
   if (distancia(A.x - B.x, A.y - B.y) < 12 && escasezA > 0.4 && escasezB > 0.4) rel.rencor = Math.min(1, r2(rel.rencor + 0.03));
-  rel.afinidad = Math.min(1, r2(rel.afinidad + 0.005 + (A.origen === B.id || B.origen === A.id ? 0.005 : 0)));
+  rel.afinidad = Math.min(1, r4(rel.afinidad + 0.005 + (A.origen === B.id || B.origen === A.id ? 0.005 : 0)));
   rel.rencor = Math.max(0, r2(rel.rencor - 0.02));
   if (!rel.alianza && rel.afinidad > 0.75 && rel.rencor < 0.1) {
     rel.alianza = true;
@@ -491,7 +521,7 @@ export function convivir(m: Mundo, A: Aldea, B: Aldea, escasezA: number, escasez
         const v = rica.despensa[mat] ?? 0;
         const pasa = r2(v * 0.15);
         if (pasa <= 0) continue;
-        rica.despensa[mat] = r2(v - pasa);
+        apuntar(rica, mat, v - pasa);
         guardar(pobre, mat, pasa);
       }
     }

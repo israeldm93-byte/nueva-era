@@ -162,3 +162,25 @@ Estado: ✅ hecho y verificado · 🟡 parcial · ⏳ pendiente.
   están pendientes (bloque 6).
 - Las familias que se mudan usan en 3D el mismo dibujo que las caravanas (columna por la
   puerta); no se ha comprobado visualmente.
+
+### Estabilidad e integridad (versión publicada)
+
+- **Causa raíz del NaN** corregida en `comerciar`/`encuentros` (aldea vaciada por una boda).
+  Ver [validacion/README.md](../validacion/README.md): el exceso de descanso y el hundimiento
+  de la economía de las semillas 23, 37 y 59 eran consecuencia de ese NaN.
+- **Escrituras validadas**: toda escritura en una despensa pasa por `apuntar` (rechaza y
+  registra cuentas rotas; solo un negativo de redondeo se da por cero). `comprobar`
+  (`src/invariantes.ts`) verifica el mundo en pruebas y al cargar.
+- **Reparación de guardados** (`reparar` en `src/migrar.ts`): cada arreglo queda en
+  `m.reparaciones` con ruta, valor anterior, valor nuevo, criterio y si era recuperable. Lo
+  perdido de una persona se estima con su aldea o sus padres; lo almacenado perdido se da
+  por vacío; en una mente solo se anulan los pesos rotos. Si al cargar se repara algo, el
+  estado original se guarda como `antes-de-reparar-<día>.json` en la rama `estado`.
+- **Redondeos corregidos** (pasos pequeños que se perdían con centésimas): animales de
+  corrales y gallineros ahora enteros con la cría en camino acumulada sin redondear (dos
+  vacas sin granja no llegaban nunca a tres); amenaza de la aldea (se quedaba en 0,5 para
+  siempre); afinidad entre aldeas; lazos fuertes; medias de recompensa y de lo que rinde
+  cada trabajo; avance de las obras; práctica que no llegaba a olvidarse.
+- **Remedios**: cada enfermo curado gasta una dosis de hierbas; sin hierbas, no hay remedio.
+- Pruebas: `test/estabilidad.test.ts` (con `LARGO=1`, las semillas 23, 37 y 59 más allá de
+  su día de fallo) y `test/limites.test.ts` (casos límite y cada redondeo corregido).
