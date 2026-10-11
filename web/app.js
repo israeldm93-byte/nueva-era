@@ -412,7 +412,7 @@ function fichaTocada({ animal: i, casilla, edificio }) {
 }
 
 /** Lo que trae a casa cada oficio, dicho en palabras. */
-const TRAE = { tronco: 'leña', presa: 'una pieza de caza', sarta: 'una sarta de pescado', frutos: 'la cesta llena de frutos', piedras: 'piedras', gavilla: 'gavillas de la cosecha' };
+const TRAE = { tronco: 'leña', presa: 'una pieza de caza a cuestas', presaChica: 'una liebre', sarta: 'una sarta de pescado', frutos: 'la cesta llena de frutos', piedras: 'piedras', gavilla: 'gavillas de la cosecha' };
 /** Qué hace cada oficio, en gerundio. */
 const HACIENDO = {
   recolectar: 'recolectando frutos y semillas', cazar: 'cazando', pescar: 'pescando', lenar: 'cortando leña', picar: 'picando piedra',
@@ -420,11 +420,13 @@ const HACIENDO = {
   descansar: 'descansando', jugar: 'jugando', vigilar: 'vigilando', asaltar: 'asaltando otra aldea', defender: 'defendiendo la aldea',
 };
 
+const PRESA = { ciervo: 'a un grupo de ciervos', jabali: 'a unos jabalíes', liebre: 'a unas liebres', caballo: 'a una manada de caballos salvajes', cabra: 'a unas cabras montesas' };
+
 /** Lo que está haciendo alguien justo ahora, según lo que se ve en el mundo. */
 function haciendoAhora(p, ahora) {
   const oficio = HACIENDO[p.act] ?? ACTIVIDAD[p.act] ?? p.act;
   if (!ahora) return mayus(oficio) + '.';
-  const { pose, carga, carro, barca, caballo, alarma, fase } = ahora;
+  const { pose, carga, carro, barca, caballo, alarma, fase, rebano } = ahora;
   if (alarma) return '¡Ha salido con los demás a plantar cara a los lobos!';
   if (ahora.viaje) return ahora.viaje;
   if (pose === 'arquero') return 'Vigila desde lo alto de la torre con el arco preparado.';
@@ -436,9 +438,12 @@ function haciendoAhora(p, ahora) {
   if (caballo) return fase < 0.5 ? `Sale a caballo: va ${p.act === 'cazar' ? 'a cazar' : p.act === 'vigilar' ? 'a vigilar' : 'a trabajar'}.` : 'Vuelve a caballo.';
   if (pose === 'andar' || pose === 'correr') {
     if (carga) return `Vuelve a casa con ${TRAE[carga] ?? 'lo que ha conseguido'}.`;
+    if (p.act === 'cazar' && fase >= 0.5) return 'Vuelve sin pieza: hoy la caza se le ha escapado.';
+    if (p.act === 'cazar' && rebano) return `Va en busca de ${PRESA[rebano] ?? 'caza'}.`;
     if (p.act === 'jugar') return 'Corretea jugando con los otros niños.';
     return fase < 0.5 ? `Va a trabajar: hoy toca ${ACCION[p.act] ?? oficio}.` : 'Vuelve a casa.';
   }
+  if (pose === 'cazar' && rebano) return `Acecha ${PRESA[rebano] ?? 'a la caza'}, agachado y contra el viento, con el arma lista.`;
   if (pose === 'experimentar') return p.idea ? `Está probando a ${p.idea.verbo} ${listar(p.idea.cosas)}, a ver qué sale.` : 'Prueba cosas nuevas, a ver qué sale.';
   if (pose === 'pie') return fase < 0.12 ? 'Acaba de levantarse, a la puerta de su choza.' : fase > 0.8 ? 'Ya en casa, a la puerta de su choza.' : 'Parado, mirando a su alrededor.';
   return `Está ${oficio}.`;

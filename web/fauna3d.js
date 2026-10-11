@@ -165,6 +165,15 @@ export class Fauna3D {
       this.estacionCrias = `${clave}-${d.estacion}`;
       for (const r of this.rebanos) this.criasDe(r, d.estacion);
     }
+    // Cada día nuevo, los rebaños vuelven a estar completos (lo cazado ayer ya se lo comieron).
+    if (this.diaCaza !== `${d.anio}-${d.dia}`) {
+      this.diaCaza = `${d.anio}-${d.dia}`;
+      for (const r of this.rebanos) {
+        for (const a of r.miembros) a.muerto = a.oculto = false;
+        r.caida = null;
+        r.cazador = null;
+      }
+    }
     // Rebaños: si en su sitio ya no queda caza (o ha crecido una aldea al lado), no están.
     const W = d.ancho;
     const aldeas = d.aldeas.filter((a) => a.abandonada === null);
@@ -675,6 +684,12 @@ export class Fauna3D {
 
   /** Un animal de rebaño: pasta, pasea, se alerta, descansa y huye. */
   pensar(a, dt, noche) {
+    if (a.muerto) {
+      // Abatido: tendido de lado donde cayó, hasta que se lo llevan.
+      this.mover(a, dt, 0, 0, 0);
+      a.estado = 'echado';
+      return;
+    }
     a.t -= dt;
     const amenaza = a.domestico ? null : this.amenazaDe(a.x, a.z, MIEDO[a.esp]);
     if (amenaza) {
@@ -803,6 +818,41 @@ export class Fauna3D {
       animales.push(a);
     }
     return { animales, huyeron: false };
+  }
+
+  /** El rebaño salvaje vivo más cercano a un punto (adonde va el cazador). */
+  rebanoCerca(x, z, radio) {
+    let mejor = null;
+    let dmin = radio * radio;
+    for (const r of this.rebanos) {
+      if (!r.vivo || !r.miembros.length) continue;
+      // Mejor caza mayor (ciervos, jabalíes, caballos) que unas liebres, si no queda mucho más lejos.
+      const d2 = ((r.x - x) ** 2 + (r.z - z) ** 2) * (r.esp === 'liebre' ? 2.2 : 1);
+      if (d2 < dmin) {
+        dmin = d2;
+        mejor = r;
+      }
+    }
+    return mejor;
+  }
+
+  /** Hasta dónde puede acercarse un cazador a esa especie sin espantarla. */
+  acecho(esp) {
+    return (MIEDO[esp]?.[0] ?? 5) + 1.4;
+  }
+
+  /** Dónde está el rebaño ahora (el centro de los que siguen en pie). */
+  centroRebano(r) {
+    let x = 0;
+    let z = 0;
+    let n = 0;
+    for (const a of r.miembros) {
+      if (a.muerto) continue;
+      x += a.x;
+      z += a.z;
+      n++;
+    }
+    return n ? [x / n, z / n] : [r.x, r.z];
   }
 
   /** El animal de rebaño más cercano a un punto (para la caza de los lobos). */
@@ -1105,9 +1155,9 @@ export class Fauna3D {
       cuesta = -Math.atan2(hd - ht, 2 * largo) * 0.85;
       y = Math.max(y, (hd + ht) / 2);
     }
-    E.set(0, a.ang, 0);
+    E.set(0, a.ang, a.muerto ? 1.4 : 0);
     Q.setFromEuler(E);
-    RAIZ.compose(V.set(a.x, y, a.z), Q, ESC.set(s, s, s));
+    RAIZ.compose(V.set(a.x, y - (a.muerto ? 0.08 * s : 0), a.z), Q, ESC.set(s, s, s));
     // El cuerpo gira sobre su centro o, al sentarse o erguirse, sobre las caderas de atrás.
     const [, ay, az] = esp.patas[1];
     if (P.atras) {
@@ -1226,6 +1276,43 @@ export class Fauna3D {
     for (const q of gente) {
       if (q.p.act !== 'cazar' || q.pose !== 'cazar' || q.oculto) continue;
       if ((q.x - objetivo.x) ** 2 + (q.z - objetivo.z) ** 2 > RADIO_VIDA * RADIO_VIDA) continue;
+      // Si caza un rebaño de verdad: cuando se prepara, levantan la cabeza; cuando tira,
+      // huyen todos y, si hoy acierta, uno cae.
+      if (q.rebano?.vivo) {
+        const r = q.rebano;
+        const c = (t * 0.08 + q.p.id * 0.29) % 1;
+        if (c > 0.86 && c <= 0.92) {
+          for (const a of r.miembros) {
+            if (a.muerto || a.estado === 'huir' || (a.x - q.x) ** 2 + (a.z - q.z) ** 2 > 16 * 16) continue;
+            a.estado = 'alerta';
+            a.t = 1.2;
+            a.mira = acotar(giroHacia(a.ang, Math.atan2(q.x - a.x, q.z - a.z)), -1.2, 1.2);
+          }
+        } else if (c > 0.92 && !q.lanzado) {
+          q.lanzado = true;
+          let blanco = null;
+          let dmin = Infinity;
+          for (const a of r.miembros) {
+            const d2 = (a.x - q.x) ** 2 + (a.z - q.z) ** 2;
+            if (!a.muerto && d2 < dmin) {
+              dmin = d2;
+              blanco = a;
+            }
+          }
+          if (q.p.cobro && !r.caida && blanco && dmin < 14 * 14 && r.miembros.length > 1) {
+            blanco.muerto = true;
+            r.caida = blanco;
+            r.cazador = q;
+          }
+          for (const a of r.miembros) {
+            if (a.muerto || (a.x - q.x) ** 2 + (a.z - q.z) ** 2 > 18 * 18) continue;
+            a.estado = 'huir';
+            a.huye = [q.x, q.z];
+            a.t = 2.5 + azar(a.id + t) * 1.5;
+          }
+        } else if (c < 0.5) q.lanzado = false;
+        continue;
+      }
       cazando.add(q.p.id);
       // El mismo ritmo que el brazo del cazador (gente3d): lanza cuando c pasa de 0.9.
       const c = (t * 0.08 + q.p.id * 0.29) % 1;
@@ -1282,8 +1369,10 @@ export class Fauna3D {
         const esp = ESPECIES[r.esp];
         for (const a of r.miembros) this.pensar(a, dt, noche);
         for (const a of r.crias) this.pensarCria(a, dt);
-        const todos = r.crias.length ? r.miembros.concat(r.crias) : r.miembros;
-        this.separar(todos, r.esp);
+        // El abatido desaparece cuando el cazador se lo lleva a cuestas.
+        if (r.caida && r.cazador && r.cazador.pose !== 'cazar') r.caida.oculto = true;
+        const todos = (r.crias.length ? r.miembros.concat(r.crias) : r.miembros).filter((a) => !a.oculto);
+        this.separar(todos.filter((a) => !a.muerto), r.esp);
         for (const a of todos) {
           this.avanzar(a, esp, dt);
           this.postura(a, esp, t);

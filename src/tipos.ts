@@ -51,6 +51,8 @@ export interface Persona {
   x: number;
   y: number;
   actividad: string;
+  /** Si hoy volvió con algo (el cazador, con su pieza). */
+  cobro?: boolean;
   hijos: number;
   descubrimientos: number;
   /** Solo durante el día en que muere; nunca se guarda. */

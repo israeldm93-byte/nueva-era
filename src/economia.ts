@@ -366,6 +366,7 @@ function hacer(m: Mundo, p: Persona, c: Contexto, act: string, eficiencia: numbe
       break;
     case 'cazar':
       obtenido = cazar(m, p, c);
+      p.cobro = obtenido > 0;
       r = obtenido * pr.comida + (obtenido > 0 ? pr.piel + 2 * pr.hueso : 0);
       break;
     case 'pescar':
@@ -479,7 +480,8 @@ function cazar(m: Mundo, p: Persona, c: Contexto): number {
   const R = m.recursos;
   const a = c.a;
   const barca = sabe(p, 'canoa');
-  const i = mejorCasilla(m, a.x, a.y, c.radio, (j, d) => (alcanzable(m, a, j, barca) ? R.caza[j] * lejania(d) : 0));
+  // La caza huye del ruido de la aldea: alrededor no queda nada y hay que alejarse.
+  const i = mejorCasilla(m, a.x, a.y, c.radio + 2, (j, d) => (alcanzable(m, a, j, barca) ? R.caza[j] * lejania(d) * (d < 4.5 ? 0.03 : 1) : 0));
   if (i < 0 || R.caza[i] < 0.5) return 0;
   situar(m, p, i);
   const lanza = sabe(p, 'lanza');

@@ -184,6 +184,7 @@ export function datosWeb(m: Mundo, ahora: Date) {
         x: p.x,
         y: p.y,
         act: p.actividad,
+        ...(p.actividad === 'cazar' && p.cobro ? { cobro: true } : {}),
         salud: r2(p.salud),
         reservas: r1(p.reservas),
         saberes: p.saberes,

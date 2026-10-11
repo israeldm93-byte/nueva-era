@@ -103,6 +103,8 @@ export class Mundo3D {
     this.edificios = new Edificios3D(this.escena, this.terreno);
     this.gente = new Gente3D(this.escena, this.terreno);
     this.fauna = new Fauna3D(this.escena, this.terreno);
+    // La gente sabe dónde pacen los rebaños (los cazadores van a por ellos).
+    this.gente.fauna = this.fauna;
     this.crearNubes();
     this.minimapa = minimapa ? new Minimapa(minimapa, (x, y) => this.irA(x, y)) : null;
 
@@ -729,6 +731,7 @@ export class Mundo3D {
               caballo: per.montando,
               alarma: per.alarma,
               fase: this.faseDia(),
+              rebano: per.rebano?.esp ?? null,
               viaje: per.viaje
                 ? `Camina con los suyos hacia su nueva tierra, lejos de donde nació; les quedan unos ${Math.max(1, per.viaje.dias - (this.gente.t - per.viaje.salida))} días de camino.`
                 : null,

@@ -137,6 +137,13 @@ function modelos() {
       { geo: C(0.012, 0.009, 0.22, 4), color: 0x4a3020, x: -0.25, y: 0.24, z: 0.04, rx: 0.5 },
       { geo: C(0.012, 0.009, 0.22, 4), color: 0x4a3020, x: 0.21, y: 0.24, z: 0.05, rx: 0.5 },
     ]),
+    // Una liebre colgada de la mano, cogida por las patas.
+    presaChica: fundir([
+      { geo: Es(1, 6, 4), color: 0x9a7a55, y: mano - 0.17, sx: 0.045, sy: 0.11, sz: 0.05 },
+      { geo: Es(0.035, 6, 4), color: 0x8a6e50, y: mano - 0.3 },
+      { geo: B(0.015, 0.07, 0.008), color: 0x8a6e50, x: 0.015, y: mano - 0.36 },
+      { geo: B(0.015, 0.07, 0.008), color: 0x8a6e50, x: -0.015, y: mano - 0.36 },
+    ]),
     sarta: fundir([
       { geo: C(0.003, 0.003, 0.1, 3), color: 0x8a7a5a, y: mano - 0.05 },
       { geo: Es(1, 6, 4), color: 0xaebcc2, y: mano - 0.16, sx: 0.016, sy: 0.065, sz: 0.026 },
@@ -217,7 +224,7 @@ function modelos() {
 
 /** Lo que trae a casa cada oficio. */
 const CARGA = { lenar: 'tronco', cazar: 'presa', pescar: 'sarta', recolectar: 'frutos', picar: 'piedras', barro: 'piedras', cultivar: 'gavilla' };
-const CARGAS = ['tronco', 'presa', 'sarta', 'frutos', 'piedras', 'gavilla', 'baston', 'boya', 'pezCana', 'escudo', 'canoa', 'velaBarca', 'carro', 'cargaTronco', 'cargaPiedras', 'cargaGavilla', 'cargaFrutos'];
+const CARGAS = ['tronco', 'presa', 'presaChica', 'sarta', 'frutos', 'piedras', 'gavilla', 'baston', 'boya', 'pezCana', 'escudo', 'canoa', 'velaBarca', 'carro', 'cargaTronco', 'cargaPiedras', 'cargaGavilla', 'cargaFrutos'];
 /** Lo que se lleva en el carro según lo que se trae. */
 const EN_CARRO = { tronco: 'cargaTronco', piedras: 'cargaPiedras', gavilla: 'cargaGavilla', frutos: 'cargaFrutos' };
 /** Cargas que se llevan al hombro o a cuestas (y dejan la herramienta en el cinto). */
@@ -604,6 +611,19 @@ export class Gente3D {
           tz = arbol[1] + (dz / l) * 0.55;
         }
       }
+      // El cazador va adonde de verdad hay caza: al rebaño más cercano a su cazadero, y se
+      // queda a la distancia justa para no espantarlo, del lado de la aldea.
+      let rebano = null;
+      if (p.act === 'cazar' && p.edad >= 14 && this.fauna) {
+        rebano = this.fauna.rebanoCerca(tx, tz, 26);
+        if (rebano) {
+          const [rx, rz] = this.fauna.centroRebano(rebano);
+          const l = Math.hypot(ax - rx, az - rz) || 1;
+          const lejos = this.fauna.acecho(rebano.esp);
+          tx = rx + ((ax - rx) / l) * lejos + (azar(p.id * 2.2) - 0.5) * 1.5;
+          tz = rz + ((az - rz) / l) * lejos + (azar(p.id * 3.7) - 0.5) * 1.5;
+        }
+      }
       // Se trabaja junto a los edificios, no dentro (salvo el pastor, en su corral).
       if (plano && p.act !== 'pastorear') [tx, tz] = fuera(tx, tz, plano.obst);
       // Su sitio junto al fuego (que no caiga dentro de una choza).
@@ -646,6 +666,7 @@ export class Gente3D {
         idx,
         casa,
         rutaViaje,
+        rebano,
         anillos: [plano?.anillo, viaje ? this.planos.get(a.origen)?.anillo : null].filter(Boolean),
         trabajo: [tx, tz],
         arbol,
@@ -799,6 +820,21 @@ export class Gente3D {
           pose = s > 0 ? 'andar' : 'pie';
           mira = [x + ux, z + uz];
         }
+      } else if (per.rebano && k === 1 && p.act === 'cazar') {
+        // Al acecho: agachado, siguiendo al rebaño a la distancia justa (si huye, va tras él).
+        const [rx, rz] = this.fauna.centroRebano(per.rebano);
+        const ac = (per.acecho ??= [x, z]);
+        const l = Math.hypot(ac[0] - rx, ac[1] - rz) || 1;
+        const lejos = this.fauna.acecho(per.rebano.esp);
+        const qx = rx + ((ac[0] - rx) / l) * lejos;
+        const qz = rz + ((ac[1] - rz) / l) * lejos;
+        const paso = Math.min(1, (1.3 * dt) / (Math.hypot(qx - ac[0], qz - ac[1]) || 1));
+        ac[0] += (qx - ac[0]) * paso;
+        ac[1] += (qz - ac[1]) * paso;
+        x = ac[0];
+        z = ac[1];
+        pose = 'cazar';
+        mira = [rx, rz];
       } else if (per.torre && k === 1) {
         // Arriba de la torre, mirando hacia fuera (o hacia los lobos, si los hay).
         const al = this.alarmas?.get(p.aldea);
@@ -916,6 +952,8 @@ export class Gente3D {
       // De vuelta a casa traen lo que han conseguido; los mayores andan con bastón.
       let carga = null;
       if ((pose === 'andar' || pose === 'correr') && f >= vuelta0 && f < 0.86 && !quieto && p.edad >= 12) carga = CARGA[p.act] ?? null;
+      // El cazador solo vuelve con pieza si la ha cobrado (una liebre, en la mano).
+      if (carga === 'presa') carga = p.cobro ? (per.rebano?.esp === 'liebre' ? 'presaChica' : 'presa') : null;
       if (carga === 'gavilla' && this.estacion !== 'verano' && this.estacion !== 'otoño') carga = null;
       // Con carro: el animal tira de él a su lado y la carga va en el carro (las manos, libres).
       per.tiro = null;
@@ -947,7 +985,7 @@ export class Gente3D {
       // Lo que está haciendo justo ahora (para su ficha al tocarlo).
       per.pose = pose;
       this.postura(per, pose, t, x, y, z);
-      if (carga) this.dejar(carg, carga, carga === 'sarta' ? this.M.manoI : this.M.torso);
+      if (carga) this.dejar(carg, carga, carga === 'sarta' || carga === 'presaChica' ? this.M.manoI : this.M.torso);
       if (per.baston) this.dejar(carg, 'baston', this.M.mano);
       if (per.escudo && pose !== 'sentado' && pose !== 'vigilarNoche' && (k > 0 || p.act === 'vigilar' || p.act === 'defender')) this.dejar(carg, 'escudo', this.M.antebrazoI);
       if (pose === 'pescar' || pose === 'barcaPesca') this.pesca(per, t, carg);
