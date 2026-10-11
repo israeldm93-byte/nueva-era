@@ -566,6 +566,8 @@ export class Fauna3D {
     contar('lobo', 12);
     contar('caballo', 36);
     contar('vaca', 12);
+    // Las presas de los cazadores.
+    for (const esp of ['ciervo', 'liebre', 'jabali', 'cabra']) contar(esp, 8);
     for (const r of this.rebanos) contar(r.esp, r.miembros.length + 3);
     for (const a of this.ovejas.values()) contar(a.esp, 1);
     cuenta.gallina = this.gallinas?.length ?? 0;
@@ -769,12 +771,38 @@ export class Fauna3D {
       for (const a of r.crias) probar(a.x, a.z, ESPECIES[a.esp].alto, a.escala, { clase: 'salvaje', esp: r.esp, cria: true, n: r.miembros.length, crias: r.crias.length, estado: a.estado });
     }
     for (const a of this.ovejas.values()) probar(a.x, a.z, ESPECIES[a.esp].alto, a.escala, { clase: 'ganado', esp: a.esp, aldea: a.aldea, n: a.n });
+    for (const g of this.presas?.values() ?? []) for (const a of g.animales) probar(a.x, a.z, ESPECIES[a.esp].alto, a.escala, { clase: 'salvaje', esp: a.esp, macho: !!a.macho, cria: false, n: g.animales.length, crias: 0, estado: a.estado });
     for (const g of this.gallinas ?? []) probar(g.x, g.z, 0.25, 1, { clase: 'gallina', aldea: g.aldea, n: g.n });
     for (const a of this.perros.values()) probar(a.x, a.z, ESPECIES.perro.alto, a.escala, { clase: 'perro', dueno: a.dueno });
     for (const c of this.monturas?.values() ?? []) probar(c.x, c.z, ESPECIES.caballo.alto, c.escala, { clase: 'montura', jinete: c.jinete?.id });
     for (const g of this.patos) for (const p of g.miembros) probar(p.x, p.z, 0.2, 1, { clase: 'pato', n: g.miembros.length }, Math.max(tr.alturaEn(p.x, p.z), -0.05));
     for (const g of this.garzas) probar(g.x, g.z, 0.6, 1, { clase: 'garza' });
     return mejor;
+  }
+
+  /** Las presas que tiene delante un cazador: las que se dan en ese terreno. */
+  nuevasPresas(q, t) {
+    const d = this.d;
+    const [tx, ty] = this.terreno.aCasilla(q.x, q.z);
+    const ter = tx >= 0 && ty >= 0 && tx < d.ancho && ty < d.alto ? d.terreno[ty * d.ancho + tx] : ESTEPA;
+    const opciones = FAUNA_TERRENO[ter] ?? [['liebre', 1]];
+    const esp = opciones[Math.floor(azar(q.p.id * 3.1 + Math.floor(t / 12)) * opciones.length)][0];
+    const n = esp === 'liebre' ? 1 : 2;
+    const fx = Math.sin(q.ang);
+    const fz = Math.cos(q.ang);
+    const animales = [];
+    for (let k = 0; k < n; k++) {
+      const lejos = 5 + k * 0.9 + azar(q.p.id + k + t) * 1.5;
+      const lado = (k - (n - 1) / 2) * 1.3;
+      const x = q.x + fx * lejos + fz * lado;
+      const z = q.z + fz * lejos - fx * lado;
+      if (!this.pisable(esp, x, z)) continue;
+      const a = this.nuevo(esp, x, z, q.p.id * 7.3 + k + Math.floor(t));
+      a.presa = true;
+      if (esp === 'ciervo' && k === 0) a.macho = true;
+      animales.push(a);
+    }
+    return { animales, huyeron: false };
   }
 
   /** El animal de rebaño más cercano a un punto (para la caza de los lobos). */
@@ -1191,6 +1219,46 @@ export class Fauna3D {
       this.cuadrupedo(c, esp, false);
     }
     for (const [id, c] of this.tiros) if (t - c.visto > 5) this.tiros.delete(id);
+    // Las presas de cada cazador: pacen delante de él, se alertan cuando se prepara y
+    // huyen al galope cuando lanza; al rato, otras se dejan ver.
+    this.presas ??= new Map();
+    const cazando = new Set();
+    for (const q of gente) {
+      if (q.p.act !== 'cazar' || q.pose !== 'cazar' || q.oculto) continue;
+      if ((q.x - objetivo.x) ** 2 + (q.z - objetivo.z) ** 2 > RADIO_VIDA * RADIO_VIDA) continue;
+      cazando.add(q.p.id);
+      // El mismo ritmo que el brazo del cazador (gente3d): lanza cuando c pasa de 0.9.
+      const c = (t * 0.08 + q.p.id * 0.29) % 1;
+      let g = this.presas.get(q.p.id);
+      if (!g || (g.huyeron && c > 0.05 && c < 0.12)) {
+        g = this.nuevasPresas(q, t);
+        this.presas.set(q.p.id, g);
+      }
+      for (const a of g.animales) {
+        const dx = a.x - q.x;
+        const dz = a.z - q.z;
+        if (c > 0.92 || g.huyeron) {
+          // ¡Lanza! Huyen a la carrera y luego se alejan al paso.
+          if (c > 0.92) g.huyeron = true;
+          const lejos = dx * dx + dz * dz > 14 * 14;
+          this.mover(a, dt, dx, dz, lejos ? ESPECIES[a.esp].vel[0] : ESPECIES[a.esp].vel[2], 5);
+          a.estado = lejos ? 'andar' : 'huir';
+        } else if (c > 0.86) {
+          // Algo han olido: levantan la cabeza y miran al cazador.
+          this.mover(a, dt, 0, 0, 0);
+          a.estado = 'alerta';
+          a.mira = acotar(giroHacia(a.ang, Math.atan2(q.x - a.x, q.z - a.z)), -1.2, 1.2);
+        } else {
+          this.mover(a, dt, 0, 0, 0);
+          a.estado = 'pastar';
+        }
+        const esp = ESPECIES[a.esp];
+        this.avanzar(a, esp, dt);
+        this.postura(a, esp, t);
+        this.cuadrupedo(a, esp, false);
+      }
+    }
+    for (const id of this.presas.keys()) if (!cazando.has(id)) this.presas.delete(id);
     // Perros, con su dueño (y los ciervos también se asustan de ellos).
     if (this.perros.size) {
       const porId = new Map();
