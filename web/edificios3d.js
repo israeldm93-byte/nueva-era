@@ -164,14 +164,9 @@ function modelos() {
       ...[0.25, 0.65].map((x) => ({ geo: B(0.05, 0.5, 0.05), color: 0x6a4a2e, x, y: 0.25, z: -0.35 })),
       ...[0.3, 0.5, 0.65].map((x, k) => ({ geo: Es(0.07 + k * 0.01, 7, 5), color: 0xb5653a, x, y: 0.6, z: -0.35, sy: 1.3 })),
     ]),
-    // Plaza: un empedrado redondo de losas con su pozo en un lado.
+    // Plaza: su pozo, a un lado. El empedrado se pone losa a losa sobre el terreno (ver
+    // más abajo), para que siga el relieve en vez de ser un disco plano que flota.
     plaza: fundir([
-      { geo: C(T * 1.45, T * 1.5, 0.05, 28), color: 0xb2a890, y: 0.02 },
-      ...Array.from({ length: 36 }, (_, k) => {
-        const r = 0.6 + (k % 4) * 0.6;
-        const a = k * 2.399;
-        return { geo: B(0.42, 0.012, 0.32), color: [0x9a907c, 0xc2b8a0, 0xa89e88][k % 3], x: Math.cos(a) * r, y: 0.052, z: Math.sin(a) * r, ry: a };
-      }),
       { geo: C(0.32, 0.34, 0.4, 10), color: 0x9a948a, x: 1.9, y: 0.2, z: -1.2 },
       { geo: C(0.24, 0.24, 0.02, 10), color: 0x3a5a7a, x: 1.9, y: 0.39, z: -1.2 },
       ...[-0.22, 0.22].map((dx) => ({ geo: B(0.05, 0.6, 0.05), color: 0x6a4a2e, x: 1.9 + dx, y: 0.55, z: -1.2 })),
@@ -554,6 +549,10 @@ export class Edificios3D {
         }
         const tipo = ruina && e.tipo !== 'campo' ? 'ruina' : e.tipo;
         if (!TIPOS.includes(tipo)) continue;
+        if (tipo === 'plaza') {
+          this.ponerPlaza(e, n, im, adoquines, nAdoq, color, (k) => (nAdoq = k));
+          continue;
+        }
         // Las casas miran hacia el centro de la aldea.
         const [ax, az] = tr.aMundo(a.x, a.y);
         const [ex, ez] = tr.aMundo(e.x, e.y);
@@ -681,6 +680,33 @@ export class Edificios3D {
   }
 
   /** El puente cruza el río de través, a la altura de las orillas. */
+  /**
+   * La plaza: anillos de losas, cada una a la altura del suelo donde va (así el empedrado
+   * sigue las lomas y no queda en el aire), y el pozo apoyado en su sitio.
+   */
+  ponerPlaza(e, n, im, adoquines, nAdoq, color, fin) {
+    const tr = this.terreno;
+    const [px, pz] = tr.aMundo(e.x, e.y);
+    for (let r = 0.35, anillo = 0; r <= T * 1.45 && nAdoq < 8000; r += 0.62, anillo++) {
+      const cuantas = Math.max(2, Math.round((2 * Math.PI * r) / 1.0));
+      for (let k = 0; k < cuantas && nAdoq < 8000; k++) {
+        const ang = (k / cuantas) * Math.PI * 2 + anillo * 0.37;
+        const x = px + Math.cos(ang) * r;
+        const z = pz + Math.sin(ang) * r;
+        // Cada losa, de lado a lo largo del anillo.
+        colocar(adoquines, nAdoq, x, tr.alturaEn(x, z) - 0.005, z, -ang - Math.PI / 2);
+        adoquines.setColorAt(nAdoq++, color.setRGB(0.72, 0.68, 0.58).multiplyScalar(0.88 + azar(nAdoq * 7 + e.x) * 0.24));
+      }
+    }
+    fin(nAdoq);
+    // El pozo (a 1,9 y −1,2 del centro) se apoya en el suelo de donde está.
+    const ed = im['ed-plaza'];
+    if (n.plaza >= ed.instanceMatrix.count) return;
+    const wx = px + 1.9;
+    const wz = pz - 1.2;
+    colocar(ed, n.plaza++, px, tr.alturaEn(wx, wz), pz, 0);
+  }
+
   ponerPuente(d, e, ruina, n) {
     const tr = this.terreno;
     const im = this.im['ed-puente'];

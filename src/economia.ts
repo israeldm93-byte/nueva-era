@@ -214,6 +214,16 @@ export function guardar(a: Aldea, mat: string, n: number): void {
   if (!a.vistos.includes(mat)) a.vistos.push(mat);
 }
 
+/**
+ * Reservas de quien come bien a diario: por debajo come un poco más hasta recuperarse; por
+ * encima no engorda más. Es el nivel de quien no pasa hambre (el máximo, 8, no se alcanza
+ * comiendo lo normal).
+ */
+export const SACIADO = 6;
+
+/** Cuánta hambre tiene: 0 si está saciado, 1 si no le queda nada. */
+export const hambreDe = (p: Persona): number => Math.max(0, 1 - p.reservas / SACIADO);
+
 export function necesidad(m: Mundo, p: Persona): number {
   const e = edad(m, p);
   if (e < 2) return 0.3;
@@ -1242,7 +1252,7 @@ export function comer(m: Mundo, a: Aldea, gente: Persona[]): void {
   if (!gente.length) return;
   let quiere = 0;
   const racion = gente.map((p) => {
-    const r = necesidad(m, p) * (p.reservas < 6 ? 1.3 : 1);
+    const r = necesidad(m, p) * (p.reservas < SACIADO ? 1.3 : 1);
     quiere += r;
     return r;
   });

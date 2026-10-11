@@ -12,7 +12,7 @@ import { prob } from './azar.ts';
 import { DIAS_ANIO, EDAD_ADULTA } from './config.ts';
 import { ORDEN_COMER } from './catalogo.ts';
 import { anotar, listar } from './cronica.ts';
-import { aCaballo, apuntar, casaMejor, comidaTotal, conoce, guardar, plazas, situacion, tiene, type Contexto } from './economia.ts';
+import { aCaballo, apuntar, casaMejor, comidaTotal, conoce, guardar, hambreDe, plazas, situacion, tiene, type Contexto } from './economia.ts';
 import { mayuscula, inventarPalabra } from './lenguaje.ts';
 import { edadSegun } from './edades.ts';
 import { oficio } from './individuo.ts';
@@ -62,7 +62,10 @@ function necesidades(a: Aldea, gente: Persona[], c: Contexto): Record<string, nu
 function necesidadesHoy(a: Aldea, gente: Persona[], c: Contexto): Record<string, number> {
   const n = Math.max(1, gente.length);
   let hambre = 0;
-  for (const p of gente) hambre += 1 - p.reservas / 8;
+  // El hambre de verdad: lo que falta para estar saciado. (Antes se medía contra el máximo
+  // de reservas, 8, que comiendo bien no se alcanza: una aldea con años de comida guardada
+  // y todos bien comidos se sentía siempre algo hambrienta y no pensaba en otra cosa.)
+  for (const p of gente) hambre += hambreDe(p);
   const capacidad = plazas(a);
   const sabeRefugio = conoce(a, 'choza') || casaMejor(a);
   return {
@@ -111,7 +114,7 @@ function opinar(m: Mundo, p: Persona, c: Contexto, nec: Record<string, number>):
     // Cada cual ve las necesidades comunes a su manera: pesan su mente, su carácter,
     // su edad y su familia. De ahí salen los desacuerdos y las facciones.
     let v = 0.6 * nec[pr] + 0.3 * sesgo;
-    if (pr === 'comida') v += (1 - p.reservas / 8) * 0.5;
+    if (pr === 'comida') v += hambreDe(p) * 0.5;
     if (pr === 'saber') v += (p.genes.curiosidad - 0.5) * 0.8 + (e > 50 ? 0.1 : 0);
     if (pr === 'expandir') v += (e < 30 ? 0.3 * p.genes.curiosidad : 0) + (p.genes.agresividad - 0.5) * 0.3;
     if (pr === 'obras') v += (e > 40 ? 0.2 : 0) + (p.hijos >= 3 ? 0.1 : 0);
