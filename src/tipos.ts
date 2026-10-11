@@ -10,7 +10,36 @@ export interface Genes {
   fertilidad: number;
   longevidad: number;
   agresividad: number;
+  /** Ganas de prosperar y destacar. */
+  ambicion: number;
+  /** Cuánto mide los riesgos antes de actuar. */
+  prudencia: number;
+  /** Ganas de dar y ayudar. */
+  generosidad: number;
+  /** Apego a los suyos (familia, amigos, aldea). */
+  lealtad: number;
+  /** Aguante: sigue con lo que empezó aunque tarde en dar fruto. */
+  paciencia: number;
 }
+
+/**
+ * Lo que alguien se propone a medio o largo plazo (aprender algo, formar familia, irse,
+ * fundar, vengarse...), por qué y desde cuándo. Se revisa cada pocos días o cuando pasa
+ * algo importante.
+ */
+export interface Meta {
+  tipo: string;
+  desde: number;
+  /** Por qué se lo ha propuesto, dicho en llano (sale de lo que de verdad le pasa). */
+  motivo: string;
+  /** A qué se refiere: un saber, una aldea, una persona o un oficio. */
+  ref?: number | string;
+}
+
+/** Un recuerdo: [día, tipo, sobre qué o quién, importancia 0..1]. */
+export type Recuerdo = [number, string, number | string | null, number];
+/** Un hito de su vida: [día, tipo, dato]. */
+export type Hito = [number, string, string?];
 
 /** Combinación probada que pareció acercarse a algo. */
 export interface Idea {
@@ -55,6 +84,22 @@ export interface Persona {
   cobro?: boolean;
   hijos: number;
   descubrimientos: number;
+  /** Su meta de ahora (lo que persigue más allá del trabajo del día). */
+  meta?: Meta | null;
+  /** Lo que recuerda (como mucho unos pocos, los que más pesan). */
+  recuerdos?: Recuerdo[];
+  /** Lo que siente por otros: [id, valor -1..1] (como mucho unos pocos). */
+  lazos?: [number, number][];
+  /** Los hitos de su vida. */
+  vida?: Hito[];
+  /** Días de práctica en cada oficio (se olvida poco a poco): de ahí sale la pericia. */
+  practica?: Record<string, number>;
+  /** Lo que se cuenta de lo que ha hecho: pesa en el respeto. */
+  fama?: number;
+  /** Si va de camino a su nueva aldea: de dónde sale, adónde va y cuándo llega. */
+  mudanza?: { desde: [number, number]; hasta: [number, number]; salida: number; dias: number };
+  /** Solo durante el día en que muere en un asalto: la aldea que lo mató. */
+  porAldea?: number;
   /** Solo durante el día en que muere; nunca se guarda. */
   muerto?: string;
 }
@@ -233,6 +278,8 @@ export type TipoSuceso =
   | 'faccion'
   | 'cisma'
   | 'edad'
+  | 'migracion'
+  | 'vida'
   | 'asalto'
   | 'guerra'
   | 'paz'
@@ -277,6 +324,9 @@ export interface FilaHistoria {
   acierto?: number;
   asaltos?: number;
   facciones?: number;
+  migrantes?: number;
+  rivalidades?: number;
+  oficios?: number;
 }
 
 export interface Era {
@@ -365,6 +415,8 @@ export interface Mundo {
     /** Días de trabajo en que la mente previó bien si le iría mejor o peor que a su aldea. */
     aciertos: number;
     predicciones: number;
+    /** Personas que se han mudado de aldea este año. */
+    migrantes?: number;
   };
   poblacionMax: number;
   eras: Era[];

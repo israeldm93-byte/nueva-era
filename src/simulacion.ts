@@ -8,6 +8,9 @@ import { desastres } from './desastres.ts';
 import { revisarEdad } from './edades.ts';
 import { caminar } from './exodo.ts';
 import { cambiarTiempo } from './tiempo.ts';
+import { nombreOficio, oficio, vidas } from './individuo.ts';
+import { hito, recordar } from './memoria.ts';
+import { mudanzas } from './migracion.ts';
 import { asentarAprendizaje, comer, contexto, jornada, mantener, planificar, radioMuro, rodea } from './economia.ts';
 import { fauna } from './fauna.ts';
 import { lexicoComun, parecido } from './lenguaje.ts';
@@ -59,6 +62,9 @@ function paso(m: Mundo): void {
   fauna(m, ix, est, encendidas);
   desastres(m, ix, est, dia);
   anochecer(m, ix);
+  // Cada cual repasa lo que quiere de la vida (escalonado) y quien lo tiene decidido se muda.
+  vidas(m, ix, vivas);
+  mudanzas(m, ix);
   for (const a of vivas) {
     const c = ctx.get(a.id);
     if (c) noche(m, a, gente(a.id), c);
@@ -113,6 +119,31 @@ function lugarCementerio(m: Mundo, a: Aldea): { x: number; y: number } | null {
   return null;
 }
 
+/**
+ * Los suyos le lloran: su pareja, sus padres, sus hijos y sus amigos lo recuerdan; si lo
+ * mataron los de otra aldea, les queda el agravio.
+ */
+function duelo(m: Mundo, p: Persona, ix: ReturnType<typeof indexar>): void {
+  const cercanos = new Map<Persona, number>();
+  const anadir = (q: Persona | undefined, peso: number) => {
+    if (q && !q.muerto && (cercanos.get(q) ?? 0) < peso) cercanos.set(q, peso);
+  };
+  if (p.pareja !== null) anadir(ix.porId.get(p.pareja), 1);
+  if (p.madre !== null) anadir(ix.porId.get(p.madre), 0.9);
+  if (p.padre !== null) anadir(ix.porId.get(p.padre), 0.9);
+  for (const q of ix.porAldea.get(p.aldea) ?? []) if (q.madre === p.id || q.padre === p.id) anadir(q, 0.9);
+  for (const [id, v] of p.lazos ?? []) if (v > 0.6) anadir(ix.porId.get(id), 0.4);
+  for (const [q, peso] of cercanos) {
+    recordar(m, q, 'duelo', p.nombre, peso * 0.8);
+    if (p.porAldea !== undefined) recordar(m, q, 'agravio', p.porAldea, peso);
+    if (peso >= 0.9) {
+      const ella = p.sexo === 'M';
+      const tipo = q.id === p.madre || q.id === p.padre ? (ella ? 'pierde hija' : 'pierde hijo') : q.madre === p.id || q.padre === p.id ? (ella ? 'muere madre' : 'muere padre') : 'enviuda';
+      hito(m, q, tipo, p.nombre);
+    }
+  }
+}
+
 /** Cada aldea entierra a sus muertos en su cementerio; si se ha mudado lejos, abre otro. */
 function sepultar(m: Mundo, a: Aldea, p: Persona, causa: string): void {
   let c = a.cementerio ?? null;
@@ -134,7 +165,10 @@ function sepultar(m: Mundo, a: Aldea, p: Persona, causa: string): void {
     edad: Math.floor(edad(m, p)),
     causa,
     sexo: p.sexo,
-    oficio: p.actividad,
+    oficio: (() => {
+      const o = oficio(p);
+      return o ? nombreOficio(p, o) : p.actividad;
+    })(),
     hijos: p.hijos,
     ...(pareja ? { pareja } : {}),
     ...(descubrio.length ? { descubrio } : {}),
@@ -157,6 +191,7 @@ function enterrar(m: Mundo): void {
     const a = m.aldeas.find((x) => x.id === p.aldea);
     if (!a) continue;
     sepultar(m, a, p, causa);
+    duelo(m, p, ix);
     const quedan = ix.porAldea.get(a.id) ?? [];
     necrologica(m, p, a.nombre, a.id);
     for (const s of p.saberes) {
@@ -273,6 +308,10 @@ function filaHistoria(m: Mundo, ix: Indices): FilaHistoria {
     ...(m.anual.predicciones >= 20 ? { acierto: r2(m.anual.aciertos / m.anual.predicciones) } : {}),
     asaltos: m.anual.asaltos,
     facciones: vivas.reduce((s, a) => s + a.facciones.length, 0),
+    // La vida social: cuántos se mudaron, cuántos tienen algún rival y cuántos oficios hay.
+    migrantes: m.anual.migrantes ?? 0,
+    rivalidades: m.personas.filter((p) => p.lazos?.some(([, v]) => v < -0.2)).length,
+    oficios: new Set(m.personas.map((p) => oficio(p)).filter(Boolean)).size,
   };
 }
 

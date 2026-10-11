@@ -653,12 +653,14 @@ export class Gente3D {
       let herramienta = p.edad >= 12 ? (ARMADOS.has(p.act) ? armaDe(p.act, sabe, p.id) : HERRAMIENTA[p.act] ?? null) : null;
       if (torre && sabe.has('arco')) herramienta = 'arco';
       // Los que van de camino a su nueva tierra: su puesto en la columna.
-      const viaje = a?.viaje ? { ...a.viaje, puesto: (viajeros.get(a.id) ?? 0) } : null;
-      if (viaje) viajeros.set(a.id, viaje.puesto + 1);
+      // (o una familia que se muda a otra aldea: va por su cuenta)
+      const viaje = a?.viaje ? { ...a.viaje, puesto: viajeros.get(a.id) ?? 0 } : p.mudanza ? { ...p.mudanza, puesto: viajeros.get(`m${p.mudanza.salida}-${a?.id}`) ?? 0 } : null;
+      if (viaje) viajeros.set(a?.viaje ? a.id : `m${p.mudanza.salida}-${a?.id}`, viaje.puesto + 1);
       // Los que se van salen por la puerta de su aldea y siguen el camino hasta su tierra.
       let rutaViaje = null;
       if (viaje) {
-        const planoOrigen = this.planos.get(a.origen);
+        const origen = a?.viaje ? a.origen : d.aldeas.find((b) => b.x === viaje.desde[0] && b.y === viaje.desde[1])?.id;
+        const planoOrigen = this.planos.get(origen);
         rutaViaje = camino(tr.aMundo(viaje.desde[0], viaje.desde[1]), tr.aMundo(viaje.hasta[0], viaje.hasta[1]), planoOrigen ? { anillo: planoOrigen.anillo, obst: [] } : null);
       }
       const per = {
@@ -667,7 +669,7 @@ export class Gente3D {
         casa,
         rutaViaje,
         rebano,
-        anillos: [plano?.anillo, viaje ? this.planos.get(a.origen)?.anillo : null].filter(Boolean),
+        anillos: [plano?.anillo, viaje ? this.planos.get(a?.viaje ? a.origen : d.aldeas.find((b) => b.x === viaje.desde[0] && b.y === viaje.desde[1])?.id)?.anillo : null].filter(Boolean),
         trabajo: [tx, tz],
         arbol,
         ruta: camino(casa, [tx, tz], plano),

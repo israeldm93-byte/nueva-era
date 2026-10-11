@@ -471,3 +471,12 @@ figure.mini { margin: 0; }
 .edades span.hecha { background: rgba(217, 179, 92, 0.35); opacity: 1; font-weight: 700; }
 .lema { font-style: italic; margin: 4px 0; }
 .aviso-viaje { padding: 8px 10px; border-radius: 8px; background: rgba(120, 170, 220, 0.15); border: 1px solid rgba(120, 170, 220, 0.35); }
+
+/* La vida de cada cual: hitos en orden, recuerdos y su gente. */
+ol.vida { list-style: none; margin: 4px 0 10px; padding: 0 0 0 12px; border-left: 2px solid rgba(217, 179, 92, 0.45); }
+ol.vida li { margin: 0 0 4px; position: relative; }
+ol.vida li::before { content: ''; position: absolute; left: -17px; top: 0.45em; width: 8px; height: 8px; border-radius: 50%; background: var(--oro); }
+ol.vida .anio { display: inline-block; min-width: 64px; opacity: 0.65; font-size: 0.8rem; }
+ul.recuerdos { margin: 4px 0 10px; padding-left: 18px; }
+.etiqueta.amigo { background: rgba(80, 160, 90, 0.18); }
+.etiqueta.rival { background: rgba(200, 80, 60, 0.2); }

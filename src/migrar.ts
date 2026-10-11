@@ -51,6 +51,17 @@ export function migrar(m: Mundo): Mundo {
     m.version = 4;
     m.azar = estadoAzar();
   }
+  if (m.version === 4) {
+    // Versión 5: cada cual con su carácter completo (ambición, prudencia, generosidad,
+    // lealtad, paciencia), sin metas, recuerdos ni lazos todavía: los irá teniendo.
+    fijarAzar(m.azar);
+    for (const p of m.personas) {
+      const g = p.genes as unknown as Record<string, number>;
+      for (const k of ['ambicion', 'prudencia', 'generosidad', 'lealtad', 'paciencia']) if (typeof g[k] !== 'number') g[k] = Math.round((0.3 + 0.4 * azar()) * 1000) / 1000;
+    }
+    m.version = 5;
+    m.azar = estadoAzar();
+  }
   if (m.version !== VERSION_ESTADO) throw new Error(`No sé migrar un mundo de la versión ${m.version}.`);
   return m;
 }

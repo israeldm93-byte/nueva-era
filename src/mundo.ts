@@ -46,7 +46,21 @@ export function aldeasVivas(m: Mundo): Aldea[] {
   return m.aldeas.filter((a) => a.abandonada === null);
 }
 
-const GENES: (keyof Genes)[] = ['curiosidad', 'sociabilidad', 'fuerza', 'destreza', 'resistencia', 'fertilidad', 'longevidad', 'agresividad'];
+export const GENES: (keyof Genes)[] = [
+  'curiosidad',
+  'sociabilidad',
+  'fuerza',
+  'destreza',
+  'resistencia',
+  'fertilidad',
+  'longevidad',
+  'agresividad',
+  'ambicion',
+  'prudencia',
+  'generosidad',
+  'lealtad',
+  'paciencia',
+];
 
 export function genesAlAzar(): Genes {
   const g = {} as Genes;

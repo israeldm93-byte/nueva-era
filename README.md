@@ -55,6 +55,15 @@ Cada persona decide con una **red neuronal** pequeña (18 entradas, 6 neuronas o
 - **Todo se puede tocar**: personas, aldeas, cualquier animal (con sus crías, su manada y su hambre) y cualquier casilla (madera, caza, minerales…). Arriba, los recursos de la aldea como en los juegos de estrategia.
 - El consejo también **orienta la investigación**: según lo que más les preocupe (comer, construir, saber o defenderse), quien experimenta prueba antes lo de esa rama.
 
+## Vidas propias
+
+- Cada aldeano tiene un **carácter heredable**: curiosidad, sociabilidad, agresividad, ambición, prudencia, generosidad, lealtad y paciencia. Su carácter da un empujón a lo que hace cada día: el prudente caza menos cuando hay fieras, el paciente aguanta en el campo, el ambicioso construye y prueba cosas.
+- Cada uno persigue **una meta** que nace de lo que le pasa, siempre con su motivo a la vista: sobrevivir, aprender algo de quien lo sabe, hacerse con un oficio, formar familia, hacerse un nombre, irse a otra aldea mejor, fundar su propio pueblo, vengarse de quien mató a los suyos o hacer las paces con un rival.
+- **Recuerda** lo que vivió (hambre, asaltos, fieras, la muerte de los suyos) y eso cambia lo que opina y lo que quiere. Tiene **amigos y rivales**, que nacen de lo que hacen juntos: enseñar, casarse, defender la aldea, discutir. De quien se aprecia se aprende y se escucha más.
+- Con la práctica se gana **oficio** (pastora, cantero, pescador, inventora…) y pericia, y con lo que se hace, **fama**.
+- Las **familias se mudan** a otra aldea conocida cuando allí les irá mejor, y se llevan lo que saben.
+- En **Gente**, cada persona tiene su **biografía**: los hitos reales de su vida, lo que quiere y por qué, lo que recuerda y su gente. Ver [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md) y [docs/AUDITORIA.md](docs/AUDITORIA.md).
+
 ## Saber, idioma y genes
 
 - **Prueba y error.** Cada saber (el fuego, la cuerda, la agricultura, el bronce…) es una receta secreta: unas cosas y un gesto. Los aldeanos no conocen las recetas: quien tiene curiosidad y tiempo combina cosas que conoce con un gesto (golpear, frotar, atar, calentar…) y, si algo parece prometer, lo va variando. Un día de pruebas da para varios intentos, y el propio trabajo **inspira**: cortando leña, recogiendo semillas o picando piedra a alguien se le ocurre a medias algo que podría hacerse con eso, y luego hay que probarlo hasta dar con ello.

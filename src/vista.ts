@@ -12,6 +12,8 @@ import { lexicoComun, parecido } from './lenguaje.ts';
 import { ACCIONES, PRUEBAS, entradas, pensar } from './mente.ts';
 import { aldeasVivas, edad, estacionDe, indexar } from './mundo.ts';
 import { FRASE } from './politica.ts';
+import { nombreOficio, oficio } from './individuo.ts';
+import { vivo } from './memoria.ts';
 import { focoDe } from './saber.ts';
 import type { Mundo } from './tipos.ts';
 
@@ -198,6 +200,32 @@ export function datosWeb(m: Mundo, ahora: Date) {
         faccion: p.faccion,
         gustos,
         idea: idea ? { cosas: idea.cosas.map((c) => nombres[c] ?? TECNICA[c]?.cosa ?? c), verbo: idea.verbo } : null,
+        // Su vida por dentro: lo que persigue y por qué, lo que recuerda, a quién quiere o
+        // detesta, los hitos de su vida, su oficio y su fama. Todo sale del motor.
+        ...(p.meta ? { meta: { tipo: p.meta.tipo, motivo: p.meta.motivo, desde: anioDe(p.meta.desde) } } : {}),
+        ...((): Record<string, unknown> => {
+          const o = oficio(p);
+          return o ? { oficio: nombreOficio(p, o) } : {};
+        })(),
+        ...(p.fama ? { fama: Math.round(p.fama * 10) / 10 } : {}),
+        ...(p.recuerdos?.length
+          ? {
+              recuerdos: p.recuerdos
+                .map((r) => ({ anio: anioDe(r[0]), tipo: r[1], sobre: typeof r[2] === 'number' ? (m.aldeas.find((b) => b.id === r[2])?.nombre ?? null) : r[2], peso: r2(vivo(m, r)) }))
+                .sort((x, y) => y.peso - x.peso),
+            }
+          : {}),
+        ...(p.lazos?.length
+          ? {
+              lazos: p.lazos
+                .filter(([id]) => ix.porId.has(id))
+                .sort((x, y) => Math.abs(y[1]) - Math.abs(x[1]))
+                .slice(0, 6)
+                .map(([id, v]) => ({ id, nombre: ix.porId.get(id)!.nombre, v: r2(v) })),
+            }
+          : {}),
+        ...(p.vida?.length ? { vida: p.vida.map((h) => [anioDe(h[0]), h[1], h[2] ?? null]) } : {}),
+        ...(p.mudanza ? { mudanza: { ...p.mudanza } } : {}),
       };
     }),
     tecnicas: TECNICAS.filter((t) => m.hallazgos[t.id]).map((t) => {

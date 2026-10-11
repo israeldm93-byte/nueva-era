@@ -73,7 +73,7 @@ const ACTIVIDAD = {
   recolectar: 'recolecta', cazar: 'caza', pescar: 'pesca', lenar: 'corta leña', picar: 'pica piedra',
   barro: 'saca arcilla', cultivar: 'cultiva', pastorear: 'pastorea', construir: 'construye',
   experimentar: 'experimenta', descansar: 'descansa', jugar: 'juega', vigilar: 'vigila',
-  asaltar: 'asalta otra aldea', defender: 'defiende la aldea',
+  asaltar: 'asalta otra aldea', defender: 'defiende la aldea', viajar: 'va de camino a su nueva aldea',
 };
 
 const ACCION = {
@@ -88,7 +88,30 @@ const PRIORIDAD = {
 const GENES = [
   ['curiosidad', 'Curiosidad'], ['sociabilidad', 'Sociabilidad'], ['fuerza', 'Fuerza'], ['destreza', 'Destreza'],
   ['resistencia', 'Resistencia'], ['fertilidad', 'Fertilidad'], ['longevidad', 'Longevidad'], ['agresividad', 'Agresividad'],
+  ['ambicion', 'Ambición'], ['prudencia', 'Prudencia'], ['generosidad', 'Generosidad'], ['lealtad', 'Lealtad'], ['paciencia', 'Paciencia'],
 ];
+
+/** Lo que persigue cada cual (sus metas). */
+const META = {
+  sobrevivir: 'Sobrevivir', aprender: 'Aprender', oficio: 'Hacerse con un oficio', familia: 'Formar una familia', prestigio: 'Hacerse un nombre',
+  emigrar: 'Irse a otra aldea', fundar: 'Fundar un pueblo', vengar: 'Vengarse', reconciliar: 'Hacer las paces',
+};
+
+/** Los hitos de una vida, contados. */
+const HITO = {
+  aprende: (d) => `aprendió ${d}`, descubre: (d) => `descubrió ${d}`, oficio: (d) => `se hizo ${d}`, pareja: (d) => `se unió a ${d}`,
+  hijo: (d) => `nació su primer hijo, ${d}`, consejo: (d) => `entró en el consejo de ${d}`, lidera: (d) => `encabezó a los ${d}`,
+  emigra: (d) => `se fue a vivir a ${d}`, funda: (d) => `fundó ${d}`, 'se va': (d) => `se fue con los suyos a fundar ${d}`,
+  herido: (d) => `fue herido ${d}`, enviuda: (d) => `perdió a su pareja, ${d}`, 'pierde hijo': (d) => `perdió a su hijo ${d}`,
+  'pierde hija': (d) => `perdió a su hija ${d}`, 'muere madre': (d) => `murió su madre, ${d}`, 'muere padre': (d) => `murió su padre, ${d}`,
+  reconcilia: (d) => `hizo las paces con ${d}`,
+};
+
+/** Lo que recuerda, contado. */
+const RECUERDO = {
+  hambre: () => 'el hambre que pasó', duelo: (s) => `la muerte de ${s}`, agravio: (s) => `que los de ${s} mataron a los suyos`, asalto: (s) => `el asalto de los de ${s}`,
+  fieras: (s) => `el ataque ${s === 'oso' ? 'del oso' : 'de los lobos'}`, emigro: (s) => `cuando dejó ${s}`,
+};
 
 const CAUSAS = {
   vejez: 'Vejez', enfermedad: 'Enfermedad', hambre: 'Hambre', 'frío': 'Frío', lobos: 'Lobos', oso: 'Osos', parto: 'Parto', herida: 'Heridas',
@@ -119,8 +142,8 @@ const GRUPOS = {
   todo: ['Todo', null],
   politica: ['Política', ['consejo', 'faccion', 'cisma', 'guerra', 'asalto', 'paz', 'alianza']],
   saber: ['Saber', ['descubrimiento', 'redescubrimiento', 'difusion', 'perdida', 'olvido']],
-  aldeas: ['Aldeas', ['inicio', 'fundacion', 'abandono', 'traslado', 'edificio', 'contacto', 'poblacion', 'edad', 'cisma']],
-  vidas: ['Vidas', ['muerte']],
+  aldeas: ['Aldeas', ['inicio', 'fundacion', 'abandono', 'traslado', 'edificio', 'contacto', 'poblacion', 'edad', 'cisma', 'migracion']],
+  vidas: ['Vidas', ['muerte', 'migracion', 'vida']],
   lenguas: ['Lenguas', ['lengua']],
   desgracias: ['Desgracias', ['lobos', 'fieras', 'incendio', 'inundacion', 'epidemia', 'sequia', 'hambre', 'extincion']],
 };
@@ -417,7 +440,7 @@ const TRAE = { tronco: 'leña', presa: 'una pieza de caza a cuestas', presaChica
 const HACIENDO = {
   recolectar: 'recolectando frutos y semillas', cazar: 'cazando', pescar: 'pescando', lenar: 'cortando leña', picar: 'picando piedra',
   barro: 'sacando arcilla', cultivar: 'trabajando el campo', pastorear: 'cuidando el ganado', construir: 'construyendo', experimentar: 'probando cosas nuevas',
-  descansar: 'descansando', jugar: 'jugando', vigilar: 'vigilando', asaltar: 'asaltando otra aldea', defender: 'defendiendo la aldea',
+  descansar: 'descansando', jugar: 'jugando', vigilar: 'vigilando', asaltar: 'asaltando otra aldea', defender: 'defendiendo la aldea', viajar: 'de camino a su nueva aldea',
 };
 
 const PRESA = { ciervo: 'a un grupo de ciervos', jabali: 'a unos jabalíes', liebre: 'a unas liebres', caballo: 'a una manada de caballos salvajes', cabra: 'a unas cabras montesas' };
@@ -444,6 +467,7 @@ function haciendoAhora(p, ahora) {
     return fase < 0.5 ? `Va a trabajar: hoy toca ${ACCION[p.act] ?? oficio}.` : 'Vuelve a casa.';
   }
   if (pose === 'cazar' && rebano) return `Acecha ${PRESA[rebano] ?? 'a la caza'}, agachado y contra el viento, con el arma lista.`;
+  if (p.act === 'viajar') return 'Va de camino a su nueva aldea con su familia.';
   if (pose === 'experimentar') return p.idea ? `Está probando a ${p.idea.verbo} ${listar(p.idea.cosas)}, a ver qué sale.` : 'Prueba cosas nuevas, a ver qué sale.';
   if (pose === 'pie') return fase < 0.12 ? 'Acaba de levantarse, a la puerta de su choza.' : fase > 0.8 ? 'Ya en casa, a la puerta de su choza.' : 'Parado, mirando a su alrededor.';
   return `Está ${oficio}.`;
@@ -473,6 +497,7 @@ function fichaRapida(p, ahora) {
   if (p.salud < 0.4) estado.push('está enfermo o herido');
   else if (p.salud < 0.7) estado.push('no está del todo bien');
   if (estado.length) lineas.push(h('p', {}, mayus(estado.join(' y ')) + '.'));
+  if (p.meta) lineas.push(h('p', {}, h('strong', {}, `${META[p.meta.tipo] ?? p.meta.tipo}: `), p.meta.motivo));
   if (p.opinion && a?.consejo) lineas.push(h('p', {}, a.consejo.prioridad === p.opinion ? `Está de acuerdo con el consejo: ${frase(p.opinion)}.` : `Cree que ${frase(p.opinion)}; el consejo dicta otra cosa.`));
   const familia = [];
   if (p.pareja !== null && E.porId.has(p.pareja)) familia.push(`pareja de ${E.porId.get(p.pareja).nombre}`);
@@ -543,7 +568,7 @@ $('#alejar').addEventListener('click', () => mundo?.acercar(1 / 0.7));
 $('#girar').addEventListener('click', () => mundo?.girar(Math.PI / 4));
 
 // Para hacer pruebas: ?depurar deja el mundo a mano en la consola.
-if (new URLSearchParams(location.search).has('depurar')) window.nuevaEra = { get mundo() { return mundo; }, E };
+if (new URLSearchParams(location.search).has('depurar')) window.nuevaEra = { get mundo() { return mundo; }, E, elegirPersona };
 
 // ---------- lo que piensan ----------
 
@@ -995,8 +1020,33 @@ function fichaPersona(p) {
       h('div', {}, h('dt', {}, 'Pareja'), h('dd', {}, p.pareja !== null ? enlacePersona(p.pareja) : '—')),
       h('div', {}, h('dt', {}, 'Hijos'), h('dd', {}, `${p.hijos}${vivos !== p.hijos ? ` (${vivos} vivos)` : ''}`)),
       h('div', {}, h('dt', {}, 'Descubrimientos'), h('dd', {}, String(p.desc))),
+      p.oficio ? h('div', {}, h('dt', {}, 'Oficio'), h('dd', {}, p.oficio)) : null,
+      p.fama ? h('div', {}, h('dt', {}, 'Fama'), h('dd', {}, p.fama >= 3 ? 'muy conocido' : p.fama >= 1 ? 'conocido' : 'algo')) : null,
     ),
   ];
+  // Lo que persigue, y por qué (sale de lo que de verdad le pasa).
+  if (p.meta) hijos.push(h('h3', {}, 'Lo que quiere'), h('p', {}, h('strong', {}, `${META[p.meta.tipo] ?? p.meta.tipo}. `), p.meta.motivo, h('span', { class: 'nota' }, ` (desde el año ${p.meta.desde})`)));
+  if (p.mudanza) hijos.push(h('p', { class: 'aviso-viaje' }, 'Va de camino a su nueva aldea con su familia.'));
+  // Su vida: los hitos, en orden.
+  if (p.vida?.length) {
+    hijos.push(
+      h('h3', {}, 'Su vida'),
+      h('ol', { class: 'vida' }, p.vida.map(([anio, tipo, dato]) => h('li', {}, h('span', { class: 'anio' }, `año ${anio}`), mayus(HITO[tipo]?.(dato ?? '') ?? `${tipo} ${dato ?? ''}`)))),
+    );
+  }
+  if (p.recuerdos?.length) {
+    hijos.push(h('h3', {}, 'Lo que recuerda'), h('ul', { class: 'recuerdos' }, p.recuerdos.slice(0, 5).map((r) => h('li', {}, mayus(RECUERDO[r.tipo]?.(r.sobre ?? '') ?? r.tipo), h('span', { class: 'nota' }, ` (año ${r.anio})`)))));
+  }
+  if (p.lazos?.length) {
+    hijos.push(
+      h('h3', {}, 'Su gente'),
+      h(
+        'div',
+        { class: 'fila' },
+        p.lazos.map((l) => h('span', { class: `etiqueta ${l.v >= 0 ? 'amigo' : 'rival'}` }, l.v >= 0.5 ? '♥ ' : l.v >= 0 ? '' : '✕ ', enlacePersona(l.id, l.nombre), l.v < 0 ? ' (rival)' : '')),
+      ),
+    );
+  }
   if (p.opinion) {
     const deAcuerdo = a?.consejo?.prioridad === p.opinion;
     hijos.push(

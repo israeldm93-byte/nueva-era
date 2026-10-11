@@ -15,6 +15,8 @@ import { distancia, exponencial } from './matematicas.ts';
 import { aldeasVivas, edad, nuevaAldea, nuevaPersona, type Indices } from './mundo.ts';
 import { asaltar, boda, convivir, enGuerra, persuadir, quiereAsaltar } from './politica.ts';
 import { compartirIdea, ensenar, escribir, leer } from './saber.ts';
+import { acercarse } from './individuo.ts';
+import { afamar, hito, lazo, tratar } from './memoria.ts';
 import type { Aldea, Mundo, Persona } from './tipos.ts';
 
 const r2 = (x: number) => Math.round(x * 100) / 100;
@@ -63,12 +65,22 @@ function conversar(m: Mundo, p: Persona, q: Persona, ap: Aldea, aq: Aldea, ix: I
   const eq = edad(m, q);
   nombrar(m.fonologia, p, q, tema(p, ap), eq < 10);
   let aprendido: string | null = null;
-  if (prob(0.35)) {
+  // Quien quiere aprender algo concreto pregunta más.
+  if (prob(q.meta?.tipo === 'aprender' ? 0.6 : 0.35)) {
     const padre = q.padre === p.id || q.madre === p.id;
     aprendido = ensenar(m, p, q, aq, eq < 10, cultura(aq) * (padre && eq < 16 ? 1.5 : 1));
+    // Al alumno le queda el agradecimiento; al maestro, el aprecio.
+    if (aprendido && !padre) tratar(q, p, 0.06, 0.03);
   }
   const ep = edad(m, p);
-  if (ep >= EDAD_ADULTA && eq >= EDAD_ADULTA && prob(0.15)) compartirIdea(p, q, aq);
+  if (ep >= EDAD_ADULTA && eq >= EDAD_ADULTA && prob(0.15)) {
+    compartirIdea(p, q, aq);
+    tratar(p, q, 0.02);
+  }
+  // Si piensan distinto y alguno tiene genio, discuten: así nacen las rivalidades.
+  if (ep >= 16 && eq >= 16 && p.opinion !== q.opinion && prob(0.06 * (p.genes.agresividad + q.genes.agresividad) * (1.2 - 0.4 * q.genes.paciencia))) tratar(p, q, -0.06);
+  // Quien quiere hacer las paces da el primer paso.
+  if (p.meta?.tipo === 'reconciliar' && p.meta.ref === q.id) acercarse(p, q);
   persuadir(m, p, q);
   if (prob(0.1)) escribir(p, ap);
   if (
@@ -79,10 +91,19 @@ function conversar(m: Mundo, p: Persona, q: Persona, ap: Aldea, aq: Aldea, ix: I
     eq >= 16 &&
     Math.abs(ep - eq) < 15 &&
     !parientes(p, q) &&
-    prob(0.04 * (0.5 + (p.genes.sociabilidad + q.genes.sociabilidad) / 2))
+    lazo(p, q.id) > -0.3 &&
+    prob(
+      0.04 *
+        (0.5 + (p.genes.sociabilidad + q.genes.sociabilidad) / 2) *
+        (p.meta?.tipo === 'familia' || q.meta?.tipo === 'familia' ? 2 : 1) *
+        (1 + Math.max(0, lazo(p, q.id))),
+    )
   ) {
     p.pareja = q.id;
     q.pareja = p.id;
+    tratar(p, q, 0.6);
+    hito(m, p, 'pareja', q.nombre);
+    hito(m, q, 'pareja', p.nombre);
     if (p.aldea !== q.aldea) {
       boda(m, ap.id, aq.id);
       // Uno de los dos se muda a la aldea del otro, y se lleva lo que sabe.
@@ -99,6 +120,25 @@ function conversar(m: Mundo, p: Persona, q: Persona, ap: Aldea, aq: Aldea, ix: I
   return aprendido;
 }
 
+/**
+ * Con quién se habla esta noche: a veces con quien le enseña lo que quiere aprender, con
+ * quien quiere hacer las paces o con un amigo; si no, con cualquiera.
+ */
+function companero(p: Persona, gente: Persona[], ix: Indices): Persona | undefined {
+  const meta = p.meta;
+  if (meta?.tipo === 'aprender' && typeof meta.ref === 'string' && prob(0.5)) {
+    const s = meta.ref;
+    const maestros = gente.filter((q) => q !== p && q.saberes.includes(s));
+    if (maestros.length) return elegir(maestros);
+  }
+  if (meta?.tipo === 'reconciliar' && typeof meta.ref === 'number' && prob(0.5)) return ix.porId.get(meta.ref);
+  if (p.lazos?.length && prob(0.2)) {
+    const amigos = p.lazos.filter(([, v]) => v > 0.2);
+    if (amigos.length) return ix.porId.get(elegir(amigos)[0]);
+  }
+  return undefined;
+}
+
 /** Al anochecer: charlas, parejas y nacimientos. */
 export function anochecer(m: Mundo, ix: Indices): void {
   for (const a of aldeasVivas(m)) {
@@ -107,13 +147,14 @@ export function anochecer(m: Mundo, ix: Indices): void {
     const hoguera = tiene(a, 'hoguera');
     for (const p of gente.slice()) {
       const e = edad(m, p);
-      if (e < 2) continue;
+      if (e < 2 || p.mudanza) continue;
       const charlas = e < 12 ? 2 : hoguera ? 2 : 1;
       for (let k = 0; k < charlas; k++) {
         let q: Persona | undefined;
         if (e < 12 && prob(0.7)) q = ix.porId.get(prob(0.5) ? (p.madre ?? -1) : (p.padre ?? -1));
-        if (!q || q.aldea !== a.id) q = elegir(gente);
-        if (q === p) continue;
+        else q = companero(p, gente, ix);
+        if (!q || q.aldea !== a.id || q.mudanza) q = elegir(gente);
+        if (q === p || q.mudanza) continue;
         // Normalmente habla el mayor (los niños escuchan); a veces al revés.
         if (edad(m, q) > e || prob(0.3)) conversar(m, q, p, a, a, ix);
         else conversar(m, p, q, a, a, ix);
@@ -159,6 +200,8 @@ function nacimientos(m: Mundo, a: Aldea, gente: Persona[], ix: Indices): void {
     madre.ultimoParto = m.t;
     madre.hijos++;
     padre.hijos++;
+    if (madre.hijos === 1) hito(m, madre, 'hijo', hijo.nombre);
+    if (padre.hijos === 1) hito(m, padre, 'hijo', hijo.nombre);
     m.anual.nacimientos++;
     if (prob(0.02 * (conoce(a, 'remedio') ? 0.6 : 1) * (conoce(a, 'medicina') ? 0.5 : 1))) morir(madre, 'parto');
   }
@@ -268,7 +311,10 @@ export function trasladar(m: Mundo, a: Aldea, gente: Persona[]): void {
 export function dividir(m: Mundo, a: Aldea, gente: Persona[], ix: Indices): void {
   if (a.viaje) return;
   const crisis = gente.length >= 20 && diasDeComida(m, a, gente) < 8;
-  if ((gente.length <= limiteAldea(a) && !crisis) || !prob(0.35)) return;
+  // Quien sueña con fundar su propio pueblo empuja a irse antes de que no quepan.
+  const fundadores = gente.filter((p) => p.meta?.tipo === 'fundar' && !p.muerto);
+  const empuje = fundadores.length > 0 && gente.length > limiteAldea(a) * 0.75 && prob(0.25);
+  if ((gente.length <= limiteAldea(a) && !crisis && !empuje) || !prob(0.35)) return;
   const adultos = gente.filter((p) => {
     const e = edad(m, p);
     return e >= 18 && e <= 45 && !p.muerto;
@@ -277,7 +323,8 @@ export function dividir(m: Mundo, a: Aldea, gente: Persona[], ix: Indices): void
   let lider = adultos[0];
   let mejor = -1;
   for (const p of adultos) {
-    const v = p.genes.curiosidad + 0.5 * azar();
+    // Guía quien más lo desea (y quien tiene fama y ganas); si nadie, el más inquieto.
+    const v = (p.meta?.tipo === 'fundar' ? 2 : 0) + p.genes.ambicion * 0.6 + p.genes.curiosidad * 0.4 + 0.1 * (p.fama ?? 0) + 0.5 * azar();
     if (v > mejor) {
       mejor = v;
       lider = p;
@@ -294,6 +341,11 @@ export function dividir(m: Mundo, a: Aldea, gente: Persona[], ix: Indices): void
     for (const h of gente) if ((h.padre === p.id || h.madre === p.id) && edad(m, h) < 16) grupo.add(h);
   };
   familia(lider);
+  // Le siguen primero sus amigos; luego, otros.
+  for (const [id, v] of lider.lazos ?? []) {
+    const q = ix.porId.get(id);
+    if (v > 0.3 && q && q.aldea === a.id && edad(m, q) >= 16 && grupo.size < gente.length * 0.38) familia(q);
+  }
   for (const p of barajar(adultos.slice())) {
     if (grupo.size >= gente.length * 0.38) break;
     if (!grupo.has(p) && prob(0.6)) familia(p);
@@ -312,13 +364,19 @@ export function dividir(m: Mundo, a: Aldea, gente: Persona[], ix: Indices): void
   b.edad = edadSegun(b);
   b.edades = (a.edades ?? []).slice(0, b.edad + 1);
   b.poblacionMax = grupo.size;
+  hito(m, lider, 'funda', b.nombre);
+  afamar(lider, 2);
+  if (lider.meta?.tipo === 'fundar') lider.meta = null;
+  for (const p of grupo) if (p !== lider && edad(m, p) >= 14) hito(m, p, 'se va', b.nombre);
   // Los que se quedan: ¿siguen sabiendo todo lo que sabían?
   const quedan = gente.filter((p) => !grupo.has(p));
   a.conocidos = a.conocidos.filter((s) => quedan.some((p) => p.saberes.includes(s)) || a.archivo.includes(s));
   anotar(
     m,
     'fundacion',
-    `Ya no caben todos en ${a.nombre}: ${lider.nombre} se pone en camino hacia ${direccion(a, sitio.x, sitio.y)} con ${grupo.size} personas para fundar ${b.nombre}.`,
+    lider.meta?.tipo === 'fundar'
+      ? `${lider.nombre} llevaba tiempo soñando con un pueblo propio: deja ${a.nombre} con ${grupo.size - 1} personas que confían en ${lider.sexo === 'M' ? 'ella' : 'él'} y se pone en camino hacia ${direccion(a, sitio.x, sitio.y)} para fundar ${b.nombre}.`
+      : `Ya no caben todos en ${a.nombre}: ${lider.nombre} se pone en camino hacia ${direccion(a, sitio.x, sitio.y)} con ${grupo.size} personas para fundar ${b.nombre}.`,
     b.id,
   );
 }

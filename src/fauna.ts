@@ -9,6 +9,7 @@ import { AGUA, BOSQUE, COLINA, ESTEPA, MONTANA, RIO } from './catalogo.ts';
 import { anios, anotar } from './cronica.ts';
 import { conoce, cuantos, guardar, muroDe, radioMuro, tiene } from './economia.ts';
 import { masas } from './mapa.ts';
+import { hito, recordar } from './memoria.ts';
 import { distancia } from './matematicas.ts';
 import { aldeasVivas, edad, type Indices } from './mundo.ts';
 import { danar, morir } from './sociedad.ts';
@@ -202,6 +203,9 @@ function herir(m: Mundo, p: Persona, dano: number, causa: 'lobos' | 'oso', a: Al
     );
   } else {
     danar(p, dano, causa);
+    // Quien sobrevive a una fiera no lo olvida: se vuelve más prudente.
+    recordar(m, p, 'fieras', causa, 0.8);
+    hito(m, p, 'herido', causa === 'oso' ? 'por un oso' : 'por los lobos');
   }
   if (a) a.amenaza = r2(Math.min(1, a.amenaza + 0.06));
 }

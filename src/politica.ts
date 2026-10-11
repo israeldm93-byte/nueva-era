@@ -15,6 +15,7 @@ import { anotar, listar } from './cronica.ts';
 import { aCaballo, casaMejor, comidaTotal, conoce, guardar, plazas, situacion, tiene, type Contexto } from './economia.ts';
 import { mayuscula, inventarPalabra } from './lenguaje.ts';
 import { edadSegun } from './edades.ts';
+import { afamar, ajustarLazo, hito, lazo, memoria, recordar, tratar } from './memoria.ts';
 import { cargar, partir } from './exodo.ts';
 import { buscarSitio, direccion } from './mapa.ts';
 import { distancia } from './matematicas.ts';
@@ -36,7 +37,7 @@ export const FRASE: Record<string, string> = {
 
 export function respeto(m: Mundo, p: Persona): number {
   const e = edad(m, p);
-  return Math.min(1, Math.max(0, (e - 16) / 40)) + 0.15 * p.saberes.length + 0.6 * p.descubrimientos + 0.1 * p.hijos;
+  return Math.min(1, Math.max(0, (e - 16) / 40)) + 0.15 * p.saberes.length + 0.6 * p.descubrimientos + 0.1 * p.hijos + 0.3 * (p.fama ?? 0);
 }
 
 export function relacion(m: Mundo, a: number, b: number): Relacion {
@@ -92,6 +93,10 @@ function opinar(m: Mundo, p: Persona, c: Contexto, nec: Record<string, number>):
     if (pr === 'obras') v += (e > 40 ? 0.2 : 0) + (p.hijos >= 3 ? 0.1 : 0);
     if (pr === 'defensa') v += (p.genes.agresividad - 0.5) * 0.6;
     if (pr === 'invierno') v += e > 55 ? 0.15 : 0;
+    // Lo vivido pesa: quien pasó hambre piensa en la comida; quien sufrió asaltos o perdió
+    // a los suyos a manos de otros, en defenderse (y quien quiere vengarse, más).
+    if (pr === 'comida') v += 0.25 * memoria(m, p, 'hambre');
+    if (pr === 'defensa') v += 0.3 * memoria(m, p, 'asalto') + 0.15 * memoria(m, p, 'fieras') + (p.meta?.tipo === 'vengar' ? 0.3 : 0);
     // Lo que les hizo ser un pueblo sigue pesando en lo que piensan sus hijos y nietos.
     if (pr === c.a.valor) v += 0.12;
     valores[pr] = v;
@@ -126,6 +131,14 @@ export function noche(m: Mundo, a: Aldea, gente: Persona[], c: Contexto): void {
   if (actual && (votos[actual] ?? 0) * 1.25 >= votos[gana]) gana = actual;
 
   const ids = miembros.map(([p]) => p.id);
+  // Entrar en el consejo por primera vez queda en la vida de cada cual; y quien se queda
+  // a las puertas, si es ambicioso, le guarda rencor al que le dejó fuera.
+  for (const [p] of miembros) if (!p.vida?.some((h) => h[1] === 'consejo')) hito(m, p, 'consejo', a.nombre);
+  if ((m.t + a.id) % 30 === 0 && puntuados.length > k) {
+    const [fuera] = puntuados[k];
+    const [ultimo] = miembros[miembros.length - 1];
+    if (fuera.genes.ambicion > 0.55) ajustarLazo(fuera, ultimo.id, -0.08);
+  }
   if (!a.consejo || a.consejo.prioridad !== gana) {
     a.consejo = { prioridad: gana, desde: m.t, anunciado: a.consejo?.anunciado ?? -100000, anunciada: a.consejo?.anunciada ?? '', miembros: ids, votos };
   } else {
@@ -149,7 +162,12 @@ export function persuadir(m: Mundo, hablante: Persona, oyente: Persona): void {
   if (hablante.opinion === oyente.opinion) return;
   if (edad(m, hablante) < EDAD_ADULTA || edad(m, oyente) < EDAD_ADULTA) return;
   const prestigio = Math.min(2, 0.5 + respeto(m, hablante) / 3);
-  if (prob(0.06 * (0.5 + oyente.genes.sociabilidad) * prestigio)) oyente.opinion = hablante.opinion;
+  // A un amigo se le hace más caso; a un rival, casi ninguno.
+  const aprecio = Math.max(0.15, 1 + 0.6 * lazo(oyente, hablante.id));
+  if (prob(0.06 * (0.5 + oyente.genes.sociabilidad) * prestigio * aprecio)) {
+    oyente.opinion = hablante.opinion;
+    tratar(oyente, hablante, 0.02);
+  }
 }
 
 /** Cada pocos días: nacen, cambian o se disuelven facciones; las ignoradas pueden irse. */
@@ -206,6 +224,10 @@ export function facciones(m: Mundo, a: Aldea, gente: Persona[], ix: Indices): vo
     if (!f.anunciada && m.t - f.nacida >= 240 && !f.debil) {
       f.anunciada = true;
       const lider = ix.porId.get(f.lider);
+      if (lider) {
+        hito(m, lider, 'lidera', f.nombre);
+        afamar(lider, 0.5);
+      }
       anotar(m, 'faccion', `En ${a.nombre} se organiza una facción, los ${f.nombre}${lider ? `, guiados por ${lider.nombre}` : ''}: creen que ${FRASE[f.opinion]}.`, a.id);
     }
     if (f.anunciada && f.descontento >= 1 && g.length >= 5 && parte <= 0.5 && n >= 15) {
@@ -260,6 +282,9 @@ function cisma(m: Mundo, a: Aldea, f: Faccion, miembros: Persona[], ix: Indices)
     for (const s of p.saberes) if (!b.conocidos.includes(s)) b.conocidos.push(s);
   }
   partir(m, b, a, sitio, grupo);
+  hito(m, lider, 'funda', b.nombre);
+  afamar(lider, 2);
+  for (const p of grupo) if (p !== lider && edad(m, p) >= 14) hito(m, p, 'se va', b.nombre);
   // Desde el primer día tienen su propio consejo: su cabecilla y los más respetados de
   // los que se van, decididos a hacer lo que en su aldea no les dejaban.
   const consejeros = [...grupo]
@@ -325,11 +350,14 @@ export function quiereAsaltar(m: Mundo, A: Aldea, B: Aldea, ga: Persona[], gb: P
   // Antes de atacar miran si pueden ganar: nadie sensato asalta una muralla sin catapultas.
   const muro = 1 + (muros(B) - 1) * (conoce(A, 'catapulta') ? 0.35 : 1);
   const fuerza = (ga.length * armas(A)) / Math.max(1, gb.length * armas(B) * muro);
+  // Los del consejo que quieren vengar a los suyos empujan contra esa aldea.
+  const vengadores = miembros.filter((p) => p.meta?.tipo === 'vengar' && p.meta.ref === B.id).length;
   const motivos: [string, number][] = [
     ['hambre', escasezA * 0.9],
     ['codicia', codicia],
     ['rencor', rel.rencor * 1.2],
     ['belicosos', (agresividad - 0.5) * 0.6],
+    ['venganza', (vengadores / miembros.length) * 0.9],
   ];
   const ganas = motivos.reduce((s, [, v]) => s + v, 0) - rel.afinidad + (guerra ? 0.25 : 0) + Math.max(-0.5, Math.min(0.1, (fuerza - 1) * 0.35));
   if (ganas < 0.3) return null;
@@ -385,6 +413,7 @@ export function asaltar(m: Mundo, A: Aldea, B: Aldea, ga: Persona[], gb: Persona
     p.y = B.y;
     if (prob((gana ? 0.05 : 0.18) * (conoce(A, 'escudo') ? 0.7 : 1))) {
       morir(p, 'combate');
+      p.porAldea = B.id;
       muertosA++;
     }
   }
@@ -392,9 +421,16 @@ export function asaltar(m: Mundo, A: Aldea, B: Aldea, ga: Persona[], gb: Persona
     p.actividad = 'defender';
     if (prob((gana ? 0.1 : 0.03) * (conoce(B, 'escudo') ? 0.7 : 1))) {
       morir(p, 'combate');
+      p.porAldea = A.id;
       muertosB++;
+    } else {
+      // Nadie olvida que le asaltaron; pelear juntos une.
+      recordar(m, p, 'asalto', A.id, 0.6);
+      if (!gana) afamar(p, 0.15);
     }
   }
+  for (let k = 1; k < Math.min(defensores.length, 6); k++) tratar(defensores[k - 1], defensores[k], 0.05);
+  if (gana) for (const p of guerreros) if (!p.muerto) afamar(p, 0.2);
   let botin = 0;
   if (gana) {
     for (const mat of ORDEN_COMER) {

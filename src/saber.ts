@@ -12,6 +12,7 @@ import { BASICOS, MATERIAL, MINERALES, RAMA, TECNICA, TECNICAS, VERBOS, type Tec
 import { RITMO_SABER } from './config.ts';
 import { anotar, como } from './cronica.ts';
 import { entiende, inventarPalabra, nombrar, palabraDe } from './lenguaje.ts';
+import { afamar, hito, lazo } from './memoria.ts';
 import type { Aldea, Idea, Mundo, Persona } from './tipos.ts';
 
 const r2 = (x: number) => Math.round(x * 100) / 100;
@@ -190,6 +191,8 @@ function descubrir(m: Mundo, p: Persona, a: Aldea, t: Tecnica, cosas: string[], 
   const yaEnAldea = a.conocidos.includes(t.id);
   aprender(p, t.id, a);
   p.descubrimientos++;
+  afamar(p, 1);
+  hito(m, p, 'descubre', t.nombre);
   p.ideas = p.ideas.filter((i) => parecidoReceta(i.cosas, i.verbo, t) < 0.99);
   let palabra = palabraDe(p, t.id);
   if (!palabra) {
@@ -226,12 +229,16 @@ export function aprender(p: Persona, id: string, a: Aldea): boolean {
  */
 export function ensenar(m: Mundo, maestro: Persona, alumno: Persona, aldeaAlumno: Aldea, nino: boolean, bonus: number): string | null {
   if (!maestro.saberes.length) return null;
-  const id = elegir(maestro.saberes);
+  // Si el alumno quiere aprender algo concreto y el maestro lo sabe, se habla de eso.
+  const quiere = alumno.meta?.tipo === 'aprender' && typeof alumno.meta.ref === 'string' && maestro.saberes.includes(alumno.meta.ref) ? alumno.meta.ref : null;
+  const id = quiere ?? elegir(maestro.saberes);
   const t = TECNICA[id];
   if (!t || !puedeAprender(alumno, t)) return null;
   const comprende = entiende(maestro, alumno, id);
   nombrar(m.fonologia, maestro, alumno, id, nino);
-  const p = 0.08 * (0.5 + maestro.genes.sociabilidad) * (0.6 + 0.6 * alumno.genes.curiosidad) * (comprende ? 1 : 0.35) * bonus;
+  // Se aprende mejor de quien se aprecia (y se pone más empeño si se quiere aprender eso).
+  const aprecio = Math.max(0.3, 1 + 0.8 * lazo(alumno, maestro.id));
+  const p = 0.08 * (0.5 + maestro.genes.sociabilidad) * (0.6 + 0.6 * alumno.genes.curiosidad) * (comprende ? 1 : 0.35) * bonus * aprecio * (quiere ? 1.5 : 1);
   if (!prob(p)) return null;
   aprender(alumno, id, aldeaAlumno);
   return id;
