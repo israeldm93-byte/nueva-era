@@ -300,11 +300,47 @@ function rodear(p, q, obst, out, prof) {
 }
 
 /**
+ * Si el tramo p→q (los dos fuera del muro) pasaría por dentro, añade puntos que lo
+ * rodean por fuera siguiendo el muro, por el lado más corto.
+ */
+function porFuera(p, q, m, out) {
+  const rp = Math.hypot(p[0] - m.cx, p[1] - m.cz);
+  const rq = Math.hypot(q[0] - m.cx, q[1] - m.cz);
+  if (rp < m.r || rq < m.r) return;
+  const dx = q[0] - p[0];
+  const dz = q[1] - p[1];
+  const l2 = dx * dx + dz * dz || 1e-6;
+  const t = acotar(((m.cx - p[0]) * dx + (m.cz - p[1]) * dz) / l2, 0, 1);
+  if (Math.hypot(p[0] + dx * t - m.cx, p[1] + dz * t - m.cz) > m.r + 0.6) return;
+  const a0 = Math.atan2(p[1] - m.cz, p[0] - m.cx);
+  let da = Math.atan2(q[1] - m.cz, q[0] - m.cx) - a0;
+  da = Math.atan2(Math.sin(da), Math.cos(da));
+  const R = m.r + 1.1;
+  const pasos = Math.max(2, Math.ceil(Math.abs(da) / 0.35));
+  for (let k = 1; k < pasos; k++) {
+    const ang = a0 + (da * k) / pasos;
+    out.push([m.cx + Math.cos(ang) * R, m.cz + Math.sin(ang) * R]);
+  }
+}
+
+/** La muralla es sólida: quien está a un lado no pasa al otro salvo por la puerta (al sur). */
+function muro(px, pz, x, z, m) {
+  const ang = Math.atan2(z - m.cz, x - m.cx);
+  if (Math.abs(ang - Math.PI / 2) < m.hueco * 0.85) return [x, z];
+  const d0 = Math.hypot(px - m.cx, pz - m.cz);
+  const d1 = Math.hypot(x - m.cx, z - m.cz) || 1e-6;
+  const grosor = 0.45;
+  if (d0 < m.r && d1 > m.r - grosor) return [m.cx + ((x - m.cx) * (m.r - grosor)) / d1, m.cz + ((z - m.cz) * (m.r - grosor)) / d1];
+  if (d0 >= m.r && d1 < m.r + grosor) return [m.cx + ((x - m.cx) * (m.r + grosor)) / d1, m.cz + ((z - m.cz) * (m.r + grosor)) / d1];
+  return [x, z];
+}
+
+/**
  * Un camino de a a b que no atraviesa nada: rodea los edificios y, si hay que cruzar
  * la cerca o la muralla, sale o entra por la puerta (al sur).
  */
 function camino(a, b, plano) {
-  const tramos = [a];
+  let tramos = [a];
   const m = plano?.anillo;
   if (m) {
     const dentro = (p) => Math.hypot(p[0] - m.cx, p[1] - m.cz) < m.r;
@@ -315,6 +351,15 @@ function camino(a, b, plano) {
     }
   }
   tramos.push(b);
+  // Por fuera, la muralla se rodea: nada de cruzar la aldea en línea recta.
+  if (m) {
+    const con = [tramos[0]];
+    for (let i = 1; i < tramos.length; i++) {
+      porFuera(tramos[i - 1], tramos[i], m, con);
+      con.push(tramos[i]);
+    }
+    tramos = con;
+  }
   const pts = [a];
   for (let i = 0; i < tramos.length - 1; i++) rodear(tramos[i], tramos[i + 1], plano?.obst ?? [], pts, 0);
   const largos = [0];
@@ -421,8 +466,8 @@ export class Gente3D {
         }
       }
       if (a.obra && !['cerca', 'empalizada', 'muralla'].includes(a.obra.tipo)) obst.push([...this.terreno.aMundo(a.obra.x, a.obra.y), OCUPA.obra]);
-      const muro = ['muralla', 'empalizada', 'cerca'].map((t) => a.edificios.find((e) => e.tipo === t)).find(Boolean);
-      const anillo = muro ? { cx: ax, cz: az, r: 2 * (muro.radio ?? (muro.tipo === 'muralla' ? 3 : 2.7)) } : null;
+      const muroA = ['muralla', 'empalizada', 'cerca'].map((t) => a.edificios.find((e) => e.tipo === t)).find(Boolean);
+      const anillo = muroA ? { cx: ax, cz: az, r: 2 * (muroA.radio ?? (muroA.tipo === 'muralla' ? 3 : 2.7)), hueco: muroA.tipo === 'muralla' ? 0.2 : muroA.tipo === 'empalizada' ? 0.16 : 0.14 } : null;
       // Las torres de vigía, sobre el muro: arriba se ponen los vigías (con arco, si saben).
       const torres = anillo
         ? a.edificios
@@ -578,16 +623,30 @@ export class Gente3D {
       const metal = sabe.has('hierro') ? 0xaab1b8 : sabe.has('bronce') ? 0xc9923e : sabe.has('cobre') ? 0xc07a3a : 0x8d8a82;
       // El vigía sube a una torre libre; con arcos, vigila con el arco en la mano.
       const torre = p.act === 'vigilar' && p.edad >= 14 ? plano?.torres.find((x) => x.libre) : null;
-      if (torre) torre.libre = false;
+      if (torre) {
+        torre.libre = false;
+        // Va andando hasta el pie de la torre, por dentro, y sube.
+        const l = Math.hypot(torre.x - ax, torre.z - az) || 1;
+        tx = torre.x - ((torre.x - ax) / l) * 0.9;
+        tz = torre.z - ((torre.z - az) / l) * 0.9;
+      }
       let herramienta = p.edad >= 12 ? (ARMADOS.has(p.act) ? armaDe(p.act, sabe, p.id) : HERRAMIENTA[p.act] ?? null) : null;
       if (torre && sabe.has('arco')) herramienta = 'arco';
       // Los que van de camino a su nueva tierra: su puesto en la columna.
       const viaje = a?.viaje ? { ...a.viaje, puesto: (viajeros.get(a.id) ?? 0) } : null;
       if (viaje) viajeros.set(a.id, viaje.puesto + 1);
+      // Los que se van salen por la puerta de su aldea y siguen el camino hasta su tierra.
+      let rutaViaje = null;
+      if (viaje) {
+        const planoOrigen = this.planos.get(a.origen);
+        rutaViaje = camino(tr.aMundo(viaje.desde[0], viaje.desde[1]), tr.aMundo(viaje.hasta[0], viaje.hasta[1]), planoOrigen ? { anillo: planoOrigen.anillo, obst: [] } : null);
+      }
       const per = {
         p,
         idx,
         casa,
+        rutaViaje,
+        anillos: [plano?.anillo, viaje ? this.planos.get(a.origen)?.anillo : null].filter(Boolean),
         trabajo: [tx, tz],
         arbol,
         ruta: camino(casa, [tx, tz], plano),
@@ -673,7 +732,8 @@ export class Gente3D {
     const tr = this.terreno;
     const herr = Object.fromEntries(HERRAMIENTAS.map((k) => [k, 0]));
     const carg = Object.fromEntries(CARGAS.map((k) => [k, 0]));
-    const dt = Math.min(0.1, Math.max(0, t - (this.tAnterior ?? t)));
+    const dtReal = Math.max(0, t - (this.tAnterior ?? t));
+    const dt = Math.min(0.1, dtReal);
     this.tAnterior = t;
     const lejos2 = 120 * 120;
     const muchos = this.lista.length > 600;
@@ -713,15 +773,10 @@ export class Gente3D {
         // En columna detrás de quien los guía, con los fardos a la espalda; de noche,
         // acampan donde les pilla, sentados en corro.
         const prog = Math.min(1, Math.max(0, (this.t - viaje.salida + fase) / viaje.dias));
-        const [x0, z0] = tr.aMundo(viaje.desde[0], viaje.desde[1]);
-        const [x1, z1] = tr.aMundo(viaje.hasta[0], viaje.hasta[1]);
-        const l = Math.hypot(x1 - x0, z1 - z0) || 1;
-        const ux = (x1 - x0) / l;
-        const uz = (z1 - z0) / l;
+        const ruta = per.rutaViaje;
         const acampan = fase > 0.84 || fase < 0.06;
         const parada = acampan ? (fase > 0.84 ? (fase - 0.84) / 0.22 : (fase + 0.16) / 0.22) : 0;
-        const cx = x0 + (x1 - x0) * prog;
-        const cz = z0 + (z1 - z0) * prog;
+        const [cx, cz] = enCamino(ruta, prog);
         if (acampan) {
           const ang = (viaje.puesto * 2.4) % (Math.PI * 2);
           const r = 1.1 + (viaje.puesto % 3) * 0.35;
@@ -730,11 +785,18 @@ export class Gente3D {
           pose = parada < 0.08 ? 'andar' : 'sentado';
           mira = [cx, cz];
         } else {
+          // Cada uno, unos pasos detrás del anterior por el mismo camino (de dos en dos).
           const fila = Math.floor(viaje.puesto / 2);
-          const lado = viaje.puesto % 2 ? 0.45 : -0.45;
-          x = cx - ux * fila * 0.85 - uz * lado + Math.sin(t * 0.7 + p.id) * 0.06;
-          z = cz - uz * fila * 0.85 + ux * lado;
-          pose = 'andar';
+          const lado = viaje.puesto % 2 ? 0.4 : -0.4;
+          const s = Math.max(0, prog * ruta.total - fila * 0.85);
+          const [px, pz] = enCamino(ruta, s / ruta.total);
+          const [qx, qz] = enCamino(ruta, Math.min(1, (s + 0.4) / ruta.total));
+          const l = Math.hypot(qx - px, qz - pz) || 1;
+          const ux = (qx - px) / l;
+          const uz = (qz - pz) / l;
+          x = px - uz * lado + Math.sin(t * 0.7 + p.id) * 0.05;
+          z = pz + ux * lado;
+          pose = s > 0 ? 'andar' : 'pie';
           mira = [x + ux, z + uz];
         }
       } else if (per.torre && k === 1) {
@@ -810,6 +872,25 @@ export class Gente3D {
       else if (p.act === 'experimentar') pose = 'experimentar';
       else if (p.act === 'defender' || p.act === 'asaltar') pose = k > 0 || p.act === 'defender' ? 'correr' : pose;
       if (p.act === 'vigilar' && k === 1 && noche && pose !== 'arquero') pose = 'vigilarNoche';
+      // Nadie aparece de golpe al otro lado: si el sitio al que tiene que ir cambia de
+      // repente (sale a plantar cara a los lobos, vuelve a casa), va corriendo por un
+      // camino de verdad, que sale y entra por la puerta.
+      if (!per.oculto && !alzado && !per.enBarca) {
+        if (!per.trans && Math.hypot(x - per.x, z - per.z) > Math.max(2.5, 20 * dtReal)) {
+          per.trans = { ruta: camino([per.x, per.z], [x, z], this.planos?.get(p.aldea) ?? (per.anillos[0] ? { anillo: per.anillos[0], obst: [] } : null)), t0: t };
+        }
+        if (per.trans) {
+          const s = (t - per.trans.t0) * 4.5;
+          if (s >= per.trans.ruta.total) per.trans = null;
+          else {
+            [x, z] = enCamino(per.trans.ruta, s / per.trans.ruta.total);
+            pose = 'correr';
+            mira = null;
+          }
+        }
+        // Y la muralla, sólida: solo se cruza por la puerta.
+        for (const m of per.anillos) [x, z] = muro(per.x, per.z, x, z, m);
+      } else per.trans = null;
       const dx = x - per.x;
       const dz = z - per.z;
       const mov = Math.hypot(dx, dz);

@@ -332,6 +332,8 @@ function fichaEdificio(e) {
   if (e.tipo === 'campo' && !e.obra) lineas.push(e.fase === 1 ? 'Ahora está sembrado.' : 'Ahora está en barbecho.');
   if ((e.tipo === 'corral' || e.tipo === 'gallinero') && e.animales !== undefined) lineas.push(`Tiene ${e.animales} ${e.tipo === 'gallinero' ? 'gallinas' : ({ oveja: 'ovejas', cabra: 'cabras', vaca: 'vacas', cerdo: 'cerdos', caballo: 'caballos' }[e.especie ?? 'oveja'] ?? 'animales')}.`);
   if (e.tipo === 'cerca' && e.material === 'piedra') lineas.push('La hicieron de piedra seca porque no había madera a mano.');
+  if (e.tipo === 'muralla' && !e.obra && (e.nivel ?? 1) > 1) lineas.push(`La han alzado ${e.nivel === 2 ? 'una vez' : 'dos veces'}: es más alta que al principio.`);
+  if (e.obra && e.alza) lineas.push('Están alzando la muralla: la hacen más alta, hilada a hilada.');
   if (e.tipo === 'torre') lineas.push(a?.conocidos?.includes('arco') ? 'Arriba hay arqueros: si los lobos se acercan, los reciben a flechazos.' : 'Cuando sepan hacer arcos, dispararán desde arriba.');
   if (e.obra && e.reforma) lineas.push(`Están rehaciendo ${UNA[e.reforma] ?? 'una casa vieja'} al modo nuevo, en el mismo sitio.`);
   if (['cerca', 'empalizada', 'muralla'].includes(e.tipo) && !e.obra) lineas.push('La puerta se cierra al anochecer y cuando hay peligro; de día queda abierta para salir a trabajar.');

@@ -467,7 +467,9 @@ export class Edificios3D {
      * Lo que rodea una aldea: cerca de estacas, pirca de piedra seca, empalizada o muralla.
      * Con `parte` < 1, solo el tramo ya levantado (se construye desde la puerta, al sur).
      */
-    const anillo = (a, tipo, parte, ruina, radioCasillas) => {
+    const anillo = (a, tipo, parte, ruina, radioCasillas, nivel = 1) => {
+      // Cada vez que alzan la muralla, un cuarto más alta.
+      const alza = 1 + 0.28 * (nivel - 1);
       const [cx, cz] = tr.aMundo(a.x, a.y);
       // Cada muro tiene el radio con el que se hizo: crece cuando la aldea lo amplía.
       const radio = T * radioCasillas;
@@ -485,7 +487,7 @@ export class Edificios3D {
         const z = cz + Math.sin(ang) * radio;
         const y = tr.alturaEn(x, z);
         if (tipo === 'muralla' && nMuro < 1500) {
-          colocar(muros, nMuro, x, y - 0.25, z, -ang - Math.PI / 2, 1, 1.4);
+          colocar(muros, nMuro, x, y - 0.25, z, -ang - Math.PI / 2, 1, 1.4 * alza);
           muros.setColorAt(nMuro++, gris(k));
         } else if (tipo === 'pirca' && nPirca < 2000) {
           colocar(pircas, nPirca, x, y - 0.05, z, -ang - Math.PI / 2, (2 * Math.PI * radio) / total / 0.92, 1);
@@ -508,7 +510,7 @@ export class Edificios3D {
       if (parte < 1 || ruina) return;
       // La puerta: dos hojas que se abren hacia dentro de día y se cierran de noche o ante el peligro.
       {
-        const alto = { cerca: 1.05, pirca: 0.75, empalizada: 1.7, muralla: 2.2 }[tipo] ?? 1;
+        const alto = ({ cerca: 1.05, pirca: 0.75, empalizada: 1.7, muralla: 2.2 }[tipo] ?? 1) * alza;
         const ancho = hueco * radio;
         for (const lado of [-1, 1]) {
           const ang = Math.PI / 2 + lado * hueco;
@@ -534,7 +536,7 @@ export class Edificios3D {
           if (nTorreon >= 300) break;
           const x = cx + Math.cos(ang) * radio;
           const z = cz + Math.sin(ang) * radio;
-          colocar(torreones, nTorreon, x, tr.alturaEn(x, z) - 0.2, z, -ang, 1, 1);
+          colocar(torreones, nTorreon, x, tr.alturaEn(x, z) - 0.2, z, -ang, 1, alza * 1.1);
           torreones.setColorAt(nTorreon++, color.set(0xffffff));
         }
       }
@@ -590,7 +592,9 @@ export class Edificios3D {
       const forma = (e) => (e.tipo === 'cerca' ? (e.material === 'piedra' ? 'pirca' : 'cerca') : e.tipo);
       const obraMuro = !ruina && a.obra && ['cerca', 'empalizada', 'muralla'].includes(a.obra.tipo) ? a.obra : null;
       // Mientras se levanta uno más grande del mismo tipo, el viejo sigue en pie.
-      if (muro) anillo(a, forma(muro), 1, ruina, radioDe(muro));
+      // Si están alzando la muralla, crece en su sitio a medida que avanza la obra.
+      const alzando = obraMuro?.alza && muro?.tipo === 'muralla';
+      if (muro) anillo(a, forma(muro), 1, ruina, radioDe(muro), (muro.nivel ?? 1) + (alzando ? Math.max(0, obraMuro.progreso) : 0));
       // Torres de vigía sobre el muro, en su ángulo (de madera o de piedra).
       if (muro && !ruina) {
         const [cx, cz] = tr.aMundo(a.x, a.y);
@@ -621,7 +625,7 @@ export class Edificios3D {
           }
         }
       }
-      if (obraMuro) anillo(a, forma(obraMuro), Math.max(0.06, obraMuro.progreso), false, radioDe(obraMuro) + (muro && Math.abs(radioDe(muro) - radioDe(obraMuro)) < 0.3 ? 0.35 : 0));
+      if (obraMuro && !alzando) anillo(a, forma(obraMuro), Math.max(0.06, obraMuro.progreso), false, radioDe(obraMuro) + (muro && Math.abs(radioDe(muro) - radioDe(obraMuro)) < 0.3 ? 0.35 : 0));
       // Catapultas junto a la aldea, en cuanto saben hacerlas (más cuanto más grande).
       if (!ruina && a.conocidos?.includes('catapulta')) {
         // En casillas libres de tierra firme alrededor de la aldea, apuntando hacia fuera.

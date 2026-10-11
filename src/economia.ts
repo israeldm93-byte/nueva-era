@@ -728,12 +728,21 @@ function terminarObra(m: Mundo, a: Aldea): void {
   a.obra = null;
   const e: Aldea['edificios'][number] = { tipo: obra.tipo, x: obra.x, y: obra.y, ...(obra.material ? { material: obra.material } : {}), ...(obra.radio ? { radio: obra.radio } : {}), ...(obra.ang !== undefined ? { ang: obra.ang } : {}) };
   // Un muro nuevo más grande sustituye al viejo.
-  const ampliado = rodea(obra.tipo) && a.edificios.some((x) => x.tipo === obra.tipo);
-  if (ampliado) {
-    a.edificios = a.edificios.filter((x) => x.tipo !== obra.tipo);
+  const viejo = rodea(obra.tipo) ? a.edificios.find((x) => x.tipo === obra.tipo) : undefined;
+  const ampliado = !!viejo;
+  if (rodea(obra.tipo)) {
+    // El muro nuevo sustituye al viejo (y la muralla, a la cerca y a la empalizada).
+    const peores = obra.tipo === 'muralla' ? ['cerca', 'empalizada', 'muralla'] : obra.tipo === 'empalizada' ? ['cerca', 'empalizada'] : [obra.tipo];
+    a.edificios = a.edificios.filter((x) => !peores.includes(x.tipo));
     // Las torres se rehacen en el muro nuevo.
     for (const t of a.edificios) if (t.tipo === 'torre') Object.assign(t, puntoMuro(a, obra.radio ?? 2.7, t.ang ?? 0));
-    anotar(m, 'edificio', `${a.nombre} amplía su ${EDIFICIO[obra.tipo].nombre.toLowerCase()}: ahora rodea todo lo que ha crecido la aldea.`, a.id);
+    if (obra.alza && viejo) {
+      e.nivel = Math.min(3, (viejo.nivel ?? 1) + 1);
+      anotar(m, 'edificio', `${a.nombre} alza su muralla: ahora es más alta y casi imposible de saltar.`, a.id);
+    } else if (viejo) {
+      if (viejo.nivel) e.nivel = viejo.nivel;
+      anotar(m, 'edificio', `${a.nombre} amplía su ${EDIFICIO[obra.tipo].nombre.toLowerCase()}: ahora rodea todo lo que ha crecido la aldea.`, a.id);
+    }
   }
   if (obra.reforma) {
     const k = a.edificios.findIndex((x) => x.x === obra.x && x.y === obra.y && x.tipo === obra.reforma);
@@ -909,8 +918,12 @@ export function planificar(m: Mundo, a: Aldea, gente: Persona[]): void {
   // Con fieras rondando, lo primero es una cerca de estacas atadas alrededor de casas y corrales.
   const muro = tiene(a, 'cerca') || tiene(a, 'empalizada') || tiene(a, 'muralla');
   if (conoce(a, 'cuerda') && !muro && n >= 5 && (peligro || a.amenaza > 0.12)) opciones.push(['cerca', 1.05]);
-  if (conoce(a, 'empalizada') && !tiene(a, 'empalizada') && n >= 12) opciones.push(['empalizada', peligro ? 1.1 : 0.5]);
-  if (conoce(a, 'muralla') && tiene(a, 'empalizada') && !tiene(a, 'muralla') && n >= 18) opciones.push(['muralla', peligro ? 1.2 : 0.4]);
+  if (conoce(a, 'empalizada') && !tiene(a, 'empalizada') && !tiene(a, 'muralla') && n >= 12) opciones.push(['empalizada', peligro ? 1.1 : 0.5]);
+  // En cuanto saben labrar la piedra, cambian la cerca o la empalizada por una muralla.
+  if (conoce(a, 'muralla') && muro && !tiene(a, 'muralla') && n >= 12) opciones.push(['muralla', peligro ? 1.2 : 0.8]);
+  // Y con piedra de sobra, la alzan: más alta, más difícil de saltar.
+  const muralla = a.edificios.find((e) => e.tipo === 'muralla');
+  if (muralla && (muralla.nivel ?? 1) < 3 && (a.despensa.piedra ?? 0) >= 100 * (radioMuro(muralla) / 2.7) && n >= 15) opciones.push(['alzar', peligro ? 0.95 : 0.6]);
   // Si la aldea ha crecido y algo queda fuera del muro, toca ampliarlo.
   const muroHecho = muroDe(a);
   // (o si pasa por encima del cementerio: se rehace dejando las tumbas dentro).
@@ -933,6 +946,11 @@ export function planificar(m: Mundo, a: Aldea, gente: Persona[]): void {
       // Se deshace la vieja y se levanta la nueva en el mismo sitio.
       if (!casa || !vieja || (a.aparcadas?.[casa] ?? 0) > m.t) continue;
       a.obra = { tipo: casa, x: vieja.x, y: vieja.y, progreso: 0, pagada: false, desde: m.t, reforma: vieja.tipo };
+      return;
+    }
+    if (tipo === 'alzar') {
+      if (!muralla || (a.aparcadas?.muralla ?? 0) > m.t) continue;
+      a.obra = { tipo: 'muralla', x: a.x, y: a.y, progreso: 0, pagada: false, desde: m.t, radio: radioMuro(muralla), alza: true };
       return;
     }
     if (tipo === 'torre') {

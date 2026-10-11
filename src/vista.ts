@@ -108,6 +108,7 @@ export function datosWeb(m: Mundo, ahora: Date) {
           ...(e.material ? { material: e.material } : {}),
           ...(e.radio ? { radio: e.radio } : {}),
           ...(e.ang !== undefined ? { ang: e.ang } : {}),
+          ...(e.nivel ? { nivel: e.nivel } : {}),
           // Cómo va el cultivo (de 0, recién sembrado, a 1, listo para segar) o si queda rastrojo.
           ...(e.tipo === 'campo' && e.fase === 1 ? { crece: r2(Math.min(1, (m.t - (e.sembrado ?? m.t - 40)) / 70)) } : {}),
           ...(e.tipo === 'campo' && e.fase !== 1 && e.cosechado !== undefined && m.t - e.cosechado < 45 ? { rastrojo: true } : {}),
@@ -125,6 +126,7 @@ export function datosWeb(m: Mundo, ahora: Date) {
               ...(a.obra.radio ? { radio: a.obra.radio } : {}),
               ...(a.obra.reforma ? { reforma: a.obra.reforma } : {}),
               ...(a.obra.ang !== undefined ? { ang: a.obra.ang } : {}),
+              ...(a.obra.alza ? { alza: true } : {}),
             }
           : null,
         // Su edad (Piedra, Herramientas, Bronce, Hierro), cuándo llegó a cada una y lo que

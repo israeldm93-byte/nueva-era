@@ -73,6 +73,8 @@ export interface Edificio {
   radio?: number;
   /** Torres: en qué punto del muro están (ángulo desde el centro de la aldea). */
   ang?: number;
+  /** Murallas: cuántas veces la han alzado (1 la de siempre, hasta 3). */
+  nivel?: number;
   /** Campos: el día en que se sembraron y en que se cosecharon. */
   sembrado?: number;
   cosechado?: number;
@@ -94,6 +96,8 @@ export interface Obra {
   reforma?: string;
   /** Torres: en qué punto del muro se levantan (ángulo desde el centro). */
   ang?: number;
+  /** Si es para alzar la muralla que ya hay (más alta), no para hacer otra. */
+  alza?: boolean;
 }
 
 export interface Aldea {

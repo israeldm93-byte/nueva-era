@@ -294,7 +294,7 @@ const armas = (a: Aldea) =>
   (aCaballo(a) ? 1.15 : 1);
 /** Lo que protegen sus muros. */
 const muros = (a: Aldea) =>
-  (tiene(a, 'muralla') ? 3 : tiene(a, 'empalizada') ? 1.8 : tiene(a, 'cerca') ? 1.2 : 1) * (1 + 0.1 * Math.min(4, a.edificios.filter((e) => e.tipo === 'torre').length));
+  (tiene(a, 'muralla') ? 3 * (1 + 0.2 * ((a.edificios.find((e) => e.tipo === 'muralla')?.nivel ?? 1) - 1)) : tiene(a, 'empalizada') ? 1.8 : tiene(a, 'cerca') ? 1.2 : 1) * (1 + 0.1 * Math.min(4, a.edificios.filter((e) => e.tipo === 'torre').length));
 
 const MOTIVO: Record<string, string> = {
   hambre: 'les falta comida',
