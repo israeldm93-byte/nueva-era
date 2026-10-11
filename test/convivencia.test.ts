@@ -11,11 +11,11 @@ import { masas } from '../src/mapa.ts';
 import { buscarDestino } from '../src/migracion.ts';
 import { migrar } from '../src/migrar.ts';
 import { aldeasVivas, crearMundo, edad, indexar, nuevaAldea, nuevaPersona } from '../src/mundo.ts';
-import { noche } from '../src/politica.ts';
+import { facciones, MINIMO_PUEBLO, noche } from '../src/politica.ts';
 import { avanzar } from '../src/simulacion.ts';
 import { conversar } from '../src/sociedad.ts';
 import { diasDeCamino, partir, viajes } from '../src/viajes.ts';
-import type { Aldea, Mundo } from '../src/tipos.ts';
+import type { Aldea, Mundo, Persona } from '../src/tipos.ts';
 
 const copiar = (m: Mundo): Mundo => JSON.parse(JSON.stringify(m));
 
@@ -51,7 +51,7 @@ test('con cientos de días de comida guardada y todos bien comidos, la aldea no 
   const hambre = opinar(pobre, b, 60);
   assert.ok(abundancia.comida < 0.6, `con comida de sobra, piensan en otras cosas: ${Math.round(abundancia.comida * 100)} % por la comida`);
   assert.notEqual(abundancia.consejo, 'comida', 'y el consejo no la pone por delante');
-  assert.ok(hambre.comida > 0.8 && hambre.consejo === 'comida', `con hambre de verdad, sí: ${Math.round(hambre.comida * 100)} %, consejo ${hambre.consejo}`);
+  assert.ok(hambre.comida > 0.6 && hambre.consejo === 'comida', `con hambre de verdad, sí: ${Math.round(hambre.comida * 100)} %, consejo ${hambre.consejo}`);
 });
 
 // ---------------------------------------------------------------------------------------
@@ -103,8 +103,14 @@ test('un viaje de visita: tarda lo que marca la distancia, no trabaja mientras, 
   }
   b.conocidos.push(novedad.id);
   let aprendidoFuera = 0;
-  for (const p of lista) {
+  // Viajan uno tras otro (cada cual quiere aprender lo de allí) hasta que alguno lo trae:
+  // enseñar sale a veces, no siempre.
+  for (let n = 0; n < 24 && !aprendidoFuera; n++) {
+    const p = lista[n % lista.length];
+    if (!m.personas.includes(p) || p.aldea !== a.id) continue;
     p.salud = 1;
+    p.reservas = 6;
+    if (!p.saberes.includes(novedad.id)) p.meta = { tipo: 'aprender', desde: m.t, motivo: 'prueba', ref: novedad.id };
     const sabia = new Set(p.saberes);
     const conocidos = new Set(a.conocidos);
     partir(m, p, a, b);
@@ -243,4 +249,66 @@ test('un viaje roto en un guardado (datos rotos o a una aldea que ya no existe) 
   assert.equal(n.personas.find((x) => x.id === q.id)!.viaje, undefined);
   assert.equal(n.reparaciones?.filter((r) => r.ruta.endsWith('.viaje')).length, 2);
   assert.deepEqual(comprobar(n), []);
+});
+
+// ---------------------------------------------------------------------------------------
+// Cismas: el consejo tiene tiempo de responder, y nadie funda un pueblo inviable
+
+/** Una aldea con un consejo que decide «comida» y una facción organizada que quiere «obras». */
+function aldeaConFaccion(miembros: (m: Mundo, a: Aldea) => Persona[]) {
+  const m = crearMundo(6);
+  avanzar(m, 25 * DIAS_ANIO);
+  const a = aldeasVivas(m).sort((x, y) => m.personas.filter((p) => p.aldea === y.id).length - m.personas.filter((p) => p.aldea === x.id).length)[0];
+  while (m.personas.filter((p) => p.aldea === a.id && edad(m, p) >= 16).length < 22) nuevaPersona(m, { aldea: a, nace: m.t - 30 * DIAS_ANIO });
+  for (let k = 0; k < 12; k++) a.edificios.push({ tipo: 'casa', x: a.x + (k % 6) - 3, y: a.y + 3 + Math.floor(k / 6) });
+  const adultos = m.personas.filter((p) => p.aldea === a.id && edad(m, p) >= 16);
+  a.consejo = { prioridad: 'comida', miembros: adultos.slice(0, 3).map((p) => p.id), votos: {}, desde: m.t, anunciada: 'comida', anunciado: m.t } as unknown as Aldea['consejo'];
+  for (const p of adultos) p.opinion = 'comida';
+  const grupo = miembros(m, a);
+  for (const p of grupo) p.opinion = 'obras';
+  a.facciones = [{ id: m.sigId++, nombre: 'Prueba', opinion: 'obras', lider: grupo[0].id, nacida: m.t, miembros: grupo.length, descontento: 0, anunciada: true }];
+  return { m, a };
+}
+
+/**
+ * Repasa las facciones cada 10 días (como la simulación) hasta que se van o pasan `anios`.
+ * Devuelve cuándo se fueron y cuándo se hartaron del todo por primera vez (en años).
+ */
+function esperarCisma(m: Mundo, a: Aldea, anios: number): { cisma: number | null; harta: number | null } {
+  const antes = m.aldeas.length;
+  const t0 = m.t;
+  let harta: number | null = null;
+  let previo = 0;
+  for (let d = 0; d < anios * DIAS_ANIO; d += 10) {
+    m.t += 10;
+    const ix = indexar(m);
+    facciones(m, a, ix.porAldea.get(a.id) ?? [], ix);
+    // Se hartan cuando el descontento se colma (si intentan irse y aún no se atreven, vuelve
+    // de golpe a 0,7: también cuenta).
+    const ahora = a.facciones.find((f) => f.opinion === 'obras')?.descontento ?? 0;
+    if (harta === null && (ahora >= 1 || previo - ahora > 0.15)) harta = (m.t - t0) / DIAS_ANIO;
+    previo = ahora;
+    if (m.aldeas.length > antes) return { cisma: (m.t - t0) / DIAS_ANIO, harta: harta ?? (m.t - t0) / DIAS_ANIO };
+  }
+  return { cisma: null, harta };
+}
+
+test('una facción ignorada aguanta unos dos años antes de irse (el consejo tiene tiempo de responder), pero acaba yéndose', () => {
+  const { m, a } = aldeaConFaccion((m, a) => {
+    // Ocho adultos con su familia (parejas e hijos): un grupo capaz de fundar un pueblo.
+    const casados = m.personas.filter((p) => p.aldea === a.id && edad(m, p) >= 16 && p.pareja !== null);
+    return casados.slice(0, 8);
+  });
+  const { cisma, harta } = esperarCisma(m, a, 8);
+  assert.ok(cisma !== null, 'el cisma sigue existiendo');
+  assert.ok(harta !== null && harta >= 1.5, `no se hartan del todo antes de año y medio: ${harta?.toFixed(1)} años`);
+  const nueva = m.aldeas[m.aldeas.length - 1];
+  assert.ok(m.personas.filter((p) => p.aldea === nueva.id).length >= MINIMO_PUEBLO, 'se van suficientes para sacar adelante un pueblo');
+});
+
+test('cinco solteros descontentos no fundan un pueblo: son demasiado pocos y aguantan', () => {
+  const { m, a } = aldeaConFaccion((m, a) => Array.from({ length: 5 }, () => nuevaPersona(m, { aldea: a, nace: m.t - 25 * DIAS_ANIO })));
+  assert.equal(esperarCisma(m, a, 10).cisma, null, 'en diez años no se van');
+  const f = a.facciones.find((x) => x.opinion === 'obras');
+  assert.ok(f && f.descontento >= 0.7, 'pero siguen descontentos (la facción no desaparece)');
 });

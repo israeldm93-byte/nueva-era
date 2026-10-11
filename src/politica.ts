@@ -203,6 +203,11 @@ export function persuadir(m: Mundo, hablante: Persona, oyente: Persona): void {
   }
 }
 
+/** Lo que tarda en crecer el hartazgo de una facción ignorada (1 = sin paciencia). */
+export const PACIENCIA = 0.5;
+/** Con menos gente (familias incluidas) no se atreven a fundar un pueblo por su cuenta. */
+export const MINIMO_PUEBLO = 10;
+
 /** Cada pocos días: nacen, cambian o se disuelven facciones; las ignoradas pueden irse. */
 export function facciones(m: Mundo, a: Aldea, gente: Persona[], ix: Indices): void {
   const adultos = gente.filter((p) => !p.muerto && edad(m, p) >= 16);
@@ -252,7 +257,9 @@ export function facciones(m: Mundo, a: Aldea, gente: Persona[], ix: Indices): vo
     const roce = (sinVoz ? 0.015 : 0) + (apretados ? 0.02 : 0) + (viejos ? 0.01 : 0);
     // El templo une: las rencillas pesan menos.
     const templo = tiene(a, 'templo') ? 0.6 : 1;
-    if (ignorada) f.descontento = r2(f.descontento + (0.2 * parte + 0.015 + roce) * templo);
+    // El hartazgo crece despacio: el consejo tiene tiempo de escucharles (de que sus ideas
+    // calen o de que su cabecilla entre en él) antes de que decidan irse, unos dos años.
+    if (ignorada) f.descontento = r2(f.descontento + (0.2 * parte + 0.015 + roce) * templo * PACIENCIA);
     else f.descontento = r2(Math.max(0, f.descontento - 0.08 + roce));
     if (!f.anunciada && m.t - f.nacida >= 240 && !f.debil) {
       f.anunciada = true;
@@ -290,8 +297,9 @@ function cisma(m: Mundo, a: Aldea, f: Faccion, miembros: Persona[], ix: Indices)
     if (q && q.aldea === a.id && !q.muerto && prob(0.75)) grupo.add(q);
     for (const h of vecinos) if ((h.padre === p.id || h.madre === p.id) && edad(m, h) < 16) grupo.add(h);
   }
-  // Si con sus familias se llevarían a media aldea, aún no se atreven: aguantan un tiempo.
-  if (grupo.size > vecinos.length * 0.5) {
+  // Si con sus familias se llevarían a media aldea, o son tan pocos que no sacarían
+  // adelante un pueblo, aún no se atreven: aguantan un tiempo.
+  if (grupo.size > vecinos.length * 0.5 || grupo.size < MINIMO_PUEBLO) {
     f.descontento = 0.7;
     return;
   }

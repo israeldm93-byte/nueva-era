@@ -263,9 +263,10 @@ function inicioAnio(m: Mundo): void {
   for (const a of aldeasVivas(m)) {
     const gente = ix.porAldea.get(a.id) ?? [];
     a.poblacionMax = Math.max(a.poblacionMax, gente.length);
-    // Se repasa qué sabe la aldea por si alguien se mudó llevándose algo.
+    // Se repasa qué sabe la aldea por si alguien se mudó llevándose algo. De quien está de
+    // viaje solo cuenta lo que ya se sabía aquí: lo que aprendió fuera llega cuando vuelva.
     const saben = new Set<string>();
-    for (const p of gente) for (const s of p.saberes) saben.add(s);
+    for (const p of gente) for (const s of p.saberes) if (!p.viaje || a.conocidos.includes(s)) saben.add(s);
     a.conocidos = [...a.conocidos.filter((s) => saben.has(s)), ...[...saben].filter((s) => !a.conocidos.includes(s))];
   }
 }
