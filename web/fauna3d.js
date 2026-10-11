@@ -13,7 +13,7 @@
 //   saltan cerca de la cámara.
 
 import * as THREE from 'three';
-import { AGUA, BOSQUE, COLINA, DESIERTO, ESTEPA, MONTANA, PANTANO, PRADERA, RIO, acotar, agua, azar, entre, enVista, instancias, suave, vista } from './util3d.js?v=__MOTOR__';
+import { AGUA, BOSQUE, COLINA, DESIERTO, ESTEPA, MONTANA, PANTANO, PRADERA, RIO, T, acotar, agua, azar, entre, enVista, instancias, suave, vista } from './util3d.js?v=__MOTOR__';
 import { ESPECIES, modelosAnimales } from './animales3d.js?v=__MOTOR__';
 
 /** Alrededor de lo que se mira (unidades del mundo) viven y se dibujan los animales de adorno. */
@@ -174,6 +174,14 @@ export class Fauna3D {
         r.cazador = null;
       }
     }
+    // Las aldeas y sus muros (las fieras rondan por fuera; dentro solo entran saltando una cerca).
+    this.muros = d.aldeas
+      .filter((a) => a.abandonada === null)
+      .map((a) => {
+        const m = ['muralla', 'empalizada', 'cerca'].map((t) => a.edificios.find((e) => e.tipo === t)).find(Boolean);
+        const [cx, cz] = tr.aMundo(a.x, a.y);
+        return { cx, cz, r: m ? T * (m.radio ?? (m.tipo === 'muralla' ? 3 : 2.7)) : 0, tipo: m?.tipo ?? null };
+      });
     // Rebaños: si en su sitio ya no queda caza (o ha crecido una aldea al lado), no están.
     const W = d.ancho;
     const aldeas = d.aldeas.filter((a) => a.abandonada === null);
@@ -899,6 +907,20 @@ export class Fauna3D {
     return mejor;
   }
 
+  /** La aldea (centro y muro) más cercana a un punto, si está a menos de `radio`. */
+  aldeaCerca(x, z, radio) {
+    let mejor = null;
+    let dmin = radio * radio;
+    for (const m of this.muros ?? []) {
+      const d2 = (m.cx - x) ** 2 + (m.cz - z) ** 2;
+      if (d2 < dmin) {
+        dmin = d2;
+        mejor = m;
+      }
+    }
+    return mejor;
+  }
+
   /** Lobos y osos: siguen a su manada (lo que manda la simulación) y, parados, hacen lo suyo. */
   pensarFiera(a, dt, u, t, noche) {
     const f = a.f;
@@ -911,6 +933,14 @@ export class Fauna3D {
     const oz = a.ox * Math.sin(giro) + a.oz * Math.cos(giro);
     let tx = entre(a.x0, a.x1, u) + ox;
     let tz = entre(a.z0, a.z1, u) + oz;
+    // Al acecho de una aldea, rondan a lo largo del muro, de un lado a otro.
+    const aldea = f.estado === 'acecha' ? this.aldeaCerca(tx, tz, 24) : null;
+    if (aldea) {
+      const r = Math.hypot(tx - aldea.cx, tz - aldea.cz);
+      const ang = Math.atan2(tz - aldea.cz, tx - aldea.cx) + 0.5 * Math.sin(t * 0.06 + f.id);
+      tx = aldea.cx + Math.cos(ang) * r;
+      tz = aldea.cz + Math.sin(ang) * r;
+    }
     // El día que atacan, primero se lanzan a por quien (o lo que) tienen más cerca; luego huyen.
     let presa = f.estado === 'ataca' || (f.estado === 'huye' && u < 0.35) ? this.presaCerca(f.estado === 'huye' ? a.x0 : tx, f.estado === 'huye' ? a.z0 : tz) : null;
     // Con hambre, de día, la manada sale tras el ciervo o el caballo que tenga más a mano.
@@ -923,8 +953,9 @@ export class Fauna3D {
     const dz = tz - a.z;
     const d = Math.hypot(dx, dz);
     const vel = ESPECIES[a.esp].vel;
-    const max = presa || f.estado === 'ataca' || f.estado === 'huye' || f.estado === 'espantada' ? vel[2] : f.estado === 'acecha' ? vel[0] * 0.6 : vel[1];
-    a.agachado = f.estado === 'acecha' && !presa;
+    // Al acecho trotan hasta su sitio y solo se arrastran agachados cuando ya están cerca.
+    const max = presa || f.estado === 'ataca' || f.estado === 'huye' || f.estado === 'espantada' ? vel[2] : f.estado === 'acecha' && d < 2 ? vel[0] * 0.6 : vel[1];
+    a.agachado = f.estado === 'acecha' && !presa && d < 2;
     if (d > 0.35) {
       // Si el sitio les queda de lado o detrás, frenan para girar (y no dan vueltas alrededor).
       const falta = Math.abs(giroHacia(a.ang, Math.atan2(dx, dz)));
@@ -935,6 +966,16 @@ export class Fauna3D {
       a.quieto = (a.quieto ?? 0) + dt;
       // Al acecho, encarados hacia la aldea.
       if (f.estado === 'acecha') a.ang += acotar(giroHacia(a.ang, Math.atan2(a.x1 - a.x0, a.z1 - a.z0)), -dt, dt);
+    }
+    // Los muros no se atraviesan: solo una cerca baja se salta, y únicamente al asaltar.
+    for (const m of this.muros ?? []) {
+      if (!m.r) continue;
+      const dd = Math.hypot(a.x - m.cx, a.z - m.cz);
+      if (dd > m.r + 0.7) continue;
+      if (m.tipo === 'cerca' && (f.estado === 'ataca' || f.estado === 'huye')) continue;
+      const k = (m.r + 0.7) / (dd || 1);
+      a.x = m.cx + (a.x - m.cx) * k;
+      a.z = m.cz + (a.z - m.cz) * k;
     }
     a.estado = 'pie';
     if (a.esp === 'oso' && f.estado === 'ataca' && d < 1.2) a.estado = 'erguido';
@@ -1207,7 +1248,8 @@ export class Fauna3D {
     const lejos2 = (RADIO_VIDA + 20) ** 2;
     for (const q of gente) if ((q.x - objetivo.x) ** 2 + (q.z - objetivo.z) ** 2 < lejos2) meter(q.x, q.z, false);
     // Fieras de la simulación (siempre, estén donde estén).
-    const u = suave(acotar((fase - 0.05) / 0.6, 0, 1));
+    // Las fieras van a su sitio del día a buen paso (en un rato), no a cámara lenta.
+    const u = suave(acotar((fase - 0.05) / 0.3, 0, 1));
     const manadas = new Map();
     for (const a of this.fieras.values()) {
       if (a.f.estado === 'hiberna') continue;

@@ -508,7 +508,7 @@ export class Gente3D {
       if (!['acecha', 'ataca', 'huye', 'espantada'].includes(f.estado) || f.tipo !== 'lobos') continue;
       for (const a of d.aldeas) {
         if (a.abandonada !== null || Math.hypot(a.x - f.x, a.y - f.y) > 6) continue;
-        const [wx, wz] = this.terreno.aMundo(f.px ?? f.x, f.py ?? f.y);
+        const [wx, wz] = this.terreno.aMundo(f.x, f.y);
         this.alarmas.set(a.id, { x: wx, z: wz, estado: f.estado });
       }
     }
@@ -871,7 +871,8 @@ export class Gente3D {
       // Con lobos a las puertas, los adultos salen juntos a plantarles cara (con lo que
       // tengan: lanzas, palos, antorchas) y los niños corren a casa.
       const alarma = viaje || (per.torre && k === 1) ? null : this.alarmas?.get(p.aldea);
-      if (alarma && a && !quieto) {
+      // (con los lobos a las puertas, lo que estuvieran haciendo puede esperar)
+      if (alarma && a) {
         per.oculto = false;
         const [hx, hz] = tr.aMundo(a.x, a.y);
         if (p.edad < 12) {
@@ -879,14 +880,17 @@ export class Gente3D {
           z = per.casa[1];
           pose = 'andar';
         } else if (p.edad >= 14 && p.edad <= 60 && azar(p.id * 6.1) < 0.7) {
-          // Espantados, los persiguen un trecho; si no, forman entre la aldea y la manada.
-          const hasta = alarma.estado === 'espantada' || alarma.estado === 'huye' ? 0.9 : 0.6;
+          // Espantados, salen por la puerta a perseguirlos un trecho; si no, forman tras el
+          // muro (o entre las casas y la manada, si no hay muro), plantándoles cara.
+          const persiguen = alarma.estado === 'espantada' || alarma.estado === 'huye';
           const lado = (azar(p.id * 3.3) - 0.5) * 3;
           const ux = alarma.x - hx;
           const uz = alarma.z - hz;
           const l = Math.hypot(ux, uz) || 1;
-          x = hx + ux * hasta - (uz / l) * lado;
-          z = hz + uz * hasta + (ux / l) * lado;
+          const anillo = this.planos?.get(p.aldea)?.anillo;
+          const hasta = persiguen ? l * 0.9 : anillo ? anillo.r - 0.8 : l * 0.6;
+          x = hx + (ux / l) * hasta - (uz / l) * lado;
+          z = hz + (uz / l) * hasta + (ux / l) * lado;
           pose = 'correr';
           mira = [alarma.x, alarma.z];
           per.alarma = true;

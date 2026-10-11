@@ -7,7 +7,7 @@ import { azar, elegirPeso, entero, prob } from './azar.ts';
 import { DIAS_ANIO } from './config.ts';
 import { AGUA, BOSQUE, COLINA, ESTEPA, MONTANA, RIO } from './catalogo.ts';
 import { anios, anotar } from './cronica.ts';
-import { conoce, cuantos, guardar, tiene } from './economia.ts';
+import { conoce, cuantos, guardar, muroDe, radioMuro, tiene } from './economia.ts';
 import { masas } from './mapa.ts';
 import { distancia } from './matematicas.ts';
 import { aldeasVivas, edad, type Indices } from './mundo.ts';
@@ -239,12 +239,19 @@ function lobos(m: Mundo, f: Fiera, dia: Dia): void {
     }
   }
   if (objetivo) {
-    if (dmin <= 1.5) {
-      // Antes de entrar miden el riesgo: con fuego, vigías, lanzas y cercas, casi
-      // siempre se quedan al acecho esperando a quien salga solo.
+    // Rondan por fuera, a unos pasos del muro (o de las casas): dentro solo entran al asaltar.
+    const muro = muroDe(objetivo);
+    const borde = Math.max(3.5, (muro ? radioMuro(muro) : 1.5) + 2);
+    const d0 = distancia(objetivo.x - f.x, objetivo.y - f.y);
+    if (d0 <= borde + 0.8) {
+      f.estado = 'acecha';
+      objetivo.amenaza = r2(Math.min(1, objetivo.amenaza + 0.02));
+      // A la vista de todos: los de la aldea responden antes de que se atrevan a entrar.
+      if (flechas(m, f, objetivo) || espantar(m, f, objetivo, dia) || batida(m, f, objetivo, dia)) return;
+      // Miden el riesgo: con fuego, vigías, lanzas y muros, casi siempre se quedan
+      // rondando y esperan a quien salga solo; si no, asaltan de noche.
       if (prob(Math.min(0.85, riesgo(m, objetivo, dia)))) {
-        f.estado = 'acecha';
-        objetivo.amenaza = r2(Math.min(1, objetivo.amenaza + 0.02));
+        rondar(m, f, objetivo, borde);
         acechar(m, f, dia, 2, invierno);
         return;
       }
@@ -252,7 +259,11 @@ function lobos(m: Mundo, f: Fiera, dia: Dia): void {
       return;
     }
     f.estado = 'acecha';
-    mover(m, f, objetivo.x, objetivo.y, 2);
+    {
+      // Se acercan hasta el borde, por su lado, sin entrar.
+      const l = d0 || 1;
+      mover(m, f, Math.round(objetivo.x + ((f.x - objetivo.x) / l) * borde), Math.round(objetivo.y + ((f.y - objetivo.y) / l) * borde), 2);
+    }
     if (dmin < 7 && flechas(m, f, objetivo)) return;
     if (dmin < 6 && batida(m, f, objetivo, dia)) return;
     if (dmin <= 3 && espantar(m, f, objetivo, dia)) return;
@@ -268,6 +279,12 @@ function lobos(m: Mundo, f: Fiera, dia: Dia): void {
     mover(m, f, x, y, 2);
   }
   acechar(m, f, dia, 1, invierno);
+}
+
+/** Rondan alrededor de la aldea, siempre fuera: hoy un trecho más allá por el contorno. */
+function rondar(m: Mundo, f: Fiera, a: Aldea, borde: number): void {
+  const ang = Math.atan2(f.y - a.y, f.x - a.x) + (azar() < 0.5 ? 0.7 : -0.7);
+  mover(m, f, Math.round(a.x + Math.cos(ang) * borde), Math.round(a.y + Math.sin(ang) * borde), 2);
 }
 
 /** Lo peligroso que les resulta entrar en una aldea (de 0 a más de 1). */
@@ -314,7 +331,7 @@ function acechar(m: Mundo, f: Fiera, dia: Dia, radio: number, invierno: boolean)
  * con fuego, mejor; los lobos se van y tardan en volver.
  */
 function espantar(m: Mundo, f: Fiera, a: Aldea, dia: Dia): boolean {
-  if (!prob(0.3)) return false;
+  if (!prob(0.25)) return false;
   const adultos = (dia.ix.porAldea.get(a.id) ?? []).filter((p) => !p.muerto && edad(m, p) >= 14 && edad(m, p) <= 60);
   const fuego = dia.encendidas.has(a.id);
   const lanzas = adultos.filter((p) => p.saberes.includes('lanza') || p.saberes.includes('arco')).length;
