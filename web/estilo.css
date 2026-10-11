@@ -209,6 +209,11 @@ button:focus-visible { outline: 2px solid var(--oro); outline-offset: 2px; }
 button.recurso { cursor: pointer; }
 .recurso.aldea { color: var(--oro); font-weight: 800; cursor: pointer; }
 .recurso.mal { color: #ffc2b2; }
+/* La edad del pueblo, como en los juegos de estrategia: más dorada cuanto más avanzada. */
+.recurso.edad { font-weight: 700; text-transform: none; }
+.recurso.edad-1 svg { color: #d9c58a; }
+.recurso.edad-2 svg { color: #e0a060; }
+.recurso.edad-3 svg { color: #c9d4e0; }
 .recurso.mal svg { color: #ff8a70; }
 
 .consejo-hud {
@@ -457,3 +462,12 @@ figure.mini { margin: 0; }
 .ficha-toque .ahora { font-weight: 600; }
 .ficha-toque .piensa { font-family: Georgia, "Times New Roman", serif; font-style: italic; color: #ffe2b0; }
 .ficha-toque .ver-mas { margin-top: 6px; font: inherit; font-size: 0.8rem; padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(214, 177, 102, 0.5); background: rgba(214, 177, 102, 0.15); color: var(--oro); cursor: pointer; }
+
+/* Edades de una aldea: la escalera de Piedra a Hierro. */
+.edad-caja { margin: 8px 0 10px; padding: 10px 12px; border-radius: 10px; background: rgba(217, 179, 92, 0.1); border: 1px solid rgba(217, 179, 92, 0.3); }
+.edad-caja strong { display: block; margin-bottom: 6px; }
+.edades { display: flex; gap: 4px; flex-wrap: wrap; }
+.edades span { flex: 1 1 0; min-width: 64px; text-align: center; font-size: 0.75rem; padding: 4px 2px; border-radius: 6px; background: rgba(255, 255, 255, 0.06); opacity: 0.6; }
+.edades span.hecha { background: rgba(217, 179, 92, 0.35); opacity: 1; font-weight: 700; }
+.lema { font-style: italic; margin: 4px 0; }
+.aviso-viaje { padding: 8px 10px; border-radius: 8px; background: rgba(120, 170, 220, 0.15); border: 1px solid rgba(120, 170, 220, 0.35); }

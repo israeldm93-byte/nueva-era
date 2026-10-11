@@ -71,6 +71,8 @@ export interface Edificio {
   material?: string;
   /** Cercas, empalizadas y murallas: su radio en casillas (crece con la aldea). */
   radio?: number;
+  /** Torres: en qué punto del muro están (ángulo desde el centro de la aldea). */
+  ang?: number;
   /** Campos: el día en que se sembraron y en que se cosecharon. */
   sembrado?: number;
   cosechado?: number;
@@ -88,9 +90,24 @@ export interface Obra {
   material?: string;
   /** Cercas, empalizadas y murallas: el radio que tendrá (para rodear todo lo construido). */
   radio?: number;
+  /** Si es una casa que se rehace sobre otra más vieja (una choza que pasa a ser de piedra). */
+  reforma?: string;
+  /** Torres: en qué punto del muro se levantan (ángulo desde el centro). */
+  ang?: number;
 }
 
 export interface Aldea {
+  /** Edad que ha alcanzado (0 Piedra, 1 Herramientas, 2 Bronce, 3 Hierro) y cuándo llegó a cada una. */
+  edad?: number;
+  edades?: number[];
+  /** Mientras van de camino a su nueva tierra: de dónde salieron, adónde van y cuánto tardarán. */
+  viaje?: { desde: [number, number]; hasta: [number, number]; salida: number; dias: number };
+  /** Aldea, pueblo o ciudad (según lo que han crecido). */
+  rango?: string;
+  /** Lo que les une como pueblo (lo que defendían cuando se fueron) y de dónde vienen. */
+  valor?: string;
+  /** Si el barro bueno queda lejos (hay que ir a por él). */
+  barroLejos?: boolean;
   /** Si el bosque queda lejos: la necesidad hace pensar en ruedas, carros y caballos. */
   maderaLejos?: boolean;
   /** Obras que se dejaron por falta de materiales, y hasta cuándo no se retoman. */
@@ -209,6 +226,7 @@ export type TipoSuceso =
   | 'consejo'
   | 'faccion'
   | 'cisma'
+  | 'edad'
   | 'asalto'
   | 'guerra'
   | 'paz'

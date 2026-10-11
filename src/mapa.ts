@@ -620,6 +620,8 @@ export function buscarSitio(
   max: number,
   ignorar: number | null = null,
   cruzanAgua = false,
+  /** Si buscan alejarse todo lo posible (una facción que no quiere saber nada de los suyos). */
+  lejos = false,
 ): { x: number; y: number } | null {
   const vivas = m.aldeas.filter((a) => a.abandonada === null && a.id !== ignorar);
   const { masa, continente } = masas(m);
@@ -633,12 +635,14 @@ export function buscarSitio(
   for (let y = y0; y < y1; y++) {
     for (let x = 2; x < m.ancho - 2; x++) {
       if (!cruzanAgua && masa[y * m.ancho + x] !== tierra) continue;
+      let d = 0;
       if (desde) {
-        const d = distancia(x - desde.x, y - desde.y);
+        d = distancia(x - desde.x, y - desde.y);
         if (d < min || d > max) continue;
       }
-      if (vivas.some((a) => distancia(a.x - x, a.y - y) < min)) continue;
-      const p = puntuarSitio(m, x, y);
+      // Ni junto a otra aldea ni donde ya va otro grupo de camino.
+      if (vivas.some((a) => distancia(a.x - x, a.y - y) < min || (a.viaje && distancia(a.viaje.hasta[0] - x, a.viaje.hasta[1] - y) < min))) continue;
+      const p = puntuarSitio(m, x, y) * (lejos ? 0.4 + d / max : 1);
       if (p > mejorP) {
         mejorP = p;
         mejor = { x, y };

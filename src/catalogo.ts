@@ -80,7 +80,7 @@ export const RAMA: Record<string, 'comida' | 'guerra' | 'obras' | 'saber'> = {
   arado: 'comida', corral: 'comida', gallinero: 'comida', ordeno: 'comida', esquileo: 'obras', queseria: 'comida', doma: 'guerra', granja: 'comida', puente: 'obras', vasija: 'comida', cerveza: 'comida', cesta: 'comida', canoa: 'comida',
   lanza: 'guerra', arco: 'guerra', escudo: 'guerra', flechaFuego: 'guerra', espada: 'guerra', catapulta: 'guerra', empalizada: 'guerra',
   muralla: 'guerra',
-  choza: 'obras', adobe: 'obras', horno: 'obras', rueda: 'obras', carro: 'obras', hacha: 'obras', carbon: 'obras', cobre: 'obras',
+  choza: 'obras', adobe: 'obras', canteria: 'obras', teja: 'obras', horno: 'obras', rueda: 'obras', carro: 'obras', hacha: 'obras', carbon: 'obras', cobre: 'obras',
   bronce: 'obras', hierro: 'obras', tela: 'obras', cuerda: 'obras', lasca: 'obras', fuego: 'obras', aguja: 'obras', ropa: 'obras',
   escritura: 'saber', numeros: 'saber', pintura: 'saber', tambor: 'saber', medicina: 'saber', remedio: 'saber', comercio: 'saber', vela: 'saber',
 };
@@ -130,6 +130,8 @@ export const TECNICAS: Tecnica[] = [
   { id: 'calendario', titulo: 'el calendario', nombre: 'Calendario', cosa: 'calendario', cosas: ['cielo', 'piedra'], verbo: 'observar', facilidad: 0.03, requiere: ['campo'], efecto: 'Se siembra en el momento justo: cosechas un 25 % mayores.' },
   { id: 'acequia', titulo: 'el regadío', nombre: 'Regadío', cosa: 'acequias', cosas: ['agua', 'tierra'], verbo: 'cavar', facilidad: 0.03, requiere: ['campo', 'hacha'], efecto: 'Acequias: cosechas un 40 % mayores.' },
   { id: 'horno', titulo: 'el horno', nombre: 'Horno', cosa: 'hornos', cosas: ['arcilla', 'fuego', 'piedra'], verbo: 'apilar', facilidad: 0.05, requiere: ['vasija'], efecto: 'Altas temperaturas: permite fundir.' },
+  { id: 'canteria', titulo: 'la cantería', nombre: 'Cantería', cosa: 'sillares', cosas: ['hacha', 'piedra', 'piedra'], verbo: 'apilar', facilidad: 0.04, requiere: ['choza'], efecto: 'Casas de piedra: abrigan más, caben más y no arden.' },
+  { id: 'teja', titulo: 'las tejas', nombre: 'Tejas', cosa: 'tejas', cosas: ['arcilla', 'horno'], verbo: 'calentar', facilidad: 0.04, requiere: ['horno'], efecto: 'Tejados de teja cocida: casas grandes, secas y que no prenden.' },
   { id: 'adobe', titulo: 'el adobe', nombre: 'Adobe', cosa: 'adobe', cosas: ['arcilla', 'fibra'], verbo: 'mezclar', facilidad: 0.04, requiere: ['vasija'], efecto: 'Casas de adobe: más abrigo y más gente por casa.' },
   { id: 'carbon', titulo: 'el carbón vegetal', nombre: 'Carbón vegetal', cosa: 'carbón', cosas: ['horno', 'madera'], verbo: 'calentar', facilidad: 0.06, efecto: 'Un combustible capaz de fundir metal.' },
   { id: 'cobre', titulo: 'la metalurgia del cobre', nombre: 'Cobre', cosa: 'cobre', cosas: ['carbon', 'malaquita'], verbo: 'fundir', facilidad: 0.03, efecto: 'Herramientas de cobre: casi todo el trabajo rinde más.' },
@@ -204,6 +206,8 @@ export const EDIFICIOS: TipoEdificio[] = [
   { id: 'hoguera', nombre: 'Hoguera', requiere: 'fuego', coste: { madera: 6, piedra: 4 }, trabajo: 2 },
   { id: 'choza', nombre: 'Choza', requiere: 'choza', coste: { madera: 12, fibra: 6 }, trabajo: 5, aloja: 5 },
   { id: 'casa', nombre: 'Casa de adobe', requiere: 'adobe', coste: { arcilla: 20, madera: 6, fibra: 4 }, trabajo: 9, aloja: 7 },
+  { id: 'casapiedra', nombre: 'Casa de piedra', requiere: 'canteria', coste: { piedra: 26, madera: 6, fibra: 3 }, trabajo: 10, aloja: 8 },
+  { id: 'casatejas', nombre: 'Casa de tejas', requiere: 'teja', coste: { piedra: 20, arcilla: 14, madera: 10 }, trabajo: 13, aloja: 10 },
   { id: 'campo', nombre: 'Campo', requiere: 'campo', coste: { madera: 2 }, trabajo: 6 },
   { id: 'corral', nombre: 'Corral', requiere: 'corral', coste: { madera: 15 }, trabajo: 6 },
   { id: 'almacen', nombre: 'Almacén de vasijas', requiere: 'vasija', coste: { arcilla: 15, madera: 4 }, trabajo: 6 },
@@ -212,6 +216,12 @@ export const EDIFICIOS: TipoEdificio[] = [
   { id: 'puente', nombre: 'Puente', requiere: 'puente', coste: { madera: 20, piedra: 6 }, trabajo: 8 },
   { id: 'gallinero', nombre: 'Gallinero', requiere: 'gallinero', coste: { madera: 8 }, trabajo: 3 },
   { id: 'granja', nombre: 'Granja', requiere: 'granja', coste: { madera: 30, piedra: 10 }, trabajo: 12 },
+  { id: 'torre', nombre: 'Torre de vigía', requiere: 'hacha', coste: { madera: 18, fibra: 4 }, alternativa: { coste: { piedra: 40 }, material: 'piedra' }, trabajo: 6 },
+  { id: 'establo', nombre: 'Establo', requiere: 'doma', coste: { madera: 24, fibra: 6 }, trabajo: 8 },
+  { id: 'taller', nombre: 'Taller', requiere: 'horno', coste: { madera: 14, piedra: 12, arcilla: 6 }, trabajo: 8 },
+  { id: 'plaza', nombre: 'Plaza empedrada', requiere: 'canteria', coste: { piedra: 50 }, trabajo: 12 },
+  { id: 'calzada', nombre: 'Calles empedradas', requiere: 'canteria', coste: { piedra: 90 }, trabajo: 20 },
+  { id: 'templo', nombre: 'Templo', requiere: 'canteria', coste: { piedra: 80, madera: 20 }, trabajo: 30 },
   { id: 'empalizada', nombre: 'Empalizada', requiere: 'empalizada', coste: { madera: 40 }, trabajo: 15 },
   { id: 'muralla', nombre: 'Muralla', requiere: 'muralla', coste: { piedra: 60, madera: 10 }, trabajo: 25 },
   { id: 'archivo', nombre: 'Casa de las tablillas', requiere: 'escritura', coste: { arcilla: 20, piedra: 10 }, trabajo: 10 },
@@ -219,6 +229,23 @@ export const EDIFICIOS: TipoEdificio[] = [
 ];
 
 export const EDIFICIO: Record<string, TipoEdificio> = Object.fromEntries(EDIFICIOS.map((e) => [e.id, e]));
+
+/** Las viviendas, de peor a mejor (las de adobe y las de piedra van a la par). */
+export const CASAS = ['choza', 'casa', 'casapiedra', 'casatejas'];
+export const NIVEL_CASA: Record<string, number> = { choza: 1, casa: 2, casapiedra: 2, casatejas: 3 };
+/** Cuánto abrigan en invierno a quien vive en ellas. */
+export const ABRIGO_CASA: Record<string, number> = { choza: 0.35, casa: 0.5, casapiedra: 0.55, casatejas: 0.65 };
+
+/**
+ * Las edades, como las cuentan los que vienen después: no se «compran», se llega a
+ * ellas sabiendo hacer ciertas cosas. Cada grupo de `requiere` pide al menos uno.
+ */
+export const EDADES: { nombre: string; requiere: string[][] }[] = [
+  { nombre: 'Edad de Piedra', requiere: [] },
+  { nombre: 'Edad de las Herramientas', requiere: [['hacha'], ['campo', 'corral']] },
+  { nombre: 'Edad del Bronce', requiere: [['bronce']] },
+  { nombre: 'Edad del Hierro', requiere: [['hierro']] },
+];
 
 export const CAPAS = ['madera', 'bayas', 'semillas', 'fibra', 'hierbas', 'caza', 'peces', 'piedra', 'arcilla', 'malaquita', 'casiterita', 'hematites'];
 

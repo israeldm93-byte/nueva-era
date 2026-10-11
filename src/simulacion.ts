@@ -5,8 +5,10 @@ import { DIAS_ANIO } from './config.ts';
 import { AGUA, MONTANA, PANTANO, RIO, TECNICA } from './catalogo.ts';
 import { anioDe, anios, anotar, fecha, listar } from './cronica.ts';
 import { desastres } from './desastres.ts';
+import { revisarEdad } from './edades.ts';
+import { caminar } from './exodo.ts';
 import { cambiarTiempo } from './tiempo.ts';
-import { asentarAprendizaje, comer, contexto, jornada, mantener, planificar } from './economia.ts';
+import { asentarAprendizaje, comer, contexto, jornada, mantener, planificar, radioMuro, rodea } from './economia.ts';
 import { fauna } from './fauna.ts';
 import { lexicoComun, parecido } from './lenguaje.ts';
 import { recrecer } from './mapa.ts';
@@ -36,6 +38,8 @@ function paso(m: Mundo): void {
   const ix = indexar(m);
   const vivas = aldeasVivas(m);
   const gente = (id: number) => ix.porAldea.get(id) ?? [];
+  for (const a of vivas) if (a.viaje) caminar(m, a, gente(a.id));
+  if (m.t % 10 === 3) for (const a of vivas) revisarEdad(m, a, gente(a.id).length);
   for (const a of vivas) if (m.t % 10 === 0 || a.consejo?.prioridad === 'obras') planificar(m, a, gente(a.id));
 
   const ctx = new Map(vivas.map((a) => [a.id, contexto(m, a, gente(a.id), est)]));
@@ -59,7 +63,7 @@ function paso(m: Mundo): void {
     const c = ctx.get(a.id);
     if (c) noche(m, a, gente(a.id), c);
   }
-  if (m.t % 10 === 5) for (const a of vivas) if (a.abandonada === null) facciones(m, a, gente(a.id), ix);
+  if (m.t % 10 === 5) for (const a of vivas) if (a.abandonada === null && !a.viaje) facciones(m, a, gente(a.id), ix);
   if (m.t % 15 === 7) encuentros(m, ix, new Map(vivas.map((a) => [a.id, ctx.get(a.id)?.escasez ?? 0])));
   if (m.t % 30 === 0) {
     for (const a of vivas) dividir(m, a, gente(a.id).filter((p) => !p.muerto && p.aldea === a.id), ix);
@@ -88,7 +92,11 @@ const VECINAS = [
 function lugarCementerio(m: Mundo, a: Aldea): { x: number; y: number } | null {
   const ocupadas = new Set<number>();
   for (const b of m.aldeas) for (const e of b.edificios) ocupadas.add(e.y * m.ancho + e.x);
-  for (let r = 3; r <= 6; r++) {
+  // Fuera de los muros (los que hay y el que se esté levantando) y nunca sobre su línea.
+  const radios = a.edificios.filter((e) => rodea(e.tipo)).map(radioMuro);
+  if (a.obra && rodea(a.obra.tipo)) radios.push(a.obra.radio ?? 2.7);
+  const r0 = Math.max(3, Math.ceil(Math.max(0, ...radios) + 1.5));
+  for (let r = r0; r <= r0 + 4; r++) {
     for (let k = 0; k < VECINAS.length; k++) {
       const [dx, dy] = VECINAS[(a.id * 3 + k) % VECINAS.length];
       const x = a.x + dx * r;
@@ -97,6 +105,8 @@ function lugarCementerio(m: Mundo, a: Aldea): { x: number; y: number } | null {
       const i = y * m.ancho + x;
       const t = m.terreno[i];
       if (t === AGUA || t === RIO || t === MONTANA || t === PANTANO || ocupadas.has(i)) continue;
+      const d = Math.hypot(x - a.x, y - a.y);
+      if (radios.some((rr) => Math.abs(d - rr) < 1.3)) continue;
       return { x, y };
     }
   }

@@ -8,7 +8,7 @@
 // muere con quien lo sabe si no lo ha enseñado (o escrito) antes.
 
 import { azar, elegir, elegirPeso, entero, prob } from './azar.ts';
-import { BASICOS, MATERIAL, RAMA, TECNICA, TECNICAS, VERBOS, type Tecnica } from './catalogo.ts';
+import { BASICOS, MATERIAL, MINERALES, RAMA, TECNICA, TECNICAS, VERBOS, type Tecnica } from './catalogo.ts';
 import { RITMO_SABER } from './config.ts';
 import { anotar, como } from './cronica.ts';
 import { entiende, inventarPalabra, nombrar, palabraDe } from './lenguaje.ts';
@@ -129,13 +129,18 @@ export function inspirarse(p: Persona, a: Aldea, material: string): boolean {
 /** Un día probando cosas: si descubre algo y si ha dado con una idea prometedora. */
 export function experimentar(m: Mundo, p: Persona, a: Aldea, rapidez: number): { descubierto: Tecnica | null; idea: boolean } {
   const nada = { descubierto: null, idea: false };
-  const fam = cosasFamiliares(p, a);
+  // Se prueba con lo que hay en la despensa: lo que falta, ni se intenta.
+  const hay = (c: string) => !MATERIAL[c] || (a.despensa[c] ?? 0) >= 1;
+  // Las piedras de colores escasas no se malgastan probando a ciegas: solo si sobran.
+  const fam = cosasFamiliares(p, a).filter((c) => hay(c) && (!MINERALES.includes(c) || (a.despensa[c] ?? 0) >= 4));
+  if (!fam.length) return nada;
   const verbos = verbosDe(p);
   let cosas: string[];
   let verbo: string;
   let origen: Idea | null = null;
-  if (p.ideas.length && prob(0.75)) {
-    origen = elegirPeso(p.ideas, (i) => i.puntos) ?? p.ideas[0];
+  const probables = p.ideas.filter((i) => i.cosas.every(hay));
+  if (probables.length && prob(0.75)) {
+    origen = elegirPeso(probables, (i) => i.puntos) ?? probables[0];
     if (origen.puntos >= 0.99) {
       cosas = origen.cosas.slice();
       verbo = origen.verbo;
@@ -149,7 +154,7 @@ export function experimentar(m: Mundo, p: Persona, a: Aldea, rapidez: number): {
 
   // Se prueba con cosas reales: hay que tenerlas y algo se gasta.
   for (const c of cosas) if (MATERIAL[c] && (a.despensa[c] ?? 0) < 1) return nada;
-  for (const c of cosas) if (MATERIAL[c]) a.despensa[c] = r2(a.despensa[c] - 0.3);
+  for (const c of cosas) if (MATERIAL[c]) a.despensa[c] = r2(a.despensa[c] - (MINERALES.includes(c) ? 0.1 : 0.3));
 
   let mejor = 0;
   let objetivo: Tecnica | null = null;

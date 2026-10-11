@@ -447,7 +447,7 @@ export class Mundo3D {
     this.vegetacion.repartir(lim, distancia, this.camara);
     this.vegetacion.cercania(lim, distancia);
     this.vegetacion.particulas(t, lim, distancia);
-    this.edificios.animar(t, this.noche);
+    this.edificios.animar(t, this.noche, this.gente.alarmas);
     this.animarLuces(t);
     this.fauna.animar(t, dt, fase, noche, this.gente.lista, lim, distancia, this.camara);
     this.gente.animar(t, fase, this.aldeas, this.controles.target, this.hablante(t));
@@ -681,10 +681,19 @@ export class Mundo3D {
           }
           continue;
         }
-        const [x, z] = this.aMundo(e.x, e.y);
+        let [x, z] = this.aMundo(e.x, e.y);
+        // Las torres están sobre el muro, en su ángulo.
+        if (e.tipo === 'torre' && e.ang !== undefined) {
+          const m = a.edificios.find((u) => RODEA.includes(u.tipo));
+          const r = T * (m?.radio ?? 2.7);
+          x = cx + Math.cos(e.ang) * r;
+          z = cz + Math.sin(e.ang) * r;
+        }
         const d2 = (x - px) ** 2 + (z - pz) ** 2;
-        if (d2 < dmin) {
-          dmin = d2;
+        // La plaza se toca en cualquier punto de su empedrado (si no hay otra cosa más cerca).
+        const centro = e.tipo === 'plaza' ? Math.max(0, Math.sqrt(d2) - 2.2) ** 2 + 0.6 : e.tipo === 'calzada' ? Infinity : d2;
+        if (centro < dmin) {
+          dmin = centro;
           mejor = { ...e, aldea: a.id };
         }
       }
@@ -712,7 +721,18 @@ export class Mundo3D {
           this.alTocar?.({
             persona: per.p.id,
             aldea: per.p.aldea,
-            ahora: { pose: per.pose, carga: per.carga, carro: !!per.tiro, barca: per.enBarca, caballo: per.montando, alarma: per.alarma, fase: this.faseDia() },
+            ahora: {
+              pose: per.pose,
+              carga: per.carga,
+              carro: !!per.tiro,
+              barca: per.enBarca,
+              caballo: per.montando,
+              alarma: per.alarma,
+              fase: this.faseDia(),
+              viaje: per.viaje
+                ? `Camina con los suyos hacia su nueva tierra, lejos de donde nació; les quedan unos ${Math.max(1, per.viaje.dias - (this.gente.t - per.viaje.salida))} días de camino.`
+                : null,
+            },
           });
           return;
         }

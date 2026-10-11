@@ -18,6 +18,7 @@ import {
   MATERIAL,
   MINERALES,
   MONTANA,
+  NIVEL_CASA,
   OFICIOS,
   ORDEN_COMER,
   ORILLA,
@@ -51,6 +52,10 @@ import type { Aldea, Mundo, Persona } from './tipos.ts';
 const r2 = (x: number) => Math.round(x * 100) / 100;
 const clamp = (x: number, a: number, b: number) => Math.max(a, Math.min(b, x));
 const lejania = (d: number) => 1 / (1 + 0.07 * d);
+/** Hasta dónde se va a por lo que no hay cerca (días de camino). */
+const LEJOS = 20;
+/** Las expediciones a por menas (el estaño, sobre todo) llegan aún más lejos. */
+const EXPEDICION = 40;
 
 export interface Contexto {
   a: Aldea;
@@ -60,6 +65,8 @@ export interface Contexto {
   escasez: number;
   /** 0..1: cuánto margen de comida hay para dedicar tiempo a otras cosas. */
   holgura: number;
+  /** 0..1: si sobra comida para muchos meses (tiempo libre para probar cosas). */
+  ocio: number;
   radio: number;
   herramienta: number;
   /** Con carros y animales de tiro se trae más en cada viaje. */
@@ -69,6 +76,8 @@ export interface Contexto {
   agua: boolean;
   rocas: boolean;
   barro: boolean;
+  /** Vetas de mineral conocidas a varios días de camino. */
+  vetas: boolean;
   camposPorTrabajar: number;
   corrales: number;
   hoguera: boolean;
@@ -87,6 +96,30 @@ export function conoce(a: Aldea, id: string): boolean {
 
 export function tiene(a: Aldea, tipo: string): boolean {
   return a.edificios.some((e) => e.tipo === tipo);
+}
+
+/** Cuánta gente cabe bajo techo en la aldea. */
+export function plazas(a: Aldea): number {
+  let n = 0;
+  for (const e of a.edificios) n += EDIFICIO[e.tipo]?.aloja ?? 0;
+  return n;
+}
+
+/** Si sabe levantar alguna casa mejor que una choza. */
+export const casaMejor = (a: Aldea): boolean => conoce(a, 'adobe') || conoce(a, 'canteria') || conoce(a, 'teja');
+
+/**
+ * La mejor casa que saben levantar con lo que tienen a mano: con tejas, de tejas; si
+ * no, de piedra o de adobe según abunde la piedra o el barro; y si no, chozas.
+ */
+export function mejorCasa(a: Aldea): string | null {
+  if (conoce(a, 'teja') && (conoce(a, 'canteria') || conoce(a, 'adobe'))) return 'casatejas';
+  const piedra = conoce(a, 'canteria');
+  const adobe = conoce(a, 'adobe');
+  if (piedra && adobe) return (a.despensa.piedra ?? 0) / 26 >= (a.despensa.arcilla ?? 0) / 20 ? 'casapiedra' : 'casa';
+  if (piedra) return 'casapiedra';
+  if (adobe) return 'casa';
+  return conoce(a, 'choza') ? 'choza' : null;
 }
 
 export function cuantos(a: Aldea, tipo: string): number {
@@ -123,11 +156,16 @@ export function comidaTotal(a: Aldea): number {
 }
 
 function herramienta(a: Aldea): number {
-  if (conoce(a, 'hierro')) return 1.6;
-  if (conoce(a, 'bronce')) return 1.4;
-  if (conoce(a, 'cobre')) return 1.2;
-  return 1;
+  // Los talleres (herreros, carpinteros, alfareros) hacen mejores útiles.
+  const talleres = 1 + 0.08 * Math.min(3, cuantos(a, 'taller'));
+  if (conoce(a, 'hierro')) return 1.6 * talleres;
+  if (conoce(a, 'bronce')) return 1.4 * talleres;
+  if (conoce(a, 'cobre')) return 1.2 * talleres;
+  return talleres;
 }
+
+/** Lo que se pone en el centro (plaza, calles) o rodeándolo (muros): no ocupa una casilla suya. */
+export const centrado = (t: string): boolean => rodea(t) || t === 'plaza' || t === 'calzada';
 
 export function contexto(m: Mundo, a: Aldea, gente: Persona[], est: number): Contexto {
   let consumo = 0;
@@ -135,7 +173,10 @@ export function contexto(m: Mundo, a: Aldea, gente: Persona[], est: number): Con
   const dias = comidaTotal(a) / Math.max(1, consumo);
   const objetivo = [30, 45, 75, 35][est];
   const escasez = clamp(1 - dias / objetivo, 0.03, 1);
-  const precio: Record<string, number> = { comida: 0.25 + 1.5 * escasez };
+  // Con los graneros llenos para muchos meses, la comida apremia menos y queda tiempo
+  // para otras cosas: probar, construir, criar.
+  const ocio = clamp((dias / objetivo - 3) / 6, 0, 1);
+  const precio: Record<string, number> = { comida: (0.25 + 1.5 * escasez) * (1 - 0.6 * ocio) };
   const obra = a.obra && !a.obra.pagada ? EDIFICIO[a.obra.tipo].coste : {};
   const hoguera = tiene(a, 'hoguera');
   const fijar = (mat: string, base: number) => {
@@ -152,11 +193,11 @@ export function contexto(m: Mundo, a: Aldea, gente: Persona[], est: number): Con
   fijar('hierbas', conoce(a, 'remedio') ? 6 : 1.5);
   // Antes de saber fundir, las piedras de colores solo se recogen por curiosidad.
   for (const mineral of MINERALES) {
-    if (conoce(a, 'horno')) fijar(mineral, 8);
+    if (conoce(a, 'horno')) fijar(mineral, 16);
     else precio[mineral] = 0.02;
   }
 
-  const radio = RADIO_TRABAJO + (conoce(a, 'rueda') ? 2 : 0) + (deTiro(a) ? 2 : 0) + (aCaballo(a) ? 2 : 0);
+  const radio = RADIO_TRABAJO + (conoce(a, 'rueda') ? 2 : 0) + (deTiro(a) ? 2 : 0) + (aCaballo(a) ? 2 : 0) + (tiene(a, 'calzada') ? 1 : 0);
   let camposPorTrabajar = 0;
   const semillas = (a.despensa.cereal ?? 0) + (a.despensa.semillas ?? 0);
   for (const e of a.edificios) {
@@ -172,6 +213,7 @@ export function contexto(m: Mundo, a: Aldea, gente: Persona[], est: number): Con
     precio,
     escasez,
     holgura: clamp(dias / 12, 0, 1),
+    ocio,
     radio,
     herramienta: herramienta(a) * rindeFuera(m),
     acarreo: deTiro(a) ? 1.4 : 1,
@@ -179,7 +221,10 @@ export function contexto(m: Mundo, a: Aldea, gente: Persona[], est: number): Con
     agua: hayCerca(m, a.x, a.y, radio, (i) => PESCABLE[m.terreno[i]] && alcanzable(m, a, i, false)),
     // Piedras sueltas hay casi en cualquier parte; en colinas y montañas, muchas más.
     rocas: hayCerca(m, a.x, a.y, radio, (i) => m.recursos.piedra[i] >= 1 && alcanzable(m, a, i, false)),
-    barro: hayCerca(m, a.x, a.y, radio, (i) => m.recursos.arcilla[i] > 1 && alcanzable(m, a, i, false)),
+    // El barro bueno (orillas, riberas, marismas); si no lo hay cerca, se va a por él.
+    barro: !(a.barroLejos = !hayCerca(m, a.x, a.y, radio, (i) => m.recursos.arcilla[i] >= 6 && alcanzable(m, a, i, false))) ||
+      hayCerca(m, a.x, a.y, LEJOS, (i) => m.recursos.arcilla[i] >= 6 && alcanzable(m, a, i, false)),
+    vetas: conoce(a, 'horno') && hayCerca(m, a.x, a.y, EXPEDICION, (i) => m.recursos.malaquita[i] + m.recursos.casiterita[i] + m.recursos.hematites[i] >= 2 && alcanzable(m, a, i, false)),
     camposPorTrabajar,
     corrales: cuantos(a, 'corral'),
     hoguera,
@@ -270,7 +315,7 @@ function elegirActividad(p: Persona, c: Contexto, e: number, mente: number[]): s
     lenar: v.lenar * c.precio.madera,
   };
   if (c.agua) U.pescar = v.pescar * comida;
-  if (c.rocas) U.picar = v.picar * Math.max(c.precio.piedra, ...MINERALES.map((x) => c.precio[x] * 0.5));
+  if (c.rocas || c.vetas) U.picar = v.picar * Math.max(c.precio.piedra, c.vetas ? Math.max(...MINERALES.map((x) => c.precio[x] * 0.5)) : 0);
   if (c.barro) U.barro = v.barro * c.precio.arcilla;
   if (c.corrales) U.pastorear = v.pastorear * comida + c.precio.piel;
   if (c.camposPorTrabajar) U.cultivar = 2.5 * (0.6 + comida);
@@ -278,7 +323,7 @@ function elegirActividad(p: Persona, c: Contexto, e: number, mente: number[]): s
   // En una aldea grande no experimenta todo el mundo: unos pocos curiosos lo hacen por los demás.
   const reparto = Math.min(1, Math.sqrt(25 / Math.max(1, c.gente.length)));
   const hambre = p.reservas < 3 ? 0.2 : 1;
-  U.experimentar = p.genes.curiosidad * GANAS_EXPERIMENTAR * c.holgura * hambre * (e > 45 ? 1.3 : 1) * reparto;
+  U.experimentar = p.genes.curiosidad * GANAS_EXPERIMENTAR * c.holgura * hambre * (e > 45 ? 1.3 : 1) * reparto * (1 + 1.5 * c.ocio);
   U.descansar = 0.2 + 2 * (1 - p.salud) * (1 - p.salud);
   // Con uno de cada seis adultos de guardia es suficiente.
   U.vigilar = c.vigias < Math.max(1, Math.floor(c.gente.length / 8)) ? 0.05 + 0.9 * c.a.amenaza * c.a.amenaza : 0;
@@ -350,7 +395,7 @@ function hacer(m: Mundo, p: Persona, c: Contexto, act: string, eficiencia: numbe
       r = construir(m, p, c) * 1.5;
       break;
     case 'experimentar': {
-      const rapidez = (conoce(c.a, 'tambor') ? 1.1 : 1) * (conoce(c.a, 'escritura') ? 1.2 : 1) * (conoce(c.a, 'numeros') ? 1.2 : 1);
+      const rapidez = (conoce(c.a, 'tambor') ? 1.1 : 1) * (conoce(c.a, 'escritura') ? 1.2 : 1) * (conoce(c.a, 'numeros') ? 1.2 : 1) * (tiene(c.a, 'taller') ? 1.15 : 1);
       // Un día da para varias pruebas (hasta que algo sale).
       let res = experimentar(m, p, c.a, rapidez);
       for (let k = 1; k < PRUEBAS_DIA && !res.descubierto; k++) {
@@ -487,15 +532,20 @@ function lenar(m: Mundo, p: Persona, c: Contexto): number {
   if (i < 0) {
     // Sin bosque cerca, hay que ir tan lejos como haga falta: se pierde el día andando y
     // se trae poco a cuestas; con caballos o carros, mucho más.
-    i = mejorCasilla(m, a.x, a.y, 20, (j, d) => (R.madera[j] >= 4 && alcanzable(m, a, j, barca) ? Math.min(R.madera[j], 15) / (1 + d * 0.15) : 0));
+    i = mejorCasilla(m, a.x, a.y, LEJOS, (j, d) => (R.madera[j] >= 4 && alcanzable(m, a, j, barca) ? Math.min(R.madera[j], 15) / (1 + d * 0.15) : 0));
     if (i < 0) return 0;
-    viaje = Math.max(0.15, c.radio / Math.max(1, distancia(m, a, i))) * (deTiro(a) ? 1.8 : aCaballo(a) ? 1.4 : 1);
+    viaje = viajeLargo(m, c, i);
   }
   situar(m, p, i);
   const n = r2(Math.min(R.madera[i], 3 * (0.6 + 0.6 * p.genes.fuerza) * (sabe(p, 'hacha') ? 2 : 1) * c.herramienta * c.acarreo * viaje));
   R.madera[i] = r2(R.madera[i] - n);
   guardar(a, 'madera', n);
   return n;
+}
+
+/** Lo que rinde un día de ida y vuelta lejos: se pierde andando, menos a caballo o en carro. */
+function viajeLargo(m: Mundo, c: Contexto, i: number): number {
+  return Math.max(0.15, c.radio / Math.max(1, distancia(m, c.a, i))) * (deTiro(c.a) ? 1.8 : aCaballo(c.a) ? 1.4 : 1);
 }
 
 function picar(m: Mundo, p: Persona, c: Contexto): number {
@@ -505,19 +555,36 @@ function picar(m: Mundo, p: Persona, c: Contexto): number {
   const barca = sabe(p, 'canoa');
   // En barca se organizan viajes a las vetas de las islas.
   const radio = c.radio + (barca ? 5 : 0) + (sabe(p, 'vela') ? 8 : 0);
-  const i = mejorCasilla(m, a.x, a.y, radio, (j, d) => {
+  let i = mejorCasilla(m, a.x, a.y, radio, (j, d) => {
     if (R.piedra[j] <= 0 || !alcanzable(m, a, j, barca)) return 0;
-    const mena = minerales ? (R.malaquita[j] + R.casiterita[j] + R.hematites[j]) * 0.5 : 0;
+    // Se va a la veta de lo que hace falta (el estaño, si sobra el cobre).
+    const mena = minerales ? MINERALES.reduce((s, x) => s + Math.min(R[x][j], 20) * Math.max(c.precio[x], 0.05), 0) : 0;
     return (Math.min(R.piedra[j], 20) * Math.max(c.precio.piedra, 0.05) + mena) * lejania(d);
   });
+  let viaje = 1;
+  // Con horno y sin vetas cerca, hay quien sale en expedición a las que se conocen lejos
+  // (más si lo que falta es lo que piden los hornos).
+  const menaFalta = MINERALES.some((x) => c.precio[x] > 0.5);
+  if (c.vetas && menaFalta && (i < 0 || R.malaquita[i] + R.casiterita[i] + R.hematites[i] < 1)) {
+    const lejos = mejorCasilla(m, a.x, a.y, EXPEDICION, (j, d) => {
+      if (!alcanzable(m, a, j, barca)) return 0;
+      const mena = MINERALES.reduce((s, x) => s + Math.min(R[x][j], 20) * c.precio[x], 0);
+      return mena / (1 + d * 0.05);
+    });
+    if (lejos >= 0) {
+      i = lejos;
+      viaje = viajeLargo(m, c, i);
+    }
+  }
   if (i < 0) return 0;
   situar(m, p, i);
-  const fuerza = (0.6 + 0.6 * p.genes.fuerza) * c.herramienta;
+  const fuerza = (0.6 + 0.6 * p.genes.fuerza) * c.herramienta * viaje;
   const n = r2(Math.min(R.piedra[i], 3 * fuerza * c.acarreo));
   R.piedra[i] = r2(R.piedra[i] - n);
   guardar(a, 'piedra', n);
   for (const mineral of MINERALES) {
-    if (R[mineral][i] > 0 && (minerales || prob(0.25))) {
+    // Lo que ya sobra en la despensa se deja en la veta.
+    if (R[mineral][i] > 0 && (minerales || prob(0.25)) && c.precio[mineral] > 0.05) {
       const k = r2(Math.min(R[mineral][i], 1.5 * fuerza));
       R[mineral][i] = r2(R[mineral][i] - k);
       guardar(a, mineral, k);
@@ -530,10 +597,16 @@ function barro(m: Mundo, p: Persona, c: Contexto): number {
   const R = m.recursos;
   const a = c.a;
   const barca = sabe(p, 'canoa');
-  const i = mejorCasilla(m, a.x, a.y, c.radio, (j, d) => (alcanzable(m, a, j, barca) ? Math.min(R.arcilla[j], 20) * lejania(d) : 0));
-  if (i < 0) return 0;
+  let i = mejorCasilla(m, a.x, a.y, c.radio, (j, d) => (R.arcilla[j] >= 6 && alcanzable(m, a, j, barca) ? Math.min(R.arcilla[j], 20) * lejania(d) : 0));
+  let viaje = 1;
+  if (i < 0) {
+    // Sin barro bueno cerca, se va a las orillas y las riberas aunque estén a días.
+    i = mejorCasilla(m, a.x, a.y, LEJOS, (j, d) => (R.arcilla[j] >= 6 && alcanzable(m, a, j, barca) ? Math.min(R.arcilla[j], 20) / (1 + d * 0.15) : 0));
+    if (i < 0) return 0;
+    viaje = viajeLargo(m, c, i);
+  }
   situar(m, p, i);
-  const n = r2(Math.min(R.arcilla[i], 4 * (0.6 + 0.6 * p.genes.fuerza) * c.acarreo));
+  const n = r2(Math.min(R.arcilla[i], 4 * (0.6 + 0.6 * p.genes.fuerza) * c.acarreo * viaje));
   R.arcilla[i] = r2(R.arcilla[i] - n);
   guardar(a, 'arcilla', n);
   return n;
@@ -653,12 +726,22 @@ function terminarObra(m: Mundo, a: Aldea): void {
   const obra = a.obra;
   if (!obra) return;
   a.obra = null;
-  const e: Aldea['edificios'][number] = { tipo: obra.tipo, x: obra.x, y: obra.y, ...(obra.material ? { material: obra.material } : {}), ...(obra.radio ? { radio: obra.radio } : {}) };
+  const e: Aldea['edificios'][number] = { tipo: obra.tipo, x: obra.x, y: obra.y, ...(obra.material ? { material: obra.material } : {}), ...(obra.radio ? { radio: obra.radio } : {}), ...(obra.ang !== undefined ? { ang: obra.ang } : {}) };
   // Un muro nuevo más grande sustituye al viejo.
   const ampliado = rodea(obra.tipo) && a.edificios.some((x) => x.tipo === obra.tipo);
   if (ampliado) {
     a.edificios = a.edificios.filter((x) => x.tipo !== obra.tipo);
+    // Las torres se rehacen en el muro nuevo.
+    for (const t of a.edificios) if (t.tipo === 'torre') Object.assign(t, puntoMuro(a, obra.radio ?? 2.7, t.ang ?? 0));
     anotar(m, 'edificio', `${a.nombre} amplía su ${EDIFICIO[obra.tipo].nombre.toLowerCase()}: ahora rodea todo lo que ha crecido la aldea.`, a.id);
+  }
+  if (obra.reforma) {
+    const k = a.edificios.findIndex((x) => x.x === obra.x && x.y === obra.y && x.tipo === obra.reforma);
+    if (k >= 0) a.edificios.splice(k, 1);
+    // La primera vez que una aldea rehace sus casas al modo nuevo, se cuenta.
+    if (!a.edificios.some((x) => x.tipo === obra.tipo) && m.construidos.includes(obra.tipo)) {
+      anotar(m, 'edificio', `En ${a.nombre} empiezan a cambiar ${PLURAL[obra.reforma] ?? 'las casas viejas'} por ${PLURAL[obra.tipo].replace(/^las /, '')}.`, a.id);
+    }
   }
   if (obra.tipo === 'campo') {
     e.fase = 0;
@@ -687,10 +770,12 @@ function terminarObra(m: Mundo, a: Aldea): void {
   if (!m.construidos.includes(obra.tipo)) {
     m.construidos.push(obra.tipo);
     anotar(m, 'edificio', `En ${a.nombre} se levanta ${articulo(tipo)} por primera vez en el mundo.`, a.id);
-  } else if (!ampliado && ['cerca', 'empalizada', 'muralla', 'archivo', 'mercado', 'puente'].includes(obra.tipo) && cuantos(a, obra.tipo) === 1) {
+  } else if (!ampliado && ['cerca', 'empalizada', 'muralla', 'archivo', 'mercado', 'puente', 'plaza', 'calzada', 'templo', 'establo'].includes(obra.tipo) && cuantos(a, obra.tipo) === 1) {
     anotar(m, 'edificio', `${a.nombre} ya tiene ${articulo(tipo)}.`, a.id);
   }
 }
+
+const PLURAL: Record<string, string> = { choza: 'las chozas', casa: 'las casas de adobe', casapiedra: 'las casas de piedra', casatejas: 'las casas con tejado de tejas' };
 
 /** Lo que rodea la aldea: cerca, empalizada o muralla. */
 export const rodea = (t: string): boolean => t === 'cerca' || t === 'empalizada' || t === 'muralla';
@@ -698,13 +783,23 @@ export const rodea = (t: string): boolean => t === 'cerca' || t === 'empalizada'
 /** Hasta dónde llega lo construido: la distancia (en casillas) del centro a lo más lejano. */
 function huella(a: Aldea): number {
   let r = 0;
-  for (const e of a.edificios) if (!rodea(e.tipo) && e.tipo !== 'puente') r = Math.max(r, Math.hypot(e.x - a.x, e.y - a.y));
-  if (a.obra && !rodea(a.obra.tipo) && a.obra.tipo !== 'puente') r = Math.max(r, Math.hypot(a.obra.x - a.x, a.obra.y - a.y));
+  for (const e of a.edificios) if (!centrado(e.tipo) && e.tipo !== 'puente' && e.tipo !== 'torre') r = Math.max(r, Math.hypot(e.x - a.x, e.y - a.y));
+  if (a.obra && !centrado(a.obra.tipo) && a.obra.tipo !== 'puente' && a.obra.tipo !== 'torre') r = Math.max(r, Math.hypot(a.obra.x - a.x, a.obra.y - a.y));
   return r;
 }
 
-/** El radio que hace falta para rodearlo todo con algo de margen. */
-const radioNecesario = (a: Aldea): number => r2(Math.max(2, huella(a) + 1));
+/** Si la línea de un muro de ese radio pasaría por encima de las tumbas. */
+export function pisaTumbas(a: Aldea, r: number): boolean {
+  const c = a.cementerio;
+  return !!c && Math.abs(Math.hypot(c.x - a.x, c.y - a.y) - r) < 1.3;
+}
+
+/** El radio que hace falta para rodearlo todo con algo de margen (y sin pisar a los muertos: se les deja dentro). */
+function radioNecesario(a: Aldea): number {
+  let r = Math.max(2, huella(a) + 1);
+  if (a.cementerio && pisaTumbas(a, r)) r = Math.hypot(a.cementerio.x - a.x, a.cementerio.y - a.y) + 1.4;
+  return r2(r);
+}
 
 /** El radio de un muro ya hecho (los antiguos, sin radio guardado, eran fijos). */
 export const radioMuro = (e: { tipo: string; radio?: number }): number => e.radio ?? (e.tipo === 'muralla' ? 3 : 2.7);
@@ -765,7 +860,8 @@ export const aCaballo = (a: Aldea): boolean => conoce(a, 'doma') && a.edificios.
 
 function articulo(t: TipoEdificio): string {
   const n = t.nombre.toLowerCase();
-  const fem = ['hoguera', 'choza', 'casa de adobe', 'cerca', 'granja', 'empalizada', 'muralla', 'casa de las tablillas'].includes(n);
+  if (t.id === 'calzada') return 'unas calles empedradas';
+  const fem = ['hoguera', 'choza', 'casa de adobe', 'casa de piedra', 'casa de tejas', 'torre de vigía', 'plaza empedrada', 'cerca', 'granja', 'empalizada', 'muralla', 'casa de las tablillas'].includes(n);
   return `${fem ? 'una' : 'un'} ${n}`;
 }
 
@@ -778,17 +874,29 @@ export function planificar(m: Mundo, a: Aldea, gente: Persona[]): void {
     (a.aparcadas ??= {})[a.obra.tipo] = m.t + 120;
     a.obra = null;
   }
+  // De camino a su nueva tierra no se levanta nada.
+  if (a.viaje) return;
   const n = gente.length;
-  const capacidad = cuantos(a, 'choza') * 5 + cuantos(a, 'casa') * 7;
+  const capacidad = plazas(a);
   const grano = (a.despensa.cereal ?? 0) + (a.despensa.semillas ?? 0);
   const opciones: [string, number][] = [];
   // Lo primero, el fuego: da calor, asa la comida y ahuyenta a las fieras.
   if (conoce(a, 'fuego') && !tiene(a, 'hoguera')) opciones.push(['hoguera', 1.3]);
-  if (capacidad < n) {
-    if (conoce(a, 'adobe')) opciones.push(['casa', 0.9]);
-    else if (conoce(a, 'choza')) opciones.push(['choza', 0.9]);
+  const casa = mejorCasa(a);
+  if (casa && capacidad < n) opciones.push([casa, 0.9]);
+  // Rehacer las casas viejas al modo nuevo, sobre todo si sobran los materiales.
+  let vieja: Aldea['edificios'][number] | null = null;
+  if (casa && n >= 4) {
+    for (const e of a.edificios) if (NIVEL_CASA[e.tipo] && NIVEL_CASA[e.tipo] < NIVEL_CASA[casa] && (!vieja || NIVEL_CASA[e.tipo] < NIVEL_CASA[vieja.tipo])) vieja = e;
+    if (vieja) {
+      const coste = EDIFICIO[casa].coste;
+      const sobra = Object.keys(coste).every((k) => (a.despensa[k] ?? 0) >= coste[k] * 2);
+      opciones.push(['reforma', sobra ? 0.8 : 0.5]);
+    }
   }
-  if (conoce(a, 'campo') && cuantos(a, 'campo') < Math.ceil(n * 0.6) + 2 && grano >= 4) opciones.push(['campo', 0.85]);
+  // Campos mientras haga falta grano: con los graneros llenos para años, no se abren más.
+  const sobraGrano = grano > n * 300;
+  if (conoce(a, 'campo') && cuantos(a, 'campo') < Math.ceil(n * 0.6) + 2 && grano >= 4 && !sobraGrano) opciones.push(['campo', 0.85]);
   if (conoce(a, 'corral') && (a.despensa.cria ?? 0) >= 2 && cuantos(a, 'corral') < 1 + n / 25) opciones.push(['corral', 0.7]);
   if (conoce(a, 'gallinero') && cuantos(a, 'gallinero') < 1 + Math.floor(n / 30)) opciones.push(['gallinero', 0.75]);
   // Un puente si hay un río cerca con tierra al otro lado.
@@ -805,12 +913,34 @@ export function planificar(m: Mundo, a: Aldea, gente: Persona[]): void {
   if (conoce(a, 'muralla') && tiene(a, 'empalizada') && !tiene(a, 'muralla') && n >= 18) opciones.push(['muralla', peligro ? 1.2 : 0.4]);
   // Si la aldea ha crecido y algo queda fuera del muro, toca ampliarlo.
   const muroHecho = muroDe(a);
-  if (muroHecho && huella(a) + 0.5 > radioMuro(muroHecho)) opciones.push([muroHecho.tipo, peligro ? 1.15 : 0.7]);
+  // (o si pasa por encima del cementerio: se rehace dejando las tumbas dentro).
+  if (muroHecho && (huella(a) + 0.5 > radioMuro(muroHecho) || pisaTumbas(a, radioMuro(muroHecho)))) opciones.push([muroHecho.tipo, peligro ? 1.15 : 0.7]);
+  // Torres de vigía en el muro: se ve venir a las fieras y a los enemigos, y con arcos se
+  // les dispara desde arriba.
+  if (muroHecho && conoce(a, 'hacha') && cuantos(a, 'torre') < Math.min(4, 1 + Math.floor(n / 20)) && (a.amenaza > 0.1 || n >= 20)) opciones.push(['torre', peligro ? 1.0 : 0.55]);
+  if (conoce(a, 'doma') && !tiene(a, 'establo') && a.edificios.some((e) => e.tipo === 'corral' && e.especie === 'caballo')) opciones.push(['establo', 0.65]);
+  // Al crecer, la aldea se va haciendo pueblo y ciudad: talleres, plaza, calles, templo.
+  if (conoce(a, 'horno') && n >= 20 && cuantos(a, 'taller') < 1 + Math.floor(n / 40)) opciones.push(['taller', 0.6]);
+  if (conoce(a, 'canteria') && n >= 30 && !tiene(a, 'plaza')) opciones.push(['plaza', 0.6]);
+  if (tiene(a, 'plaza') && n >= 45 && !tiene(a, 'calzada')) opciones.push(['calzada', 0.5]);
+  if (conoce(a, 'canteria') && n >= 40 && !tiene(a, 'templo') && (conoce(a, 'pintura') || conoce(a, 'tambor'))) opciones.push(['templo', 0.55]);
   if (conoce(a, 'escritura') && !tiene(a, 'archivo')) opciones.push(['archivo', 0.5]);
   if (conoce(a, 'comercio') && !tiene(a, 'mercado')) opciones.push(['mercado', 0.4]);
   opciones.sort((x, y) => y[1] - x[1]);
   for (const [tipo] of opciones) {
     if ((a.aparcadas?.[tipo] ?? 0) > m.t) continue;
+    if (tipo === 'reforma') {
+      // Se deshace la vieja y se levanta la nueva en el mismo sitio.
+      if (!casa || !vieja || (a.aparcadas?.[casa] ?? 0) > m.t) continue;
+      a.obra = { tipo: casa, x: vieja.x, y: vieja.y, progreso: 0, pagada: false, desde: m.t, reforma: vieja.tipo };
+      return;
+    }
+    if (tipo === 'torre') {
+      const t = sitioTorre(m, a);
+      if (!t) continue;
+      a.obra = { tipo, x: t.x, y: t.y, progreso: 0, pagada: false, desde: m.t, ang: t.ang };
+      return;
+    }
     const sitio = lugarPara(m, a, tipo);
     if (sitio < 0) continue;
     a.obra = { tipo, x: sitio % m.ancho, y: Math.floor(sitio / m.ancho), progreso: 0, pagada: false, desde: m.t, ...(rodea(tipo) ? { radio: radioNecesario(a) } : {}) };
@@ -818,9 +948,26 @@ export function planificar(m: Mundo, a: Aldea, gente: Persona[]): void {
   }
 }
 
+/** Dónde va la siguiente torre: a los lados de la puerta primero, luego en los puntos cardinales. */
+const ANGULOS_TORRE = [Math.PI / 2 - 0.4, Math.PI / 2 + 0.4, -Math.PI / 2, 0, Math.PI, Math.PI / 4, (3 * Math.PI) / 4, -Math.PI / 4, (-3 * Math.PI) / 4];
+
+function sitioTorre(m: Mundo, a: Aldea): { x: number; y: number; ang: number } | null {
+  const muro = muroDe(a);
+  if (!muro) return null;
+  const usados = a.edificios.filter((e) => e.tipo === 'torre').map((e) => e.ang ?? 0);
+  const ang = ANGULOS_TORRE.find((x) => !usados.some((u) => Math.abs(u - x) < 0.1));
+  if (ang === undefined) return null;
+  return { ...puntoMuro(a, radioMuro(muro), ang), ang };
+}
+
+/** La casilla del muro en esa dirección. */
+function puntoMuro(a: Aldea, r: number, ang: number): { x: number; y: number } {
+  return { x: Math.round(a.x + Math.cos(ang) * r), y: Math.round(a.y + Math.sin(ang) * r) };
+}
+
 function lugarPara(m: Mundo, a: Aldea, tipo: string): number {
   // Los muros rodean la aldea: se apuntan en su centro.
-  if (rodea(tipo)) return a.y * m.ancho + a.x;
+  if (centrado(tipo)) return a.y * m.ancho + a.x;
   // Nada encima de la línea del muro (ni del que se está levantando).
   const lineas = [...a.edificios.filter((e) => rodea(e.tipo)).map(radioMuro), ...(a.obra && rodea(a.obra.tipo) ? [a.obra.radio ?? 2.7] : [])];
   const sobreMuro = (i: number) => {
@@ -851,20 +998,22 @@ function lugarPara(m: Mundo, a: Aldea, tipo: string): number {
   }
   const ocupadas = new Set<number>();
   for (const b of m.aldeas) {
-    for (const e of b.edificios) if (!rodea(e.tipo)) ocupadas.add(e.y * m.ancho + e.x);
-    if (b.obra && !rodea(b.obra.tipo)) ocupadas.add(b.obra.y * m.ancho + b.obra.x);
+    for (const e of b.edificios) if (!centrado(e.tipo)) ocupadas.add(e.y * m.ancho + e.x);
+    if (b.obra && !centrado(b.obra.tipo)) ocupadas.add(b.obra.y * m.ancho + b.obra.x);
     // Sobre las tumbas no se construye.
     if (b.cementerio) ocupadas.add(b.cementerio.y * m.ancho + b.cementerio.x);
   }
+  // La aldea se extiende a medida que crece: los campos y las casas nuevas van más afuera.
+  const extension = Math.min(4, Math.floor(a.edificios.length / 12));
   if (tipo === 'campo') {
-    return mejorCasilla(m, a.x, a.y, 4, (i, d) => {
+    return mejorCasilla(m, a.x, a.y, 4 + extension, (i, d) => {
       if (ocupadas.has(i) || d < 1 || sobreMuro(i) || !alcanzable(m, a, i, false)) return 0;
       const t = m.terreno[i];
       const apto = t === PRADERA ? 3 : t === ESTEPA ? 2 : t === BOSQUE ? 1.5 : t === ORILLA ? 1 : t === PANTANO ? 0.5 : 0;
       return apto / (1 + d * 0.2);
     });
   }
-  return mejorCasilla(m, a.x, a.y, 3, (i, d) => {
+  return mejorCasilla(m, a.x, a.y, 3 + extension, (i, d) => {
     if (ocupadas.has(i) || sobreMuro(i) || !alcanzable(m, a, i, false)) return 0;
     const t = m.terreno[i];
     if (t === AGUA || t === MONTANA || t === RIO) return 0;
@@ -898,7 +1047,8 @@ export function mantener(m: Mundo, a: Aldea, est: number, diaDelAnio: number): b
   for (const c of corrales) {
     const n = c.animales ?? 0;
     const esp = c.especie ?? 'oveja';
-    if (n >= 2) c.animales = r2(n + n * (RITMO_CRIA[esp] ?? 0.0025) * granja * (1 - n / cabe));
+    const establo = esp === 'caballo' && tiene(a, 'establo') ? 1.6 : 1;
+    if (n >= 2) c.animales = r2(n + n * (RITMO_CRIA[esp] ?? 0.0025) * granja * establo * (1 - n / cabe));
     // Leche de cabras y vacas; lana de las ovejas en primavera.
     if (n >= 1 && conoce(a, 'ordeno') && (esp === 'cabra' || esp === 'vaca')) guardar(a, 'leche', r2(n * (esp === 'vaca' ? 0.1 : 0.05)));
     if (n >= 1 && conoce(a, 'esquileo') && esp === 'oveja' && est === 0) guardar(a, 'lana', r2(n * 0.02));

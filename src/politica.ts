@@ -12,8 +12,10 @@ import { prob } from './azar.ts';
 import { DIAS_ANIO, EDAD_ADULTA } from './config.ts';
 import { ORDEN_COMER } from './catalogo.ts';
 import { anotar, listar } from './cronica.ts';
-import { aCaballo, comidaTotal, conoce, cuantos, guardar, situacion, tiene, type Contexto } from './economia.ts';
+import { aCaballo, casaMejor, comidaTotal, conoce, guardar, plazas, situacion, tiene, type Contexto } from './economia.ts';
 import { mayuscula, inventarPalabra } from './lenguaje.ts';
+import { edadSegun } from './edades.ts';
+import { cargar, partir } from './exodo.ts';
 import { buscarSitio, direccion } from './mapa.ts';
 import { distancia } from './matematicas.ts';
 import { ACCIONES, ALINEADAS, PRIORIDADES, entradas, pensar } from './mente.ts';
@@ -57,8 +59,8 @@ function necesidadesHoy(a: Aldea, gente: Persona[], c: Contexto): Record<string,
   const n = Math.max(1, gente.length);
   let hambre = 0;
   for (const p of gente) hambre += 1 - p.reservas / 8;
-  const capacidad = cuantos(a, 'choza') * 5 + cuantos(a, 'casa') * 7;
-  const sabeRefugio = conoce(a, 'choza') || conoce(a, 'adobe');
+  const capacidad = plazas(a);
+  const sabeRefugio = conoce(a, 'choza') || casaMejor(a);
   return {
     comida: 0.15 + c.escasez * 1.3 + (hambre / n) * 0.7,
     invierno: (c.est === 2 ? 0.9 : c.est === 1 ? 0.35 : 0) * Math.max(0, 1 - (a.despensa.madera ?? 0) / 40),
@@ -90,6 +92,8 @@ function opinar(m: Mundo, p: Persona, c: Contexto, nec: Record<string, number>):
     if (pr === 'obras') v += (e > 40 ? 0.2 : 0) + (p.hijos >= 3 ? 0.1 : 0);
     if (pr === 'defensa') v += (p.genes.agresividad - 0.5) * 0.6;
     if (pr === 'invierno') v += e > 55 ? 0.15 : 0;
+    // Lo que les hizo ser un pueblo sigue pesando en lo que piensan sus hijos y nietos.
+    if (pr === c.a.valor) v += 0.12;
     valores[pr] = v;
     if (v > max) {
       max = v;
@@ -188,45 +192,62 @@ export function facciones(m: Mundo, a: Aldea, gente: Persona[], ix: Indices): vo
     if (!g.some((p) => p.id === f.lider)) f.lider = g.reduce((x, y) => (respeto(m, y) > respeto(m, x) ? y : x)).id;
     for (const p of g) p.faccion = f.id;
     const parte = g.length / Math.max(1, n);
-    if (a.consejo && a.consejo.prioridad !== f.opinion) f.descontento = r2(f.descontento + 0.1 * parte * 2);
-    else f.descontento = r2(Math.max(0, f.descontento - 0.2));
+    // El descontento crece si el consejo decide otra cosa, si su cabecilla no tiene voz
+    // en él, si viven apretados y, con los años, porque el grupo se siente ya un pueblo.
+    const ignorada = !!a.consejo && a.consejo.prioridad !== f.opinion;
+    const sinVoz = !a.consejo?.miembros.includes(f.lider);
+    const apretados = gente.length > plazas(a) + 2;
+    const viejos = m.t - f.nacida > 3 * DIAS_ANIO;
+    const roce = (sinVoz ? 0.015 : 0) + (apretados ? 0.02 : 0) + (viejos ? 0.01 : 0);
+    // El templo une: las rencillas pesan menos.
+    const templo = tiene(a, 'templo') ? 0.6 : 1;
+    if (ignorada) f.descontento = r2(f.descontento + (0.2 * parte + 0.015 + roce) * templo);
+    else f.descontento = r2(Math.max(0, f.descontento - 0.08 + roce));
     if (!f.anunciada && m.t - f.nacida >= 240 && !f.debil) {
       f.anunciada = true;
       const lider = ix.porId.get(f.lider);
       anotar(m, 'faccion', `En ${a.nombre} se organiza una facción, los ${f.nombre}${lider ? `, guiados por ${lider.nombre}` : ''}: creen que ${FRASE[f.opinion]}.`, a.id);
     }
-    if (f.descontento >= 1 && g.length >= 6 && parte <= 0.6) {
+    if (f.anunciada && f.descontento >= 1 && g.length >= 5 && parte <= 0.5 && n >= 15) {
       cisma(m, a, f, g, ix);
       break;
     }
   }
 }
 
-/** Una facción ignorada se marcha con sus familias y funda su propia aldea. */
+/**
+ * Una facción ignorada se marcha con sus familias lejos, muy lejos, donde el consejo
+ * de su aldea no pueda alcanzarles, y funda allí su propio pueblo.
+ */
 function cisma(m: Mundo, a: Aldea, f: Faccion, miembros: Persona[], ix: Indices): void {
-  const sitio = buscarSitio(m, a, 8, 22, null, conoce(a, 'canoa'));
+  const canoa = conoce(a, 'canoa');
+  const sitio = buscarSitio(m, a, 28, 90, null, canoa, true) ?? buscarSitio(m, a, 16, 60, null, canoa, true);
   if (!sitio) {
     f.descontento = 0.5;
     return;
   }
   const lider = ix.porId.get(f.lider) ?? miembros[0];
   const grupo = new Set<Persona>(miembros);
+  const vecinos = ix.porAldea.get(a.id) ?? [];
   for (const p of miembros) {
-    for (const h of ix.porAldea.get(a.id) ?? []) if ((h.padre === p.id || h.madre === p.id) && edad(m, h) < 16) grupo.add(h);
+    // Casi siempre la pareja se va con ellos, y los hijos pequeños, siempre.
+    const q = p.pareja !== null ? ix.porId.get(p.pareja) : undefined;
+    if (q && q.aldea === a.id && !q.muerto && prob(0.75)) grupo.add(q);
+    for (const h of vecinos) if ((h.padre === p.id || h.madre === p.id) && edad(m, h) < 16) grupo.add(h);
   }
-  const b = nuevaAldea(m, sitio.x, sitio.y, lider.nombre, a.id);
+  // Si con sus familias se llevarían a media aldea, aún no se atreven: aguantan un tiempo.
+  if (grupo.size > vecinos.length * 0.5) {
+    f.descontento = 0.7;
+    return;
+  }
+  const b = nuevaAldea(m, a.x, a.y, lider.nombre, a.id);
   b.nombre = f.nombre;
-  const parte = grupo.size / Math.max(1, (ix.porAldea.get(a.id) ?? []).length);
-  for (const [k, v] of Object.entries(a.despensa)) {
-    const lleva = r2(v * parte * 0.8);
-    b.despensa[k] = lleva;
-    a.despensa[k] = r2(v - lleva);
-  }
+  b.valor = f.opinion;
+  cargar(a, b, grupo.size, grupo.size / Math.max(1, vecinos.length));
   b.vistos = a.vistos.slice();
+  if ([...grupo].some((p) => p.saberes.includes('escritura'))) b.archivo = a.archivo.slice();
   for (const p of grupo) {
     p.aldea = b.id;
-    p.x = b.x;
-    p.y = b.y;
     p.faccion = null;
     // Las parejas que se quedan atrás se rompen.
     if (p.pareja !== null) {
@@ -238,17 +259,28 @@ function cisma(m: Mundo, a: Aldea, f: Faccion, miembros: Persona[], ix: Indices)
     }
     for (const s of p.saberes) if (!b.conocidos.includes(s)) b.conocidos.push(s);
   }
-  const quedan = (ix.porAldea.get(a.id) ?? []).filter((p) => !grupo.has(p));
+  partir(m, b, a, sitio, grupo);
+  // Desde el primer día tienen su propio consejo: su cabecilla y los más respetados de
+  // los que se van, decididos a hacer lo que en su aldea no les dejaban.
+  const consejeros = [...grupo]
+    .filter((p) => edad(m, p) >= 16)
+    .sort((x, y) => (y === lider ? 1 : 0) - (x === lider ? 1 : 0) || respeto(m, y) - respeto(m, x))
+    .slice(0, Math.max(3, Math.min(5, Math.round(grupo.size / 6))));
+  b.consejo = { prioridad: f.opinion, desde: m.t, anunciado: m.t, anunciada: f.opinion, miembros: consejeros.map((p) => p.id), votos: {} };
+  b.edad = edadSegun(b);
+  b.edades = (a.edades ?? []).slice(0, b.edad + 1);
+  const quedan = vecinos.filter((p) => !grupo.has(p));
   a.conocidos = a.conocidos.filter((s) => quedan.some((p) => p.saberes.includes(s)) || a.archivo.includes(s));
   a.facciones = a.facciones.filter((x) => x !== f);
   b.poblacionMax = grupo.size;
   const rel = relacion(m, a.id, b.id);
-  rel.afinidad = 0.35;
-  rel.rencor = 0.35;
+  rel.afinidad = 0.3;
+  rel.rencor = 0.4;
+  const dias = b.viaje?.dias ?? 0;
   anotar(
     m,
     'cisma',
-    `Hartos de que el consejo no les escuche, los ${f.nombre} abandonan ${a.nombre}: ${grupo.size} personas siguen a ${lider.nombre} hacia ${direccion(a, b.x, b.y)} y fundan su propia aldea.`,
+    `Hartos de que el consejo no les escuche, los ${f.nombre} abandonan ${a.nombre}: ${grupo.size} personas cargan lo que pueden y siguen a ${lider.nombre} hacia ${direccion(a, sitio.x, sitio.y)}, a tierras lejanas donde vivir a su manera. Forman su propio consejo, con ${lider.nombre} a la cabeza. Les esperan unos ${dias} días de camino.`,
     b.id,
   );
 }
@@ -261,7 +293,8 @@ const armas = (a: Aldea) =>
   (conoce(a, 'escudo') ? 1.1 : 1) *
   (aCaballo(a) ? 1.15 : 1);
 /** Lo que protegen sus muros. */
-const muros = (a: Aldea) => (tiene(a, 'muralla') ? 3 : tiene(a, 'empalizada') ? 1.8 : tiene(a, 'cerca') ? 1.2 : 1);
+const muros = (a: Aldea) =>
+  (tiene(a, 'muralla') ? 3 : tiene(a, 'empalizada') ? 1.8 : tiene(a, 'cerca') ? 1.2 : 1) * (1 + 0.1 * Math.min(4, a.edificios.filter((e) => e.tipo === 'torre').length));
 
 const MOTIVO: Record<string, string> = {
   hambre: 'les falta comida',

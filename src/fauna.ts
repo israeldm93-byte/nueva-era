@@ -7,7 +7,7 @@ import { azar, elegirPeso, entero, prob } from './azar.ts';
 import { DIAS_ANIO } from './config.ts';
 import { AGUA, BOSQUE, COLINA, ESTEPA, MONTANA, RIO } from './catalogo.ts';
 import { anios, anotar } from './cronica.ts';
-import { guardar, tiene } from './economia.ts';
+import { conoce, cuantos, guardar, tiene } from './economia.ts';
 import { masas } from './mapa.ts';
 import { distancia } from './matematicas.ts';
 import { aldeasVivas, edad, type Indices } from './mundo.ts';
@@ -253,6 +253,7 @@ function lobos(m: Mundo, f: Fiera, dia: Dia): void {
     }
     f.estado = 'acecha';
     mover(m, f, objetivo.x, objetivo.y, 2);
+    if (dmin < 7 && flechas(m, f, objetivo)) return;
     if (dmin < 6 && batida(m, f, objetivo, dia)) return;
     if (dmin <= 3 && espantar(m, f, objetivo, dia)) return;
     if (dmin < 6) {
@@ -275,7 +276,9 @@ function riesgo(m: Mundo, a: Aldea, dia: Dia): number {
   const vigias = gente.filter((p) => p.actividad === 'vigilar').length;
   const armados = gente.filter((p) => edad(m, p) >= 14 && (p.saberes.includes('lanza') || p.saberes.includes('arco'))).length;
   const muro = tiene(a, 'muralla') ? 1.2 : tiene(a, 'empalizada') ? 0.8 : tiene(a, 'cerca') ? 0.4 : 0;
-  return (dia.encendidas.has(a.id) ? 0.25 : 0) + vigias * 0.15 + armados * 0.04 + muro;
+  // Desde las torres se les ve venir (y con arcos, se les dispara).
+  const torres = cuantos(a, 'torre') * (conoce(a, 'arco') ? 0.3 : 0.15);
+  return (dia.encendidas.has(a.id) ? 0.25 : 0) + vigias * 0.15 + armados * 0.04 + muro + torres;
 }
 
 /**
@@ -334,6 +337,30 @@ function espantar(m: Mundo, f: Fiera, a: Aldea, dia: Dia): boolean {
 }
 
 /**
+ * Desde las torres de vigía, los arqueros disparan a la manada que se acerca: a veces
+ * cae alguno y los demás se lo piensan y se van.
+ */
+function flechas(m: Mundo, f: Fiera, a: Aldea): boolean {
+  const torres = cuantos(a, 'torre');
+  if (!torres || !conoce(a, 'arco')) return false;
+  if (!prob(Math.min(0.6, 0.15 * torres))) return false;
+  const cae = prob(0.5);
+  if (cae) {
+    f.n--;
+    guardar(a, 'piel', 1);
+  }
+  f.estado = 'espantada';
+  f.espera = 30 + entero(30);
+  f.evita = { aldea: a.id, hasta: m.t + DIAS_ANIO / 2 };
+  const gx = f.guarida % m.ancho;
+  mover(m, f, gx, (f.guarida - gx) / m.ancho, 3);
+  if (aviso(m, `flechas-${a.id}`, DIAS_ANIO)) {
+    anotar(m, 'fieras', `Desde las torres de ${a.nombre}, los arqueros reciben a flechazos a una manada de lobos${cae ? ' y abaten a uno' : ''}; los demás huyen.`, a.id);
+  }
+  return true;
+}
+
+/**
  * Batida: los cazadores con lanza (y los vigías) salen a por la fiera que acecha.
  * Entre varios es más fácil; si sale mal, alguien acaba herido.
  */
@@ -384,6 +411,8 @@ function atacarAldea(m: Mundo, f: Fiera, a: Aldea, dia: Dia): void {
   const lanzas = gente.filter((p) => edad(m, p) >= 14 && (p.saberes.includes('lanza') || p.saberes.includes('arco'))).length;
   let exito = 0.35 * (fuego ? 0.3 : 1) * (muro ? (tiene(a, 'muralla') ? 0.03 : tiene(a, 'empalizada') ? 0.1 : 0.35) : 1) * (gente.length >= 25 ? 0.6 : 1);
   for (let v = 0; v < vigias; v++) exito *= 0.6;
+  // Con torres y la puerta cerrada de noche, casi no hay por dónde entrar.
+  for (let v = cuantos(a, 'torre'); v > 0; v--) exito *= 0.7;
   a.amenaza = r2(Math.min(1, a.amenaza + 0.12));
   f.estado = 'ataca';
   let bajas = 0;

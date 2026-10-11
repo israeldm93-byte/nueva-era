@@ -37,7 +37,166 @@ function modelos() {
     { geo: Es(0.08, 6, 4), color: 0xd8b03a, x: x - 0.15, y: 0.49, z },
     { geo: Es(0.08, 6, 4), color: 0xb5653a, x: x + 0.12, y: 0.49, z: z + 0.05 },
   ];
+  // Muros de piedra con hiladas: bloques claros y oscuros alternos.
+  const sillares = (w, h, d, y0, color) => {
+    const r = [{ geo: B(w, h, d), color, y: y0 + h / 2 }];
+    for (let k = 0; k < Math.floor(h / 0.17); k++) {
+      for (const [lx, lz, ww, dd] of [[0, d / 2 + 0.005, w, 0.012], [0, -d / 2 - 0.005, w, 0.012], [w / 2 + 0.005, 0, 0.012, d], [-w / 2 - 0.005, 0, 0.012, d]]) {
+        r.push({ geo: B(ww + 0.002, 0.018, dd + 0.002), color: 0x6f675c, x: lx, y: y0 + 0.17 * (k + 1), z: lz });
+      }
+    }
+    return r;
+  };
+  // Tejado a dos aguas a 45° (largo en x) sobre muros de fondo `d` que acaban a la altura `y`:
+  // de paja o de tejas, con sus canales.
+  const tejado = (w, d, y, color, tejas = false) => {
+    const L = d * 0.76;
+    const r = [
+      { geo: B(w, 0.06, L), color, y: y + d / 4, z: -d / 4, rx: -Math.PI / 4 },
+      { geo: B(w, 0.06, L), color, y: y + d / 4, z: d / 4, rx: Math.PI / 4 },
+      { geo: B(w + 0.02, 0.07, 0.1), color: tejas ? 0x8a3a22 : 0x9a7a3a, y: y + d / 2 + 0.02 },
+    ];
+    if (tejas) {
+      for (let x = -w / 2 + 0.06; x < w / 2; x += 0.16) {
+        r.push({ geo: C(0.024, 0.024, L, 4), color: 0x9c4428, x, y: y + d / 4 + 0.03, z: -d / 4 - 0.02, rx: Math.PI / 4 });
+        r.push({ geo: C(0.024, 0.024, L, 4), color: 0x9c4428, x, y: y + d / 4 + 0.03, z: d / 4 + 0.02, rx: -Math.PI / 4 });
+      }
+    }
+    return r;
+  };
+  // El hastial: el triángulo de pared bajo el tejado, en cada extremo.
+  const pinon = (x, y, d, color) => ({ geo: B(0.05, d * 0.707, d * 0.707), color, x, y, rx: Math.PI / 4 });
+  const columna = (x, z, h, color) => [
+    { geo: B(0.2, 0.06, 0.2), color, x, y: 0.03, z },
+    { geo: C(0.07, 0.08, h, 8), color, x, y: h / 2 + 0.06, z },
+    { geo: B(0.2, 0.06, 0.2), color, x, y: h + 0.09, z },
+  ];
   return {
+    // Casa de piedra: muros de mampostería, tejado de paja, puerta de tablas y ventanucos.
+    casapiedra: fundir([
+      ...sillares(1.36, 0.85, 1.0, 0, 0xa49a88),
+      ...tejado(1.56, 1.2, 0.85, 0xc9a24f),
+      pinon(0.66, 0.85, 1.0, 0xa49a88),
+      pinon(-0.66, 0.85, 1.0, 0xa49a88),
+      { geo: B(0.3, 0.5, 0.06), color: 0x5a3d22, y: 0.25, z: 0.51 },
+      { geo: B(0.38, 0.08, 0.08), color: 0x8a8070, y: 0.53, z: 0.52 },
+      { geo: B(0.16, 0.16, 0.05), color: 0x22170f, x: -0.42, y: 0.55, z: 0.51 },
+      { geo: B(0.16, 0.16, 0.05), color: 0x22170f, x: 0.42, y: 0.55, z: 0.51 },
+      { geo: B(0.18, 0.5, 0.18), color: 0x8f877a, x: 0.42, y: 1.25, z: -0.2 },
+    ]),
+    // Casa grande de tejas: dos alturas de piedra encalada, tejado rojo, balcón y chimenea.
+    casatejas: fundir([
+      { geo: B(1.62, 0.12, 1.22), color: 0x8f877a, y: 0.06 },
+      { geo: B(1.5, 1.35, 1.1), color: 0xe6dccb, y: 0.74 },
+      ...[-0.75, 0.75].flatMap((x) => [-0.55, 0.55].map((z) => ({ geo: B(0.1, 1.35, 0.1), color: 0xb0a490, x, y: 0.74, z }))),
+      ...tejado(1.72, 1.32, 1.41, 0xb5532f, true),
+      pinon(0.73, 1.41, 1.1, 0xe6dccb),
+      pinon(-0.73, 1.41, 1.1, 0xe6dccb),
+      { geo: B(0.32, 0.6, 0.06), color: 0x6a3f22, y: 0.42, z: 0.56 },
+      { geo: B(0.42, 0.06, 0.1), color: 0x9a8e7a, y: 0.75, z: 0.57 },
+      ...[-0.5, 0.5].map((x) => ({ geo: B(0.2, 0.22, 0.05), color: 0x2a3a48, x, y: 0.5, z: 0.56 })),
+      ...[-0.5, 0, 0.5].map((x) => ({ geo: B(0.2, 0.24, 0.05), color: 0x2a3a48, x, y: 1.1, z: 0.56 })),
+      ...[-0.5, 0, 0.5].map((x) => ({ geo: B(0.26, 0.05, 0.08), color: 0x6a3f22, x, y: 0.97, z: 0.58 })),
+      { geo: B(0.9, 0.05, 0.25), color: 0x6a3f22, y: 0.94, z: 0.66 },
+      { geo: B(0.9, 0.18, 0.03), color: 0x6a3f22, y: 1.05, z: 0.78 },
+      { geo: B(0.22, 0.6, 0.22), color: 0xd8ccb8, x: -0.5, y: 1.95, z: -0.15 },
+      { geo: B(0.26, 0.06, 0.26), color: 0x8a3a22, x: -0.5, y: 2.27, z: -0.15 },
+      { geo: Es(0.18, 6, 4), color: 0x6a8a3a, x: 0.62, y: 0.15, z: 0.75, sy: 0.7 },
+    ]),
+    // Torre de vigía de madera: cuatro pies arriostrados, plataforma con baranda y techo.
+    torreVigia: fundir([
+      ...[[-0.36, -0.36], [0.36, -0.36], [-0.36, 0.36], [0.36, 0.36]].map(([x, z]) => ({ geo: B(0.1, 2.6, 0.1), color: 0x6a4a2e, x, y: 1.3, z })),
+      ...[0.5, 1.3].flatMap((y) => [
+        { geo: B(0.8, 0.06, 0.06), color: 0x7a5534, y, z: 0.36, rz: 0.6 },
+        { geo: B(0.8, 0.06, 0.06), color: 0x7a5534, y, z: -0.36, rz: -0.6 },
+        { geo: B(0.06, 0.06, 0.8), color: 0x7a5534, y, x: 0.36, rx: 0.6 },
+        { geo: B(0.06, 0.06, 0.8), color: 0x7a5534, y, x: -0.36, rx: -0.6 },
+      ]),
+      { geo: B(1.05, 0.08, 1.05), color: 0x8a6440, y: 2.0 },
+      ...[[0, 0.52, 1.05, 0.05], [0, -0.52, 1.05, 0.05], [0.52, 0, 0.05, 1.05], [-0.52, 0, 0.05, 1.05]].map(([x, z, w, d]) => ({ geo: B(w, 0.3, d), color: 0x7a5534, x, y: 2.2, z })),
+      ...[[-0.45, -0.45], [0.45, -0.45], [-0.45, 0.45], [0.45, 0.45]].map(([x, z]) => ({ geo: B(0.06, 0.9, 0.06), color: 0x6a4a2e, x, y: 2.45, z })),
+      { geo: Co(0.85, 0.55, 4), color: 0xc9a24f, y: 3.15, ry: Math.PI / 4 },
+      { geo: B(0.06, 2.0, 0.3), color: 0x6a4a2e, x: 0.2, y: 1.0, z: 0.45, rx: -0.2 },
+    ]),
+    // Torre de piedra: cuadrada, con almenas.
+    torrePiedra: fundir([
+      ...sillares(1.1, 2.4, 1.1, 0, 0xa59d8f),
+      { geo: B(1.22, 0.1, 1.22), color: 0xb3ab9c, y: 2.45 },
+      ...[[-0.45, 0.5], [0, 0.5], [0.45, 0.5], [-0.45, -0.5], [0, -0.5], [0.45, -0.5], [0.5, 0], [-0.5, 0]].map(([x, z]) => ({ geo: B(0.24, 0.3, 0.18), color: 0xa59d8f, x, y: 2.65, z })),
+      { geo: B(0.1, 0.3, 0.04), color: 0x2a2622, y: 1.6, z: 0.56 },
+      { geo: B(0.3, 0.5, 0.04), color: 0x4a3020, y: 0.25, z: 0.56 },
+    ]),
+    // Hoja de la puerta del muro: tablones con travesaños y su refuerzo en diagonal.
+    hoja: fundir([
+      { geo: B(1, 1, 0.08), color: 0x7a5534, x: 0.5, y: 0.5 },
+      ...[0.2, 0.8].map((y) => ({ geo: B(1, 0.08, 0.12), color: 0x5a3d22, x: 0.5, y })),
+      { geo: B(1.1, 0.08, 0.1), color: 0x5a3d22, x: 0.5, y: 0.5, rz: 0.55 },
+      ...[0.25, 0.5, 0.75].map((x) => ({ geo: B(0.012, 1, 0.09), color: 0x4a3020, x })),
+    ]),
+    // Establo: nave larga de madera con cuadras abiertas, pesebre y pacas de heno.
+    establo: fundir([
+      { geo: B(2.0, 0.08, 1.2), color: 0x9a8058, y: 0.04 },
+      ...[-0.95, -0.32, 0.32, 0.95].flatMap((x) => [-0.55, 0.55].map((z) => ({ geo: B(0.1, 1.1, 0.1), color: 0x6a4a2e, x, y: 0.55, z }))),
+      { geo: B(2.0, 0.9, 0.06), color: 0x8a5a36, y: 0.5, z: -0.57 },
+      ...[-0.95, 0.95].map((x) => ({ geo: B(0.06, 0.9, 1.16), color: 0x8a5a36, x, y: 0.5 })),
+      ...[-0.32, 0.32].map((x) => ({ geo: B(0.05, 0.6, 1.0), color: 0x7a5534, x, y: 0.3, z: -0.05 })),
+      ...tejado(2.2, 1.4, 0.95, 0x7a5a3a),
+      pinon(0.97, 0.95, 1.16, 0x8a5a36),
+      pinon(-0.97, 0.95, 1.16, 0x8a5a36),
+      { geo: B(1.8, 0.14, 0.2), color: 0x6a4a2e, y: 0.35, z: -0.42 },
+      { geo: B(0.42, 0.28, 0.3), color: 0xd8b850, x: 1.25, y: 0.14, z: 0.3 },
+      { geo: B(0.42, 0.28, 0.3), color: 0xc8a840, x: 1.25, y: 0.42, z: 0.3, ry: 0.3 },
+      { geo: B(0.5, 0.14, 0.18), color: 0x6a4a2e, x: -1.25, y: 0.07, z: 0.35 },
+      { geo: B(0.44, 0.03, 0.12), color: 0x5a8ab0, x: -1.25, y: 0.13, z: 0.35 },
+    ]),
+    // Taller: cobertizo abierto con forja humeante, yunque, banco y vasijas recién hechas.
+    taller: fundir([
+      { geo: B(1.6, 0.06, 1.2), color: 0x8a7a62, y: 0.03 },
+      ...[[-0.75, -0.55], [0.75, -0.55], [-0.75, 0.55], [0.75, 0.55]].map(([x, z]) => ({ geo: B(0.09, 1.05, 0.09), color: 0x6a4a2e, x, y: 0.52, z })),
+      { geo: B(1.6, 0.85, 0.06), color: 0x9a8a72, y: 0.43, z: -0.57 },
+      ...tejado(1.76, 1.36, 1.05, 0x8a6a44),
+      { geo: B(0.5, 0.45, 0.5), color: 0x7a7066, x: -0.45, y: 0.22, z: -0.25 },
+      { geo: B(0.32, 0.08, 0.32), color: 0xd8501a, x: -0.45, y: 0.47, z: -0.25 },
+      { geo: C(0.09, 0.12, 0.9, 6), color: 0x5a524a, x: -0.45, y: 0.9, z: -0.35 },
+      { geo: C(0.12, 0.16, 0.3, 7), color: 0x4a3a2a, x: 0.15, y: 0.15, z: 0.1 },
+      { geo: B(0.32, 0.1, 0.14), color: 0x3a3a3e, x: 0.15, y: 0.34, z: 0.1 },
+      { geo: B(0.7, 0.06, 0.32), color: 0x8a6440, x: 0.45, y: 0.5, z: -0.35 },
+      ...[0.25, 0.65].map((x) => ({ geo: B(0.05, 0.5, 0.05), color: 0x6a4a2e, x, y: 0.25, z: -0.35 })),
+      ...[0.3, 0.5, 0.65].map((x, k) => ({ geo: Es(0.07 + k * 0.01, 7, 5), color: 0xb5653a, x, y: 0.6, z: -0.35, sy: 1.3 })),
+    ]),
+    // Plaza: un empedrado redondo de losas con su pozo en un lado.
+    plaza: fundir([
+      { geo: C(T * 1.45, T * 1.5, 0.05, 28), color: 0xb2a890, y: 0.02 },
+      ...Array.from({ length: 36 }, (_, k) => {
+        const r = 0.6 + (k % 4) * 0.6;
+        const a = k * 2.399;
+        return { geo: B(0.42, 0.012, 0.32), color: [0x9a907c, 0xc2b8a0, 0xa89e88][k % 3], x: Math.cos(a) * r, y: 0.052, z: Math.sin(a) * r, ry: a };
+      }),
+      { geo: C(0.32, 0.34, 0.4, 10), color: 0x9a948a, x: 1.9, y: 0.2, z: -1.2 },
+      { geo: C(0.24, 0.24, 0.02, 10), color: 0x3a5a7a, x: 1.9, y: 0.39, z: -1.2 },
+      ...[-0.22, 0.22].map((dx) => ({ geo: B(0.05, 0.6, 0.05), color: 0x6a4a2e, x: 1.9 + dx, y: 0.55, z: -1.2 })),
+      { geo: B(0.5, 0.05, 0.05), color: 0x6a4a2e, x: 1.9, y: 0.85, z: -1.2 },
+    ]),
+    // Templo: escalinata, columnas, frontón y tejado; dentro, el altar con su fuego.
+    templo: fundir([
+      { geo: B(2.2, 0.16, 1.7), color: 0xb8ae98, y: 0.08 },
+      { geo: B(2.0, 0.16, 1.5), color: 0xc8bea8, y: 0.24 },
+      { geo: B(1.8, 0.16, 1.3), color: 0xd8cfba, y: 0.4 },
+      { geo: B(1.1, 1.0, 0.8), color: 0xd0c6b0, y: 0.98, z: -0.1 },
+      ...[-0.75, -0.25, 0.25, 0.75].flatMap((x) => [-0.55, 0.55].map((z) => columna(x, z, 1.05, 0xe6dece))).flat().map((c) => ({ ...c, y: c.y + 0.48 })),
+      { geo: B(1.9, 0.14, 1.4), color: 0xd8cfba, y: 1.66 },
+      ...tejado(2.0, 1.5, 1.73, 0xb5532f, true),
+      pinon(0.93, 1.73, 1.4, 0xe6dece),
+      pinon(-0.93, 1.73, 1.4, 0xe6dece),
+      { geo: B(0.3, 0.55, 0.06), color: 0x3a2a1a, y: 0.75, z: 0.31 },
+      { geo: B(0.3, 0.25, 0.2), color: 0x9a8e7a, y: 0.6, z: 0.75 },
+      { geo: Co(0.08, 0.2, 5), color: 0xffa040, y: 0.82, z: 0.75 },
+    ]),
+    // Losa de calle empedrada.
+    adoquin: fundir([
+      { geo: B(0.98, 0.04, 0.62), color: 0xffffff, y: 0.02 },
+      ...[-0.25, 0.25].map((x) => ({ geo: B(0.012, 0.045, 0.6), color: 0x7a7266, x, y: 0.02 })),
+    ]),
     choza: fundir([
       { geo: C(0.56, 0.64, 0.5, 9), color: 0x8b5a2b, y: 0.25 },
       { geo: Co(0.92, 0.95, 9), color: paja, y: 0.98 },
@@ -164,8 +323,8 @@ function modelos() {
     // La granja: un establo grande de madera con tejado a dos aguas, pajar y abrevadero.
     granja: fundir([
       { geo: B(1.6, 0.9, 1.1), color: 0x8a4a32, y: 0.45 },
-      { geo: B(1.7, 0.08, 0.7), color: 0x5a3a26, y: 1.05, z: -0.27, rx: 0.62 },
-      { geo: B(1.7, 0.08, 0.7), color: 0x5a3a26, y: 1.05, z: 0.27, rx: -0.62 },
+      { geo: B(1.7, 0.08, 0.7), color: 0x5a3a26, y: 1.05, z: -0.27, rx: -0.62 },
+      { geo: B(1.7, 0.08, 0.7), color: 0x5a3a26, y: 1.05, z: 0.27, rx: 0.62 },
       { geo: Co(0.56, 0.4, 3), color: 0x8a4a32, x: 0.8, y: 1.08, ry: Math.PI / 2, rz: Math.PI / 2, sz: 0.25 },
       { geo: Co(0.56, 0.4, 3), color: 0x8a4a32, x: -0.8, y: 1.08, ry: -Math.PI / 2, rz: -Math.PI / 2, sz: 0.25 },
       { geo: B(0.5, 0.6, 0.04), color: 0x3a2418, y: 0.3, z: 0.56 },
@@ -240,7 +399,9 @@ function modelos() {
   };
 }
 
-const TIPOS = ['choza', 'casa', 'hoguera', 'campo', 'corral', 'gallinero', 'granja', 'puente', 'almacen', 'horno', 'archivo', 'mercado', 'ruina', 'obra'];
+const TIPOS = ['choza', 'casa', 'casapiedra', 'casatejas', 'hoguera', 'campo', 'corral', 'gallinero', 'granja', 'puente', 'almacen', 'horno', 'archivo', 'mercado', 'establo', 'taller', 'templo', 'plaza', 'ruina', 'obra'];
+
+const suaveP = (u) => u * u * (3 - 2 * u);
 
 export class Edificios3D {
   constructor(escena, terreno) {
@@ -273,6 +434,14 @@ export class Edificios3D {
     let nEstaca = 0;
     let nTrav = 0;
     const torreones = instancias(this.escena, im, 'torreones', this.geo.torreon, this.mat, 300);
+    const vigias = instancias(this.escena, im, 'torresVigia', this.geo.torreVigia, this.mat, 200);
+    const vigiasPiedra = instancias(this.escena, im, 'torresPiedra', this.geo.torrePiedra, this.mat, 200);
+    const hojas = instancias(this.escena, im, 'hojas', this.geo.hoja, this.mat, 300);
+    const adoquines = instancias(this.escena, im, 'adoquines', this.geo.adoquin, this.mat, 8000);
+    let nVigia = 0;
+    let nVigiaP = 0;
+    let nAdoq = 0;
+    this.puertas = [];
     const catapultas = instancias(this.escena, im, 'catapultas', this.geo.catapulta, this.mat, 120);
     let nMuro = 0;
     let nTorreon = 0;
@@ -316,13 +485,13 @@ export class Edificios3D {
         const z = cz + Math.sin(ang) * radio;
         const y = tr.alturaEn(x, z);
         if (tipo === 'muralla' && nMuro < 1500) {
-          colocar(muros, nMuro, x, y - 0.25, z, -ang - Math.PI / 2, 1, 1.1);
+          colocar(muros, nMuro, x, y - 0.25, z, -ang - Math.PI / 2, 1, 1.4);
           muros.setColorAt(nMuro++, gris(k));
         } else if (tipo === 'pirca' && nPirca < 2000) {
           colocar(pircas, nPirca, x, y - 0.05, z, -ang - Math.PI / 2, (2 * Math.PI * radio) / total / 0.92, 1);
           pircas.setColorAt(nPirca++, gris(k));
         } else if (tipo === 'empalizada' && nTron < 8000) {
-          colocar(tronquitos, nTron, x, y - 0.05, z, 0, 1, 0.85 + azar(k + a.id) * 0.3);
+          colocar(tronquitos, nTron, x, y - 0.05, z, 0, 1, 1.1 + azar(k + a.id) * 0.3);
           tronquitos.setColorAt(nTron++, gris(k));
         } else if (tipo === 'cerca' && nEstaca < 2000) {
           colocar(estacas, nEstaca, x, y - 0.05, z, azar(k + a.id) * 3, 1, 0.9 + azar(k * 3 + a.id) * 0.2);
@@ -337,6 +506,21 @@ export class Edificios3D {
         }
       }
       if (parte < 1 || ruina) return;
+      // La puerta: dos hojas que se abren hacia dentro de día y se cierran de noche o ante el peligro.
+      {
+        const alto = { cerca: 1.05, pirca: 0.75, empalizada: 1.7, muralla: 2.2 }[tipo] ?? 1;
+        const ancho = hueco * radio;
+        for (const lado of [-1, 1]) {
+          const ang = Math.PI / 2 + lado * hueco;
+          const hx = cx + Math.cos(ang) * radio;
+          const hz = cz + Math.sin(ang) * radio;
+          const gx = cx + Math.cos(Math.PI / 2) * radio;
+          const gz = cz + Math.sin(Math.PI / 2) * radio;
+          const cerrada = Math.atan2(-(gz - hz), gx - hx);
+          const abierta = Math.atan2(-(cz - hz), cx - hx);
+          this.puertas.push({ aldea: a.id, x: hx, y: tr.alturaEn(hx, hz) - 0.03, z: hz, cerrada, abierta, ancho, alto });
+        }
+      }
       // Torres: dos a la puerta de la empalizada; torreones en la muralla.
       if (tipo === 'empalizada') {
         for (const lado of [-1, 1]) {
@@ -357,8 +541,11 @@ export class Edificios3D {
     };
     for (const a of d.aldeas) {
       const ruina = a.abandonada !== null;
+      // La casa vieja que se está rehaciendo ya no está: en su sitio, los andamios.
+      const enReforma = a.obra?.reforma ? `${a.obra.x},${a.obra.y}` : null;
       for (const e of a.edificios) {
-        if (e.tipo === 'cerca' || e.tipo === 'empalizada' || e.tipo === 'muralla') continue;
+        if (e.tipo === 'cerca' || e.tipo === 'empalizada' || e.tipo === 'muralla' || e.tipo === 'torre' || e.tipo === 'calzada') continue;
+        if (enReforma && `${e.x},${e.y}` === enReforma && e.tipo === a.obra.reforma) continue;
         if (e.tipo === 'puente') {
           this.ponerPuente(d, e, ruina, n);
           continue;
@@ -404,6 +591,36 @@ export class Edificios3D {
       const obraMuro = !ruina && a.obra && ['cerca', 'empalizada', 'muralla'].includes(a.obra.tipo) ? a.obra : null;
       // Mientras se levanta uno más grande del mismo tipo, el viejo sigue en pie.
       if (muro) anillo(a, forma(muro), 1, ruina, radioDe(muro));
+      // Torres de vigía sobre el muro, en su ángulo (de madera o de piedra).
+      if (muro && !ruina) {
+        const [cx, cz] = tr.aMundo(a.x, a.y);
+        for (const e of a.edificios) {
+          if (e.tipo !== 'torre') continue;
+          const x = cx + Math.cos(e.ang ?? 0) * T * radioDe(muro);
+          const z = cz + Math.sin(e.ang ?? 0) * T * radioDe(muro);
+          if (e.material === 'piedra' && nVigiaP < 200) colocar(vigiasPiedra, nVigiaP++, x, tr.alturaEn(x, z) - 0.1, z, -(e.ang ?? 0));
+          else if (nVigia < 200) colocar(vigias, nVigia++, x, tr.alturaEn(x, z) - 0.05, z, -(e.ang ?? 0));
+        }
+      }
+      // Calles empedradas: de la plaza a cada casa, taller o templo, y a la puerta del muro.
+      if (!ruina && a.edificios.some((e) => e.tipo === 'calzada')) {
+        const [cx, cz] = tr.aMundo(a.x, a.y);
+        const destinos = a.edificios.filter((e) => !['campo', 'cerca', 'empalizada', 'muralla', 'torre', 'calzada', 'plaza', 'puente', 'hoguera'].includes(e.tipo)).map((e) => [...tr.aMundo(e.x, e.y), 1.05]);
+        if (muro) destinos.push([cx, cz + T * radioDe(muro) + 0.6, 0]);
+        for (const [ex, ez, margen] of destinos) {
+          const l = Math.hypot(ex - cx, ez - cz);
+          if (l < 3.3) continue;
+          const ux = (ex - cx) / l;
+          const uz = (ez - cz) / l;
+          const ry = Math.atan2(-uz, ux) + Math.PI / 2;
+          for (let s = 2.9; s < l - margen && nAdoq < 8000; s += 0.62) {
+            const x = cx + ux * s;
+            const z = cz + uz * s;
+            colocar(adoquines, nAdoq, x, tr.alturaEn(x, z) - 0.005, z, ry);
+            adoquines.setColorAt(nAdoq++, color.setRGB(0.62, 0.59, 0.53).multiplyScalar(0.9 + azar(nAdoq * 7) * 0.2));
+          }
+        }
+      }
       if (obraMuro) anillo(a, forma(obraMuro), Math.max(0.06, obraMuro.progreso), false, radioDe(obraMuro) + (muro && Math.abs(radioDe(muro) - radioDe(obraMuro)) < 0.3 ? 0.35 : 0));
       // Catapultas junto a la aldea, en cuanto saben hacerlas (más cuanto más grande).
       if (!ruina && a.conocidos?.includes('catapulta')) {
@@ -445,6 +662,10 @@ export class Edificios3D {
     cerrar(pircas, nPirca);
     cerrar(travesanos, nTrav);
     cerrar(torreones, nTorreon);
+    cerrar(vigias, nVigia);
+    cerrar(vigiasPiedra, nVigiaP);
+    cerrar(adoquines, nAdoq);
+    this.apertura ??= new Map();
     cerrar(catapultas, nCata);
     // Incendios forestales: varias llamas por casilla que arde.
     this.fuegos = d.incendios.map((i) => {
@@ -505,9 +726,26 @@ export class Edificios3D {
     cerrar(lapidas, nl);
   }
 
-  animar(t, noche) {
+  animar(t, noche, alarmas) {
     const im = this.im;
     if (!im.llamas) return;
+    // Las puertas de los muros: de día abiertas; de noche o con lobos cerca, cerradas.
+    if (im.hojas && this.puertas) {
+      const dt = Math.min(0.1, Math.max(0, t - (this.tPuertas ?? t)));
+      this.tPuertas = t;
+      let n = 0;
+      for (const p of this.puertas) {
+        const quiere = noche > 0.5 || alarmas?.has(p.aldea) ? 0 : 1;
+        const antes = this.apertura.get(p.aldea) ?? quiere;
+        const ahora = antes + Math.max(-dt * 0.8, Math.min(dt * 0.8, quiere - antes));
+        this.apertura.set(p.aldea, ahora);
+        let giro = p.abierta - p.cerrada;
+        giro = Math.atan2(Math.sin(giro), Math.cos(giro));
+        colocar(im.hojas, n++, p.x, p.y, p.z, p.cerrada + giro * suaveP(ahora), p.ancho, p.alto);
+      }
+      // (colocar escala x e y: ancho de la hoja y alto)
+      cerrar(im.hojas, n);
+    }
     const brillo = 0.7 + noche * 1.3;
     this.matLlama.color.setRGB(1, 0.55 + 0.1 * Math.sin(t * 9), 0.2).multiplyScalar(brillo);
     let n = 0;

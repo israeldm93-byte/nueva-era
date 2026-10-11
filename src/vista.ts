@@ -3,7 +3,9 @@
 // descubrir no aparecen (nada de destripes).
 
 import { DIAS_ANIO, ESTACIONES } from './config.ts';
-import { BASICOS, COMIDAS, CONCEPTOS_VIDA, EDIFICIOS, MATERIALES, NOMBRE_CONCEPTO, TECNICA, TECNICAS } from './catalogo.ts';
+import { BASICOS, COMIDAS, CONCEPTOS_VIDA, EDADES, EDIFICIOS, MATERIALES, NOMBRE_CONCEPTO, TECNICA, TECNICAS } from './catalogo.ts';
+import { edadSegun, faltaPara } from './edades.ts';
+import { LEMA } from './exodo.ts';
 import { anioDe, fecha } from './cronica.ts';
 import { comidaTotal, necesidad } from './economia.ts';
 import { lexicoComun, parecido } from './lenguaje.ts';
@@ -75,6 +77,7 @@ export function datosWeb(m: Mundo, ahora: Date) {
     conceptos: [...BASICOS, ...CONCEPTOS_VIDA],
     nombres,
     comestibles: COMIDAS.map((x) => x.id),
+    nombresEdades: EDADES.map((e) => e.nombre),
     obras: Object.fromEntries(EDIFICIOS.map((e) => [e.id, { nombre: e.nombre, coste: e.coste, ...(e.alternativa ? { alternativa: e.alternativa.coste } : {}) }])),
     acciones: ACCIONES,
     pruebas: PRUEBAS.map((p) => p.nombre),
@@ -104,12 +107,34 @@ export function datosWeb(m: Mundo, ahora: Date) {
           ...(e.especie ? { especie: e.especie } : {}),
           ...(e.material ? { material: e.material } : {}),
           ...(e.radio ? { radio: e.radio } : {}),
+          ...(e.ang !== undefined ? { ang: e.ang } : {}),
           // Cómo va el cultivo (de 0, recién sembrado, a 1, listo para segar) o si queda rastrojo.
           ...(e.tipo === 'campo' && e.fase === 1 ? { crece: r2(Math.min(1, (m.t - (e.sembrado ?? m.t - 40)) / 70)) } : {}),
           ...(e.tipo === 'campo' && e.fase !== 1 && e.cosechado !== undefined && m.t - e.cosechado < 45 ? { rastrojo: true } : {}),
         })),
         ...(a.maderaLejos ? { maderaLejos: true } : {}),
-        obra: a.obra ? { tipo: a.obra.tipo, x: a.obra.x, y: a.obra.y, progreso: r2(a.obra.progreso), pagada: a.obra.pagada, ...(a.obra.material ? { material: a.obra.material } : {}), ...(a.obra.radio ? { radio: a.obra.radio } : {}) } : null,
+        ...(a.barroLejos ? { barroLejos: true } : {}),
+        obra: a.obra
+          ? {
+              tipo: a.obra.tipo,
+              x: a.obra.x,
+              y: a.obra.y,
+              progreso: r2(a.obra.progreso),
+              pagada: a.obra.pagada,
+              ...(a.obra.material ? { material: a.obra.material } : {}),
+              ...(a.obra.radio ? { radio: a.obra.radio } : {}),
+              ...(a.obra.reforma ? { reforma: a.obra.reforma } : {}),
+              ...(a.obra.ang !== undefined ? { ang: a.obra.ang } : {}),
+            }
+          : null,
+        // Su edad (Piedra, Herramientas, Bronce, Hierro), cuándo llegó a cada una y lo que
+        // le falta para la siguiente; si es aldea, pueblo o ciudad.
+        edad: a.edad ?? edadSegun(a),
+        edades: (a.edades ?? []).map((t) => (t === undefined || t === null ? null : anioDe(t))),
+        faltaEdad: (a.edad ?? edadSegun(a)) + 1 < EDADES.length ? faltaPara(a, (a.edad ?? edadSegun(a)) + 1).map((id) => TECNICA[id]?.nombre ?? id) : [],
+        rango: a.rango ?? 'aldea',
+        ...(a.valor ? { valor: a.valor, lema: LEMA[a.valor] } : {}),
+        ...(a.viaje ? { viaje: { desde: a.viaje.desde, hasta: a.viaje.hasta, salida: a.viaje.salida, dias: a.viaje.dias, faltan: Math.max(0, a.viaje.salida + a.viaje.dias - m.t) } } : {}),
         conocidos: a.conocidos,
         archivo: a.archivo,
         despensa,

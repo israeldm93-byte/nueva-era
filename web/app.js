@@ -98,6 +98,7 @@ const CAUSAS = {
 const EDIFICIOS = {
   hoguera: 'hoguera', choza: 'choza', casa: 'casa de adobe', campo: 'campo', corral: 'corral', almacen: 'almacén',
   horno: 'horno', gallinero: 'gallinero', granja: 'granja', cerca: 'cerca', empalizada: 'empalizada', muralla: 'muralla de piedra', archivo: 'casa de las tablillas', mercado: 'mercado',
+  casapiedra: 'casa de piedra', casatejas: 'casa de tejas', torre: 'torre de vigía', establo: 'establo', taller: 'taller', plaza: 'plaza empedrada', calzada: 'calles empedradas', templo: 'templo',
 };
 
 /** Hacia dónde empuja el consejo a los que experimentan. */
@@ -111,13 +112,14 @@ const FOCOS = {
 const UNA = {
   hoguera: 'una hoguera', choza: 'una choza', casa: 'una casa de adobe', campo: 'un campo nuevo', corral: 'un corral', almacen: 'un almacén',
   horno: 'un horno', gallinero: 'un gallinero', granja: 'la granja', cerca: 'la cerca', empalizada: 'la empalizada', muralla: 'la muralla de piedra', archivo: 'la casa de las tablillas', mercado: 'el mercado',
+  casapiedra: 'una casa de piedra', casatejas: 'una casa de tejas', torre: 'una torre de vigía', establo: 'el establo', taller: 'un taller', plaza: 'la plaza', calzada: 'las calles empedradas', templo: 'el templo',
 };
 
 const GRUPOS = {
   todo: ['Todo', null],
   politica: ['Política', ['consejo', 'faccion', 'cisma', 'guerra', 'asalto', 'paz', 'alianza']],
   saber: ['Saber', ['descubrimiento', 'redescubrimiento', 'difusion', 'perdida', 'olvido']],
-  aldeas: ['Aldeas', ['inicio', 'fundacion', 'abandono', 'traslado', 'edificio', 'contacto', 'poblacion']],
+  aldeas: ['Aldeas', ['inicio', 'fundacion', 'abandono', 'traslado', 'edificio', 'contacto', 'poblacion', 'edad', 'cisma']],
   vidas: ['Vidas', ['muerte']],
   lenguas: ['Lenguas', ['lengua']],
   desgracias: ['Desgracias', ['lobos', 'fieras', 'incendio', 'inundacion', 'epidemia', 'sequia', 'hambre', 'extincion']],
@@ -174,6 +176,8 @@ const ICONOS = {
   mineral: 'M6 9l3-5h6l3 5-6 11Zm0 0h12M9 4l3 5 3-5',
   ganado: 'M7 10a3 3 0 0 1 5-2 3 3 0 0 1 5 2 3 3 0 0 1-1 5H8a3 3 0 0 1-1-5Zm2 5v4m6-4v4',
   almacen: 'M3 8l9-5 9 5v10l-9 5-9-5Zm0 0 9 5 9-5m-9 5v10',
+  // Una torre almenada: la edad del pueblo.
+  edad: 'M6 21V9H4V4h3v2h2V4h2v2h2V4h2v2h2V4h3v5h-2v12Zm4 0v-5a2 2 0 0 1 4 0v5',
 };
 
 function icono(nombre) {
@@ -254,6 +258,14 @@ const USO = {
   empalizada: 'Empalizada de troncos con torres de vigía: los lobos casi no entran y los asaltantes lo tienen difícil.',
   muralla: 'Muralla de piedra con torreones: casi nadie la salta; solo las catapultas abren brecha.',
   puente: 'Puente sobre el río: se cruza a trabajar, cazar y comerciar en la otra orilla.',
+  casapiedra: 'Casa de piedra con tejado de paja: abriga más que el adobe, caben unas ocho personas y no arde.',
+  casatejas: 'Casa grande de piedra con tejado de tejas cocidas: seca, fresca en verano y sin miedo al fuego; caben unas diez personas.',
+  torre: 'Torre de vigía sobre el muro: desde arriba se ve venir a los lobos y a los enemigos y se avisa a todos.',
+  establo: 'Establo para los caballos: a cubierto y con pienso, crían más y están siempre a punto para montar o tirar del carro.',
+  taller: 'Taller de artesanos (alfareros, carpinteros, herreros): hacen mejores herramientas y se prueban más cosas.',
+  plaza: 'Plaza empedrada en el centro: aquí se reúne la gente, se habla, se comercia y se celebra.',
+  calzada: 'Calles empedradas: se anda deprisa y sin barro aunque llueva; se llega más lejos a trabajar.',
+  templo: 'Templo de piedra: un lugar sagrado que une a la gente. Con él, las rencillas pesan menos y cabe más gente en paz.',
   ruina: 'Lo que queda de una casa abandonada.',
 };
 
@@ -320,6 +332,9 @@ function fichaEdificio(e) {
   if (e.tipo === 'campo' && !e.obra) lineas.push(e.fase === 1 ? 'Ahora está sembrado.' : 'Ahora está en barbecho.');
   if ((e.tipo === 'corral' || e.tipo === 'gallinero') && e.animales !== undefined) lineas.push(`Tiene ${e.animales} ${e.tipo === 'gallinero' ? 'gallinas' : ({ oveja: 'ovejas', cabra: 'cabras', vaca: 'vacas', cerdo: 'cerdos', caballo: 'caballos' }[e.especie ?? 'oveja'] ?? 'animales')}.`);
   if (e.tipo === 'cerca' && e.material === 'piedra') lineas.push('La hicieron de piedra seca porque no había madera a mano.');
+  if (e.tipo === 'torre') lineas.push(a?.conocidos?.includes('arco') ? 'Arriba hay arqueros: si los lobos se acercan, los reciben a flechazos.' : 'Cuando sepan hacer arcos, dispararán desde arriba.');
+  if (e.obra && e.reforma) lineas.push(`Están rehaciendo ${UNA[e.reforma] ?? 'una casa vieja'} al modo nuevo, en el mismo sitio.`);
+  if (['cerca', 'empalizada', 'muralla'].includes(e.tipo) && !e.obra) lineas.push('La puerta se cierra al anochecer y cuando hay peligro; de día queda abierta para salir a trabajar.');
   if (a) lineas.push(`De ${a.nombre}.`);
   return [mayus(e.obra ? `Obra: ${nombre.toLowerCase()}` : nombre), lineas];
 }
@@ -409,6 +424,8 @@ function haciendoAhora(p, ahora) {
   if (!ahora) return mayus(oficio) + '.';
   const { pose, carga, carro, barca, caballo, alarma, fase } = ahora;
   if (alarma) return '¡Ha salido con los demás a plantar cara a los lobos!';
+  if (ahora.viaje) return ahora.viaje;
+  if (pose === 'arquero') return 'Vigila desde lo alto de la torre con el arco preparado.';
   if (barca) return pose === 'remar' ? 'Rema en su canoa.' : 'Pesca desde su canoa, mar adentro.';
   if (pose === 'hablar') return 'Habla ante el consejo, junto al fuego.';
   if (pose === 'sentado') return fase > 0.8 || fase < 0.05 ? 'Junto al fuego con los suyos, escuchando al consejo.' : 'Sentado, descansando.';
@@ -464,7 +481,7 @@ function fichaRapida(p, ahora) {
     caja,
     h('button', { class: 'cerrar-toque', type: 'button', 'aria-label': 'Cerrar', onclick: () => caja.remove() }, '×'),
     h('strong', {}, `${p.nombre}, ${anios(p.edad)}`),
-    h('span', { class: 'sub' }, `${p.sexo === 'M' ? 'Mujer' : 'Hombre'} de ${a?.nombre ?? 'ninguna aldea'}`),
+    h('span', { class: 'sub' }, `${p.sexo === 'M' ? 'Mujer' : 'Hombre'} de ${a?.nombre ?? 'ninguna aldea'}${a?.lema ? `, ${a.lema}` : ''}`),
     ...lineas,
     h('button', { class: 'ver-mas', type: 'button', onclick: () => (caja.remove(), abrir('aldea')) }, 'Ver su ficha completa'),
   );
@@ -796,6 +813,13 @@ function pintarHud() {
   rellenar(
     rec,
     h('button', { class: 'recurso aldea', type: 'button', onclick: () => tocado({ aldea: a.id }) }, a.nombre),
+    h(
+      'button',
+      { class: `recurso edad edad-${a.edad ?? 0}`, type: 'button', title: `${a.rango ?? 'aldea'} · ${edadDe(a)}`, onclick: () => tocado({ aldea: a.id }) },
+      icono('edad'),
+      `${edadCorta(a)} · ${a.rango ?? 'aldea'}`,
+    ),
+    a.viaje ? h('span', { class: 'recurso', title: 'De camino a su nueva tierra' }, icono('gente'), `de camino · faltan ${a.viaje.faltan} d`) : null,
     recurso('gente', `${a.poblacion}`, 'Habitantes de la aldea'),
     recurso('comida', comida < 60 ? `${NUM.format(total(m.comestibles ?? []))} · ${comida} d` : NUM.format(total(m.comestibles ?? [])), `Comida guardada: da para ${comida} días`, comida < 10),
     recurso('madera', NUM.format(desp.madera ?? 0), 'Madera'),
@@ -1019,6 +1043,14 @@ function fierasCerca(a, m) {
   return partes.length ? partes.join(', ') : 'ninguna a la vista';
 }
 
+/** La edad de una aldea, como se nombraría. */
+function edadDe(a) {
+  return E.mundo.nombresEdades?.[a.edad ?? 0] ?? 'Edad de Piedra';
+}
+function edadCorta(a) {
+  return edadDe(a).replace(/^Edad (de las |del |de )/, '');
+}
+
 function fichaAldea(a) {
   const m = E.mundo;
   const cuenta = {};
@@ -1042,6 +1074,21 @@ function fichaAldea(a) {
       origen === null && !a.fundador
         ? 'El primer campamento del mundo.'
         : `Fundada en el año ${a.fundada}${a.fundador ? ` por ${a.fundador}` : ''}${origen ? `, que venía de ${origen}` : ''}.`,
+    ),
+    a.lema ? h('p', { class: 'lema' }, `Son ${a.lema}${origen ? `: se fueron de ${origen} porque allí no les escuchaban` : ''}.`) : null,
+    a.viaje
+      ? h('p', { class: 'aviso-viaje' }, `Van de camino a su nueva tierra: llevan ${a.viaje.dias - a.viaje.faltan} días andando y les quedan unos ${a.viaje.faltan}. Cazan y recogen lo que encuentran por el camino.`)
+      : null,
+    h(
+      'div',
+      { class: 'edad-caja' },
+      h('strong', {}, `${edadDe(a)} · ${mayus(a.rango ?? 'aldea')}`),
+      h('div', { class: 'edades' }, ...(m.nombresEdades ?? []).map((n, i) => h('span', { class: i <= (a.edad ?? 0) ? 'hecha' : '', title: a.edades?.[i] ? `Desde el año ${a.edades[i]}` : n }, n.replace(/^Edad (de las |del |de )/, '')))),
+      a.faltaEdad?.length
+        ? h('p', { class: 'nota' }, `Para la ${m.nombresEdades[(a.edad ?? 0) + 1]} les falta saber: ${listar(a.faltaEdad.map((x) => x.toLowerCase()))}.`)
+        : (a.edad ?? 0) + 1 >= (m.nombresEdades?.length ?? 4)
+          ? h('p', { class: 'nota' }, 'Han llegado a la última edad conocida.')
+          : null,
     ),
     h(
       'dl',

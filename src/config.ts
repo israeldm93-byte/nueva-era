@@ -15,9 +15,9 @@ export const RADIO_TRABAJO = 6;
 export const MAX_CRONICA = 3000;
 
 /** Multiplica la facilidad de todos los descubrimientos: el ritmo del progreso. */
-export const RITMO_SABER = 0.5;
+export const RITMO_SABER = 1.0;
 /** Probabilidad diaria (por curiosidad) de que el trabajo les dé una idea a medias. */
-export const INSPIRACION = 0.012;
+export const INSPIRACION = 0.018;
 /** Cuántas pruebas hace en un día quien se pone a experimentar. */
 export const PRUEBAS_DIA = 3;
 /** Cuánto les tira experimentar frente a trabajar. */

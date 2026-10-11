@@ -109,6 +109,12 @@ function modelos() {
       { geo: Co(0.023, 0.08, 4), color: 0xffffff, y: mano, z: 0.66, rx: Math.PI / 2, sx: 0.45 },
     ]),
     // El arco, vertical en el puño y combado hacia delante, con su cuerda.
+    // Una flecha en vuelo: astil, punta y plumas.
+    flecha: fundir([
+      { geo: C(0.012, 0.012, 0.7, 4), color: 0x8a6a44, rx: Math.PI / 2 },
+      { geo: Co(0.03, 0.09, 4), color: 0x6a6a6a, z: 0.39, rx: Math.PI / 2 },
+      { geo: B(0.07, 0.005, 0.12), color: 0xe8e0d0, z: -0.3 },
+    ]),
     arco: fundir([
       { geo: new THREE.TorusGeometry(0.45, 0.013, 4, 12, 1.6).rotateZ(-0.8).rotateY(-Math.PI / 2), color: MADERA, y: mano, z: 0.03 - 0.45 },
       { geo: C(0.003, 0.003, 0.64, 3), color: 0xe8e0c8, y: mano, z: 0.03 - 0.45 * (1 - Math.cos(0.8)) },
@@ -226,7 +232,14 @@ const HERRAMIENTA = {
 };
 const QUIETOS = new Set(['jugar', 'descansar', 'experimentar']);
 /** Lo que ocupa cada edificio al pasar (radio en unidades del mundo); los campos se pisan. */
-const OCUPA = { choza: 0.88, casa: 0.92, corral: 1.0, gallinero: 0.75, granja: 1.2, almacen: 0.85, horno: 0.7, archivo: 0.85, mercado: 0.95, hoguera: 0.5, obra: 0.6, ruina: 0.7 };
+const OCUPA = {
+  choza: 0.88, casa: 0.92, casapiedra: 0.95, casatejas: 1.05, corral: 1.0, gallinero: 0.75, granja: 1.2, almacen: 0.85, horno: 0.7, archivo: 0.85, mercado: 0.95, hoguera: 0.5, obra: 0.6, ruina: 0.7,
+  establo: 1.2, taller: 0.95, templo: 1.4,
+};
+/** Las casas donde vive la gente. */
+const VIVIENDAS = new Set(['choza', 'casa', 'casapiedra', 'casatejas']);
+/** Altura de la plataforma de cada torre de vigía (de madera o de piedra). */
+const ALTO_TORRE = { madera: 2.05, piedra: 2.6 };
 
 /** ¿Está libre este punto (fuera de todo edificio)? */
 function libre(x, z, obst, margen = 0.15) {
@@ -383,6 +396,8 @@ export class Gente3D {
       instancias(this.escena, im, k, this.geo[k], this.mat, max, { sombra: k !== 'boya' && k !== 'pezCana' });
       im[k].instanceColor.array.fill(1);
     }
+    instancias(this.escena, im, 'flechas', this.geo.flecha, this.mat, 64, { sombra: false });
+    if (im.flechas.instanceColor) im.flechas.instanceColor.array.fill(1);
     this.d = d;
     this.estacion = d.estacion;
     const conocen = new Map(d.aldeas.map((a) => [a.id, new Set(a.conocidos)]));
@@ -399,7 +414,7 @@ export class Gente3D {
         if (!r) continue;
         const [ex, ez] = this.terreno.aMundo(e.x, e.y);
         obst.push([ex, ez, r]);
-        if (e.tipo === 'choza' || e.tipo === 'casa') {
+        if (VIVIENDAS.has(e.tipo)) {
           // La puerta mira al centro de la aldea (como la dibuja el edificio).
           const mira = Math.atan2(ax - ex, az - ez) + (azar(e.x * 7 + e.y * 13) - 0.5) * 0.3;
           puertas.push([ex + Math.sin(mira) * (r + 0.3), ez + Math.cos(mira) * (r + 0.3), Math.sin(mira), Math.cos(mira)]);
@@ -408,7 +423,17 @@ export class Gente3D {
       if (a.obra && !['cerca', 'empalizada', 'muralla'].includes(a.obra.tipo)) obst.push([...this.terreno.aMundo(a.obra.x, a.obra.y), OCUPA.obra]);
       const muro = ['muralla', 'empalizada', 'cerca'].map((t) => a.edificios.find((e) => e.tipo === t)).find(Boolean);
       const anillo = muro ? { cx: ax, cz: az, r: 2 * (muro.radio ?? (muro.tipo === 'muralla' ? 3 : 2.7)) } : null;
-      this.planos.set(a.id, { obst, puertas, anillo, fuego: [ax, az] });
+      // Las torres de vigía, sobre el muro: arriba se ponen los vigías (con arco, si saben).
+      const torres = anillo
+        ? a.edificios
+            .filter((e) => e.tipo === 'torre')
+            .map((e) => {
+              const x = ax + Math.cos(e.ang ?? 0) * anillo.r;
+              const z = az + Math.sin(e.ang ?? 0) * anillo.r;
+              return { x, z, ang: e.ang ?? 0, alto: ALTO_TORRE[e.material === 'piedra' ? 'piedra' : 'madera'], libre: true };
+            })
+        : [];
+      this.planos.set(a.id, { obst, puertas, anillo, torres, fuego: [ax, az] });
     }
     // Cada familia, en su choza (los niños con su madre; las parejas juntas).
     const hogar = new Map();
@@ -450,6 +475,8 @@ export class Gente3D {
     const tr = this.terreno;
     const color = new THREE.Color();
     const cuenta = Object.fromEntries([...SUELTAS, ...HERRAMIENTAS].map((k) => [k, 0]));
+    const viajeros = new Map();
+    this.t = d.t;
     this.lista = d.personas.map((p, idx) => {
       const sabe = conocen.get(p.aldea) ?? new Set();
       const a = aldeas.get(p.aldea);
@@ -549,7 +576,14 @@ export class Gente3D {
         asiento ??= fuera(ax + Math.cos(base) * r0, az + Math.sin(base) * r0, sinFuego);
       }
       const metal = sabe.has('hierro') ? 0xaab1b8 : sabe.has('bronce') ? 0xc9923e : sabe.has('cobre') ? 0xc07a3a : 0x8d8a82;
-      const herramienta = p.edad >= 12 ? (ARMADOS.has(p.act) ? armaDe(p.act, sabe, p.id) : HERRAMIENTA[p.act] ?? null) : null;
+      // El vigía sube a una torre libre; con arcos, vigila con el arco en la mano.
+      const torre = p.act === 'vigilar' && p.edad >= 14 ? plano?.torres.find((x) => x.libre) : null;
+      if (torre) torre.libre = false;
+      let herramienta = p.edad >= 12 ? (ARMADOS.has(p.act) ? armaDe(p.act, sabe, p.id) : HERRAMIENTA[p.act] ?? null) : null;
+      if (torre && sabe.has('arco')) herramienta = 'arco';
+      // Los que van de camino a su nueva tierra: su puesto en la columna.
+      const viaje = a?.viaje ? { ...a.viaje, puesto: (viajeros.get(a.id) ?? 0) } : null;
+      if (viaje) viajeros.set(a.id, viaje.puesto + 1);
       const per = {
         p,
         idx,
@@ -577,7 +611,9 @@ export class Gente3D {
         vela: barca && sabe.has('vela'),
         carro: p.edad >= 14 && ['lenar', 'picar', 'barro', 'cultivar', 'recolectar'].includes(p.act) && (carros.get(p.aldea)?.quedan ?? 0) > 0 ? (carros.get(p.aldea).quedan--, carros.get(p.aldea).esp) : null,
         montado: p.edad >= 14 && JINETES.has(p.act) && (sillas.get(p.aldea) ?? 0) > 0 && (sillas.set(p.aldea, sillas.get(p.aldea) - 1), true),
-        cesta: (p.act === 'recolectar' || p.act === 'picar' || p.act === 'barro') && p.edad >= 12,
+        cesta: ((p.act === 'recolectar' || p.act === 'picar' || p.act === 'barro') && p.edad >= 12) || (!!viaje && p.edad >= 10),
+        torre,
+        viaje,
         viejo,
         nino,
         x: casa[0],
@@ -669,8 +705,49 @@ export class Gente3D {
       let pose = anda ? 'andar' : k === 1 ? p.act : 'pie';
       let mira = null;
       per.oculto = false;
+      per.dispara = null;
+      let alzado = 0;
       const guardia = p.act === 'vigilar' || p.act === 'defender';
-      if ((f > 0.86 || f < 0.045) && a && !guardia) {
+      const viaje = per.viaje;
+      if (viaje) {
+        // En columna detrás de quien los guía, con los fardos a la espalda; de noche,
+        // acampan donde les pilla, sentados en corro.
+        const prog = Math.min(1, Math.max(0, (this.t - viaje.salida + fase) / viaje.dias));
+        const [x0, z0] = tr.aMundo(viaje.desde[0], viaje.desde[1]);
+        const [x1, z1] = tr.aMundo(viaje.hasta[0], viaje.hasta[1]);
+        const l = Math.hypot(x1 - x0, z1 - z0) || 1;
+        const ux = (x1 - x0) / l;
+        const uz = (z1 - z0) / l;
+        const acampan = fase > 0.84 || fase < 0.06;
+        const parada = acampan ? (fase > 0.84 ? (fase - 0.84) / 0.22 : (fase + 0.16) / 0.22) : 0;
+        const cx = x0 + (x1 - x0) * prog;
+        const cz = z0 + (z1 - z0) * prog;
+        if (acampan) {
+          const ang = (viaje.puesto * 2.4) % (Math.PI * 2);
+          const r = 1.1 + (viaje.puesto % 3) * 0.35;
+          x = cx + Math.cos(ang) * r;
+          z = cz + Math.sin(ang) * r;
+          pose = parada < 0.08 ? 'andar' : 'sentado';
+          mira = [cx, cz];
+        } else {
+          const fila = Math.floor(viaje.puesto / 2);
+          const lado = viaje.puesto % 2 ? 0.45 : -0.45;
+          x = cx - ux * fila * 0.85 - uz * lado + Math.sin(t * 0.7 + p.id) * 0.06;
+          z = cz - uz * fila * 0.85 + ux * lado;
+          pose = 'andar';
+          mira = [x + ux, z + uz];
+        }
+      } else if (per.torre && k === 1) {
+        // Arriba de la torre, mirando hacia fuera (o hacia los lobos, si los hay).
+        const al = this.alarmas?.get(p.aldea);
+        x = per.torre.x;
+        z = per.torre.z;
+        alzado = per.torre.alto;
+        pose = per.herramienta === 'arco' ? 'arquero' : 'vigilar';
+        mira = al ? [al.x, al.z] : [x + Math.cos(per.torre.ang) * 5, z + Math.sin(per.torre.ang) * 5];
+        per.dispara = al && per.herramienta === 'arco' ? al : null;
+      }
+      if (!viaje && !(per.torre && k === 1) && (f > 0.86 || f < 0.045) && a && !guardia) {
         const [hx, hz] = tr.aMundo(a.x, a.y);
         if (f > 0.86 && f < 0.91 && per.rutaFuego && !quieto) {
           // Al caer la noche, junto al fuego (el consejo en el círculo de dentro);
@@ -695,7 +772,7 @@ export class Gente3D {
       }
       // Con lobos a las puertas, los adultos salen juntos a plantarles cara (con lo que
       // tengan: lanzas, palos, antorchas) y los niños corren a casa.
-      const alarma = this.alarmas?.get(p.aldea);
+      const alarma = viaje || (per.torre && k === 1) ? null : this.alarmas?.get(p.aldea);
       if (alarma && a && !quieto) {
         per.oculto = false;
         const [hx, hz] = tr.aMundo(a.x, a.y);
@@ -717,7 +794,9 @@ export class Gente3D {
           per.alarma = true;
         }
       } else per.alarma = false;
-      if (p.act === 'jugar' && !alarma && !per.oculto) {
+      if (viaje) {
+        // (en camino: ni juegos ni corros)
+      } else if (p.act === 'jugar' && !alarma && !per.oculto) {
         // Juegan delante de su puerta, hacia el centro (no dentro de las chozas).
         const u = t * 1.6 + p.id;
         const cx = per.casa[0] + (per.puerta ? per.puerta[2] * 1.3 : 0);
@@ -730,7 +809,7 @@ export class Gente3D {
       } else if (p.act === 'descansar') pose = 'sentado';
       else if (p.act === 'experimentar') pose = 'experimentar';
       else if (p.act === 'defender' || p.act === 'asaltar') pose = k > 0 || p.act === 'defender' ? 'correr' : pose;
-      if (p.act === 'vigilar' && k === 1 && noche) pose = 'vigilarNoche';
+      if (p.act === 'vigilar' && k === 1 && noche && pose !== 'arquero') pose = 'vigilarNoche';
       const dx = x - per.x;
       const dz = z - per.z;
       const mov = Math.hypot(dx, dz);
@@ -777,7 +856,7 @@ export class Gente3D {
       per.carga = carga;
       per.baston = per.viejo && !carga && (pose === 'andar' || pose === 'pie');
       // En el agua, en su canoa: sentado, remando o pescando.
-      let y = tr.alturaEn(x, z);
+      let y = tr.alturaEn(x, z) + alzado;
       per.enBarca = false;
       if (per.barca && this.enAgua(x, z)) {
         y = this.nivelAgua(x, z, t) - 0.02;
@@ -802,13 +881,42 @@ export class Gente3D {
       // Ante los lobos, sus armas o, si no tienen, un palo (de noche, una antorcha).
       const arma = per.herramienta === 'lanza' || per.herramienta === 'espada' || per.herramienta === 'arco';
       const h = pose === 'vigilarNoche' ? 'antorcha' : per.alarma ? (arma ? per.herramienta : 'antorcha') : per.herramienta;
-      const visible = h && !per.baston && !PESADAS.has(carga) && pose !== 'sentado' && pose !== 'experimentar' && (k > 0 || p.act === 'vigilar' || p.act === 'defender' || per.alarma);
+      const visible = h && !viaje && !per.baston && !PESADAS.has(carga) && pose !== 'sentado' && pose !== 'experimentar' && (k > 0 || p.act === 'vigilar' || p.act === 'defender' || per.alarma);
       if (visible) {
         const j = herr[h]++;
         im[h].setMatrixAt(j, this.M.mano);
         if (h === 'antorcha' && (noche || pose === 'vigilarNoche')) im.llama.setMatrixAt(herr.llama++, this.M.mano);
         else im[h].setColorAt(j, this.colorMetal(CON_METAL.has(h) ? per.metal : 0xffffff));
       }
+    }
+    // Flechas: cada arquero de las torres dispara cada poco a la manada que se acerca.
+    let nf = 0;
+    if (im.flechas) {
+      for (const per of this.lista) {
+        const al = per.dispara;
+        if (!al || per.pose !== 'arquero') continue;
+        const ciclo = 1.6;
+        const u = ((t + per.p.id * 0.37) % ciclo) / 1.1;
+        if (u > 1 || nf >= im.flechas.instanceMatrix.count) continue;
+        const ox = per.x;
+        const oz = per.z;
+        const oy = tr.alturaEn(ox, oz) + per.torre.alto + 1.1;
+        const ex = al.x + (azar(per.p.id + Math.floor(t / ciclo)) - 0.5) * 1.5;
+        const ez = al.z + (azar(per.p.id * 3 + Math.floor(t / ciclo)) - 0.5) * 1.5;
+        const ey = tr.alturaEn(ex, ez) + 0.3;
+        const dist = Math.hypot(ex - ox, ez - oz);
+        const arco = Math.min(3, dist * 0.18);
+        const px = ox + (ex - ox) * u;
+        const pz = oz + (ez - oz) * u;
+        const py = oy + (ey - oy) * u + arco * 4 * u * (1 - u);
+        const vy = ey - oy + arco * 4 * (1 - 2 * u);
+        E.set(-Math.atan2(vy, dist), Math.atan2(ex - ox, ez - oz), 0, 'YXZ');
+        Q.setFromEuler(E);
+        R.compose(V.set(px, py, pz), Q, UNO);
+        im.flechas.setMatrixAt(nf++, R);
+      }
+      im.flechas.count = nf;
+      im.flechas.instanceMatrix.needsUpdate = true;
     }
     for (const k of [...PARES, ...SUELTAS]) im[k].instanceMatrix.needsUpdate = true;
     for (const k of HERRAMIENTAS) {
@@ -1090,6 +1198,17 @@ export class Gente3D {
         hombroD = -0.35;
         codoD = -0.7;
         cabezaY = 0.5 * Math.sin(t * 0.5 + id);
+        break;
+      }
+      case 'arquero': {
+        // De pie, con el arco tendido hacia donde mira: tensa, suelta y vuelve a cargar.
+        const c = (t + id * 0.37) % 1.6;
+        hombroD = -1.5;
+        codoD = c < 1.1 ? -0.15 : -0.6;
+        hombroI = -1.35;
+        codoI = c < 1.1 ? -1.9 : -1.2;
+        herrX = 0.2;
+        cabezaY = 0;
         break;
       }
       case 'vigilar':

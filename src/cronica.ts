@@ -5,7 +5,7 @@ import { MATERIAL, TECNICA, VERBO } from './catalogo.ts';
 import type { Mundo, TipoSuceso } from './tipos.ts';
 
 /** Sucesos que se conservan siempre aunque la crónica se recorte. */
-const IMPORTANTES: TipoSuceso[] = ['inicio', 'descubrimiento', 'redescubrimiento', 'olvido', 'fundacion', 'abandono', 'lengua', 'extincion', 'poblacion'];
+const IMPORTANTES: TipoSuceso[] = ['inicio', 'descubrimiento', 'redescubrimiento', 'olvido', 'fundacion', 'abandono', 'lengua', 'extincion', 'poblacion', 'edad', 'cisma'];
 
 export function anioDe(t: number): number {
   return Math.floor(t / DIAS_ANIO) + 1;

@@ -4,8 +4,10 @@
 
 import { azar, barajar, elegir, prob } from './azar.ts';
 import { DIAS_ANIO, EDAD_ADULTA } from './config.ts';
-import { BASICOS, CONCEPTOS_VIDA, PANTANO, TECNICA } from './catalogo.ts';
+import { ABRIGO_CASA, BASICOS, CONCEPTOS_VIDA, EDIFICIO, PANTANO, TECNICA } from './catalogo.ts';
 import { anotar } from './cronica.ts';
+import { edadSegun } from './edades.ts';
+import { cargar, partir } from './exodo.ts';
 import { comidaTotal, conoce, guardar, necesidad, tiene } from './economia.ts';
 import { lexicoComun, nombrar, parecido } from './lenguaje.ts';
 import { buscarSitio, direccion, masas, puntuarSitio } from './mapa.ts';
@@ -126,7 +128,10 @@ export function limiteAldea(a: Aldea): number {
   return (a.consejo?.prioridad === 'expandir' ? 0.75 : 1) * (
     32 +
     (conoce(a, 'campo') ? 25 : 0) +
-    (tiene(a, 'casa') ? 10 : 0) +
+    (tiene(a, 'casa') || tiene(a, 'casapiedra') || tiene(a, 'casatejas') ? 10 : 0) +
+    (tiene(a, 'plaza') ? 8 : 0) +
+    (tiene(a, 'templo') ? 10 : 0) +
+    (tiene(a, 'calzada') ? 8 : 0) +
     (conoce(a, 'escritura') ? 15 : 0) +
     (conoce(a, 'tambor') ? 5 : 0) +
     (conoce(a, 'pintura') ? 5 : 0) +
@@ -177,9 +182,16 @@ export function salud(m: Mundo, a: Aldea, gente: Persona[], est: number, hoguera
   const cura = (remedio ? 0.6 : 1) * (medicina ? 0.6 : 1);
   let refugio = 0;
   if (est === 3) {
-    const casas = Math.min(n, a.edificios.filter((e) => e.tipo === 'casa').length * 7);
-    const chozas = Math.min(n - casas, a.edificios.filter((e) => e.tipo === 'choza').length * 5);
-    refugio = (casas * 0.5 + chozas * 0.35) / n;
+    // Se reparten bajo techo empezando por las casas que mejor abrigan.
+    let quedan = n;
+    const casas = a.edificios.filter((e) => ABRIGO_CASA[e.tipo]).sort((x, y) => ABRIGO_CASA[y.tipo] - ABRIGO_CASA[x.tipo]);
+    for (const e of casas) {
+      if (quedan <= 0) break;
+      const k = Math.min(quedan, EDIFICIO[e.tipo].aloja ?? 0);
+      refugio += k * ABRIGO_CASA[e.tipo];
+      quedan -= k;
+    }
+    refugio /= n;
   }
   const pieles = (a.despensa.piel ?? 0) > 0 || (a.despensa.lana ?? 0) > 0;
   for (const p of gente) {
@@ -232,7 +244,7 @@ function diasDeComida(m: Mundo, a: Aldea, gente: Persona[]): number {
  * campamento y se va a un sitio mejor. Lo que construyeron queda en ruinas.
  */
 export function trasladar(m: Mundo, a: Aldea, gente: Persona[]): void {
-  if (!gente.length || m.t - a.movida < DIAS_ANIO) return;
+  if (!gente.length || a.viaje || m.t - a.movida < DIAS_ANIO) return;
   if (a.edificios.some((e) => e.tipo === 'campo' || e.tipo === 'corral') || a.obra?.tipo === 'campo') return;
   if (diasDeComida(m, a, gente) > 15 && a.consejo?.prioridad !== 'expandir') return;
   const sitio = buscarSitio(m, a, 4, 14, a.id, conoce(a, 'canoa'));
@@ -254,6 +266,7 @@ export function trasladar(m: Mundo, a: Aldea, gente: Persona[]): void {
 
 /** Una aldea demasiado grande se divide: un grupo se va a fundar otra. */
 export function dividir(m: Mundo, a: Aldea, gente: Persona[], ix: Indices): void {
+  if (a.viaje) return;
   const crisis = gente.length >= 20 && diasDeComida(m, a, gente) < 8;
   if ((gente.length <= limiteAldea(a) && !crisis) || !prob(0.35)) return;
   const adultos = gente.filter((p) => {
@@ -271,7 +284,7 @@ export function dividir(m: Mundo, a: Aldea, gente: Persona[], ix: Indices): void
     }
   }
   // Con canoas, un grupo puede irse a vivir a una isla.
-  const sitio = buscarSitio(m, a, 8, 22, null, conoce(a, 'canoa'));
+  const sitio = buscarSitio(m, a, 10, 30, null, conoce(a, 'canoa'));
   if (!sitio) return;
   const grupo = new Set<Persona>();
   const familia = (p: Persona) => {
@@ -285,22 +298,19 @@ export function dividir(m: Mundo, a: Aldea, gente: Persona[], ix: Indices): void
     if (grupo.size >= gente.length * 0.38) break;
     if (!grupo.has(p) && prob(0.6)) familia(p);
   }
-  const b = nuevaAldea(m, sitio.x, sitio.y, lider.nombre, a.id);
-  const parte = grupo.size / gente.length;
-  for (const [k, v] of Object.entries(a.despensa)) {
-    const lleva = r2(v * parte);
-    b.despensa[k] = lleva;
-    a.despensa[k] = r2(v - lleva);
-  }
+  const b = nuevaAldea(m, a.x, a.y, lider.nombre, a.id);
+  b.valor = 'expandir';
+  cargar(a, b, grupo.size, grupo.size / gente.length);
   b.vistos = a.vistos.slice();
   const escriben = [...grupo].some((p) => p.saberes.includes('escritura'));
   if (escriben) b.archivo = a.archivo.slice();
   for (const p of grupo) {
     p.aldea = b.id;
-    p.x = b.x;
-    p.y = b.y;
     for (const s of p.saberes) if (!b.conocidos.includes(s)) b.conocidos.push(s);
   }
+  partir(m, b, a, sitio, grupo);
+  b.edad = edadSegun(b);
+  b.edades = (a.edades ?? []).slice(0, b.edad + 1);
   b.poblacionMax = grupo.size;
   // Los que se quedan: ¿siguen sabiendo todo lo que sabían?
   const quedan = gente.filter((p) => !grupo.has(p));
@@ -308,7 +318,7 @@ export function dividir(m: Mundo, a: Aldea, gente: Persona[], ix: Indices): void
   anotar(
     m,
     'fundacion',
-    `${lider.nombre} guió a ${grupo.size} personas de ${a.nombre} hacia ${direccion(a, b.x, b.y)}. Allí fundaron ${b.nombre}.`,
+    `Ya no caben todos en ${a.nombre}: ${lider.nombre} se pone en camino hacia ${direccion(a, sitio.x, sitio.y)} con ${grupo.size} personas para fundar ${b.nombre}.`,
     b.id,
   );
 }
