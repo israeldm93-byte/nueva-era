@@ -36,6 +36,7 @@ export const RIO = 6;
 export const PANTANO = 7;
 export const ESTEPA = 8;
 export const DESIERTO = 9;
+export const TUNDRA = 10;
 
 /**
  * El agua de un mundo (se calcula una vez por mundo): qué es mar (toca el borde del

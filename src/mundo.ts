@@ -2,7 +2,7 @@
 
 import { azar, entero, estadoAzar, fijarAzar, normal, prob } from './azar.ts';
 import { DIAS_ANIO, DIAS_ESTACION, ALTO, ANCHO, MUNDO_ALTO, MUNDO_ANCHO, VERSION_ESTADO } from './config.ts';
-import { ampliarMapa } from './ultramar.ts';
+import { ampliarMapa, crearUltramar } from './ultramar.ts';
 import { OFICIOS, VALOR_INSTINTO } from './catalogo.ts';
 import { anotar } from './cronica.ts';
 import { crearFonologia, nombrePropio } from './lenguaje.ts';
@@ -231,6 +231,7 @@ export function crearMundo(semilla: number, previo?: Mundo): Mundo {
   poblarFauna(m);
   // Más allá del mar: el resto del mundo, sin mover el continente de origen.
   ampliarMapa(m, MUNDO_ANCHO, MUNDO_ALTO);
+  crearUltramar(m, { ancho: ANCHO, alto: ALTO });
   m.azar = estadoAzar();
   return m;
 }
@@ -243,4 +244,5 @@ const LUGAR: Record<number, string> = {
   7: 'un pantano',
   8: 'la estepa',
   9: 'el desierto',
+  10: 'la tundra',
 };

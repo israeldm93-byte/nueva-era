@@ -3,7 +3,7 @@
 import { azar, estadoAzar, fijarAzar } from './azar.ts';
 import { AGUA, MONTANA, RIO } from './catalogo.ts';
 import { ALTO, ANCHO, MUNDO_ALTO, MUNDO_ANCHO, VERSION_ESTADO } from './config.ts';
-import { ampliarMapa } from './ultramar.ts';
+import { ampliarMapa, crearUltramar } from './ultramar.ts';
 import { poblarFauna } from './fauna.ts';
 import { anillo, generarTerreno, masas, puntuarSitio } from './mapa.ts';
 import { distancia } from './matematicas.ts';
@@ -68,7 +68,10 @@ export function migrar(m: Mundo): Mundo {
   if (m.version === 5) {
     // Versión 6: el mundo se amplía al este y al sur (tierras de ultramar). El continente de
     // siempre no se mueve: mismas coordenadas, mismo terreno, mismos recursos, misma gente.
+    const origen = { ancho: m.ancho, alto: m.alto };
     ampliarMapa(m, MUNDO_ANCHO, MUNDO_ALTO);
+    // Y en lo que era mar abierto, las tierras de ultramar (con su propio azar).
+    crearUltramar(m, origen);
     m.version = 6;
   }
   if (m.version !== VERSION_ESTADO) throw new Error(`No sé migrar un mundo de la versión ${m.version}.`);

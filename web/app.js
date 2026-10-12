@@ -245,7 +245,7 @@ try {
 
 // ---------- fichas de lo que se toca en el mundo ----------
 
-const TERRENO_NOMBRE = ['Agua', 'Orilla', 'Pradera', 'Bosque', 'Colina', 'Montaña', 'Río', 'Pantano', 'Estepa', 'Desierto'];
+const TERRENO_NOMBRE = ['Agua', 'Orilla', 'Pradera', 'Bosque', 'Colina', 'Montaña', 'Río', 'Pantano', 'Estepa', 'Desierto', 'Tundra'];
 const MINERAL = [
   null,
   'Malaquita: la piedra verde de la que, con un horno, sale el cobre.',

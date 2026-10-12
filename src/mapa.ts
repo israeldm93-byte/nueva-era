@@ -2,14 +2,15 @@
 // y búsquedas de la mejor casilla alrededor de una aldea.
 
 import { azar, entero } from './azar.ts';
-import { AGUA, BOSQUE, CAPACIDAD, CAPAS, COLINA, DESIERTO, ESTEPA, MONTANA, ORILLA, PANTANO, PESCABLE, PRADERA, RIO, TEMPORADA } from './catalogo.ts';
+import { AGUA, BOSQUE, CAPACIDAD, CAPAS, COLINA, DESIERTO, ESTEPA, MONTANA, ORILLA, PANTANO, PESCABLE, PRADERA, RIO, TEMPORADA, TUNDRA } from './catalogo.ts';
 import { distancia } from './matematicas.ts';
 import type { Aldea, Mundo } from './tipos.ts';
+import { friosDe } from './ultramar.ts';
 
 const suave = (t: number) => t * t * (3 - 2 * t);
 const r2 = (x: number) => Math.round(x * 100) / 100;
 
-function ruido(ancho: number, alto: number, paso: number): number[] {
+export function ruido(ancho: number, alto: number, paso: number): number[] {
   const gw = Math.ceil(ancho / paso) + 2;
   const gh = Math.ceil(alto / paso) + 2;
   const g: number[] = [];
@@ -31,7 +32,7 @@ function ruido(ancho: number, alto: number, paso: number): number[] {
   return out;
 }
 
-function fbm(ancho: number, alto: number, pasos: number[], pesos: number[]): number[] {
+export function fbm(ancho: number, alto: number, pasos: number[], pesos: number[]): number[] {
   const capas = pasos.map((p) => ruido(ancho, alto, p));
   const out: number[] = [];
   for (let i = 0; i < ancho * alto; i++) {
@@ -483,8 +484,11 @@ export function recrecer(m: Mundo, estacion: number, k: number): void {
   const n = m.terreno.length;
   const bayas = TEMPORADA.bayas[estacion] * m.clima;
   const semillas = TEMPORADA.semillas[estacion] * m.clima;
+  // En el norte frío el verano es corto: los frutos y las semillas no llegan a tanto.
+  const frios = friosDe(m);
   for (let i = 0; i < n; i++) {
     const t = m.terreno[i];
+    const corto = frios ? 1 - 0.6 * frios[i] : 1;
     if (PESCABLE[t]) {
       const cap = CAPACIDAD.peces[t];
       const v = R.peces[i];
@@ -495,8 +499,8 @@ export function recrecer(m: Mundo, estacion: number, k: number): void {
     crecer(R.fibra, i, CAPACIDAD.fibra[t], 0.01 * k);
     crecer(R.hierbas, i, CAPACIDAD.hierbas[t], 0.006 * k);
     crecer(R.arcilla, i, CAPACIDAD.arcilla[t], 0.0005 * k);
-    acercar(R.bayas, i, CAPACIDAD.bayas[t] * bayas, 0.06 * k);
-    acercar(R.semillas, i, CAPACIDAD.semillas[t] * semillas, 0.06 * k);
+    acercar(R.bayas, i, CAPACIDAD.bayas[t] * bayas * corto, 0.06 * k);
+    acercar(R.semillas, i, CAPACIDAD.semillas[t] * semillas * corto, 0.06 * k);
     const cap = CAPACIDAD.caza[t];
     const v = R.caza[i];
     if (cap > 0 && v < cap) R.caza[i] = r2(Math.min(cap, v + 0.006 * k * v * (1 - v / cap) + 0.002 * k));
@@ -581,8 +585,8 @@ export function puntuarSitio(m: Mundo, x: number, y: number): number {
     if ((ti === AGUA || ti === RIO) && d <= 2.5) agua = true;
     if ((ti === COLINA || ti === MONTANA) && d <= 5) piedra = true;
   }
-  // Los pantanos traen fiebres y el desierto apenas da de comer.
-  const lugar = t === PANTANO ? 0.6 : t === DESIERTO ? 0.5 : 1;
+  // Los pantanos traen fiebres, el desierto apenas da de comer y la tundra es dura.
+  const lugar = t === PANTANO ? 0.6 : t === DESIERTO ? 0.5 : t === TUNDRA ? 0.7 : 1;
   return (s + (agua ? 40 : 0) + (piedra ? 15 : 0)) * lugar;
 }
 

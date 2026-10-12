@@ -7,6 +7,7 @@ import { DIAS_ANIO, EDAD_ADULTA } from './config.ts';
 import { ABRIGO_CASA, BASICOS, CONCEPTOS_VIDA, EDIFICIO, PANTANO, TECNICA } from './catalogo.ts';
 import { anotar } from './cronica.ts';
 import { anomalia } from './anomalias.ts';
+import { frioDe } from './ultramar.ts';
 import { edadSegun } from './edades.ts';
 import { cargar, partir } from './exodo.ts';
 import { apuntar, comidaTotal, conoce, guardar, necesidad, tiene } from './economia.ts';
@@ -241,6 +242,7 @@ export function salud(m: Mundo, a: Aldea, gente: Persona[], est: number, hoguera
   const medicina = remedio && conoce(a, 'medicina');
   const cura = (remedio ? 0.6 : 1) * (medicina ? 0.6 : 1);
   let usadas = 0;
+  const frio = frioDe(m, a.x, a.y);
   let refugio = 0;
   if (est === 3) {
     // Se reparten bajo techo empezando por las casas que mejor abrigan.
@@ -269,7 +271,8 @@ export function salud(m: Mundo, a: Aldea, gente: Persona[], est: number, hoguera
       if (p.saberes.includes('tela') && (a.despensa.fibra ?? 0) > 0) abrigo += 0.1;
       const expuesto = Math.max(0, 1 - abrigo);
       const vulnerable = (e < 5 || e > 60 ? 1.6 : 1) * (1.25 - 0.5 * p.genes.resistencia);
-      if (expuesto > 0) danar(p, 0.005 * expuesto * vulnerable, 'frío');
+      // En el norte de ultramar el invierno es mucho más duro (en el continente de origen, como siempre).
+      if (expuesto > 0) danar(p, 0.005 * expuesto * vulnerable * (1 + 3 * frio), 'frío');
     }
     if (prob(0.0005 * (1 + n / 80))) danar(p, (0.15 + 0.2 * azar()) * cura * (1.25 - 0.5 * p.genes.resistencia), 'enfermedad');
     let riesgo = 0.0006 * exponencial(0.085 * e * (1.25 - 0.5 * p.genes.longevidad));

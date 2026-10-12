@@ -24,6 +24,7 @@ import {
   PRADERA,
   RIO,
   T,
+  TUNDRA,
   acotar,
   agua,
   azar,
@@ -124,6 +125,7 @@ function especieArbol(t, h, frio, calor, dulce, g, r) {
   if (t === MONTANA || h > 5.2) return r < 0.85 ? 'abeto' : 'pino';
   if (dulce && r < 0.22 + 0.25 * g) return r < 0.13 + 0.12 * g ? 'sauce' : 'alamo';
   if (t === ESTEPA) return calor > 0.2 ? 'pino' : 'roble';
+  if (t === TUNDRA) return r < 0.55 ? 'abeto' : 'abedul';
   if (t === PRADERA) return r < 0.25 && frio < 0.5 ? 'frutal' : r < 0.85 ? 'roble' : 'abedul';
   const alto = h > 3.4 ? 1 : 0;
   let abeto = 0.12 + 0.85 * frio + 0.45 * alto;
@@ -234,7 +236,7 @@ export class Vegetacion3D {
       if (t === AGUA || t === RIO) continue;
       const tx = i % W;
       const ty = (i - tx) / W;
-      const lat = ty / (H - 1);
+      const lat = ty / ((d.origen?.alto ?? H) - 1);
       const [cx, cz] = tr.aMundo(tx, ty);
       const h = tr.hCasilla[i];
       const libre = !ocupadas.has(i);
@@ -253,6 +255,7 @@ export class Vegetacion3D {
         else if (t === MONTANA && h < 7 && azar(i * 3.7) < 0.2) arboles = 1;
         else if (t === PANTANO && azar(i * 6.1) < 0.18) arboles = 1;
         else if (t === ESTEPA && azar(i * 4.9) < 0.015) arboles = 1;
+        else if (t === TUNDRA && azar(i * 4.9) < 0.06) arboles = 1;
         else if (t === ORILLA && dulce && azar(i * 5.9) < 0.2) arboles = 1;
       }
       if (quemada && (t === BOSQUE || t === COLINA)) {
@@ -278,7 +281,7 @@ export class Vegetacion3D {
           x += 0.3;
           z += 0.15;
         }
-        const s = (0.78 + azar(i * 7 + k) * 0.55) * crecido;
+        const s = (0.78 + azar(i * 7 + k) * 0.55) * crecido * (t === TUNDRA ? 0.55 : 1);
         const ry = azar(i * 19 + k) * 6.28;
         const v = azar(i * 23 + k) - 0.5;
         const sp = especieArbol(t, h, frio, calor, dulce, g, azar(i * 11 + k));
@@ -308,13 +311,13 @@ export class Vegetacion3D {
         poner('palmera', x, z, azar(i * 2) * 6.28, 0.85 + azar(i * 3) * 0.4, 1, col, 0.05, 0.02);
       }
       // Arbustos (en flor en primavera; con bayas si las hay).
-      const pArbusto = t === PRADERA ? 0.24 : t === BOSQUE ? 0.38 : t === ORILLA ? 0.08 : t === COLINA ? 0.14 : t === PANTANO ? 0.12 : 0;
+      const pArbusto = t === PRADERA ? 0.24 : t === BOSQUE ? 0.38 : t === ORILLA ? 0.08 : t === COLINA ? 0.14 : t === PANTANO ? 0.12 : t === TUNDRA ? 0.16 : 0;
       if (libre && azar(i * 8.7) < pArbusto) {
         const x = cx + (azar(i * 29) - 0.5) * T * 0.8;
         const z = cz + (azar(i * 31) - 0.5) * T * 0.8;
         const s = 0.8 + azar(i * 37) * 0.6;
         const ry = azar(i * 43) * 6.28;
-        col.set(t === BOSQUE ? 0x3f7a36 : t === ORILLA ? 0x6a8f4a : t === COLINA ? 0x5a7f40 : 0x4f8a3e).offsetHSL(0, 0, (azar(i * 41) - 0.5) * 0.1);
+        col.set(t === BOSQUE ? 0x3f7a36 : t === ORILLA ? 0x6a8f4a : t === COLINA ? 0x5a7f40 : t === TUNDRA ? 0x6b7048 : 0x4f8a3e).offsetHSL(0, 0, (azar(i * 41) - 0.5) * 0.1);
         if (otono) col.lerp(OCRE, 0.45);
         if (invierno) col.lerp(MARRON, 0.55);
         if (nieve) col.lerp(BLANCO, nieve * 0.5);
@@ -322,11 +325,11 @@ export class Vegetacion3D {
         poner(enFlor && (t === PRADERA || t === COLINA || t === ORILLA) ? 'arbustoFlor' : 'arbusto', x, z, ry, s, s, col, 0.08, 0);
         if (d.bayas[i] >= 3 && !invierno) poner('bayas', x, z, ry, s, s, col.set(BAYAS[Math.floor(azar(i * 53) * BAYAS.length)]), 0.08, 0);
       }
-      // Matorral en la estepa y en el desierto.
-      if (libre && (t === ESTEPA || t === DESIERTO) && azar(i * 6.7) < (t === ESTEPA ? 0.22 : 0.1)) {
+      // Matorral en la estepa, el desierto y la tundra.
+      if (libre && (t === ESTEPA || t === DESIERTO || t === TUNDRA) && azar(i * 6.7) < (t === ESTEPA ? 0.22 : t === TUNDRA ? 0.3 : 0.1)) {
         const x = cx + (azar(i * 59) - 0.5) * T * 0.8;
         const z = cz + (azar(i * 61) - 0.5) * T * 0.8;
-        col.set(t === ESTEPA ? 0x8f8a52 : 0xa89a68).offsetHSL(0, 0, (azar(i * 63) - 0.5) * 0.1);
+        col.set(t === ESTEPA ? 0x8f8a52 : t === TUNDRA ? (otono ? 0x9a5a3a : 0x7a7652) : 0xa89a68).offsetHSL(0, 0, (azar(i * 63) - 0.5) * 0.1);
         if (primavera && t === ESTEPA) col.lerp(new THREE.Color(0x6f9a48), 0.5);
         if (nieve) col.lerp(BLANCO, nieve * 0.4);
         poner('matorral', x, z, azar(i * 67) * 6.28, 0.8 + azar(i * 71) * 0.6, 0.8 + azar(i * 73) * 0.5, col, 0.04, 0);
@@ -342,7 +345,7 @@ export class Vegetacion3D {
       // Piedras, rocas y vetas.
       const mineral = d.minerales?.[i] ?? 0;
       const piedras =
-        t === MONTANA ? 2 : t === COLINA ? (azar(i * 4.1) < 0.55 ? 1 : 0) : t === DESIERTO ? (azar(i * 4.7) < 0.18 ? 1 : 0) : mineral ? 1 : (t === BOSQUE || t === PRADERA || t === ESTEPA) && azar(i * 3.3) < 0.04 ? 1 : 0;
+        t === MONTANA ? 2 : t === COLINA ? (azar(i * 4.1) < 0.55 ? 1 : 0) : t === DESIERTO ? (azar(i * 4.7) < 0.18 ? 1 : 0) : t === TUNDRA ? (azar(i * 4.3) < 0.2 ? 1 : 0) : mineral ? 1 : (t === BOSQUE || t === PRADERA || t === ESTEPA) && azar(i * 3.3) < 0.04 ? 1 : 0;
       for (let k = 0; k < piedras; k++) {
         const x = cx + (azar(i * 19 + k) - 0.5) * T * 0.8;
         const z = cz + (azar(i * 23 + k) - 0.5) * T * 0.8;
@@ -560,7 +563,7 @@ export class Vegetacion3D {
         const i = ty * W + tx;
         const t = d.terreno[i];
         const [cx, cz] = tr.aMundo(tx, ty);
-        const lat = ty / (H - 1);
+        const lat = ty / ((d.origen?.alto ?? H) - 1);
         const h = tr.hCasilla[i];
         if (t === AGUA) {
           // Nenúfares en las orillas tranquilas de los lagos templados.
@@ -603,6 +606,10 @@ export class Vegetacion3D {
           case BOSQUE:
             n = 2;
             verdeHierba.set(otono ? 0x7a7a3a : 0x4f7a3a);
+            break;
+          case TUNDRA:
+            n = 3;
+            verdeHierba.set(otono ? 0xa0784a : verano ? 0x8a9460 : 0x9a9a78);
             break;
           case MONTANA:
             n = h < 5.5 ? 1 : 0;

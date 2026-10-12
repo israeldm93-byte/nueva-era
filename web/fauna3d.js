@@ -13,7 +13,7 @@
 //   saltan cerca de la cámara.
 
 import * as THREE from 'three';
-import { AGUA, BOSQUE, COLINA, DESIERTO, ESTEPA, MONTANA, PANTANO, PRADERA, RIO, T, acotar, agua, azar, entre, enVista, instancias, suave, vista } from './util3d.js?v=__MOTOR__';
+import { AGUA, BOSQUE, COLINA, DESIERTO, ESTEPA, MONTANA, PANTANO, PRADERA, RIO, T, TUNDRA, acotar, agua, azar, entre, enVista, instancias, suave, vista } from './util3d.js?v=__MOTOR__';
 import { ESPECIES, modelosAnimales } from './animales3d.js?v=__MOTOR__';
 
 /** Alrededor de lo que se mira (unidades del mundo) viven y se dibujan los animales de adorno. */
@@ -43,6 +43,10 @@ const FAUNA_TERRENO = {
   [MONTANA]: [['cabra', 1]],
   [PANTANO]: [['jabali', 1]],
   [DESIERTO]: [['liebre', 1]],
+  [TUNDRA]: [
+    ['ciervo', 0.7],
+    ['liebre', 0.3],
+  ],
 };
 const TAMANO = { ciervo: [3, 6], jabali: [2, 5], liebre: [1, 2], caballo: [4, 8], cabra: [2, 4] };
 const RADIO = { ciervo: 3.5, jabali: 2.5, liebre: 2, caballo: 5, cabra: 3, oveja: 0.42 };

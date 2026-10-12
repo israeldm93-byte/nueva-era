@@ -16,10 +16,12 @@ export const PANTANO = 7;
 export const ESTEPA = 8;
 /** Desierto: casi nada, salvo piedra. */
 export const DESIERTO = 9;
-export const TERRENOS = ['agua', 'orilla', 'pradera', 'bosque', 'colina', 'montaña', 'río', 'pantano', 'estepa', 'desierto'];
+/** Tundra (solo en el norte frío de ultramar): líquenes, bayas bajas, renos; casi sin madera. */
+export const TUNDRA = 10;
+export const TERRENOS = ['agua', 'orilla', 'pradera', 'bosque', 'colina', 'montaña', 'río', 'pantano', 'estepa', 'desierto', 'tundra'];
 
 /** Agua donde se puede pescar (el mar y los lagos, los ríos y los pantanos). */
-export const PESCABLE = [true, false, false, false, false, false, true, true, false, false];
+export const PESCABLE = [true, false, false, false, false, false, true, true, false, false, false];
 
 export interface Material {
   id: string;
@@ -254,18 +256,19 @@ export const CAPAS = ['madera', 'bayas', 'semillas', 'fibra', 'hierbas', 'caza',
  * [agua, orilla, pradera, bosque, colina, montaña, río, pantano, estepa, desierto].
  */
 export const CAPACIDAD: Record<string, number[]> = {
-  madera: [0, 4, 3, 40, 10, 2, 3, 6, 1, 0],
-  bayas: [0, 2, 4, 10, 3, 1, 4, 3, 1, 0],
-  semillas: [0, 1, 12, 2, 2, 0, 4, 2, 14, 1],
-  fibra: [0, 8, 10, 3, 2, 0, 9, 16, 6, 0],
-  hierbas: [0, 3, 5, 4, 3, 1, 4, 8, 2, 1],
-  caza: [0, 1, 3, 4, 2, 1, 2, 2, 5, 1],
-  peces: [30, 0, 0, 0, 0, 0, 16, 5, 0, 0],
-  piedra: [0, 5, 2, 3, 80, 150, 8, 0, 10, 25],
-  arcilla: [0, 60, 4, 2, 6, 0, 45, 35, 2, 1],
-  malaquita: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  casiterita: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  hematites: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  // (agua, orilla, pradera, bosque, colina, montaña, río, pantano, estepa, desierto, tundra)
+  madera: [0, 4, 3, 40, 10, 2, 3, 6, 1, 0, 1],
+  bayas: [0, 2, 4, 10, 3, 1, 4, 3, 1, 0, 3],
+  semillas: [0, 1, 12, 2, 2, 0, 4, 2, 14, 1, 1],
+  fibra: [0, 8, 10, 3, 2, 0, 9, 16, 6, 0, 3],
+  hierbas: [0, 3, 5, 4, 3, 1, 4, 8, 2, 1, 2],
+  caza: [0, 1, 3, 4, 2, 1, 2, 2, 5, 1, 5],
+  peces: [30, 0, 0, 0, 0, 0, 16, 5, 0, 0, 0],
+  piedra: [0, 5, 2, 3, 80, 150, 8, 0, 10, 25, 8],
+  arcilla: [0, 60, 4, 2, 6, 0, 45, 35, 2, 1, 3],
+  malaquita: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  casiterita: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  hematites: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 };
 
 /** Cuánto hay de bayas y semillas silvestres en cada estación respecto al máximo. */

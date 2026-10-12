@@ -17,6 +17,7 @@ import {
   RIO,
   S,
   T,
+  TUNDRA,
   acotar,
   alturaRelieve,
   azar,
@@ -40,6 +41,8 @@ const COLOR = {
   estepa: c(0xc6b66a),
   estepaFria: c(0xa6a07c),
   desierto: c(0xe4d09a),
+  tundra: c(0x8e9472),
+  tundraFria: c(0xa3a598),
   fondo: c(0x8a9a82),
   fondoHondo: c(0x355a63),
   nieve: c(0xf3f5f7),
@@ -71,6 +74,7 @@ export class Terreno3D {
     const H = d.alto;
     this.W = W;
     this.H = H;
+    this.altoOrigen = d.origen?.alto ?? H;
     this.ox = (-W * T) / 2;
     this.oz = (-H * T) / 2;
     this.terreno = d.terreno;
@@ -246,8 +250,9 @@ export class Terreno3D {
     for (let i = 0; i < W * H; i++) {
       const t = d.terreno[i];
       const y = Math.floor(i / W);
-      // 0 en el norte (frío), 1 en el sur (cálido).
-      const lat = y / (H - 1);
+      // 0 en el norte (frío), 1 en el sur (cálido), medido sobre el continente de origen:
+      // así lo de siempre se ve igual, y lo que queda más al sur es aún más cálido (> 1).
+      const lat = y / (this.altoOrigen - 1);
       const frio = acotar((0.45 - lat) / 0.3, 0, 1);
       const calor = acotar((lat - 0.65) / 0.3, 0, 1);
       switch (t) {
@@ -277,6 +282,9 @@ export class Terreno3D {
           break;
         case ESTEPA:
           col.copy(COLOR.estepa).lerp(COLOR.estepaFria, frio);
+          break;
+        case TUNDRA:
+          col.copy(COLOR.tundra).lerp(COLOR.tundraFria, frio * 0.6);
           break;
         default:
           col.copy(COLOR.desierto);
