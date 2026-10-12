@@ -141,6 +141,7 @@ export function datosWeb(m: Mundo, ahora: Date) {
         faltaEdad: (a.edad ?? edadSegun(a)) + 1 < EDADES.length ? faltaPara(a, (a.edad ?? edadSegun(a)) + 1).map((id) => TECNICA[id]?.nombre ?? id) : [],
         rango: a.rango ?? 'aldea',
         ...(a.valor ? { valor: a.valor, lema: LEMA[a.valor] } : {}),
+        ...(a.tierras?.length ? { tierras: a.tierras.length } : {}),
         ...(a.viaje ? { viaje: { desde: a.viaje.desde, hasta: a.viaje.hasta, salida: a.viaje.salida, dias: a.viaje.dias, faltan: Math.max(0, a.viaje.salida + a.viaje.dias - m.t) } } : {}),
         conocidos: a.conocidos,
         archivo: a.archivo,
@@ -229,7 +230,20 @@ export function datosWeb(m: Mundo, ahora: Date) {
           : {}),
         ...(p.vida?.length ? { vida: p.vida.map((h) => [anioDe(h[0]), h[1], h[2] ?? null]) } : {}),
         ...(p.mudanza ? { mudanza: { ...p.mudanza } } : {}),
-        ...(p.viaje ? { viaje: { a: p.viaje.a, fase: p.viaje.fase, desde: p.viaje.desde, hasta: p.viaje.hasta, salida: p.viaje.salida, dias: p.viaje.dias } } : {}),
+        ...(p.viaje
+          ? {
+              viaje: {
+                a: p.viaje.a,
+                fase: p.viaje.fase,
+                desde: p.viaje.desde,
+                hasta: p.viaje.hasta,
+                salida: p.viaje.salida,
+                dias: p.viaje.dias,
+                // Los que exploran el mar: hacia dónde y, si ya la han visto, cómo es la tierra.
+                ...(p.viaje.mar ? { mar: { rumbo: p.viaje.mar.rumbo, como: p.viaje.mar.como ?? null } } : {}),
+              },
+            }
+          : {}),
       };
     }),
     tecnicas: TECNICAS.filter((t) => m.hallazgos[t.id]).map((t) => {

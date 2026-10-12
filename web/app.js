@@ -105,10 +105,20 @@ const HITO = {
   herido: (d) => `fue herido ${d}`, enviuda: (d) => `perdió a su pareja, ${d}`, 'pierde hijo': (d) => `perdió a su hijo ${d}`,
   'pierde hija': (d) => `perdió a su hija ${d}`, 'muere madre': (d) => `murió su madre, ${d}`, 'muere padre': (d) => `murió su padre, ${d}`,
   reconcilia: (d) => `hizo las paces con ${d}`, visita: (d) => `viajó hasta ${d} y pasó allí unos días`,
+  explora: (d) => `cruzó el mar y halló ${d}`,
 };
+
+const RUMBO = { '1,0': 'el este', '1,1': 'el sureste', '0,1': 'el sur', '-1,1': 'el suroeste', '-1,0': 'el oeste', '-1,-1': 'el noroeste', '0,-1': 'el norte', '1,-1': 'el noreste' };
 
 /** Dónde anda quien está de viaje en otra aldea. */
 function textoViaje(p) {
+  const mar = p.viaje.mar;
+  if (mar) {
+    const hacia = RUMBO[mar.rumbo.join(',')] ?? 'alta mar';
+    if (p.viaje.fase === 'ida') return `Ha salido en barca a explorar el mar, hacia ${hacia}.`;
+    if (p.viaje.fase === 'estancia') return `Recorre una tierra al otro lado del mar: ${mar.como ?? 'nadie sabe aún cómo es'}.`;
+    return mar.como ? `Vuelve por mar con noticias: ha visto ${mar.como}.` : 'Vuelve por mar sin haber visto tierra.';
+  }
   const destino = E.aldeas.get(p.viaje.a)?.nombre ?? 'otra aldea';
   if (p.viaje.fase === 'ida') return `Va de camino a ${destino}, de visita.`;
   if (p.viaje.fase === 'estancia') return `Está de visita en ${destino}.`;
@@ -150,8 +160,8 @@ const GRUPOS = {
   todo: ['Todo', null],
   politica: ['Política', ['consejo', 'faccion', 'cisma', 'guerra', 'asalto', 'paz', 'alianza']],
   saber: ['Saber', ['descubrimiento', 'redescubrimiento', 'difusion', 'perdida', 'olvido']],
-  aldeas: ['Aldeas', ['inicio', 'fundacion', 'abandono', 'traslado', 'edificio', 'contacto', 'poblacion', 'edad', 'cisma', 'migracion', 'viaje']],
-  vidas: ['Vidas', ['muerte', 'migracion', 'viaje', 'vida']],
+  aldeas: ['Aldeas', ['inicio', 'fundacion', 'abandono', 'traslado', 'edificio', 'contacto', 'poblacion', 'edad', 'cisma', 'migracion', 'viaje', 'exploracion']],
+  vidas: ['Vidas', ['muerte', 'migracion', 'viaje', 'exploracion', 'vida']],
   lenguas: ['Lenguas', ['lengua']],
   desgracias: ['Desgracias', ['lobos', 'fieras', 'incendio', 'inundacion', 'epidemia', 'sequia', 'hambre', 'extincion']],
 };
@@ -1142,6 +1152,7 @@ function fichaAldea(a) {
         : `Fundada en el año ${a.fundada}${a.fundador ? ` por ${a.fundador}` : ''}${origen ? `, que venía de ${origen}` : ''}.`,
     ),
     a.lema ? h('p', { class: 'lema' }, `Son ${a.lema}${origen ? `: se fueron de ${origen} porque allí no les escuchaban` : ''}.`) : null,
+    a.tierras ? h('p', { class: 'lema' }, `Saben de ${a.tierras === 1 ? 'una tierra' : `${a.tierras} tierras`} al otro lado del mar.`) : null,
     a.viaje
       ? h('p', { class: 'aviso-viaje' }, `Van de camino a su nueva tierra: llevan ${a.viaje.dias - a.viaje.faltan} días andando y les quedan unos ${a.viaje.faltan}. Cazan y recogen lo que encuentran por el camino.`)
       : null,

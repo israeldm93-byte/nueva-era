@@ -23,6 +23,7 @@ import { parentesco } from './migracion.ts';
 import { aldeasVivas, edad, estacionDe, type Indices } from './mundo.ts';
 import { convivir, relacion } from './politica.ts';
 import { conversar, visita } from './sociedad.ts';
+import { contarTierras, navegar, zarpar } from './exploracion.ts';
 import type { Aldea, Mundo, Persona } from './tipos.ts';
 
 const r4 = (x: number) => Math.round(x * 10000) / 10000;
@@ -54,10 +55,13 @@ export function destinoDeViaje(m: Mundo, a: Aldea, b: Aldea): boolean {
 
 /** Cada día: los que están de viaje siguen su camino; y quizá alguien emprende uno. */
 export function viajes(m: Mundo, ix: Indices): void {
-  for (const p of m.personas) if (p.viaje && !p.muerto) seguir(m, p, ix);
-  // En invierno nadie se echa a los caminos.
+  for (const p of m.personas) if (p.viaje && !p.viaje.mar && !p.muerto) seguir(m, p, ix);
+  // Los que exploran el mar, en su barca.
+  navegar(m, ix, estacionDe(m.t) === 3);
+  // En invierno nadie se echa a los caminos (ni al mar).
   if (estacionDe(m.t) === 3) return;
   const vivas = aldeasVivas(m);
+  for (const a of vivas) zarpar(m, a, ix.porAldea.get(a.id) ?? []);
   for (const a of vivas) {
     if (a.viaje) continue;
     const gente = ix.porAldea.get(a.id) ?? [];
@@ -218,6 +222,9 @@ function volver(m: Mundo, p: Persona, casa: Aldea, dest: Aldea | undefined): voi
   for (const s of nuevos) casa.conocidos.push(s);
   if (dest) regalar(dest, casa);
   if (!dest) return;
+  // Y las noticias: las tierras del otro lado del mar que allí conocen.
+  const tierras = contarTierras(dest, casa, m);
+  if (tierras) anotar(m, 'exploracion', `${p.nombre} vuelve a ${casa.nombre} contando lo que en ${dest.nombre} se sabe de ${tierras === 1 ? 'una tierra' : `${tierras} tierras`} al otro lado del mar.`, casa.id);
   if (nuevos.length) {
     anotar(m, 'difusion', `${p.nombre} vuelve a ${casa.nombre} desde ${dest.nombre} y trae lo que allí aprendió: ${nuevos.length === 1 ? 'un saber nuevo' : `${nuevos.length} saberes nuevos`}.`, casa.id);
   } else if (aviso(m, `vuelve-${casa.id}-${dest.id}`, DIAS_ANIO)) {

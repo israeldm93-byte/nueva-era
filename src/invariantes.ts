@@ -33,6 +33,7 @@ export function comprobar(m: Mundo): string[] {
       if (e.animales !== undefined && (!Number.isInteger(e.animales) || e.animales < 0)) out.push(`${a.nombre}: ${e.tipo} con ${e.animales} animales (deben ser enteros y no negativos)`);
     }
     if (a.obra) numerosRotos(a.obra, `${a.nombre}.obra`, out);
+    for (const [x, y] of a.tierras ?? []) if (!Number.isInteger(x) || !Number.isInteger(y) || x < 0 || y < 0 || x >= m.ancho || y >= m.alto) out.push(`${a.nombre}: tierra conocida fuera del mapa (${x},${y})`);
   }
   const ids = new Set<number>();
   const vivas = new Set(m.aldeas.filter((a) => a.abandonada === null).map((a) => a.id));
@@ -60,6 +61,7 @@ export function comprobar(m: Mundo): string[] {
     for (const r of p.recuerdos ?? []) if (!Number.isFinite(r[3])) out.push(`${p.nombre}: recuerdo inválido`);
     if (p.mudanza && !Number.isFinite(p.mudanza.dias)) out.push(`${p.nombre}: mudanza inválida`);
     if (p.viaje && (![p.viaje.dias, p.viaje.salida, ...p.viaje.desde, ...p.viaje.hasta].every(Number.isFinite) || !m.aldeas.some((a) => a.id === p.viaje!.a))) out.push(`${p.nombre}: viaje inválido`);
+    if (p.viaje?.mar && (![p.viaje.mar.viveres, p.viaje.mar.ida, p.viaje.mar.zarpo].every(Number.isFinite) || p.viaje.mar.viveres < 0)) out.push(`${p.nombre}: travesía inválida`);
     if (p.muerto) out.push(`${p.nombre}: muerto sin enterrar`);
     if (out.length > 40) break;
   }

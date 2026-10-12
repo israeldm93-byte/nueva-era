@@ -34,6 +34,11 @@ test('con cientos de días de comida guardada y todos bien comidos, la aldea no 
   const base = crearMundo(6);
   avanzar(base, 25 * DIAS_ANIO);
   const id = aldeasVivas(base).sort((x, y) => base.personas.filter((p) => p.aldea === y.id).length - base.personas.filter((p) => p.aldea === x.id).length)[0].id;
+  // Lo que se mide es el hambre de hoy: sin la escasez que la aldea recuerde de los meses
+  // pasados (una aldea recién fundada que pasó apuros tarda en olvidarlos) ni su identidad
+  // de pueblo (un pueblo de labradores y pastores piensa en la comida por lo que es).
+  delete base.aldeas.find((x) => x.id === id)!.memoria;
+  delete base.aldeas.find((x) => x.id === id)!.valor;
   // Abundancia: graneros para más de un año y todos saciados (como Kebi en el mundo vivo).
   const rico = copiar(base);
   const a = rico.aldeas.find((x) => x.id === id)!;
@@ -229,7 +234,8 @@ test('a una aldea lejana (más de 70 casillas) solo se plantea irse quien sabe e
   p.genes.lealtad = 0.1;
   const nec = { vivienda: 1, hambre: 0.8, seguridad: 0, pertenencia: 0.3, reconocimiento: 0.2 };
   m.contactos = m.contactos.filter((k) => k !== `${Math.min(a.id, b.id)}-${Math.max(a.id, b.id)}`);
-  assert.equal(buscarDestino(m, p, a, nec, ix), null, 'sin noticias del camino, no');
+  // (A su aldea madre sí podría volver: de allí vinieron y saben el camino.)
+  assert.notEqual(buscarDestino(m, p, a, nec, ix)?.aldea.id, b.id, 'sin noticias del camino, no');
   m.contactos.push(`${Math.min(a.id, b.id)}-${Math.max(a.id, b.id)}`);
   assert.equal(buscarDestino(m, p, a, nec, ix)?.aldea.id, b.id, 'con alguien que ya hizo el camino, sí (pagando la distancia)');
 });

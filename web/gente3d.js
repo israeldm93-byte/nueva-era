@@ -582,7 +582,8 @@ export class Gente3D {
       tx += (azar(p.id * 3.3) - 0.5) * 1.2;
       tz += (azar(p.id * 4.4) - 0.5) * 1.2;
       // Con canoa se pesca mar adentro; sin ella, desde la orilla.
-      const barca = p.act === 'pescar' && p.edad >= 14 && sabe.has('canoa');
+      // (Y en canoa van por el mar los que lo exploran y los que lo cruzan hacia su nueva tierra.)
+      const barca = (p.act === 'pescar' && p.edad >= 14 && sabe.has('canoa')) || !!p.viaje?.mar || (!!a?.viaje && sabe.has('canoa'));
       if (p.act === 'pescar' && !barca) {
         const dx = ax - tx;
         const dz = az - tz;

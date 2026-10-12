@@ -8,7 +8,7 @@ import { poblarFauna } from './fauna.ts';
 import { anillo, generarTerreno, masas, puntuarSitio } from './mapa.ts';
 import { distancia } from './matematicas.ts';
 import { ESCALA, menteNueva } from './mente.ts';
-import type { Aldea, Mundo, Reparacion } from './tipos.ts';
+import type { Aldea, Mundo, Reparacion, Travesia } from './tipos.ts';
 import { anomalia } from './anomalias.ts';
 import { comprobar } from './invariantes.ts';
 
@@ -177,6 +177,12 @@ export function reparar(m: Mundo): Reparacion[] {
         }
       }
     }
+    if (a.tierras !== undefined) {
+      const lista = Array.isArray(a.tierras) ? a.tierras : null;
+      a.tierras = (lista ?? []).filter((t) => dentroDelMapa(t, m));
+      if (!lista || a.tierras.length < lista.length) apuntar(`${a.nombre}.tierras`, lista?.length ?? 'ilegible', a.tierras.length, 'tierras de ultramar con coordenadas imposibles: se olvidan', false);
+      if (!a.tierras.length) delete a.tierras;
+    }
     if (a.obra) a.obra.progreso = acotado(`${a.nombre}.obra.progreso`, a.obra.progreso, 0, 1, () => null, 0, 'la obra vuelve a empezar');
     a.amenaza = acotado(`${a.nombre}.amenaza`, a.amenaza, 0, 1, () => null, 0, 'se recalcula cada día');
   }
@@ -218,7 +224,7 @@ export function reparar(m: Mundo): Reparacion[] {
       p.aldea = cerca.id;
     }
     // Un viaje con datos rotos o hacia una aldea que no existe: se da por terminado (está en casa).
-    if (p.viaje && (![p.viaje.dias, p.viaje.salida, ...(p.viaje.desde ?? []), ...(p.viaje.hasta ?? [])].every(finito) || !Array.isArray(p.viaje.conocio) || !m.aldeas.some((a) => a.id === p.viaje!.a))) {
+    if (p.viaje && (![p.viaje.dias, p.viaje.salida, ...(p.viaje.desde ?? []), ...(p.viaje.hasta ?? [])].every(finito) || !Array.isArray(p.viaje.conocio) || !m.aldeas.some((a) => a.id === p.viaje!.a) || (p.viaje.mar !== undefined && !travesiaValida(p.viaje.mar, m)))) {
       apuntar(`${ruta}.viaje`, p.viaje, null, 'viaje ilegible o a una aldea que no existe: vuelve a estar en su aldea', false);
       const casa = m.aldeas.find((a) => a.id === p.aldea);
       if (casa) {
@@ -351,4 +357,22 @@ function mapaNuevo(m: Mundo): void {
     a.y = Math.min(ALTO - 1, Math.round((a.y / viejoAlto) * ALTO));
   }
   poblarFauna(m);
+}
+
+/** Un punto [x, y] entero dentro del mapa. */
+function dentroDelMapa(t: unknown, m: Mundo): boolean {
+  return Array.isArray(t) && t.length === 2 && t.every((v) => Number.isInteger(v)) && t[0] >= 0 && t[1] >= 0 && t[0] < m.ancho && t[1] < m.alto;
+}
+
+/** Una expedición por mar con todos sus datos en orden. */
+function travesiaValida(t: Travesia, m: Mundo): boolean {
+  if (!t || typeof t !== 'object') return false;
+  const fin = (v: unknown) => typeof v === 'number' && Number.isFinite(v);
+  if (![t.barca, t.viveres, t.ida, t.zarpo].every(fin) || t.viveres < 0 || t.ida <= 0) return false;
+  if (!Array.isArray(t.rumbo) || t.rumbo.length !== 2 || !t.rumbo.every((v) => v === -1 || v === 0 || v === 1)) return false;
+  if (t.tierra !== undefined && !dentroDelMapa(t.tierra, m)) return false;
+  if (t.costa !== undefined && typeof t.costa !== 'boolean') return false;
+  if (t.como !== undefined && typeof t.como !== 'string') return false;
+  if (t.vistos !== undefined && (!Array.isArray(t.vistos) || !t.vistos.every((v) => typeof v === 'string'))) return false;
+  return true;
 }

@@ -147,6 +147,9 @@ export function nuevaAldea(m: Mundo, x: number, y: number, fundador: string, ori
     facciones: [],
     amenaza: 0,
   };
+  // Lo que la aldea madre sabía de las tierras del otro lado del mar, lo saben también ellos.
+  const madre = origen === null ? undefined : m.aldeas.find((b) => b.id === origen);
+  if (madre?.tierras?.length) a.tierras = madre.tierras.map(([x, y]) => [x, y] as [number, number]);
   m.aldeas.push(a);
   return a;
 }

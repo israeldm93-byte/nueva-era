@@ -103,11 +103,36 @@ export interface Persona {
    * vuelta), de dónde a dónde va en ese tramo, cuándo empezó y cuántos días dura, y con
    * quiénes ha tratado allí.
    */
-  viaje?: { a: number; fase: 'ida' | 'estancia' | 'vuelta'; desde: [number, number]; hasta: [number, number]; salida: number; dias: number; conocio: number[] };
+  viaje?: { a: number; fase: 'ida' | 'estancia' | 'vuelta'; desde: [number, number]; hasta: [number, number]; salida: number; dias: number; conocio: number[]; mar?: Travesia };
   /** Solo durante el día en que muere en un asalto: la aldea que lo mató. */
   porAldea?: number;
   /** Solo durante el día en que muere; nunca se guarda. */
   muerto?: string;
+}
+
+/**
+ * Una expedición por mar (va en el viaje de cada tripulante): `a` es su propia aldea, a la
+ * que vuelven. Lo que hallan viaja con ellos y no llega a la aldea hasta que regresan.
+ */
+export interface Travesia {
+  /** La barca: el id de quien la patronea al zarpar (los de la misma barca corren la misma suerte). */
+  barca: number;
+  /** Hacia dónde navegan (paso por día en x e y: -1, 0 o 1). */
+  rumbo: [number, number];
+  /** La comida que llevan a bordo (lo que alimenta, no unidades de despensa). */
+  viveres: number;
+  /** Días que se tarda en ir (y en volver). */
+  ida: number;
+  /** El día en que zarparon. */
+  zarpo: number;
+  /** Dónde desembarcaron, si hallaron tierra. */
+  tierra?: [number, number];
+  /** Si se dieron la vuelta al topar con una costa que ya conocían. */
+  costa?: boolean;
+  /** Cómo es esa tierra, contado. */
+  como?: string;
+  /** Materiales que vieron allí y en casa no conocen. */
+  vistos?: string[];
 }
 
 export interface Edificio {
@@ -161,6 +186,8 @@ export interface Aldea {
   edades?: number[];
   /** Mientras van de camino a su nueva tierra: de dónde salieron, adónde van y cuánto tardarán. */
   viaje?: { desde: [number, number]; hasta: [number, number]; salida: number; dias: number };
+  /** Tierras al otro lado del mar que conocen (un punto de cada una: donde se desembarcó). */
+  tierras?: [number, number][];
   /** Aldea, pueblo o ciudad (según lo que han crecido). */
   rango?: string;
   /** Lo que les une como pueblo (lo que defendían cuando se fueron) y de dónde vienen. */
@@ -288,6 +315,7 @@ export type TipoSuceso =
   | 'edad'
   | 'migracion'
   | 'viaje'
+  | 'exploracion'
   | 'vida'
   | 'asalto'
   | 'guerra'

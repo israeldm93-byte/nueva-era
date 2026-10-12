@@ -3,11 +3,15 @@
 // recogen lo que encuentran, y alguno puede quedarse enterrado en él. Al llegar,
 // levantan su aldea y desde entonces son un pueblo aparte.
 
+import { elegir, entero, prob } from './azar.ts';
 import { AGUA, MONTANA, ORDEN_COMER } from './catalogo.ts';
 import { anotar } from './cronica.ts';
-import { aCaballo, apuntar, deTiro } from './economia.ts';
-import { direccion } from './mapa.ts';
+import { aCaballo, apuntar, conoce, deTiro } from './economia.ts';
+import { riesgoNaufragio } from './exploracion.ts';
+import { deUltramar, direccion } from './mapa.ts';
 import { distancia } from './matematicas.ts';
+import { estacionDe } from './mundo.ts';
+import { morir } from './sociedad.ts';
 import type { Aldea, Mundo, Persona } from './tipos.ts';
 
 const r2 = (x: number) => Math.round(x * 100) / 100;
@@ -68,6 +72,20 @@ export function caminar(m: Mundo, a: Aldea, gente: Persona[]): void {
   }
   const x = Math.round(v.desde[0] + (v.hasta[0] - v.desde[0]) * f);
   const y = Math.round(v.desde[1] + (v.hasta[1] - v.desde[1]) * f);
+  // Cruzar el mar abierto hacia ultramar tiene sus riesgos: alguna barca puede volcar.
+  if (m.terreno[y * m.ancho + x] === AGUA && deUltramar(v.hasta[0], v.hasta[1]) && gente.length > 1 && prob(riesgoNaufragio(m, conoce(a, 'vela'), estacionDe(m.t) === 3))) {
+    const quedan = gente.slice();
+    const ahogados: Persona[] = [];
+    for (let k = 1 + entero(3); k > 0 && quedan.length > 1; k--) {
+      const p = elegir(quedan);
+      quedan.splice(quedan.indexOf(p), 1);
+      morir(p, 'ahogado');
+      ahogados.push(p);
+    }
+    const nombres = ahogados.map((p) => p.nombre);
+    const quien = nombres.length > 1 ? `${nombres.slice(0, -1).join(', ')} y ${nombres[nombres.length - 1]}` : nombres[0];
+    anotar(m, 'exploracion', `Cruzando el mar hacia su nueva tierra, ${m.tiempo === 'tormenta' ? 'en plena tormenta, ' : ''}una de las barcas de los ${a.nombre} vuelca: ${nombres.length > 1 ? 'se ahogan' : 'se ahoga'} ${quien}.`, a.id);
+  }
   // Por agua o por los picos no se acampa: se espera a pisar tierra otra vez.
   if (pisable(m, x, y)) {
     a.x = x;

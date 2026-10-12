@@ -56,7 +56,8 @@ function paso(m: Mundo): void {
   for (const a of vivas) {
     const encendida = mantener(m, a, est, dia);
     if (encendida) encendidas.add(a.id);
-    comer(m, a, gente(a.id));
+    // (Los que exploran el mar comen de lo que llevan a bordo.)
+    comer(m, a, gente(a.id).filter((p) => !p.viaje?.mar));
     salud(m, a, gente(a.id), est, encendida);
     peligros(m, a, gente(a.id), dia);
   }

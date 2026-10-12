@@ -5,7 +5,8 @@ import { azar, entero } from './azar.ts';
 import { AGUA, BOSQUE, CAPACIDAD, CAPAS, COLINA, DESIERTO, ESTEPA, MONTANA, ORILLA, PANTANO, PESCABLE, PRADERA, RIO, TEMPORADA, TUNDRA } from './catalogo.ts';
 import { distancia } from './matematicas.ts';
 import type { Aldea, Mundo } from './tipos.ts';
-import { friosDe } from './ultramar.ts';
+import { ALTO, ANCHO } from './config.ts';
+import { friosDe, frioDe } from './ultramar.ts';
 
 const suave = (t: number) => t * t * (3 - 2 * t);
 const r2 = (x: number) => Math.round(x * 100) / 100;
@@ -616,10 +617,32 @@ export function alcanzable(m: Mundo, a: { x: number; y: number; edificios?: { ti
   return false;
 }
 
+/** Fuera del continente de origen: las tierras de ultramar. */
+export const deUltramar = (x: number, y: number): boolean => x >= ANCHO || y >= ALTO;
+
+/** ¿Conocen los de `a` la tierra de la casilla `i`? (Viven en ella o alguien de los suyos estuvo allí.) */
+export function conoceTierra(m: Mundo, a: { x: number; y: number; tierras?: [number, number][] }, i: number): boolean {
+  const { masa } = masas(m);
+  const k = masa[i];
+  if (k < 0) return false;
+  if (masa[a.y * m.ancho + a.x] === k) return true;
+  return (a.tierras ?? []).some(([x, y]) => masa[y * m.ancho + x] === k);
+}
+
+/** Lo mínimo para que un sitio de ultramar dé para vivir (agua o comida de sobra cerca). */
+export const MINIMO_ULTRAMAR = 60;
+
+/** ¿Se puede vivir allí? Agua o comida de sobra cerca y, en el norte helado, ropa de abrigo. */
+export function habitable(m: Mundo, a: { conocidos?: string[] } | null, x: number, y: number, puntos: number): boolean {
+  if (puntos < MINIMO_ULTRAMAR) return false;
+  return frioDe(m, x, y) <= 0.3 || (a?.conocidos ?? []).includes('ropa');
+}
+
 /** El mejor sitio libre para fundar una aldea, lejos de las demás. */
 export function buscarSitio(
   m: Mundo,
-  desde: { x: number; y: number } | null,
+  /** Desde dónde (la aldea que se va: solo puede ir a tierras de ultramar que conozca). */
+  desde: { x: number; y: number; tierras?: [number, number][]; conocidos?: string[] } | null,
   min: number,
   max: number,
   ignorar: number | null = null,
@@ -646,7 +669,10 @@ export function buscarSitio(
       }
       // Ni junto a otra aldea ni donde ya va otro grupo de camino.
       if (vivas.some((a) => distancia(a.x - x, a.y - y) < min || (a.viaje && distancia(a.viaje.hasta[0] - x, a.viaje.hasta[1] - y) < min))) continue;
-      const p = puntuarSitio(m, x, y) * (lejos ? 0.4 + d / max : 1);
+      const puntos = puntuarSitio(m, x, y);
+      // Al otro lado del mar solo se va a donde se sabe que hay tierra, y si allí se puede vivir.
+      if (deUltramar(x, y) && (!desde || !conoceTierra(m, desde, y * m.ancho + x) || !habitable(m, desde, x, y, puntos))) continue;
+      const p = puntos * (lejos ? 0.4 + d / max : 1);
       if (p > mejorP) {
         mejorP = p;
         mejor = { x, y };
