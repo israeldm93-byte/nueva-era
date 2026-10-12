@@ -1,7 +1,8 @@
 // Creación del mundo y de sus habitantes, y utilidades comunes.
 
 import { azar, entero, estadoAzar, fijarAzar, normal, prob } from './azar.ts';
-import { DIAS_ANIO, DIAS_ESTACION, ALTO, ANCHO, VERSION_ESTADO } from './config.ts';
+import { DIAS_ANIO, DIAS_ESTACION, ALTO, ANCHO, MUNDO_ALTO, MUNDO_ANCHO, VERSION_ESTADO } from './config.ts';
+import { ampliarMapa } from './ultramar.ts';
 import { OFICIOS, VALOR_INSTINTO } from './catalogo.ts';
 import { anotar } from './cronica.ts';
 import { crearFonologia, nombrePropio } from './lenguaje.ts';
@@ -228,6 +229,8 @@ export function crearMundo(semilla: number, previo?: Mundo): Mundo {
     aldea.id,
   );
   poblarFauna(m);
+  // Más allá del mar: el resto del mundo, sin mover el continente de origen.
+  ampliarMapa(m, MUNDO_ANCHO, MUNDO_ALTO);
   m.azar = estadoAzar();
   return m;
 }

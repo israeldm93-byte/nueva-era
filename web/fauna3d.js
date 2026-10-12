@@ -542,7 +542,7 @@ export class Fauna3D {
     const out = [];
     for (let i = 0; i < W * d.alto && out.length < 36; i++) {
       if (!this.agua.bordeLago[i] || azar(i * 1.37) > 0.05) continue;
-      if (Math.floor(i / W) / (d.alto - 1) < 0.2) continue;
+      if (Math.floor(i / W) / ((d.origen?.alto ?? d.alto) - 1) < 0.2) continue;
       const [x, z] = tr.aMundo(i % W, Math.floor(i / W));
       const n = 3 + Math.floor(azar(i * 2.1) * 3);
       const miembros = [];

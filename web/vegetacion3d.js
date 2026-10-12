@@ -451,7 +451,8 @@ export class Vegetacion3D {
     const ter = d.terreno[ty * d.ancho + acotar(cx, 0, d.ancho - 1)];
     const tiempo = d.tiempo ?? 'sol';
     const precip = tiempo === 'lluvia' || tiempo === 'tormenta';
-    const nieva = d.estacion === 'invierno' && ty / (d.alto - 1) < 0.5 && (precip || tiempo === 'nubes');
+    // Nieva en el norte (la mitad de arriba del continente de origen, como siempre).
+    const nieva = d.estacion === 'invierno' && ty / ((d.origen?.alto ?? d.alto) - 1) < 0.5 && (precip || tiempo === 'nubes');
     const llueve = precip && !nieva;
     const hojas = d.estacion === 'otoño' && (ter === BOSQUE || ter === COLINA || ter === PRADERA || ter === PANTANO || ter === RIO);
     const modo = llueve ? 'gotas' : nieva ? 'copos' : hojas ? 'hojas' : null;

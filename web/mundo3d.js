@@ -318,7 +318,7 @@ export class Mundo3D {
     if (nuevo) {
       this.clave = clave;
       this.terreno.construir(d);
-      const [cx, cz] = this.aMundo(d.ancho / 2, d.alto / 2);
+      const [cx, cz] = this.aMundo((d.origen?.ancho ?? d.ancho) / 2, (d.origen?.alto ?? d.alto) / 2);
       this.controles.target.set(cx, 0, cz);
     }
     this.terreno.pintar(d);

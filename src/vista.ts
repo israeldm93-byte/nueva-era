@@ -2,7 +2,7 @@
 // (no usa nada de Node). Solo se muestra lo que ya ha pasado: los saberes por
 // descubrir no aparecen (nada de destripes).
 
-import { DIAS_ANIO, ESTACIONES } from './config.ts';
+import { ALTO, ANCHO, DIAS_ANIO, ESTACIONES } from './config.ts';
 import { BASICOS, COMIDAS, CONCEPTOS_VIDA, EDADES, EDIFICIOS, MATERIALES, NOMBRE_CONCEPTO, TECNICA, TECNICAS } from './catalogo.ts';
 import { edadSegun, faltaPara } from './edades.ts';
 import { LEMA } from './exodo.ts';
@@ -59,6 +59,9 @@ export function datosWeb(m: Mundo, ahora: Date) {
     fecha: fecha(m.t),
     ancho: m.ancho,
     alto: m.alto,
+    // El continente de origen (arriba a la izquierda): la nieve del norte y la vista inicial
+    // se miden respecto a él, para que ampliar el mundo no cambie lo que ya había.
+    origen: { ancho: ANCHO, alto: ALTO },
     terreno: m.terreno,
     relieve: m.relieve,
     fauna: m.fauna.map((f) => ({ id: f.id, tipo: f.tipo, x: f.x, y: f.y, px: f.px, py: f.py, n: f.n, estado: f.estado, hambre: f.hambre })),
