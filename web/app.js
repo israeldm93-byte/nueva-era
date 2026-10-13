@@ -108,6 +108,20 @@ const HITO = {
   explora: (d) => `cruzó el mar y halló ${d}`,
 };
 
+const SECTOR = { cultivar: 'campo', pastorear: 'ganado', lenar: 'madera', picar: 'piedra y minas', barro: 'barro', pescar: 'pesca', cazar: 'caza', recolectar: 'recolección', construir: 'obras', comerciar: 'comercio' };
+const BIEN = { cereal: 'grano', semillas: 'grano', queso: 'quesos', madera: 'madera', piedra: 'piedra', arcilla: 'barro', fibra: 'fibra', piel: 'pieles', hueso: 'hueso', hierbas: 'hierbas', lana: 'lana', malaquita: 'malaquita', casiterita: 'casiterita', hematites: 'hematites' };
+
+/** Su economía, en una línea: a qué se dedica, qué vende y qué compra. */
+function economiaAldea(a) {
+  const e = a.economia;
+  if (!e?.sectores?.length) return null;
+  const partes = [`${e.perfil ? `Pueblo de ${e.perfil}. ` : ''}Jornadas: ${e.sectores.map(([k, v]) => `${SECTOR[k] ?? k} ${v} %`).join(', ')}.`];
+  const bienes = (l) => [...new Set(l.map(([k]) => BIEN[k] ?? k))].join(', ');
+  if (e.exporta?.length) partes.push(`Vende ${bienes(e.exporta)}.`);
+  if (e.importa?.length) partes.push(`Compra ${bienes(e.importa)}.`);
+  return h('p', { class: 'lema' }, partes.join(' '));
+}
+
 /** Hacia dónde va un rumbo (la y crece hacia el sur). */
 function rumboTexto([dx, dy]) {
   const a = Math.round((Math.atan2(dy, dx) / (Math.PI / 4)) + 8) % 8;
@@ -126,6 +140,7 @@ function textoViaje(p) {
     return mar.como ? `Vuelve por mar con noticias: ha visto ${mar.como}.` : 'Vuelve por mar sin haber visto tierra.';
   }
   const destino = E.aldeas.get(p.viaje.a)?.nombre ?? 'otra aldea';
+  if (p.viaje.comercio) return p.viaje.fase === 'ida' ? `Lleva mercancías a ${destino}.` : p.viaje.fase === 'estancia' ? `Está en ${destino}, comerciando.` : `Vuelve de ${destino} con lo que ha conseguido.`;
   if (p.viaje.fase === 'ida') return `Va de camino a ${destino}, de visita.`;
   if (p.viaje.fase === 'estancia') return `Está de visita en ${destino}.`;
   return `Vuelve a casa desde ${destino}.`;
@@ -168,7 +183,7 @@ const GRUPOS = {
   todo: ['Todo', null],
   politica: ['Política', ['consejo', 'faccion', 'cisma', 'guerra', 'asalto', 'paz', 'alianza']],
   saber: ['Saber', ['descubrimiento', 'redescubrimiento', 'difusion', 'perdida', 'olvido']],
-  aldeas: ['Aldeas', ['inicio', 'fundacion', 'abandono', 'traslado', 'edificio', 'contacto', 'poblacion', 'edad', 'cisma', 'migracion', 'viaje', 'exploracion']],
+  aldeas: ['Aldeas', ['inicio', 'fundacion', 'abandono', 'traslado', 'edificio', 'contacto', 'poblacion', 'edad', 'cisma', 'migracion', 'viaje', 'exploracion', 'comercio']],
   vidas: ['Vidas', ['muerte', 'migracion', 'viaje', 'exploracion', 'vida']],
   lenguas: ['Lenguas', ['lengua']],
   desgracias: ['Desgracias', ['lobos', 'fieras', 'incendio', 'inundacion', 'epidemia', 'sequia', 'hambre', 'extincion']],
@@ -1161,6 +1176,7 @@ function fichaAldea(a) {
     ),
     a.lema ? h('p', { class: 'lema' }, `Son ${a.lema}${origen ? `: se fueron de ${origen} porque allí no les escuchaban` : ''}.`) : null,
     a.tierras ? h('p', { class: 'lema' }, `Saben de ${a.tierras === 1 ? 'una tierra' : `${a.tierras} tierras`} al otro lado del mar.`) : null,
+    economiaAldea(a),
     a.viaje
       ? h('p', { class: 'aviso-viaje' }, `Van de camino a su nueva tierra: llevan ${a.viaje.dias - a.viaje.faltan} días andando y les quedan unos ${a.viaje.faltan}. Cazan y recogen lo que encuentran por el camino.`)
       : null,

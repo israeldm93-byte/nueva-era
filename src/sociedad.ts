@@ -459,7 +459,6 @@ export function encuentros(m: Mundo, ix: Indices, escasez: Map<number, number>):
       if (!ga.length || !gb.length) continue;
       truequear(a, b);
       convivir(m, a, b, ea, eb);
-      if (conoce(a, 'comercio') && conoce(b, 'comercio')) comerciar(a, b, ga.length, gb.length);
     }
   }
 }
@@ -493,21 +492,6 @@ function truequear(a: Aldea, b: Aldea): void {
       apuntar(da, mat, hay - n);
       guardar(db, mat, n);
     }
-  }
-}
-
-export function comerciar(a: Aldea, b: Aldea, na: number, nb: number): void {
-  // La comida por cabeza solo tiene sentido con gente en las dos aldeas.
-  if (na <= 0 || nb <= 0) return;
-  const ca = comidaTotal(a) / na;
-  const cb = comidaTotal(b) / nb;
-  const [rica, pobre] = ca > cb ? [a, b] : [b, a];
-  for (const mat of ['cereal', 'semillas', 'carne', 'pescado']) {
-    const v = rica.despensa[mat] ?? 0;
-    const pasa = r2(v * 0.1 * Math.min(1, Math.abs(ca - cb) / Math.max(ca, cb, 1)));
-    if (!(pasa > 0)) continue;
-    apuntar(rica, mat, v - pasa);
-    apuntar(pobre, mat, (pobre.despensa[mat] ?? 0) + pasa);
   }
 }
 

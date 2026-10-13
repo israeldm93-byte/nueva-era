@@ -261,6 +261,29 @@ function herramienta(a: Aldea): number {
 /** Lo que se pone en el centro (plaza, calles) o rodeándolo (muros): no ocupa una casilla suya. */
 export const centrado = (t: string): boolean => rodea(t) || t === 'plaza' || t === 'calzada';
 
+/**
+ * Lo que una aldea quiere tener de cada material (lo que usa a diario y lo que pide la obra
+ * en marcha). Por debajo, lo necesita; por encima, empieza a sobrarle. Los minerales solo
+ * los quiere quien sabe fundir.
+ */
+export function objetivos(a: Aldea, n: number, est: number): Record<string, number> {
+  const obra = a.obra && !a.obra.pagada ? tipoObra(a.obra.tipo).coste : {};
+  const hoguera = tiene(a, 'hoguera');
+  const prioridad = a.consejo?.prioridad ?? '';
+  const out: Record<string, number> = {
+    madera: 10 + (hoguera ? (est >= 2 ? 30 : 12) : 0) + (prioridad === 'invierno' ? 20 : 0),
+    fibra: 6 + (conoce(a, 'cuerda') ? 4 : 0),
+    piedra: 6,
+    arcilla: conoce(a, 'vasija') ? 10 : 3,
+    piel: 2 + (conoce(a, 'ropa') ? n * 0.4 : 0) + (conoce(a, 'tambor') ? 1 : 0),
+    hueso: 2 + (conoce(a, 'aguja') ? 2 : 0),
+    hierbas: conoce(a, 'remedio') ? 6 : 1.5,
+  };
+  for (const mineral of MINERALES) if (conoce(a, 'horno')) out[mineral] = 16;
+  for (const [k, v] of Object.entries(obra)) if (out[k] !== undefined) out[k] += v;
+  return out;
+}
+
 export function contexto(m: Mundo, a: Aldea, gente: Persona[], est: number): Contexto {
   let consumo = 0;
   for (const p of gente) consumo += necesidad(m, p);
@@ -268,28 +291,35 @@ export function contexto(m: Mundo, a: Aldea, gente: Persona[], est: number): Con
   const objetivo = [30, 45, 75, 35][est];
   const escasez = clamp(1 - dias / objetivo, 0.03, 1);
   // Con los graneros llenos para muchos meses, la comida apremia menos y queda tiempo
-  // para otras cosas: probar, construir, criar.
+  // para otras cosas: probar, construir, criar. Con comida para más de un año, aún menos
+  // (salvo que otras aldeas la pidan: entonces producir más sí sirve de algo).
   const ocio = clamp((dias / objetivo - 3) / 6, 0, 1);
-  const precio: Record<string, number> = { comida: (0.25 + 1.5 * escasez) * (1 - 0.6 * ocio) };
-  const obra = a.obra && !a.obra.pagada ? tipoObra(a.obra.tipo).coste : {};
-  const hoguera = tiene(a, 'hoguera');
+  const sobra = clamp((dias - 365) / 365, 0, 1);
+  const encargos = a.encargos ?? {};
+  // (Solo lo que no se puede atender ya con lo que sobra: si sobra, el problema no es producir.)
+  const sobraComida = Math.max(0, comidaTotal(a) - consumo * 180);
+  const pedida = clamp(((encargos.comida ?? 0) - sobraComida) / Math.max(30, consumo * 30), 0, 1);
+  const precio: Record<string, number> = { comida: Math.max((0.25 + 1.5 * escasez) * (1 - 0.6 * ocio) * (1 - 0.8 * sobra), 0.3 * pedida) };
+  const quiere = objetivos(a, gente.length, est);
   const fijar = (mat: string, base: number) => {
-    const quiere = base + (obra[mat] ?? 0);
-    precio[mat] = r2(MATERIAL[mat].peso * clamp(1 - (a.despensa[mat] ?? 0) / Math.max(quiere, 0.1), 0, 1));
+    precio[mat] = r2(MATERIAL[mat].peso * clamp(1 - (a.despensa[mat] ?? 0) / Math.max(base, 0.1), 0, 1));
+    // Lo que otras aldeas piden (y aquí se puede sacar) también merece la pena producirlo,
+    // pero solo lo que no cubre ya lo que sobra.
+    const sobra = Math.max(0, (a.despensa[mat] ?? 0) - Math.max(2 * base, base + 10));
+    const fuera = clamp(((encargos[mat] ?? 0) - sobra) / Math.max(20, base * 2), 0, 1);
+    if (fuera > 0) precio[mat] = r2(Math.max(precio[mat], MATERIAL[mat].peso * 0.5 * fuera));
   };
-  const prioridad = a.consejo?.prioridad ?? '';
-  fijar('madera', 10 + (hoguera ? (est >= 2 ? 30 : 12) : 0) + (prioridad === 'invierno' ? 20 : 0));
-  fijar('fibra', 6 + (conoce(a, 'cuerda') ? 4 : 0));
-  fijar('piedra', 6);
-  fijar('arcilla', conoce(a, 'vasija') ? 10 : 3);
-  fijar('piel', 2 + (conoce(a, 'ropa') ? gente.length * 0.4 : 0) + (conoce(a, 'tambor') ? 1 : 0));
-  fijar('hueso', 2 + (conoce(a, 'aguja') ? 2 : 0));
-  fijar('hierbas', conoce(a, 'remedio') ? 6 : 1.5);
-  // Antes de saber fundir, las piedras de colores solo se recogen por curiosidad.
+  for (const [mat, base] of Object.entries(quiere)) fijar(mat, base);
+  // Antes de saber fundir, las piedras de colores solo se recogen por curiosidad (o por encargo).
   for (const mineral of MINERALES) {
-    if (conoce(a, 'horno')) fijar(mineral, 16);
-    else precio[mineral] = 0.02;
+    if (quiere[mineral] === undefined) {
+      precio[mineral] = 0.02;
+      const fuera = clamp(((encargos[mineral] ?? 0) - Math.max(0, (a.despensa[mineral] ?? 0) - 10)) / 20, 0, 1);
+      if (fuera > 0) precio[mineral] = r2(Math.max(0.02, MATERIAL[mineral].peso * 0.4 * fuera));
+    }
   }
+  const hoguera = tiene(a, 'hoguera');
+  const prioridad = a.consejo?.prioridad ?? '';
 
   const radio = RADIO_TRABAJO + (conoce(a, 'rueda') ? 2 : 0) + (deTiro(a) ? 2 : 0) + (aCaballo(a) ? 2 : 0) + (tiene(a, 'calzada') ? 1 : 0);
   let camposPorTrabajar = 0;
@@ -297,7 +327,8 @@ export function contexto(m: Mundo, a: Aldea, gente: Persona[], est: number): Con
   for (const e of a.edificios) {
     if (e.tipo !== 'campo') continue;
     // Con el granero lleno para años no se siembra más (lo sembrado sí se cuida y se siega).
-    if (est === 0 && e.fase === 0 && ((e.trabajo ?? 0) > 0 || semillas >= 4) && semillas < gente.length * 300) camposPorTrabajar++;
+    // (Ni con comida guardada para año y medio, salvo que otras aldeas la pidan.)
+    if (est === 0 && e.fase === 0 && ((e.trabajo ?? 0) > 0 || semillas >= 4) && semillas < gente.length * 300 && (dias < 540 || pedida > 0)) camposPorTrabajar++;
     if (est === 1 && e.fase === 1 && (e.cuidado ?? 0) < 3) camposPorTrabajar++;
     if (est === 2 && e.fase === 1) camposPorTrabajar++;
   }

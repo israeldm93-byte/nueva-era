@@ -10,7 +10,8 @@ import { comprobar } from '../src/invariantes.ts';
 import { migrar } from '../src/migrar.ts';
 import { aldeasVivas, crearMundo, edad, indexar, nuevaAldea, nuevaPersona } from '../src/mundo.ts';
 import { avanzar } from '../src/simulacion.ts';
-import { comerciar, encuentros } from '../src/sociedad.ts';
+import { encuentros } from '../src/sociedad.ts';
+import { balance, tratar } from '../src/mercaderes.ts';
 import type { Mundo } from '../src/tipos.ts';
 
 const comida = ['bayas', 'semillas', 'carne', 'pescado', 'cereal', 'huevos', 'leche', 'queso'];
@@ -24,9 +25,11 @@ test('comerciar con una aldea que se ha quedado sin gente no rompe ninguna despe
   b.despensa.cereal = 0;
   olvidarAnomalias();
   // Antes: comidaTotal / 0 → Infinity o NaN, y NaN <= 0 dejaba escribir NaN en el cereal.
-  comerciar(a, b, 0, 5);
-  comerciar(b, a, 5, 0);
-  comerciar(a, b, 0, 0);
+  // (Ahora el comercio lo hacen mercaderes: con una aldea sin gente no hay trato posible.)
+  const ga = m.personas.filter((p) => p.aldea === a.id);
+  assert.equal(tratar(m, a, ga, b, [], 0), null);
+  assert.equal(tratar(m, b, [], a, ga, 0), null);
+  for (const v of Object.values({ ...balance(m, b, [], 0).sobra, ...balance(m, b, [], 0).falta })) assert.ok(Number.isFinite(v));
   assert.equal(a.despensa.cereal, 500);
   assert.equal(b.despensa.cereal, 0);
   assert.deepEqual(anomalias(), []);

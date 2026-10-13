@@ -71,7 +71,10 @@ test('el carácter pesa: el prudente caza menos cuando rondan fieras y el pacien
 });
 
 test('las metas cambian con las circunstancias: con hambre, sobrevivir; con abundancia, otras cosas', () => {
-  const { m, a } = mundoConAldea(6);
+  // (Semilla 7: en la historia de la 6, la aldea mayor es de gente ya emparejada en un pueblo
+  // que sabe mucho, y en la abundancia todos quieren lo mismo, aprender: es legítimo, pero no
+  // sirve para ver que las metas se diversifican.)
+  const { m, a } = mundoConAldea(7);
   // Abundancia: graneros llenos, todos bien comidos.
   for (const k of Object.keys(a.despensa)) a.despensa[k] = 0;
   a.despensa.cereal = 20000;

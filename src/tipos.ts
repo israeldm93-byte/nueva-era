@@ -103,7 +103,20 @@ export interface Persona {
    * vuelta), de dónde a dónde va en ese tramo, cuándo empezó y cuántos días dura, y con
    * quiénes ha tratado allí.
    */
-  viaje?: { a: number; fase: 'ida' | 'estancia' | 'vuelta'; desde: [number, number]; hasta: [number, number]; salida: number; dias: number; conocio: number[]; mar?: Travesia };
+  viaje?: {
+    a: number;
+    fase: 'ida' | 'estancia' | 'vuelta';
+    desde: [number, number];
+    hasta: [number, number];
+    salida: number;
+    dias: number;
+    conocio: number[];
+    mar?: Travesia;
+    /** Un mercader: lo que lleva encima ahora mismo (salió de la despensa y aún no ha llegado a otra). */
+    carga?: Record<string, number>;
+    /** Lo acordado: lo que traerá de vuelta; y si es ayuda (comida para quien pasa hambre). */
+    trato?: { trae: Record<string, number>; ayuda?: boolean };
+  };
   /** Solo durante el día en que muere en un asalto: la aldea que lo mató. */
   porAldea?: number;
   /** Solo durante el día en que muere; nunca se guarda. */
@@ -212,6 +225,14 @@ export interface Aldea {
    * (0 no vieron tierra, 1 solo costas conocidas, 2 tierra nueva).
    */
   rutas?: [number, number, number, number, number][];
+  /** Lo que otras aldeas les han pedido últimamente (y no tenían): da motivos para producirlo. */
+  encargos?: Record<string, number>;
+  /** Jornadas dedicadas a cada actividad últimamente (se van olvidando): su perfil económico. */
+  trabajos?: Record<string, number>;
+  /** Lo que han exportado e importado últimamente (se va olvidando), por material. */
+  balanza?: { exporta: Record<string, number>; importa: Record<string, number> };
+  /** A qué se dedican sobre todo (el sector que ocupa a más gente), si destaca alguno. */
+  perfil?: string;
   /** Aldea, pueblo o ciudad (según lo que han crecido). */
   rango?: string;
   /** Lo que les une como pueblo (lo que defendían cuando se fueron) y de dónde vienen. */
@@ -340,6 +361,7 @@ export type TipoSuceso =
   | 'migracion'
   | 'viaje'
   | 'exploracion'
+  | 'comercio'
   | 'vida'
   | 'asalto'
   | 'guerra'

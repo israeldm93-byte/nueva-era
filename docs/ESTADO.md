@@ -284,3 +284,65 @@ ultramar; antes, 4. Las pruebas están en `test/movilidad.test.ts`.
 - Puentes.
 - Que los caminos acerquen también el trabajo diario (el radio de trabajo).
 - Rutas comerciales explícitas.
+
+## Hito 3: economías regionales, especialización y comercio real
+
+### Reservas y prioridades (`src/economia.ts`)
+
+- `objetivos()` reúne lo que cada aldea quiere tener de cada material. Antes estaba metido
+  dentro de `contexto`; ahora lo usan los precios y el comercio.
+- La comida pierde prioridad cuando sobra para más de un año.
+- No se siembran campos nuevos con año y medio de comida guardada.
+- Los encargos de otras aldeas suben la prioridad de producir, pero solo en la parte que no se
+  cubre ya con lo que sobra.
+- No hay caducidad nueva ni límites de almacén.
+
+### Comercio (`src/mercaderes.ts`)
+
+- **`balance`:** calcula, para cada aldea, tres cantidades por material:
+  - **falta:** lo que no llega a su objetivo, contando las obras pendientes y las aparcadas;
+  - **sobra:** lo que pasa de una reserva holgada; en comida, más de 180 días;
+  - **hueco:** lo que le cabe hasta completar esa reserva.
+- **`tratar`:** solo hay viaje si a una aldea le sobra lo que a otra le falta, la otra puede dar
+  a cambio algo que a la primera le quepa, y a las dos les compensa el coste del viaje.
+  - El coste depende de los días de camino, que se acortan con caminos.
+  - Una aldea hermana o aliada puede llevar comida como ayuda a la que pasa hambre.
+- **Mercaderes:** usan el viaje de visita (`p.viaje` con `carga` y `trato`).
+  - Al salir, la carga deja la despensa.
+  - Al llegar se entrega, y se carga lo convenido sin tocar las reservas del otro.
+  - Se quedan unos días hablando, con lo que difunden saberes, y al volver descargan.
+  - Si el viaje se tuerce, la carga queda donde está el mercader; si muere, se pierde con él.
+- **Encargos:** lo que se necesita y nadie ofrece queda como encargo en las aldeas con las que
+  se trata.
+- **Lo sustituido:** el antiguo `comerciar`, que pasaba comida al instante, desaparece. El
+  trueque de pequeños regalos en los encuentros se mantiene.
+
+### Perfil económico
+
+- Sale de las jornadas reales de cada aldea (`trabajos`, que se van olvidando poco a poco).
+- `perfil` cambia con histéresis: otro oficio tiene que superar claramente al actual.
+- `balanza` recoge lo exportado e importado en los últimos años.
+- La ficha de la aldea muestra las jornadas, lo que vende y lo que compra.
+- La crónica (tipo `comercio`) anota rutas nuevas, la primera vez que una aldea vende algo,
+  ayudas alimentarias y cambios de perfil.
+
+### Resultados
+
+20 años sobre una copia del mundo vivo:
+
+| | Antes | Ahora |
+| --- | --- | --- |
+| Viajes de comercio | 0 | 120 (88 por caminos) |
+| Máximo acumulado de comida | 4.211 días | 1.391 días |
+| Muestras con menos de 30 días de comida | ninguna | ninguna |
+
+- Se comercia sobre todo lana, piedra y minerales.
+- Los perfiles son distintos según el entorno: pastores, recolectores, pescadores y cazadores.
+- Las pruebas están en `test/comercio.test.ts`.
+
+### Pendiente
+
+- Comercio por mar.
+- Bienes elaborados (herramientas, metal fundido).
+- Moneda.
+- Influencia del comercio en la política.

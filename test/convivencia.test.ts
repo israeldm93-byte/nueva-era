@@ -88,6 +88,8 @@ function dosAldeas(semilla: number, min = 60, max = 80) {
   avanzar(m, 25 * DIAS_ANIO);
   const a = aldeasVivas(m).sort((x, y) => m.personas.filter((p) => p.aldea === y.id).length - m.personas.filter((p) => p.aldea === x.id).length)[0];
   a.despensa.cereal = (a.despensa.cereal ?? 0) + 5000;
+  // (A pie: las pruebas miden un viaje andando, aunque en esta historia la aldea tenga caballos.)
+  for (const e of a.edificios) if (e.tipo === 'corral' && e.especie === 'caballo') e.especie = 'vaca';
   const b = hijaLejos(m, a, min, max);
   return { m, a, b, d: Math.hypot(a.x - b.x, a.y - b.y) };
 }
@@ -265,7 +267,9 @@ function aldeaConFaccion(miembros: (m: Mundo, a: Aldea) => Persona[]) {
   const m = crearMundo(6);
   avanzar(m, 25 * DIAS_ANIO);
   const a = aldeasVivas(m).sort((x, y) => m.personas.filter((p) => p.aldea === y.id).length - m.personas.filter((p) => p.aldea === x.id).length)[0];
-  while (m.personas.filter((p) => p.aldea === a.id && edad(m, p) >= 16).length < 22) nuevaPersona(m, { aldea: a, nace: m.t - 30 * DIAS_ANIO });
+  // Una aldea de un tamaño fijo (32 adultos), sea cual sea la historia de la semilla: así el
+  // grupo que se va con sus familias nunca pasa de la mitad.
+  while (m.personas.filter((p) => p.aldea === a.id && edad(m, p) >= 16).length < 32) nuevaPersona(m, { aldea: a, nace: m.t - 30 * DIAS_ANIO });
   for (let k = 0; k < 12; k++) a.edificios.push({ tipo: 'casa', x: a.x + (k % 6) - 3, y: a.y + 3 + Math.floor(k / 6) });
   const adultos = m.personas.filter((p) => p.aldea === a.id && edad(m, p) >= 16);
   a.consejo = { prioridad: 'comida', miembros: adultos.slice(0, 3).map((p) => p.id), votos: {}, desde: m.t, anunciada: 'comida', anunciado: m.t } as unknown as Aldea['consejo'];

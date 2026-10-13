@@ -25,6 +25,7 @@ import { convivir, relacion } from './politica.ts';
 import { conversar, visita } from './sociedad.ts';
 import { contarTierras, navegar, zarpar } from './exploracion.ts';
 import { diasEntre, pisar } from './caminos.ts';
+import { descargar, entregar, soltarCarga } from './mercaderes.ts';
 import type { Aldea, Mundo, Persona } from './tipos.ts';
 
 const r4 = (x: number) => Math.round(x * 10000) / 10000;
@@ -124,13 +125,15 @@ function seguir(m: Mundo, p: Persona, ix: Indices): void {
   const v = p.viaje!;
   const casa = m.aldeas.find((x) => x.id === p.aldea);
   const dest = m.aldeas.find((x) => x.id === v.a);
-  // Se casó allí y se ha quedado: el viaje acabó.
+  // Se casó allí y se ha quedado: el viaje acabó (y lo que llevara, se queda allí).
   if (p.aldea === v.a) {
+    soltarCarga(m, p);
     delete p.viaje;
     return;
   }
   // Si su aldea ya no existe, se queda donde está (y si tampoco, en la más cercana).
   if (!casa || casa.abandonada !== null) {
+    soltarCarga(m, p);
     delete p.viaje;
     return;
   }
@@ -140,15 +143,17 @@ function seguir(m: Mundo, p: Persona, ix: Indices): void {
     return;
   }
   const hecho = m.t - v.salida >= v.dias;
-  if (v.fase === 'ida' && hecho) llegar(m, p, casa, dest!);
+  if (v.fase === 'ida' && hecho) llegar(m, p, casa, dest!, ix);
   else if (v.fase === 'estancia') {
     charlar(m, p, casa, dest!, ix);
     if (p.viaje && hecho) despedirse(m, p, casa, dest!);
   } else if (v.fase === 'vuelta' && hecho) volver(m, p, casa, dest);
 }
 
-function llegar(m: Mundo, p: Persona, casa: Aldea, dest: Aldea): void {
+function llegar(m: Mundo, p: Persona, casa: Aldea, dest: Aldea, ix: Indices): void {
   const v = p.viaje!;
+  // Un mercader: entrega lo que lleva y carga lo convenido.
+  if (v.carga || v.trato) entregar(m, p, casa, dest, ix.porAldea.get(dest.id) ?? []);
   v.fase = 'estancia';
   v.desde = [dest.x, dest.y];
   v.hasta = [dest.x, dest.y];
@@ -162,7 +167,7 @@ function llegar(m: Mundo, p: Persona, casa: Aldea, dest: Aldea): void {
   hito(m, p, 'visita', dest.nombre);
   // Lo que lleva a cuestas: un poco de lo que allí falta.
   regalar(casa, dest);
-  if (aviso(m, `llega-${casa.id}-${dest.id}`, DIAS_ANIO)) {
+  if (!v.trato && aviso(m, `llega-${casa.id}-${dest.id}`, DIAS_ANIO)) {
     anotar(m, 'viaje', `${p.nombre}, de ${casa.nombre}, llega a ${dest.nombre} tras ${diasDeViaje(m, casa, [casa.x, casa.y], [dest.x, dest.y])} días de camino${nueva ? ': es la primera noticia que tienen unos de otros en mucho tiempo' : ''}.`, dest.id);
   }
 }
@@ -228,6 +233,9 @@ function darLaVuelta(m: Mundo, p: Persona, casa: Aldea, desde: [number, number])
 function volver(m: Mundo, p: Persona, casa: Aldea, dest: Aldea | undefined): void {
   p.x = casa.x;
   p.y = casa.y;
+  // Lo que trae el mercader entra en la despensa.
+  descargar(casa, p, dest);
+  const mercader = !!p.viaje?.trato;
   delete p.viaje;
   const nuevos = p.saberes.filter((s) => !casa.conocidos.includes(s));
   for (const s of nuevos) casa.conocidos.push(s);
@@ -238,7 +246,7 @@ function volver(m: Mundo, p: Persona, casa: Aldea, dest: Aldea | undefined): voi
   if (tierras) anotar(m, 'exploracion', `${p.nombre} vuelve a ${casa.nombre} contando lo que en ${dest.nombre} se sabe de ${tierras === 1 ? 'una tierra' : `${tierras} tierras`} al otro lado del mar.`, casa.id);
   if (nuevos.length) {
     anotar(m, 'difusion', `${p.nombre} vuelve a ${casa.nombre} desde ${dest.nombre} y trae lo que allí aprendió: ${nuevos.length === 1 ? 'un saber nuevo' : `${nuevos.length} saberes nuevos`}.`, casa.id);
-  } else if (aviso(m, `vuelve-${casa.id}-${dest.id}`, DIAS_ANIO)) {
+  } else if (!mercader && aviso(m, `vuelve-${casa.id}-${dest.id}`, DIAS_ANIO)) {
     anotar(m, 'viaje', `${p.nombre} vuelve a ${casa.nombre} con noticias de ${dest.nombre}.`, casa.id);
   }
 }
@@ -260,7 +268,7 @@ function regalar(de: Aldea, a: Aldea): void {
 export function caminarViaje(m: Mundo, p: Persona): void {
   const v = p.viaje;
   if (!v) return;
-  p.actividad = 'viajar';
+  p.actividad = v.trato ? 'comerciar' : 'viajar';
   const f = Math.min(1, (m.t - v.salida) / v.dias);
   p.x = Math.round(v.desde[0] + (v.hasta[0] - v.desde[0]) * f);
   p.y = Math.round(v.desde[1] + (v.hasta[1] - v.desde[1]) * f);

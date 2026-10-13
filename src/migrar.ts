@@ -1,7 +1,7 @@
 // Pone al día mundos guardados con versiones anteriores del motor, sin reiniciarlos.
 
 import { azar, estadoAzar, fijarAzar } from './azar.ts';
-import { AGUA, EDIFICIO, MONTANA, OBRA_TIERRA, RIO } from './catalogo.ts';
+import { AGUA, EDIFICIO, MATERIAL, MONTANA, OBRA_TIERRA, RIO } from './catalogo.ts';
 import { tierraValida } from './tierra.ts';
 import { ALTO, ANCHO, MUNDO_ALTO, MUNDO_ANCHO, VERSION_ESTADO } from './config.ts';
 import { ampliarMapa, crearUltramar } from './ultramar.ts';
@@ -229,7 +229,7 @@ export function reparar(m: Mundo): Reparacion[] {
       p.aldea = cerca.id;
     }
     // Un viaje con datos rotos o hacia una aldea que no existe: se da por terminado (está en casa).
-    if (p.viaje && (![p.viaje.dias, p.viaje.salida, ...(p.viaje.desde ?? []), ...(p.viaje.hasta ?? [])].every(finito) || !Array.isArray(p.viaje.conocio) || !m.aldeas.some((a) => a.id === p.viaje!.a) || (p.viaje.mar !== undefined && !travesiaValida(p.viaje.mar, m)))) {
+    if (p.viaje && (![p.viaje.dias, p.viaje.salida, ...(p.viaje.desde ?? []), ...(p.viaje.hasta ?? [])].every(finito) || !Array.isArray(p.viaje.conocio) || !m.aldeas.some((a) => a.id === p.viaje!.a) || (p.viaje.mar !== undefined && !travesiaValida(p.viaje.mar, m)) || (p.viaje.carga !== undefined && !bienesValidos(p.viaje.carga)) || (p.viaje.trato !== undefined && !bienesValidos(p.viaje.trato?.trae)))) {
       apuntar(`${ruta}.viaje`, p.viaje, null, 'viaje ilegible o a una aldea que no existe: vuelve a estar en su aldea', false);
       const casa = m.aldeas.find((a) => a.id === p.aldea);
       if (casa) {
@@ -254,6 +254,19 @@ export function reparar(m: Mundo): Reparacion[] {
     if (!Array.isArray(capa) || capa.length !== m.ancho * m.alto || !capa.every(ok)) {
       apuntar(k, Array.isArray(capa) ? `${capa.length} casillas` : capa, null, k === 'caminos' ? 'caminos ilegibles: se pierden (se volverán a formar con el uso)' : 'tránsito ilegible: se empieza de cero', false);
       delete m[k];
+    }
+  }
+  // Lo económico de cada aldea: encargos, jornadas y balanza, con cantidades posibles.
+  for (const a of m.aldeas) {
+    for (const k of ['encargos', 'trabajos'] as const) {
+      if (a[k] !== undefined && !bienesValidos(a[k], true)) {
+        apuntar(`${a.nombre}.${k}`, a[k], null, 'datos económicos ilegibles: se empiezan de cero', false);
+        delete a[k];
+      }
+    }
+    if (a.balanza !== undefined && !(a.balanza && bienesValidos(a.balanza.exporta, true) && bienesValidos(a.balanza.importa, true))) {
+      apuntar(`${a.nombre}.balanza`, a.balanza, null, 'balanza ilegible: se empieza de cero', false);
+      delete a.balanza;
     }
   }
   for (const a of m.aldeas) {
@@ -402,4 +415,10 @@ function travesiaValida(t: Travesia, m: Mundo): boolean {
   if (t.como !== undefined && typeof t.como !== 'string') return false;
   if (t.vistos !== undefined && (!Array.isArray(t.vistos) || !t.vistos.every((v) => typeof v === 'string'))) return false;
   return true;
+}
+
+/** Una carga o una lista de cantidades: cosas conocidas (o cualquier clave, si `libre`) en cantidades finitas y no negativas. */
+function bienesValidos(c: unknown, libre = false): boolean {
+  if (!c || typeof c !== 'object' || Array.isArray(c)) return false;
+  return Object.entries(c as Record<string, unknown>).every(([k, v]) => (libre || !!MATERIAL[k]) && typeof v === 'number' && Number.isFinite(v) && v >= 0);
 }

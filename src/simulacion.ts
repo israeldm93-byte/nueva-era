@@ -9,6 +9,7 @@ import { revisarEdad } from './edades.ts';
 import { caminar } from './exodo.ts';
 import { cambiarTiempo } from './tiempo.ts';
 import { pisar, senderos } from './caminos.ts';
+import { anotarTrabajo, mercados } from './mercaderes.ts';
 import { nombreOficio, oficio, vidas } from './individuo.ts';
 import { hito, recordar } from './memoria.ts';
 import { mudanzas } from './migracion.ts';
@@ -63,6 +64,11 @@ function paso(m: Mundo): void {
     if (a && Math.abs(p.x - a.x) + Math.abs(p.y - a.y) >= 3) pisar(m, a.x, a.y, p.x, p.y, 3, 2);
   }
   if (m.t % 30 === 20) senderos(m);
+  // A qué dedica cada aldea sus jornadas (su perfil económico).
+  for (const p of m.personas) {
+    const a = ctx.get(p.aldea)?.a;
+    if (a) anotarTrabajo(a, p.actividad ?? '');
+  }
   const encendidas = new Set<number>();
   for (const a of vivas) {
     const encendida = mantener(m, a, est, dia);
@@ -80,6 +86,8 @@ function paso(m: Mundo): void {
   mudanzas(m, ix);
   // Visitas a aldeas lejanas emparentadas: quien va, quien está allí y quien vuelve.
   viajes(m, ix);
+  // Una vez al mes: comercio entre aldeas (lo que sobra a una y falta a otra).
+  if (m.t % 30 === 25) mercados(m, ix);
   for (const a of vivas) {
     const c = ctx.get(a.id);
     if (c) noche(m, a, gente(a.id), c);

@@ -15,7 +15,8 @@ import { convivir, noche, relacion } from '../src/politica.ts';
 import { migrar } from '../src/migrar.ts';
 import { aldeasVivas, crearMundo, indexar, nuevaAldea, nuevaPersona } from '../src/mundo.ts';
 import { avanzar } from '../src/simulacion.ts';
-import { comerciar, salud } from '../src/sociedad.ts';
+import { salud } from '../src/sociedad.ts';
+import { balance, tratar } from '../src/mercaderes.ts';
 import type { Edificio, Mundo } from '../src/tipos.ts';
 
 const recargar = (m: Mundo): Mundo => migrar(JSON.parse(JSON.stringify(m)) as Mundo);
@@ -31,8 +32,8 @@ test('sin gente no se divide por cero: contexto, comida, salud y comercio de una
   comer(m, a, []);
   salud(m, a, [], 3, false);
   const otra = { ...a, id: -1, despensa: { cereal: 10 } };
-  comerciar(a, otra, 0, 0);
-  comerciar(otra, a, 3, 0);
+  assert.equal(tratar(m, a, [], otra, [], 0), null);
+  for (const v of [...Object.values(balance(m, a, [], 0).sobra), ...Object.values(balance(m, a, [], 0).falta)]) assert.ok(Number.isFinite(v));
   assert.deepEqual(comprobar(m), []);
   assert.deepEqual(anomalias(), []);
 });

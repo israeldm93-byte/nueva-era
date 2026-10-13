@@ -69,6 +69,7 @@ export function comprobar(m: Mundo): string[] {
     if (p.mudanza && !Number.isFinite(p.mudanza.dias)) out.push(`${p.nombre}: mudanza inválida`);
     if (p.viaje && (![p.viaje.dias, p.viaje.salida, ...p.viaje.desde, ...p.viaje.hasta].every(Number.isFinite) || !m.aldeas.some((a) => a.id === p.viaje!.a))) out.push(`${p.nombre}: viaje inválido`);
     if (p.viaje?.mar && (![p.viaje.mar.viveres, p.viaje.mar.ida, p.viaje.mar.zarpo].every(Number.isFinite) || p.viaje.mar.viveres < 0)) out.push(`${p.nombre}: travesía inválida`);
+    for (const [k, v] of Object.entries(p.viaje?.carga ?? {})) if (!Number.isFinite(v) || v < 0) out.push(`${p.nombre}: carga de ${k} = ${v}`);
     if (p.muerto) out.push(`${p.nombre}: muerto sin enterrar`);
     if (out.length > 40) break;
   }

@@ -14,6 +14,7 @@ import { aldeasVivas, edad, estacionDe, indexar } from './mundo.ts';
 import { FRASE } from './politica.ts';
 import { nombreOficio, oficio } from './individuo.ts';
 import { vivo } from './memoria.ts';
+import { OFICIO_SECTOR, sectores } from './mercaderes.ts';
 import { focoDe } from './saber.ts';
 import type { Mundo } from './tipos.ts';
 
@@ -150,6 +151,13 @@ export function datosWeb(m: Mundo, ahora: Date) {
         rango: a.rango ?? 'aldea',
         ...(a.valor ? { valor: a.valor, lema: LEMA[a.valor] } : {}),
         ...(a.tierras?.length ? { tierras: a.tierras.length } : {}),
+        // Su economía: a qué dedica sus jornadas, qué vende y qué compra (lo de los últimos años).
+        economia: {
+          sectores: sectores(a).slice(0, 4).map(([k, v]) => [k, Math.round(v * 100)]),
+          ...(a.perfil ? { perfil: OFICIO_SECTOR[a.perfil] } : {}),
+          exporta: Object.entries(a.balanza?.exporta ?? {}).filter(([, v]) => v >= 5).sort((x, y) => y[1] - x[1]).slice(0, 4).map(([k, v]) => [k, Math.round(v)]),
+          importa: Object.entries(a.balanza?.importa ?? {}).filter(([, v]) => v >= 5).sort((x, y) => y[1] - x[1]).slice(0, 4).map(([k, v]) => [k, Math.round(v)]),
+        },
         ...(a.viaje ? { viaje: { desde: a.viaje.desde, hasta: a.viaje.hasta, salida: a.viaje.salida, dias: a.viaje.dias, faltan: Math.max(0, a.viaje.salida + a.viaje.dias - m.t) } } : {}),
         conocidos: a.conocidos,
         archivo: a.archivo,
@@ -249,6 +257,8 @@ export function datosWeb(m: Mundo, ahora: Date) {
                 dias: p.viaje.dias,
                 // Los que exploran el mar: hacia dónde y, si ya la han visto, cómo es la tierra.
                 ...(p.viaje.mar ? { mar: { rumbo: p.viaje.mar.rumbo, como: p.viaje.mar.como ?? null } } : {}),
+                // Un mercader, con lo que lleva.
+                ...(p.viaje.trato ? { comercio: true, carga: p.viaje.carga ?? {} } : {}),
               },
             }
           : {}),
