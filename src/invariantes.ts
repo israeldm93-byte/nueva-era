@@ -35,6 +35,11 @@ export function comprobar(m: Mundo): string[] {
     if (a.obra) numerosRotos(a.obra, `${a.nombre}.obra`, out);
     for (const [x, y] of a.tierras ?? []) if (!Number.isInteger(x) || !Number.isInteger(y) || x < 0 || y < 0 || x >= m.ancho || y >= m.alto) out.push(`${a.nombre}: tierra conocida fuera del mapa (${x},${y})`);
   }
+  for (const [i] of m.labrado ?? []) if (!Number.isInteger(i) || i < 0 || i >= m.ancho * m.alto) out.push(`casilla labrada fuera del mapa (${i})`);
+  for (const a of m.aldeas) {
+    const t = a.obra?.tierra;
+    if (t && (t.casillas.length !== t.desde.length || t.casillas.length !== t.hasta.length || !(t.esfuerzo > 0))) out.push(`${a.nombre}: obra de tierra inválida`);
+  }
   const ids = new Set<number>();
   const vivas = new Set(m.aldeas.filter((a) => a.abandonada === null).map((a) => a.id));
   const porId = new Map(m.personas.map((p) => [p.id, p]));

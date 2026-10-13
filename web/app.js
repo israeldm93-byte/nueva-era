@@ -138,6 +138,7 @@ const CAUSAS = {
 
 const EDIFICIOS = {
   hoguera: 'hoguera', choza: 'choza', casa: 'casa de adobe', campo: 'campo', corral: 'corral', almacen: 'almacén',
+  explanada: 'explanada (allanando el terreno)', cantera: 'cantera (abriendo la roca)',
   horno: 'horno', gallinero: 'gallinero', granja: 'granja', cerca: 'cerca', empalizada: 'empalizada', muralla: 'muralla de piedra', archivo: 'casa de las tablillas', mercado: 'mercado',
   casapiedra: 'casa de piedra', casatejas: 'casa de tejas', torre: 'torre de vigía', establo: 'establo', taller: 'taller', plaza: 'plaza empedrada', calzada: 'calles empedradas', templo: 'templo',
 };
@@ -152,6 +153,7 @@ const FOCOS = {
 
 const UNA = {
   hoguera: 'una hoguera', choza: 'una choza', casa: 'una casa de adobe', campo: 'un campo nuevo', corral: 'un corral', almacen: 'un almacén',
+  explanada: 'una explanada', cantera: 'una cantera',
   horno: 'un horno', gallinero: 'un gallinero', granja: 'la granja', cerca: 'la cerca', empalizada: 'la empalizada', muralla: 'la muralla de piedra', archivo: 'la casa de las tablillas', mercado: 'el mercado',
   casapiedra: 'una casa de piedra', casatejas: 'una casa de tejas', torre: 'una torre de vigía', establo: 'el establo', taller: 'un taller', plaza: 'la plaza', calzada: 'las calles empedradas', templo: 'el templo',
 };

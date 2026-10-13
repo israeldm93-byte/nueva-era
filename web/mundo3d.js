@@ -315,6 +315,18 @@ export class Mundo3D {
     const nuevo = !this.datos || clave !== this.clave;
     this.datos = d;
     this.aldeas = new Map(d.aldeas.map((a) => [a.id, a]));
+    // Las obras de tierra cambian el relieve: se rehace el terreno cuando cambia lo labrado
+    // o la altura de lo que se está labrando (como mucho cada pocos segundos).
+    let firma = (d.labrado ?? []).length;
+    for (const a of d.aldeas) for (const i of a.obra?.tierra?.casillas ?? []) firma = (firma * 31 + d.relieve[i]) % 1e9;
+    for (const [i] of d.labrado ?? []) firma = (firma * 31 + d.relieve[i]) % 1e9;
+    const ahora = performance.now();
+    const retocar = !nuevo && firma !== this.firmaRelieve && ahora - (this.retocado ?? 0) > 4000;
+    if (nuevo || retocar) {
+      this.firmaRelieve = firma;
+      this.retocado = ahora;
+    }
+    if (retocar) this.terreno.construir(d);
     if (nuevo) {
       this.clave = clave;
       this.terreno.construir(d);

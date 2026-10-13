@@ -49,6 +49,9 @@ const COLOR = {
   otono: c(0xc9a14a),
   ceniza: c(0x3b3631),
   barro: c(0x6f6847),
+  explanada: c(0xb3a37e),
+  cantera: c(0xc9c2b2),
+  removida: c(0x8a6d4a),
 };
 
 export class Terreno3D {
@@ -235,7 +238,10 @@ export class Terreno3D {
   pintar(d) {
     const W = this.W;
     const H = this.H;
-    const clave = `${d.estacion}|${d.cenizas.length}|${d.inundadas.length}|${d.cenizas.reduce((s, [i, a]) => s + i + Math.floor(a / 30), 0)}`;
+    const obrasTierra = d.aldeas.flatMap((a) => a.obra?.tierra?.casillas ?? []);
+    const clave = `${d.estacion}|${d.cenizas.length}|${d.inundadas.length}|${d.cenizas.reduce((s, [i, a]) => s + i + Math.floor(a / 30), 0)}|${(d.labrado ?? []).length}|${obrasTierra.join(',')}`;
+    const labrado = new Map(d.labrado ?? []);
+    const removida = new Set(obrasTierra);
     if (clave === this.pintado) return;
     this.pintado = clave;
     const invierno = d.estacion === 'invierno';
@@ -293,6 +299,12 @@ export class Terreno3D {
       if (otono && (t === PRADERA || t === BOSQUE || t === COLINA)) col.lerp(COLOR.otono, t === PRADERA ? 0.3 : 0.18);
       if (ceniza.has(i)) col.lerp(COLOR.ceniza, acotar(1 - ceniza.get(i) / 240, 0, 1) * 0.85);
       if (anegada.has(i)) col.lerp(COLOR.barro, 0.6);
+      // Lo labrado por la gente: explanadas de tierra apisonada y canteras de roca viva; y la
+      // tierra removida de lo que se está labrando.
+      const lab = labrado.get(i);
+      if (lab === 'explanada') col.lerp(COLOR.explanada, 0.7);
+      else if (lab === 'cantera') col.lerp(COLOR.cantera, 0.85);
+      if (removida.has(i)) col.lerp(COLOR.removida, 0.6);
       // En invierno nieva en el norte y en las tierras altas.
       if (invierno && t !== AGUA && t !== RIO && t !== DESIERTO) nieveCasilla[i] = acotar(1.1 - lat * 1.5, 0, 1) * (t === ORILLA ? 0.5 : 0.9);
       r[i] = col.r;

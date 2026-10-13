@@ -20,6 +20,7 @@ import {
   MINERALES,
   MONTANA,
   NIVEL_CASA,
+  OBRA_TIERRA,
   OFICIOS,
   ORDEN_COMER,
   ORILLA,
@@ -38,6 +39,7 @@ import { experimentar, inspirarse, sabe } from './saber.ts';
 import { pericia, practicar, sesgo } from './individuo.ts';
 import { recordar } from './memoria.ts';
 import { caminarMudanza } from './migracion.ts';
+import { DESNIVEL_MAXIMO, GRANDES, acabarTierra, canteras, desnivel, labrada, moverTierra, planear } from './tierra.ts';
 import { caminarViaje } from './viajes.ts';
 
 /** Con qué se trabaja en cada oficio (de ahí salen las ideas al trabajar). */
@@ -268,7 +270,7 @@ export function contexto(m: Mundo, a: Aldea, gente: Persona[], est: number): Con
   // para otras cosas: probar, construir, criar.
   const ocio = clamp((dias / objetivo - 3) / 6, 0, 1);
   const precio: Record<string, number> = { comida: (0.25 + 1.5 * escasez) * (1 - 0.6 * ocio) };
-  const obra = a.obra && !a.obra.pagada ? EDIFICIO[a.obra.tipo].coste : {};
+  const obra = a.obra && !a.obra.pagada ? tipoObra(a.obra.tipo).coste : {};
   const hoguera = tiene(a, 'hoguera');
   const fijar = (mat: string, base: number) => {
     const quiere = base + (obra[mat] ?? 0);
@@ -815,10 +817,15 @@ function cultivar(m: Mundo, p: Persona, c: Contexto): number {
   return 0;
 }
 
+/** Lo que es una obra: un edificio o una obra de tierra (las dos se pagan y se trabajan igual). */
+export function tipoObra(id: string): { nombre: string; coste: Record<string, number>; trabajo: number; alternativa?: TipoEdificio['alternativa'] } {
+  return EDIFICIO[id] ?? OBRA_TIERRA[id];
+}
+
 /** Con qué se paga la obra: lo de siempre o, si no llega, la alternativa (o nada). */
 function costeObra(a: Aldea): { coste: Record<string, number>; material?: string } | null {
   if (!a.obra) return null;
-  const tipo = EDIFICIO[a.obra.tipo];
+  const tipo = tipoObra(a.obra.tipo);
   // Un muro cuesta según lo largo que sea (el de siempre rodeaba unas 2,7 casillas de radio).
   const f = rodea(a.obra.tipo) ? (a.obra.radio ?? 2.7) / 2.7 : 1;
   const escala = (c: Record<string, number>) => Object.fromEntries(Object.entries(c).map(([k, v]) => [k, Math.ceil(v * f)]));
@@ -837,7 +844,7 @@ export function construir(m: Mundo, p: Persona, c: Contexto): number {
   const a = c.a;
   const obra = a.obra;
   if (!obra || !obraLista(a)) return 0;
-  const tipo = EDIFICIO[obra.tipo];
+  const tipo = tipoObra(obra.tipo);
   if (!obra.pagada) {
     // Con lo que haya: si no hay madera para la cerca, de piedra seca.
     const pago = costeObra(a)!;
@@ -848,7 +855,17 @@ export function construir(m: Mundo, p: Persona, c: Contexto): number {
   p.x = obra.x;
   p.y = obra.y;
   const ritmo = (0.6 + 0.4 * p.genes.fuerza) * (sabe(p, 'hacha') ? 1.2 : 1) * c.herramienta * (conoce(a, 'numeros') ? 1.15 : 1);
-  obra.progreso = r4(obra.progreso + ritmo / tipo.trabajo);
+  obra.progreso = r4(obra.progreso + ritmo / (obra.tierra?.esfuerzo ?? tipo.trabajo));
+  if (obra.tierra) {
+    // Una obra de tierra: el terreno cambia según avanza, y lo que se saca va a la despensa.
+    moverTierra(m, obra);
+    for (const [k, v] of Object.entries(OBRA_TIERRA[obra.tipo].produce ?? {})) guardar(a, k, r4(v * ritmo));
+    if (obra.progreso >= 1) {
+      a.obra = null;
+      acabarTierra(m, a, obra);
+    }
+    return ritmo;
+  }
   if (obra.progreso >= 1) terminarObra(m, a);
   return ritmo;
 }
@@ -1073,6 +1090,8 @@ export function planificar(m: Mundo, a: Aldea, gente: Persona[]): void {
   if (conoce(a, 'canteria') && n >= 40 && !tiene(a, 'templo') && (conoce(a, 'pintura') || conoce(a, 'tambor'))) opciones.push(['templo', 0.55]);
   if (conoce(a, 'escritura') && !tiene(a, 'archivo')) opciones.push(['archivo', 0.5]);
   if (conoce(a, 'comercio') && !tiene(a, 'mercado')) opciones.push(['mercado', 0.4]);
+  // Con canteras se abre la roca cuando la piedra escasea (las ciudades gastan mucha).
+  if (conoce(a, 'cantera') && n >= 12 && (a.despensa.piedra ?? 0) < 150 && canteras(m, a) < 1 + Math.floor(n / 50)) opciones.push(['cantera', 0.62]);
   opciones.sort((x, y) => y[1] - x[1]);
   for (const [tipo] of opciones) {
     if ((a.aparcadas?.[tipo] ?? 0) > m.t) continue;
@@ -1095,6 +1114,20 @@ export function planificar(m: Mundo, a: Aldea, gente: Persona[]): void {
     }
     const sitio = lugarPara(m, a, tipo);
     if (sitio < 0) continue;
+    if (OBRA_TIERRA[tipo]) {
+      const o = planear(m, a, tipo, sitio);
+      if (!o) continue;
+      a.obra = o;
+      return;
+    }
+    // Un edificio grande en una ladera: quien sabe nivelar, allana antes el sitio.
+    if (GRANDES.has(tipo) && conoce(a, 'nivelacion') && labrada(m, sitio) !== 'explanada' && desnivel(m, sitio) > DESNIVEL_MAXIMO && (a.aparcadas?.explanada ?? 0) <= m.t) {
+      const o = planear(m, a, 'explanada', sitio, tipo);
+      if (o) {
+        a.obra = o;
+        return;
+      }
+    }
     a.obra = { tipo, x: sitio % m.ancho, y: Math.floor(sitio / m.ancho), progreso: 0, pagada: false, desde: m.t, ...(rodea(tipo) ? { radio: radioNecesario(a) } : {}) };
     return;
   }
@@ -1157,6 +1190,14 @@ function lugarPara(m: Mundo, a: Aldea, tipo: string): number {
   }
   // La aldea se extiende a medida que crece: los campos y las casas nuevas van más afuera.
   const extension = Math.min(4, Math.floor(a.edificios.length / 12));
+  if (tipo === 'cantera') {
+    // En la roca de una colina o una montaña cercana, que aún no sea cantera.
+    return mejorCasilla(m, a.x, a.y, 6, (i, d) => {
+      const t = m.terreno[i];
+      if ((t !== COLINA && t !== MONTANA) || d < 2 || ocupadas.has(i) || sobreMuro(i) || labrada(m, i) === 'cantera' || !alcanzable(m, a, i, false)) return 0;
+      return (t === MONTANA ? 1.2 : 1) / (1 + d);
+    });
+  }
   if (tipo === 'campo') {
     return mejorCasilla(m, a.x, a.y, 4 + extension, (i, d) => {
       if (ocupadas.has(i) || d < 1 || sobreMuro(i) || !alcanzable(m, a, i, false)) return 0;
@@ -1170,7 +1211,10 @@ function lugarPara(m: Mundo, a: Aldea, tipo: string): number {
     const t = m.terreno[i];
     if (t === AGUA || t === MONTANA || t === RIO) return 0;
     if (tipo === 'hoguera') return 2 / (1 + d);
-    return d < 1 ? 0 : 1 / (1 + d);
+    if (d < 1) return 0;
+    // Los edificios grandes buscan suelo llano: una explanada, si la hay; si no, lo menos empinado.
+    if (GRANDES.has(tipo)) return (labrada(m, i) === 'explanada' ? 4 : desnivel(m, i) > DESNIVEL_MAXIMO ? 0.5 : 1) / (1 + d);
+    return 1 / (1 + d);
   });
 }
 

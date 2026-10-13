@@ -3,7 +3,7 @@
 // descubrir no aparecen (nada de destripes).
 
 import { ALTO, ANCHO, DIAS_ANIO, ESTACIONES } from './config.ts';
-import { BASICOS, COMIDAS, CONCEPTOS_VIDA, EDADES, EDIFICIOS, MATERIALES, NOMBRE_CONCEPTO, TECNICA, TECNICAS } from './catalogo.ts';
+import { BASICOS, COMIDAS, CONCEPTOS_VIDA, EDADES, EDIFICIOS, MATERIALES, NOMBRE_CONCEPTO, OBRAS_TIERRA, TECNICA, TECNICAS } from './catalogo.ts';
 import { edadSegun, faltaPara } from './edades.ts';
 import { LEMA } from './exodo.ts';
 import { anioDe, fecha } from './cronica.ts';
@@ -68,6 +68,8 @@ export function datosWeb(m: Mundo, ahora: Date) {
     incendios: m.incendios.map(([i]) => i),
     cenizas: m.cenizas.map(([i, t]) => [i, m.t - t]),
     inundadas: m.inundadas.map(([i]) => i),
+    // Lo que la gente ha labrado: [casilla, obra] (explanadas, canteras...).
+    labrado: m.labrado ?? [],
     madera: R.madera.map((v) => Math.round(v)),
     bayas: R.bayas.map((v) => Math.round(v)),
     caza: R.caza.map((v) => Math.round(v)),
@@ -83,7 +85,10 @@ export function datosWeb(m: Mundo, ahora: Date) {
     nombres,
     comestibles: COMIDAS.map((x) => x.id),
     nombresEdades: EDADES.map((e) => e.nombre),
-    obras: Object.fromEntries(EDIFICIOS.map((e) => [e.id, { nombre: e.nombre, coste: e.coste, ...(e.alternativa ? { alternativa: e.alternativa.coste } : {}) }])),
+    obras: Object.fromEntries([
+      ...EDIFICIOS.map((e) => [e.id, { nombre: e.nombre, coste: e.coste, ...(e.alternativa ? { alternativa: e.alternativa.coste } : {}) }]),
+      ...OBRAS_TIERRA.map((o) => [o.id, { nombre: o.nombre, coste: o.coste, tierra: true }]),
+    ]),
     acciones: ACCIONES,
     pruebas: PRUEBAS.map((p) => p.nombre),
     frases: FRASE,
@@ -132,6 +137,7 @@ export function datosWeb(m: Mundo, ahora: Date) {
               ...(a.obra.reforma ? { reforma: a.obra.reforma } : {}),
               ...(a.obra.ang !== undefined ? { ang: a.obra.ang } : {}),
               ...(a.obra.alza ? { alza: true } : {}),
+              ...(a.obra.tierra ? { tierra: { casillas: a.obra.tierra.casillas, ...(a.obra.tierra.para ? { para: a.obra.tierra.para } : {}) } } : {}),
             }
           : null,
         // Su edad (Piedra, Herramientas, Bronce, Hierro), cuándo llegó a cada una y lo que

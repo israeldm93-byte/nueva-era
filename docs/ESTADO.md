@@ -146,3 +146,77 @@ estancia en la tierra hallada y vuelta.
 
 Esta fase está cerrada. Los cambios futuros parten de los problemas concretos que se observen
 en el mundo publicado.
+
+## Hito 1 de la nueva etapa: técnicas que desbloquean acciones y obras de tierra
+
+Primera pieza de la evolución tecnológica y de la transformación del mundo.
+
+### Técnicas nuevas
+
+Las dos tienen ingredientes, gesto y requisitos, así que se descubren combinando lo que
+se conoce, se enseñan, se pierden y se redescubren como todas las demás:
+
+- `nivelacion`: requiere `canteria` y `calendario`.
+- `cantera`: requiere `canteria` y se hace con cobre y madera.
+
+### Acciones declarativas (`OBRAS_TIERRA`, en `src/catalogo.ts`)
+
+Cada obra de tierra se define como datos:
+
+- qué técnica la desbloquea;
+- en qué terrenos se puede hacer;
+- el radio de la zona;
+- el coste en materiales;
+- el trabajo (un mínimo más una parte por cada palmo de tierra movida);
+- la operación: solo `nivelar` o `excavar`, que son las que el motor sabe ejecutar;
+- lo que produce mientras se trabaja.
+
+`validarCatalogo()` revisa al cargar todo el catálogo: técnicas, edificios y obras.
+Comprueba que lo que se pide existe, que no hay ciclos de requisitos ni cantidades
+imposibles y que no se pasan los límites de radio, profundidad y producción. Un catálogo
+roto no llega a simular.
+
+### Motor (`src/tierra.ts`)
+
+- Las obras de tierra usan el mismo circuito que los edificios: se pagan al empezar, las
+  hacen los que construyen y se aparcan si faltan materiales.
+- El relieve cambia poco a poco según avanza la obra (`moverTierra`).
+- Al acabar, la casilla queda en `m.labrado` (`acabarTierra`), con sus consecuencias:
+  - **Explanada:** iguala la zona a su altura media y tala el bosque. Los edificios grandes
+    (`GRANDES`) prefieren la explanada; quien sabe nivelar allana antes un sitio con más de
+    6 palmos de desnivel.
+  - **Cantera:** ahonda la roca, da piedra mientras se trabaja y deja una veta de 60 a 80 de
+    piedra.
+
+### Web
+
+- El relieve 3D se rehace cuando cambia lo labrado, como mucho cada 4 s.
+- Hay colores para la explanada, la cantera y la tierra removida, y no crece vegetación en
+  lo labrado.
+
+### Resultados
+
+- **Pruebas:** `test/tierra.test.ts`: catálogo, explanada gradual con el edificio encima,
+  cantera, guardar y cargar a mitad de obra, y reparación de datos rotos.
+- **Mundo vivo (día 16646), 30 años simulados:** las técnicas se descubren solas y se
+  difunden. Aparecen explanadas para plazas y casas de las tablillas, y canteras en las
+  colinas. 0 invariantes rotas y 0 anomalías.
+- **Rendimiento:** unos 7,4 ms al día por cada 100 personas, frente a 6,8 antes.
+
+### Cómo ampliar
+
+- **Una técnica nueva:** una entrada en `TECNICAS` (y su rama en `RAMA`). Si desbloquea una
+  obra de tierra, otra entrada en `OBRAS_TIERRA`.
+- **Una operación nueva sobre el terreno** (terrazas, acequias, caminos): añadirla a
+  `OPERACIONES`, a `planear` y a `acabarTierra`, y decir en `planificar` cuándo la quiere una
+  aldea.
+
+### Próximos hitos previstos (sin empezar)
+
+1. Más operaciones: terrazas de cultivo, acequias de riego y caminos que aceleren los viajes.
+2. Una edad nueva (`EDADES`) tras el Hierro, ligada a estas técnicas, con ramas de
+   especialización: agricultura, minería, navegación, construcción y comercio.
+3. Pueblos distintos según sus técnicas y su geografía; difusión limitada por contacto y
+   aislamiento.
+4. Guerras con causas (rivalidad, agravios, recursos, territorio), preparación, asedios,
+   conquistas y tratados.

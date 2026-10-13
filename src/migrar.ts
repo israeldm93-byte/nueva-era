@@ -1,7 +1,8 @@
 // Pone al día mundos guardados con versiones anteriores del motor, sin reiniciarlos.
 
 import { azar, estadoAzar, fijarAzar } from './azar.ts';
-import { AGUA, MONTANA, RIO } from './catalogo.ts';
+import { AGUA, EDIFICIO, MONTANA, OBRA_TIERRA, RIO } from './catalogo.ts';
+import { tierraValida } from './tierra.ts';
 import { ALTO, ANCHO, MUNDO_ALTO, MUNDO_ANCHO, VERSION_ESTADO } from './config.ts';
 import { ampliarMapa, crearUltramar } from './ultramar.ts';
 import { poblarFauna } from './fauna.ts';
@@ -183,6 +184,10 @@ export function reparar(m: Mundo): Reparacion[] {
       if (!lista || a.tierras.length < lista.length) apuntar(`${a.nombre}.tierras`, lista?.length ?? 'ilegible', a.tierras.length, 'tierras de ultramar con coordenadas imposibles: se olvidan', false);
       if (!a.tierras.length) delete a.tierras;
     }
+    if (a.obra && (!(EDIFICIO[a.obra.tipo] || OBRA_TIERRA[a.obra.tipo]) || (a.obra.tierra !== undefined && !tierraValida(a.obra.tierra, m)))) {
+      apuntar(`${a.nombre}.obra`, a.obra.tipo, null, 'obra desconocida o con la tierra a medio mover ilegible: se deja (el terreno queda como estaba)', false);
+      a.obra = null;
+    }
     if (a.obra) a.obra.progreso = acotado(`${a.nombre}.obra.progreso`, a.obra.progreso, 0, 1, () => null, 0, 'la obra vuelve a empezar');
     a.amenaza = acotado(`${a.nombre}.amenaza`, a.amenaza, 0, 1, () => null, 0, 'se recalcula cada día');
   }
@@ -242,6 +247,11 @@ export function reparar(m: Mundo): Reparacion[] {
     }
   }
 
+  if (m.labrado !== undefined) {
+    const antes = Array.isArray(m.labrado) ? m.labrado.length : 0;
+    m.labrado = (Array.isArray(m.labrado) ? m.labrado : []).filter((e) => Array.isArray(e) && Number.isInteger(e[0]) && e[0] >= 0 && e[0] < m.ancho * m.alto && !!OBRA_TIERRA[e[1]]);
+    if (m.labrado.length < antes) apuntar('labrado', antes, m.labrado.length, 'casillas labradas con datos imposibles: se olvidan (el relieve queda como está)', false);
+  }
   for (const [k, v] of Object.entries(m.recursos)) {
     let negativos = 0;
     let perdidos = 0;

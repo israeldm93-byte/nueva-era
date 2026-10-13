@@ -160,6 +160,20 @@ export interface Edificio {
   cosechado?: number;
 }
 
+/**
+ * Una obra de tierra en marcha: las casillas que se trabajan, su altura al empezar y la que
+ * tendrán al acabar. El relieve va cambiando poco a poco según avanza la obra.
+ */
+export interface TrabajoTierra {
+  casillas: number[];
+  desde: number[];
+  hasta: number[];
+  /** El trabajo que lleva en total (según la tierra que hay que mover). */
+  esfuerzo: number;
+  /** Para qué se hace (el edificio que se levantará encima), si es para algo. */
+  para?: string;
+}
+
 export interface Obra {
   tipo: string;
   x: number;
@@ -178,6 +192,8 @@ export interface Obra {
   ang?: number;
   /** Si es para alzar la muralla que ya hay (más alta), no para hacer otra. */
   alza?: boolean;
+  /** Si es una obra de tierra (explanada, cantera...). */
+  tierra?: TrabajoTierra;
 }
 
 export interface Aldea {
@@ -422,6 +438,8 @@ export interface Mundo {
   cenizas: [number, number][];
   /** Casillas anegadas por una crecida: [casilla, días que le quedan]. */
   inundadas: [number, number][];
+  /** Casillas labradas por la gente: [casilla, obra de tierra que se hizo allí]. */
+  labrado?: [number, string][];
   /** Último día en que se contó cada tipo de aviso (para no repetir la crónica). */
   avisos: Record<string, number>;
   recursos: Record<string, number[]>;

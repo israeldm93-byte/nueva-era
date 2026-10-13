@@ -653,7 +653,7 @@ export class Edificios3D {
           quedan--;
         }
       }
-      if (a.obra && !ruina && !obraMuro) ponerEd('obra', a.obra, 0, Math.max(0.15, a.obra.progreso) * 1.4);
+      if (a.obra && !ruina && !obraMuro && !a.obra.tierra) ponerEd('obra', a.obra, 0, Math.max(0.15, a.obra.progreso) * 1.4);
     }
     this.cementerios(d);
     for (const k of TIPOS) cerrar(im[`ed-${k}`], n[k]);

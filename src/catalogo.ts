@@ -84,6 +84,7 @@ export const RAMA: Record<string, 'comida' | 'guerra' | 'obras' | 'saber'> = {
   muralla: 'guerra',
   choza: 'obras', adobe: 'obras', canteria: 'obras', teja: 'obras', horno: 'obras', rueda: 'obras', carro: 'obras', hacha: 'obras', carbon: 'obras', cobre: 'obras',
   bronce: 'obras', hierro: 'obras', tela: 'obras', cuerda: 'obras', lasca: 'obras', fuego: 'obras', aguja: 'obras', ropa: 'obras',
+  nivelacion: 'obras', cantera: 'obras',
   escritura: 'saber', numeros: 'saber', pintura: 'saber', tambor: 'saber', medicina: 'saber', remedio: 'saber', comercio: 'saber', vela: 'saber',
 };
 
@@ -155,6 +156,9 @@ export const TECNICAS: Tecnica[] = [
   { id: 'muralla', titulo: 'la muralla de piedra', nombre: 'Muralla de piedra', cosa: 'murallas', cosas: ['canteria', 'piedra', 'piedra'], verbo: 'apilar', facilidad: 0.05, efecto: 'Muros altos de piedra con torres: mucho más fuertes que la cerca o la empalizada, y se pueden alzar aún más.' },
   { id: 'espada', titulo: 'la espada', nombre: 'Espada', cosa: 'espadas', cosas: ['bronce', 'fuego'], verbo: 'golpear', facilidad: 0.03, efecto: 'Espadas (de hierro, si se sabe forjar): los guerreros pelean mucho mejor.' },
   { id: 'catapulta', titulo: 'la catapulta', nombre: 'Catapulta', cosa: 'catapultas', cosas: ['cuerda', 'madera', 'rueda'], verbo: 'atar', facilidad: 0.02, requiere: ['lanza'], efecto: 'Máquinas de asedio: en los asaltos derriban empalizadas y murallas.' },
+  // Las grandes obras: transformar el terreno (se desbloquean acciones, no objetos: ver OBRAS_TIERRA).
+  { id: 'nivelacion', titulo: 'la nivelación', nombre: 'Nivelación', cosa: 'niveles de agua', cosas: ['agua', 'canteria', 'cuerda'], verbo: 'observar', facilidad: 0.03, requiere: ['canteria', 'calendario'], efecto: 'Con un nivel de agua y cuerdas tensas se allana el suelo: explanadas para levantar plazas, templos y mercados en terreno abrupto.' },
+  { id: 'cantera', titulo: 'las canteras', nombre: 'Canteras', cosa: 'canteras', cosas: ['canteria', 'cobre', 'madera'], verbo: 'golpear', facilidad: 0.03, requiere: ['canteria'], efecto: 'Cuñas de madera y picos de metal abren la roca de colinas y montañas: mucha más piedra, y el monte queda tallado.' },
   { id: 'comercio', titulo: 'el comercio', nombre: 'Comercio', cosa: 'mercancías', cosas: ['cobre', 'escritura'], verbo: 'marcar', facilidad: 0.012, efecto: 'Mercados: las aldeas intercambian comida y saberes.' },
 ];
 
@@ -282,3 +286,124 @@ export const OFICIOS = ['recolectar', 'cazar', 'pescar', 'lenar', 'picar', 'barr
 export const VALOR_INSTINTO: Record<string, number> = {
   recolectar: 2.5, cazar: 2.5, pescar: 1.2, lenar: 3, picar: 3, barro: 3, pastorear: 2,
 };
+
+// ---------------------------------------------------------------------------------------
+// Obras de tierra: acciones que una técnica desbloquea y que cambian el terreno.
+//
+// Se definen como datos: qué técnica las permite, en qué terrenos, cuánto cuestan, cuánto
+// trabajo llevan por cada palmo de tierra movida y qué hacen (de un repertorio cerrado de
+// operaciones que el motor sabe ejecutar). Nada más: una obra nueva es una entrada nueva
+// aquí, y el motor la valida al arrancar.
+
+/** Lo que el motor sabe hacer con el terreno. */
+export const OPERACIONES = ['nivelar', 'excavar'] as const;
+export type Operacion = (typeof OPERACIONES)[number];
+
+export interface ObraTierra {
+  id: string;
+  nombre: string;
+  /** La técnica que la permite. */
+  requiere: string;
+  operacion: Operacion;
+  /** Terrenos donde se puede hacer (la casilla central). */
+  terrenos: number[];
+  /** Radio de la zona (en casillas, alrededor de la central). */
+  radio: number;
+  /** Materiales que se gastan al empezar (herramientas, estacas, cuñas). */
+  coste: Record<string, number>;
+  /** Trabajo mínimo, y trabajo por cada unidad de altura movida. */
+  trabajo: number;
+  trabajoPorAltura: number;
+  /** Excavar: cuánto se ahonda la casilla central y las de alrededor. */
+  hondo?: number;
+  hondoBorde?: number;
+  /** Lo que se saca por cada unidad de trabajo (a la despensa). */
+  produce?: Record<string, number>;
+  efecto: string;
+}
+
+export const OBRAS_TIERRA: ObraTierra[] = [
+  {
+    id: 'explanada',
+    nombre: 'Explanada',
+    requiere: 'nivelacion',
+    operacion: 'nivelar',
+    terrenos: [ORILLA, PRADERA, BOSQUE, COLINA, ESTEPA, DESIERTO, TUNDRA],
+    radio: 1,
+    coste: { madera: 6, fibra: 2 },
+    trabajo: 4,
+    trabajoPorAltura: 0.35,
+    efecto: 'Se allana una zona en pendiente: allí se levantan los edificios grandes (y el bosque que hubiera se tala).',
+  },
+  {
+    id: 'cantera',
+    nombre: 'Cantera',
+    requiere: 'cantera',
+    operacion: 'excavar',
+    terrenos: [COLINA, MONTANA],
+    radio: 1,
+    coste: { madera: 8 },
+    trabajo: 6,
+    trabajoPorAltura: 0.25,
+    hondo: 16,
+    hondoBorde: 6,
+    produce: { piedra: 2.5 },
+    efecto: 'Se abre la roca: mucha piedra mientras se trabaja y, después, una veta al descubierto junto a la aldea.',
+  },
+];
+
+export const OBRA_TIERRA: Record<string, ObraTierra> = Object.fromEntries(OBRAS_TIERRA.map((o) => [o.id, o]));
+
+/**
+ * Comprueba que el catálogo tiene sentido: que todo lo que se pide existe, que no hay
+ * cantidades imposibles y que las obras de tierra solo usan operaciones conocidas. Se
+ * llama al cargar: un catálogo roto no llega a simular nada.
+ */
+export function validarCatalogo(): string[] {
+  const out: string[] = [];
+  const ids = new Set<string>();
+  const cosaValida = (c: string) => !!TECNICA[c] || !!MATERIAL[c] || BASICOS.includes(c);
+  const finito = (v: unknown) => typeof v === 'number' && Number.isFinite(v) && v >= 0;
+  for (const t of TECNICAS) {
+    if (ids.has(t.id)) out.push(`técnica repetida: ${t.id}`);
+    ids.add(t.id);
+    if (!t.cosas.length) out.push(`${t.id}: sin ingredientes`);
+    for (const c of t.cosas) if (!cosaValida(c) || c === t.id) out.push(`${t.id}: ingrediente desconocido ${c}`);
+    for (const r of t.requiere ?? []) if (!TECNICA[r] || r === t.id) out.push(`${t.id}: requiere algo desconocido ${r}`);
+    if (!VERBO[t.verbo]) out.push(`${t.id}: gesto desconocido ${t.verbo}`);
+    if (!(t.facilidad > 0 && t.facilidad <= 1)) out.push(`${t.id}: facilidad imposible`);
+  }
+  // Sin ciclos en lo que hace falta saber antes (si no, nadie podría aprenderlo nunca).
+  const previas = (t: Tecnica) => [...(t.requiere ?? []), ...t.cosas.filter((c) => TECNICA[c])];
+  const estado = new Map<string, number>();
+  const visitar = (id: string): boolean => {
+    if (estado.get(id) === 1) return false;
+    if (estado.get(id) === 2) return true;
+    estado.set(id, 1);
+    const ok = previas(TECNICA[id]).every(visitar);
+    estado.set(id, 2);
+    return ok;
+  };
+  for (const t of TECNICAS) if (!visitar(t.id)) out.push(`${t.id}: ciclo de requisitos`);
+  for (const e of EDIFICIOS) {
+    if (!TECNICA[e.requiere]) out.push(`edificio ${e.id}: requiere una técnica desconocida ${e.requiere}`);
+    if (!(e.trabajo > 0) || !Object.values(e.coste).every(finito)) out.push(`edificio ${e.id}: cantidades imposibles`);
+  }
+  for (const o of OBRAS_TIERRA) {
+    if (EDIFICIO[o.id]) out.push(`obra ${o.id}: choca con un edificio del mismo nombre`);
+    if (!TECNICA[o.requiere]) out.push(`obra ${o.id}: requiere una técnica desconocida ${o.requiere}`);
+    if (!OPERACIONES.includes(o.operacion)) out.push(`obra ${o.id}: operación desconocida ${o.operacion}`);
+    if (!o.terrenos.length || o.terrenos.some((t) => t === AGUA || t === RIO || !(t >= 0 && t < TERRENOS.length))) out.push(`obra ${o.id}: terrenos imposibles`);
+    if (!Number.isInteger(o.radio) || o.radio < 0 || o.radio > 2) out.push(`obra ${o.id}: radio fuera de límites (0 a 2)`);
+    if (!(o.trabajo > 0) || !finito(o.trabajoPorAltura) || !Object.values(o.coste).every(finito)) out.push(`obra ${o.id}: cantidades imposibles`);
+    for (const k of [...Object.keys(o.coste), ...Object.keys(o.produce ?? {})]) if (!MATERIAL[k]) out.push(`obra ${o.id}: material desconocido ${k}`);
+    if (o.produce && !Object.values(o.produce).every((v) => finito(v) && v <= 10)) out.push(`obra ${o.id}: produce demasiado`);
+    if (o.operacion === 'excavar' && !(finito(o.hondo) && o.hondo! <= 30 && finito(o.hondoBorde ?? 0))) out.push(`obra ${o.id}: excavación imposible (como mucho 30 de hondo)`);
+  }
+  return out;
+}
+
+{
+  const errores = validarCatalogo();
+  if (errores.length) throw new Error(`Catálogo inválido:\n- ${errores.join('\n- ')}`);
+}
