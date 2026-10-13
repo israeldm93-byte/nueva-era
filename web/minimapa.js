@@ -45,7 +45,7 @@ export class Minimapa {
   /** El terreno se pinta una vez por mundo y estación (y cuando cambia lo quemado). */
   preparar(d) {
     this.d = d;
-    const clave = `${d.era}-${d.semilla}-${d.estacion}-${d.cenizas.length}-${d.incendios.length > 0}`;
+    const clave = `${d.era}-${d.semilla}-${d.estacion}-${d.cenizas.length}-${d.incendios.length > 0}-${(d.caminos ?? []).length}-${(d.caminos ?? []).reduce((s, [, v]) => s + v, 0)}`;
     if (clave === this.clave) return;
     this.clave = clave;
     const W = d.ancho;
@@ -55,6 +55,7 @@ export class Minimapa {
     const g = this.fondo.getContext('2d');
     const img = g.createImageData(W, H);
     const quemada = new Set(d.cenizas.map(([i]) => i));
+    const camino = new Map(d.caminos ?? []);
     const invierno = d.estacion === 'invierno';
     for (let i = 0; i < W * H; i++) {
       const t = d.terreno[i];
@@ -73,6 +74,15 @@ export class Minimapa {
         if (h > 70 || (invierno && Math.floor(i / W) < H * 0.5 && t !== 6)) [r, gg, b] = [236, 240, 244];
       }
       if (quemada.has(i)) [r, gg, b] = [70, 62, 56];
+      // Senderos y caminos: trazos de tierra clara (más marcados cuanto mejor es el camino).
+      const c = camino.get(i);
+      if (c) {
+        const [cr, cg, cb] = c >= 3 ? [176, 168, 152] : [168, 140, 100];
+        const f = c === 1 ? 0.45 : 0.8;
+        r = r + (cr - r) * f;
+        gg = gg + (cg - gg) * f;
+        b = b + (cb - b) * f;
+      }
       img.data[i * 4] = r;
       img.data[i * 4 + 1] = gg;
       img.data[i * 4 + 2] = b;

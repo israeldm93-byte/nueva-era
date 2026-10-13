@@ -8,6 +8,7 @@ import { desastres } from './desastres.ts';
 import { revisarEdad } from './edades.ts';
 import { caminar } from './exodo.ts';
 import { cambiarTiempo } from './tiempo.ts';
+import { pisar, senderos } from './caminos.ts';
 import { nombreOficio, oficio, vidas } from './individuo.ts';
 import { hito, recordar } from './memoria.ts';
 import { mudanzas } from './migracion.ts';
@@ -24,6 +25,8 @@ import type { Aldea, FilaHistoria, Mundo, Persona } from './tipos.ts';
 
 const r2 = (x: number) => Math.round(x * 100) / 100;
 const HITOS = [25, 50, 100, 200, 500, 1000, 2000, 5000];
+/** Trabajos que llevan a la gente fuera de la aldea (y le hacen pisar el camino). */
+const TRABAJO_FUERA = new Set(['recolectar', 'cazar', 'pescar', 'lenar', 'picar', 'barro', 'cultivar', 'pastorear', 'construir']);
 
 /** Avanza el mundo `dias` días. */
 export function avanzar(m: Mundo, dias: number): void {
@@ -52,6 +55,14 @@ function paso(m: Mundo): void {
     if (c) jornada(m, p, c);
   }
   for (const c of ctx.values()) asentarAprendizaje(m, c);
+  // Ir a trabajar lejos deja huella: cada cual pisa la línea de su aldea a donde trabaja
+  // (se cuenta un día de cada tres, por tres).
+  for (const p of m.personas) {
+    if ((p.id + m.t) % 3 !== 0 || !TRABAJO_FUERA.has(p.actividad ?? '') || p.viaje || p.mudanza) continue;
+    const a = ctx.get(p.aldea)?.a;
+    if (a && Math.abs(p.x - a.x) + Math.abs(p.y - a.y) >= 3) pisar(m, a.x, a.y, p.x, p.y, 3, 2);
+  }
+  if (m.t % 30 === 20) senderos(m);
   const encendidas = new Set<number>();
   for (const a of vivas) {
     const encendida = mantener(m, a, est, dia);

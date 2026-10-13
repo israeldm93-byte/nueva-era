@@ -247,6 +247,21 @@ export function reparar(m: Mundo): Reparacion[] {
     }
   }
 
+  // Senderos, caminos y tránsito: una casilla cada uno, con valores posibles; si no, se empieza de cero.
+  for (const [k, ok] of [['transito', (v: unknown) => Number.isInteger(v) && (v as number) >= 0], ['caminos', (v: unknown) => Number.isInteger(v) && (v as number) >= 0 && (v as number) <= 3]] as const) {
+    const capa = m[k];
+    if (capa === undefined) continue;
+    if (!Array.isArray(capa) || capa.length !== m.ancho * m.alto || !capa.every(ok)) {
+      apuntar(k, Array.isArray(capa) ? `${capa.length} casillas` : capa, null, k === 'caminos' ? 'caminos ilegibles: se pierden (se volverán a formar con el uso)' : 'tránsito ilegible: se empieza de cero', false);
+      delete m[k];
+    }
+  }
+  for (const a of m.aldeas) {
+    if (a.rutas === undefined) continue;
+    const antes = Array.isArray(a.rutas) ? a.rutas.length : 0;
+    a.rutas = (Array.isArray(a.rutas) ? a.rutas : []).filter((r) => Array.isArray(r) && r.length === 5 && r.every((v) => Number.isFinite(v)) && Number.isInteger(r[2]) && r[2] >= 0 && r[2] < 16 && [0, 1, 2].includes(r[4]));
+    if (a.rutas.length < antes) apuntar(`${a.nombre}.rutas`, antes, a.rutas.length, 'rutas recordadas ilegibles: se olvidan', false);
+  }
   if (m.labrado !== undefined) {
     const antes = Array.isArray(m.labrado) ? m.labrado.length : 0;
     m.labrado = (Array.isArray(m.labrado) ? m.labrado : []).filter((e) => Array.isArray(e) && Number.isInteger(e[0]) && e[0] >= 0 && e[0] < m.ancho * m.alto && !!OBRA_TIERRA[e[1]]);
@@ -379,7 +394,9 @@ function travesiaValida(t: Travesia, m: Mundo): boolean {
   if (!t || typeof t !== 'object') return false;
   const fin = (v: unknown) => typeof v === 'number' && Number.isFinite(v);
   if (![t.barca, t.viveres, t.ida, t.zarpo].every(fin) || t.viveres < 0 || t.ida <= 0) return false;
-  if (!Array.isArray(t.rumbo) || t.rumbo.length !== 2 || !t.rumbo.every((v) => v === -1 || v === 0 || v === 1)) return false;
+  if (!Array.isArray(t.rumbo) || t.rumbo.length !== 2 || !t.rumbo.every((v) => fin(v) && Math.abs(v) <= 1) || (t.rumbo[0] === 0 && t.rumbo[1] === 0)) return false;
+  if (t.puerto !== undefined && !dentroDelMapa(t.puerto, m)) return false;
+  if (t.ruta !== undefined && !(Number.isInteger(t.ruta) && t.ruta >= 0 && t.ruta < 16)) return false;
   if (t.tierra !== undefined && !dentroDelMapa(t.tierra, m)) return false;
   if (t.costa !== undefined && typeof t.costa !== 'boolean') return false;
   if (t.como !== undefined && typeof t.como !== 'string') return false;

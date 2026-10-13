@@ -12,7 +12,7 @@
 // conoce esa tierra (y lo que allí se vio), y solo entonces puede pensar en irse a vivir
 // allí. Las aldeas que nacen de ella heredan lo que sabía, y las visitas lo cuentan.
 
-import { elegir, elegirPeso, prob } from './azar.ts';
+import { elegirPeso, prob } from './azar.ts';
 import { DIAS_ANIO } from './config.ts';
 import { AGUA, BOSQUE, COLINA, DESIERTO, ESTEPA, MONTANA, ORDEN_COMER, ORILLA, PANTANO, PRADERA, RIO, TUNDRA } from './catalogo.ts';
 import { anotar } from './cronica.ts';
@@ -22,6 +22,8 @@ import { conoceTierra, deUltramar, direccion, masas } from './mapa.ts';
 import { distancia } from './matematicas.ts';
 import { afamar, hito } from './memoria.ts';
 import { edad, type Indices } from './mundo.ts';
+import { diasEntre } from './caminos.ts';
+import { limiteAldea } from './sociedad.ts';
 import { morir } from './sociedad.ts';
 import type { Aldea, Mundo, Persona, Travesia } from './tipos.ts';
 import { frioDe } from './ultramar.ts';
@@ -45,16 +47,6 @@ const NAUFRAGIO_VELA = 0.0015;
 /** Madera para la barca. */
 const MADERA_BARCA = 4;
 
-const RUMBOS: [number, number][] = [
-  [1, 0],
-  [1, 1],
-  [0, 1],
-  [-1, 1],
-  [-1, 0],
-  [-1, -1],
-  [0, -1],
-  [1, -1],
-];
 
 const cacheMar = new WeakMap<number[], Uint8Array>();
 
@@ -119,18 +111,30 @@ export function puerto(m: Mundo, a: Aldea): [number, number] | null {
 export function trazar(m: Mundo, a: Aldea, p: [number, number], rumbo: [number, number], alcance: number): { fin: [number, number]; tierra: [number, number] | null; costa: boolean } {
   const W = m.ancho;
   const nueva = (x: number, y: number) => m.terreno[y * W + x] !== AGUA && m.terreno[y * W + x] !== RIO && deUltramar(x, y) && !conoceTierra(m, a, y * W + x);
+  const { masa } = masas(m);
+  const suya = masa[a.y * W + a.x];
+  let vista = false;
   let [x, y] = p;
-  for (let k = 1; distancia(x - p[0], y - p[1]) < alcance; k++) {
-    const nx = x + rumbo[0];
-    const ny = y + rumbo[1];
+  let ultimo: [number, number] = [p[0], p[1]];
+  for (let k = 1; distancia(x - p[0], y - p[1]) < alcance && k < 400; k++) {
+    // (Con rumbos que no son enteros, la casilla de cada paso se redondea.)
+    const nx = Math.round(p[0] + rumbo[0] * k);
+    const ny = Math.round(p[1] + rumbo[1] * k);
+    if (nx === x && ny === y) continue;
     if (nx < 0 || ny < 0 || nx >= W || ny >= m.alto) break;
     if (m.terreno[ny * W + nx] !== AGUA) {
       if (nueva(nx, ny)) return { fin: [nx, ny], tierra: [nx, ny], costa: true };
-      // Una costa que ya conocen: se dan la vuelta.
-      return { fin: [x, y], tierra: null, costa: true };
+      // Su propia tierra (la ruta se mete en la costa): se dan la vuelta. Otra tierra que ya
+      // conocen: la bordean y siguen (lo que haya detrás también se puede descubrir).
+      if (masa[ny * W + nx] === suya) return { fin: ultimo, tierra: null, costa: true };
+      vista = true;
+      x = nx;
+      y = ny;
+      continue;
     }
     x = nx;
     y = ny;
+    ultimo = [x, y];
     // Tierra a la vista.
     for (let dy = -2; dy <= 2; dy++) {
       for (let dx = -2; dx <= 2; dx++) {
@@ -141,7 +145,86 @@ export function trazar(m: Mundo, a: Aldea, p: [number, number], rumbo: [number, 
       }
     }
   }
-  return { fin: [x, y], tierra: null, costa: false };
+  // (Si se acaba en tierra conocida, se vuelve desde el último punto de mar.)
+  return { fin: ultimo, tierra: null, costa: vista };
+}
+
+/** Dieciséis rumbos, uno cada 22,5 grados (empezando por el este). */
+export const RUMBOS16: [number, number][] = Array.from({ length: 16 }, (_, k) => [Math.round(Math.cos((k * Math.PI) / 8) * 1000) / 1000, Math.round(Math.sin((k * Math.PI) / 8) * 1000) / 1000]);
+/** Cuántas expediciones recuerda una aldea. */
+const MAX_RUTAS = 40;
+/** Años que tardan en volver a intentar una ruta según lo que hallaron: nada, costas conocidas, tierra nueva. */
+const OLVIDO = [12, 8, 20];
+
+/**
+ * Los puntos de su costa desde donde una aldea puede zarpar: casillas de mar abierto junto a
+ * su tierra, a menos de `COSTA` de la aldea, separadas entre sí (el más cercano, primero).
+ */
+export function puertos(m: Mundo, a: Aldea, max = 6): [number, number][] {
+  const mar = marAbierto(m);
+  const { masa } = masas(m);
+  const suya = masa[a.y * m.ancho + a.x];
+  const cand: [number, number, number][] = [];
+  for (let y = Math.max(1, a.y - COSTA); y <= Math.min(m.alto - 2, a.y + COSTA); y++) {
+    for (let x = Math.max(1, a.x - COSTA); x <= Math.min(m.ancho - 2, a.x + COSTA); x++) {
+      if (!mar[y * m.ancho + x]) continue;
+      const d = distancia(x - a.x, y - a.y);
+      if (d > COSTA) continue;
+      const junto = [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => masa[(y + dy) * m.ancho + x + dx] === suya);
+      if (junto) cand.push([x, y, d]);
+    }
+  }
+  cand.sort((p, q) => p[2] - q[2] || p[1] - q[1] || p[0] - q[0]);
+  const out: [number, number][] = [];
+  for (const [x, y] of cand) {
+    if (out.length >= max) break;
+    if (out.some(([ox, oy]) => distancia(ox - x, oy - y) < 5)) continue;
+    out.push([x, y]);
+  }
+  return out;
+}
+
+/**
+ * Las rutas que una aldea podría intentar: desde cada uno de sus puertos, cada rumbo que
+ * salga a mar abierto. Las que ya probó hace poco sin éxito, no; las que probó hace mucho,
+ * con menos ganas. Y algo más las que se alejan de su propia costa.
+ */
+export function rutasPosibles(m: Mundo, a: Aldea): { puerto: [number, number]; ruta: number; peso: number; probada: boolean }[] {
+  const mar = marAbierto(m);
+  const out: { puerto: [number, number]; ruta: number; peso: number; probada: boolean }[] = [];
+  for (const p of puertos(m, a)) {
+    const fx = p[0] - a.x;
+    const fy = p[1] - a.y;
+    const fl = Math.hypot(fx, fy) || 1;
+    for (let r = 0; r < 16; r++) {
+      const [dx, dy] = RUMBOS16[r];
+      let abierto = true;
+      for (let k = 1; k <= 3 && abierto; k++) {
+        const x = Math.round(p[0] + dx * k);
+        const y = Math.round(p[1] + dy * k);
+        if (x < 0 || y < 0 || x >= m.ancho || y >= m.alto || !mar[y * m.ancho + x]) abierto = false;
+      }
+      if (!abierto) continue;
+      let peso = 1;
+      let probada = false;
+      for (const [px, py, pr, t, res] of a.rutas ?? []) {
+        const reciente = m.t - t < (OLVIDO[res] ?? 12) * DIAS_ANIO;
+        const giro = Math.min(Math.abs(pr - r), 16 - Math.abs(pr - r));
+        // La misma ruta: no se repite mientras se recuerde; pasado el tiempo, con pocas ganas.
+        if (giro === 0 && Math.abs(px - p[0]) <= 3 && Math.abs(py - p[1]) <= 3) {
+          probada = true;
+          peso = reciente ? 0 : Math.min(peso, 0.35);
+          continue;
+        }
+        // Rumbos parecidos desde cerca de allí, si aquello no dio nada nuevo: tampoco apetecen.
+        if (reciente && res < 2 && giro === 1 && Math.abs(px - p[0]) <= 8 && Math.abs(py - p[1]) <= 8) peso *= 0.35;
+      }
+      if (peso <= 0) continue;
+      if ((dx * fx + dy * fy) / fl > 0.3) peso *= 1.6;
+      out.push({ puerto: p, ruta: r, peso, probada });
+    }
+  }
+  return out;
 }
 
 /** Adulto en edad de remar, sano, bien comido y sin otra cosa entre manos. */
@@ -180,31 +263,40 @@ export function zarpar(m: Mundo, a: Aldea, gente: Persona[], forzar: { rumbo?: [
   if (candidatos.length < tripulacion + 2 || gente.filter((p) => edad(m, p) >= 16).length < 8) return false;
   if ((a.despensa.madera ?? 0) < MADERA_BARCA) return false;
   if (comidaTotal(a) / Math.max(1, gente.length * 0.9) < 50) return false;
+  // Las rutas que podrían intentar: desde varios puntos de su costa, hacia mar abierto, y
+  // sin repetir las que ya probaron hace poco sin éxito.
+  const rutas = forzar?.rumbo ? [] : rutasPosibles(m, a);
   if (!forzar) {
-    // Más ganas en un pueblo de caminantes, con barcos de vela y mientras nada se sepa de
-    // lo que hay al otro lado; y más cuanto más curiosa es su gente.
+    if (!rutas.length) return false;
+    // Más ganas en un pueblo de caminantes, con barcos de vela y cuanto más curiosa es su
+    // gente; y con motivos: rutas aún sin probar, falta de sitio en la aldea o de piedra.
     const curiosidad = candidatos.reduce((s, p) => s + p.genes.curiosidad, 0) / candidatos.length;
     const expandir = a.valor === 'expandir' || a.consejo?.prioridad === 'expandir';
-    const ganas = (1 / (DIAS_ANIO * 4)) * (expandir ? 2 : 1) * (vela ? 1.5 : 1) * 0.5 ** (a.tierras?.length ?? 0) * (0.6 + curiosidad);
+    const nuevas = rutas.filter((r) => !r.probada).length / rutas.length;
+    const apretados = Math.max(0, Math.min(1, gente.length / limiteAldea(a) - 0.5));
+    const sinPiedra = (a.despensa.piedra ?? 0) < 40 ? 0.3 : 0;
+    const motivos = 0.3 + 0.7 * nuevas + apretados + sinPiedra;
+    const ganas = (1 / (DIAS_ANIO * 4)) * (expandir ? 2 : 1) * (vela ? 1.5 : 1) * motivos * (0.6 + curiosidad);
     if (!prob(ganas)) return false;
   }
-  const desde = puerto(m, a);
+  let desde: [number, number] | null;
+  let rumbo: [number, number];
+  let ruta: number | undefined;
+  if (forzar?.rumbo) {
+    desde = puerto(m, a);
+    rumbo = forzar.rumbo;
+  } else {
+    const r = rutas.length ? elegirPeso(rutas, (x) => x.peso) : null;
+    if (!r) return false;
+    desde = r.puerto;
+    ruta = r.ruta;
+    rumbo = RUMBOS16[r.ruta];
+  }
   if (!desde) return false;
-  // Rumbos que salen a mar abierto (no los que se meten en la costa).
-  const mar = marAbierto(m);
-  const libres = RUMBOS.filter(([dx, dy]) => {
-    for (let k = 1; k <= 3; k++) {
-      const x = desde[0] + dx * k;
-      const y = desde[1] + dy * k;
-      if (x < 0 || y < 0 || x >= m.ancho || y >= m.alto || !mar[y * m.ancho + x]) return false;
-    }
-    return true;
-  });
-  if (!libres.length) return false;
-  const rumbo = forzar?.rumbo && libres.some(([dx, dy]) => dx === forzar.rumbo![0] && dy === forzar.rumbo![1]) ? forzar.rumbo : elegir(libres);
   const velocidad = vela ? A_VELA : EN_CANOA;
   const { fin, tierra, costa } = trazar(m, a, desde, rumbo, vela ? ALCANCE_VELA : ALCANCE_CANOA);
-  const ida = Math.max(3, Math.ceil(distancia(desde[0] - a.x, desde[1] - a.y) / A_PIE + distancia(fin[0] - desde[0], fin[1] - desde[1]) / velocidad));
+  // Hasta la costa, a pie (por los caminos que haya); luego, navegando.
+  const ida = Math.max(3, Math.ceil(diasEntre(m, [a.x, a.y], desde, A_PIE) + distancia(fin[0] - desde[0], fin[1] - desde[1]) / velocidad));
   // La tripulación: los más curiosos y osados (y los menos prudentes).
   const van: Persona[] = [];
   const quedan = candidatos.slice();
@@ -220,7 +312,7 @@ export function zarpar(m: Mundo, a: Aldea, gente: Persona[], forzar: { rumbo?: [
   apuntar(a, 'madera', (a.despensa.madera ?? 0) - MADERA_BARCA);
   const barca = van[0].id;
   for (const p of van) {
-    const mar: Travesia = { barca, rumbo, viveres: r2(viveres / van.length), ida, zarpo: m.t };
+    const mar: Travesia = { barca, rumbo, viveres: r2(viveres / van.length), ida, zarpo: m.t, puerto: [desde[0], desde[1]], ...(ruta !== undefined ? { ruta } : {}) };
     if (tierra) mar.tierra = tierra;
     else if (costa) mar.costa = true;
     p.viaje = { a: a.id, fase: 'ida', desde: [a.x, a.y], hasta: fin, salida: m.t, dias: ida, conocio: [], mar };
@@ -389,6 +481,13 @@ function regresar(m: Mundo, grupo: Persona[], casa: Aldea, _ix: Indices): void {
   }
   const nombres = grupo.map((p) => p.nombre);
   const quien = nombres.length > 1 ? `${nombres.slice(0, -1).join(', ')} y ${nombres[nombres.length - 1]}` : nombres[0];
+  // Lo que encontraron por esa ruta se recuerda (y no se repite enseguida si no valió la pena).
+  if (mar.puerto && mar.ruta !== undefined) {
+    const res = mar.tierra && !conoceTierra(m, casa, mar.tierra[1] * m.ancho + mar.tierra[0]) ? 2 : mar.tierra || mar.costa ? 1 : 0;
+    const rutas = (casa.rutas ??= []);
+    rutas.push([mar.puerto[0], mar.puerto[1], mar.ruta, m.t, res]);
+    if (rutas.length > MAX_RUTAS) rutas.splice(0, rutas.length - MAX_RUTAS);
+  }
   if (!mar.tierra) {
     const vieron = mar.costa ? `: hacia ${rumbo} solo hallaron costas que ya conocían` : ` sin haber visto tierra hacia ${rumbo}`;
     if (aviso(m, `vuelve-mar-${casa.id}`, DIAS_ANIO)) anotar(m, 'exploracion', `${quien} vuelven a ${casa.nombre} tras ${dias} días en el mar${vieron}.`, casa.id);

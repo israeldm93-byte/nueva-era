@@ -11,7 +11,9 @@
 // sus operaciones (nivelar, excavar) dentro de unos límites.
 
 import { AGUA, BOSQUE, MONTANA, OBRA_TIERRA, PRADERA, RIO, type ObraTierra } from './catalogo.ts';
+import { caminosDe, tocarCaminos } from './caminos.ts';
 import { anotar } from './cronica.ts';
+import { aviso } from './fauna.ts';
 import { masas } from './mapa.ts';
 import type { Aldea, Mundo, Obra, TrabajoTierra } from './tipos.ts';
 
@@ -67,7 +69,7 @@ export function labrada(m: Mundo, i: number): string | null {
  */
 export function planear(m: Mundo, a: Aldea, tipo: string, centro: number, para?: string): Obra | null {
   const o: ObraTierra | undefined = OBRA_TIERRA[tipo];
-  if (!o || !a.conocidos.includes(o.requiere)) return null;
+  if (!o || !a.conocidos.includes(o.requiere) || o.operacion === 'camino') return null;
   if (!o.terrenos.includes(m.terreno[centro])) return null;
   const casillas = zona(m, centro, o.radio);
   if (!casillas.length) return null;
@@ -87,11 +89,43 @@ export function planear(m: Mundo, a: Aldea, tipo: string, centro: number, para?:
   return { tipo, x: centro % m.ancho, y: Math.floor(centro / m.ancho), progreso: 0, pagada: false, desde: m.t, tierra };
 }
 
+/**
+ * Prepara un camino sobre un tramo (casillas seguidas de sendero, o de camino para
+ * empedrarlo). El trabajo y el coste son por casilla. Null si no se puede.
+ */
+export function planearCamino(m: Mundo, a: Aldea, tipo: string, casillas: number[]): Obra | null {
+  const o = OBRA_TIERRA[tipo];
+  if (!o || o.operacion !== 'camino' || !casillas.length || casillas.length > 12) return null;
+  if (![o.requiere, ...(o.ademas ?? [])].every((r) => a.conocidos.includes(r))) return null;
+  const cam = caminosDe(m);
+  // Solo sobre tierra (nunca sobre el agua) y sobre el nivel que toca mejorar.
+  if (!casillas.every((i) => o.terrenos.includes(m.terreno[i]) && cam[i] === o.sobre)) return null;
+  const alturas = casillas.map((i) => m.relieve[i]);
+  const tierra: TrabajoTierra = { casillas, desde: alturas, hasta: alturas.slice(), esfuerzo: r4(o.trabajo * casillas.length) };
+  return { tipo, x: casillas[0] % m.ancho, y: Math.floor(casillas[0] / m.ancho), progreso: 0, pagada: false, desde: m.t, tierra };
+}
+
 /** El relieve de la zona según lo que lleva hecho la obra (entero, como siempre). */
 export function moverTierra(m: Mundo, obra: Obra): void {
   const t = obra.tierra;
   if (!t) return;
   const f = Math.min(1, Math.max(0, obra.progreso));
+  const o = OBRA_TIERRA[obra.tipo];
+  if (o?.operacion === 'camino') {
+    // El camino avanza casilla a casilla.
+    const cam = caminosDe(m);
+    const hechas = Math.floor(f * t.casillas.length + 1e-9);
+    let cambia = false;
+    for (let k = 0; k < hechas; k++) {
+      const i = t.casillas[k];
+      if (cam[i] < o.nivel!) {
+        cam[i] = o.nivel!;
+        cambia = true;
+      }
+    }
+    if (cambia) tocarCaminos(m);
+    return;
+  }
   t.casillas.forEach((i, k) => {
     m.relieve[i] = Math.round(t.desde[k] + (t.hasta[k] - t.desde[k]) * f);
   });
@@ -104,6 +138,12 @@ export function acabarTierra(m: Mundo, a: Aldea, obra: Obra): void {
   obra.progreso = 1;
   moverTierra(m, obra);
   const o = OBRA_TIERRA[obra.tipo];
+  if (o.operacion === 'camino') {
+    if (aviso(m, `${obra.tipo}-${a.id}`, 360 * 3)) {
+      anotar(m, 'edificio', o.nivel === 3 ? `Los de ${a.nombre} empiedran ${t.casillas.length} pasos de su camino más transitado: ya no habrá barro ni en invierno.` : `Los de ${a.nombre} convierten en camino de tierra compactada el sendero que más pisan (${t.casillas.length} pasos): por él se va mucho más deprisa.`, a.id);
+    }
+    return;
+  }
   const centro = obra.y * m.ancho + obra.x;
   const marcar = (i: number) => {
     m.labrado = (m.labrado ?? []).filter(([c]) => c !== i);

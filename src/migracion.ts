@@ -12,6 +12,7 @@ import { comidaTotal, conoce, plazas } from './economia.ts';
 import { hito, lazo, memoria, recordar } from './memoria.ts';
 import { masas } from './mapa.ts';
 import { distancia } from './matematicas.ts';
+import { diasEntre, pisar } from './caminos.ts';
 import { aviso } from './fauna.ts';
 import { edad, type Indices } from './mundo.ts';
 import { relacion } from './politica.ts';
@@ -124,7 +125,8 @@ export function mudar(m: Mundo, ix: Indices, p: Persona, a: Aldea, b: Aldea): Pe
     for (const f of [...familia]) if (q.madre === f.id || q.padre === f.id) familia.add(q);
   }
   const razon = p.meta?.motivo.split(': ').slice(1).join(': ').replace(/\.$/, '') ?? '';
-  const dias = Math.max(2, Math.ceil(distancia(a.x - b.x, a.y - b.y) / 1.5));
+  const dias = Math.max(2, Math.ceil(diasEntre(m, [a.x, a.y], [b.x, b.y], 1.5) - 1e-9));
+  pisar(m, a.x, a.y, b.x, b.y, 5 * familia.size);
   for (const q of familia) {
     q.aldea = b.id;
     q.faccion = null;

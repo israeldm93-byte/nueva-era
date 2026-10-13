@@ -70,6 +70,8 @@ export function datosWeb(m: Mundo, ahora: Date) {
     inundadas: m.inundadas.map(([i]) => i),
     // Lo que la gente ha labrado: [casilla, obra] (explanadas, canteras...).
     labrado: m.labrado ?? [],
+    // Senderos y caminos: [casilla, nivel] (1 sendero, 2 camino de tierra, 3 empedrado).
+    caminos: (m.caminos ?? []).flatMap((v, i) => (v > 0 ? [[i, v]] : [])),
     madera: R.madera.map((v) => Math.round(v)),
     bayas: R.bayas.map((v) => Math.round(v)),
     caza: R.caza.map((v) => Math.round(v)),

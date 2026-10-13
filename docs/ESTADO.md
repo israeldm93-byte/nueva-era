@@ -220,3 +220,67 @@ roto no llega a simular.
    aislamiento.
 4. Guerras con causas (rivalidad, agravios, recursos, territorio), preparación, asedios,
    conquistas y tratados.
+
+## Hito 2: caminos, movilidad terrestre y exploración con memoria
+
+### Caminos (`src/caminos.ts`)
+
+- **Tránsito:** ir a trabajar lejos, las visitas, las mudanzas, los éxodos y los encuentros
+  entre aldeas dejan tránsito en las casillas de tierra que recorren (nunca en el agua).
+  El tránsito se guarda en `m.transito` y cada mes se olvida un 20 %.
+- **Senderos:** donde el tránsito pasa de 180 queda un sendero (nivel 1 en `m.caminos`); si
+  baja de 60, se borra.
+- **Caminos construidos:**
+  - La técnica nueva `caminos` (requiere `rueda`) desbloquea dos obras de tierra en
+    `OBRAS_TIERRA`, con la operación `camino`.
+  - **Camino de tierra:** 1 de madera y 1,2 de trabajo por casilla, sobre senderos (nivel 2).
+  - **Empedrado:** además requiere `canteria`; 4 de piedra y 2,5 de trabajo por casilla,
+    sobre caminos (nivel 3).
+  - Cada aldea mejora un tramo seguido (hasta 10 casillas) de sus senderos más transitados
+    (`tramo`). El camino avanza casilla a casilla.
+- **Duración de los viajes:** `diasEntre` multiplica la distancia en línea recta por el atajo
+  de los caminos que hay en la línea del recorrido; un tramo es más rápido (×1,2, ×1,5 o
+  ×1,9 según el nivel) solo si sus dos casillas lo son. Sin caminos, la duración es la de
+  siempre. Lo calculado se guarda en caché hasta que cambian los caminos (`tocarCaminos`).
+  Se aplica a:
+  - visitas;
+  - mudanzas;
+  - éxodos;
+  - el tramo a pie hasta el puerto;
+  - el alcance de los encuentros y del comercio (`atajo`).
+- **Web:** caminos en el terreno 3D (con menos nieve encima), en el minimapa y sin vegetación.
+
+### Exploración
+
+- **Puntos de salida:** `puertos` devuelve hasta 6 puntos de la costa de la aldea.
+- **Rutas:** `rutasPosibles` combina cada puerto con 16 rumbos y descarta los que no salen a
+  mar abierto.
+- **Memoria (`aldea.rutas`):** se apunta al volver la expedición, nunca antes.
+  - Una ruta probada no se repite hasta pasados 12 años si no vieron nada, 8 si solo vieron
+    costas conocidas y 20 si hallaron tierra.
+  - Los rumbos vecinos de una ruta fallida, desde puertos cercanos, también pierden atractivo.
+- **Rodear costas conocidas:** si una expedición topa con una tierra ya conocida que no es la
+  suya, la rodea y sigue, así que lo que hay detrás también se puede descubrir.
+- **Ganas de explorar:** dependen de las rutas aún sin probar, de la falta de sitio en la
+  aldea y de la escasez de piedra.
+
+### Resultados
+
+20 años sobre una copia del mundo vivo, frente a la versión anterior:
+
+| | Antes | Ahora |
+| --- | --- | --- |
+| Tierras nuevas descubiertas | 1 | 7 |
+| Masas de ultramar conocidas (partiendo de 1) | 2 | 7 |
+| Colonias | — | la primera en el norte frío (Ogor) |
+| Senderos / caminos / empedrados (casillas) | — | 633 / 291 / 114 |
+| Coste | 6,55 ms/día por cada 100 personas | 7,01 (+7 %) |
+
+Desde los puertos actuales, encadenando descubrimientos, se pueden alcanzar 14 masas de
+ultramar; antes, 4. Las pruebas están en `test/movilidad.test.ts`.
+
+### Pendiente para más adelante
+
+- Puentes.
+- Que los caminos acerquen también el trabajo diario (el radio de trabajo).
+- Rutas comerciales explícitas.

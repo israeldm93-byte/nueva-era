@@ -108,13 +108,19 @@ const HITO = {
   explora: (d) => `cruzó el mar y halló ${d}`,
 };
 
+/** Hacia dónde va un rumbo (la y crece hacia el sur). */
+function rumboTexto([dx, dy]) {
+  const a = Math.round((Math.atan2(dy, dx) / (Math.PI / 4)) + 8) % 8;
+  return ['el este', 'el sureste', 'el sur', 'el suroeste', 'el oeste', 'el noroeste', 'el norte', 'el noreste'][a];
+}
+
 const RUMBO = { '1,0': 'el este', '1,1': 'el sureste', '0,1': 'el sur', '-1,1': 'el suroeste', '-1,0': 'el oeste', '-1,-1': 'el noroeste', '0,-1': 'el norte', '1,-1': 'el noreste' };
 
 /** Dónde anda quien está de viaje en otra aldea. */
 function textoViaje(p) {
   const mar = p.viaje.mar;
   if (mar) {
-    const hacia = RUMBO[mar.rumbo.join(',')] ?? 'alta mar';
+    const hacia = rumboTexto(mar.rumbo);
     if (p.viaje.fase === 'ida') return `Ha salido en barca a explorar el mar, hacia ${hacia}.`;
     if (p.viaje.fase === 'estancia') return `Recorre una tierra al otro lado del mar: ${mar.como ?? 'nadie sabe aún cómo es'}.`;
     return mar.como ? `Vuelve por mar con noticias: ha visto ${mar.como}.` : 'Vuelve por mar sin haber visto tierra.';

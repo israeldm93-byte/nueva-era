@@ -9,7 +9,7 @@ import { anotar } from './cronica.ts';
 import { aCaballo, apuntar, conoce, deTiro } from './economia.ts';
 import { riesgoNaufragio } from './exploracion.ts';
 import { deUltramar, direccion } from './mapa.ts';
-import { distancia } from './matematicas.ts';
+import { diasEntre, pisar } from './caminos.ts';
 import { estacionDe } from './mundo.ts';
 import { morir } from './sociedad.ts';
 import type { Aldea, Mundo, Persona } from './tipos.ts';
@@ -43,10 +43,11 @@ export function cargar(origen: Aldea, b: Aldea, personas: number, parte: number)
 
 /** Se ponen en camino desde la aldea vieja hacia su nueva tierra. */
 export function partir(m: Mundo, b: Aldea, origen: Aldea, hasta: { x: number; y: number }, gente: Iterable<Persona>): void {
-  const d = distancia(hasta.x - origen.x, hasta.y - origen.y);
   // A pie, casilla y media al día con niños y fardos; a caballo, bastante más.
   const paso = aCaballo(origen) ? 2.2 : 1.4;
-  b.viaje = { desde: [origen.x, origen.y], hasta: [hasta.x, hasta.y], salida: m.t, dias: Math.max(3, Math.ceil(d / paso)) };
+  // (Por los caminos que haya se va más deprisa; y los que se van dejan huella.)
+  b.viaje = { desde: [origen.x, origen.y], hasta: [hasta.x, hasta.y], salida: m.t, dias: Math.max(3, Math.ceil(diasEntre(m, [origen.x, origen.y], [hasta.x, hasta.y], paso) - 1e-9)) };
+  pisar(m, origen.x, origen.y, hasta.x, hasta.y, Math.min(100, 5 * [...gente].length));
   b.x = origen.x;
   b.y = origen.y;
   for (const p of gente) {

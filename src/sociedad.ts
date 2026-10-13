@@ -8,6 +8,7 @@ import { ABRIGO_CASA, BASICOS, CONCEPTOS_VIDA, EDIFICIO, PANTANO, TECNICA } from
 import { anotar } from './cronica.ts';
 import { anomalia } from './anomalias.ts';
 import { frioDe } from './ultramar.ts';
+import { atajo, pisar } from './caminos.ts';
 import { edadSegun } from './edades.ts';
 import { cargar, partir } from './exodo.ts';
 import { apuntar, comidaTotal, conoce, guardar, necesidad, tiene } from './economia.ts';
@@ -427,7 +428,8 @@ export function encuentros(m: Mundo, ix: Indices, escasez: Map<number, number>):
       // En guerra se va a buscar al enemigo más lejos y más a menudo.
       const guerra = enGuerra(a, b) || enGuerra(b, a);
       const alcance = 18 + alcanceExtra(a) + alcanceExtra(b) + (guerra ? 8 : 0);
-      const d = distancia(a.x - b.x, a.y - b.y);
+      // Unidas por caminos, dos aldeas están más «cerca» de lo que dice la distancia.
+      const d = distancia(a.x - b.x, a.y - b.y) * atajo(m, [a.x, a.y], [b.x, b.y]);
       if (d > alcance || !prob((guerra ? 0.55 : 0.35) * (tiene(a, 'mercado') && tiene(b, 'mercado') ? 2 : 1))) continue;
       const ea = escasez.get(a.id) ?? 0;
       const eb = escasez.get(b.id) ?? 0;
@@ -446,6 +448,8 @@ export function encuentros(m: Mundo, ix: Indices, escasez: Map<number, number>):
         m.contactos.push(clave);
         anotar(m, 'contacto', `Gente de ${a.nombre} y de ${b.nombre} se encuentra por primera vez.`, a.id);
       }
+      // Los que van y vienen de una a otra pisan el camino.
+      pisar(m, a.x, a.y, b.x, b.y, 15, 2);
       for (let k = 0; k < 3 && ga.length && gb.length; k++) {
         visita(m, elegir(ga), elegir(gb), a, b, ix);
         if (ga.length && gb.length) visita(m, elegir(gb), elegir(ga), b, a, ix);

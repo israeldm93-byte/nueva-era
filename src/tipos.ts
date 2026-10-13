@@ -117,8 +117,11 @@ export interface Persona {
 export interface Travesia {
   /** La barca: el id de quien la patronea al zarpar (los de la misma barca corren la misma suerte). */
   barca: number;
-  /** Hacia dónde navegan (paso por día en x e y: -1, 0 o 1). */
+  /** Hacia dónde navegan (dirección en x e y). */
   rumbo: [number, number];
+  /** De qué punto de la costa zarparon y con cuál de los rumbos (0-15), para recordarlo. */
+  puerto?: [number, number];
+  ruta?: number;
   /** La comida que llevan a bordo (lo que alimenta, no unidades de despensa). */
   viveres: number;
   /** Días que se tarda en ir (y en volver). */
@@ -204,6 +207,11 @@ export interface Aldea {
   viaje?: { desde: [number, number]; hasta: [number, number]; salida: number; dias: number };
   /** Tierras al otro lado del mar que conocen (un punto de cada una: donde se desembarcó). */
   tierras?: [number, number][];
+  /**
+   * Las expediciones que volvieron: [puerto x, puerto y, rumbo (0-15), día, resultado]
+   * (0 no vieron tierra, 1 solo costas conocidas, 2 tierra nueva).
+   */
+  rutas?: [number, number, number, number, number][];
   /** Aldea, pueblo o ciudad (según lo que han crecido). */
   rango?: string;
   /** Lo que les une como pueblo (lo que defendían cuando se fueron) y de dónde vienen. */
@@ -440,6 +448,10 @@ export interface Mundo {
   inundadas: [number, number][];
   /** Casillas labradas por la gente: [casilla, obra de tierra que se hizo allí]. */
   labrado?: [number, string][];
+  /** Lo que se ha pisado cada casilla últimamente (de ahí salen los senderos). */
+  transito?: number[];
+  /** El camino de cada casilla: 0 nada, 1 sendero, 2 camino de tierra, 3 empedrado. */
+  caminos?: number[];
   /** Último día en que se contó cada tipo de aviso (para no repetir la crónica). */
   avisos: Record<string, number>;
   recursos: Record<string, number[]>;

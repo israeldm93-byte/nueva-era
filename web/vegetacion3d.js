@@ -210,7 +210,7 @@ export class Vegetacion3D {
     const primavera = est === 'primavera';
     const ceniza = new Map(d.cenizas.map(([i, a]) => [i, a]));
     // Lo labrado (explanadas, canteras) queda desnudo.
-    const ocupadas = new Set((d.labrado ?? []).map(([i]) => i));
+    const ocupadas = new Set([...(d.labrado ?? []).map(([i]) => i), ...(d.caminos ?? []).map(([i]) => i)]);
     for (const a of d.aldeas) {
       for (const e of a.edificios) ocupadas.add(e.y * W + e.x);
       if (a.obra) ocupadas.add(a.obra.y * W + a.obra.x);

@@ -35,6 +35,8 @@ export function comprobar(m: Mundo): string[] {
     if (a.obra) numerosRotos(a.obra, `${a.nombre}.obra`, out);
     for (const [x, y] of a.tierras ?? []) if (!Number.isInteger(x) || !Number.isInteger(y) || x < 0 || y < 0 || x >= m.ancho || y >= m.alto) out.push(`${a.nombre}: tierra conocida fuera del mapa (${x},${y})`);
   }
+  if (m.caminos && (m.caminos.length !== m.ancho * m.alto || m.caminos.some((v) => !(v >= 0 && v <= 3)))) out.push('caminos con valores imposibles');
+  if (m.transito && (m.transito.length !== m.ancho * m.alto || m.transito.some((v) => !(Number.isFinite(v) && v >= 0)))) out.push('tránsito con valores imposibles');
   for (const [i] of m.labrado ?? []) if (!Number.isInteger(i) || i < 0 || i >= m.ancho * m.alto) out.push(`casilla labrada fuera del mapa (${i})`);
   for (const a of m.aldeas) {
     const t = a.obra?.tierra;

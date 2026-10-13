@@ -84,7 +84,7 @@ export const RAMA: Record<string, 'comida' | 'guerra' | 'obras' | 'saber'> = {
   muralla: 'guerra',
   choza: 'obras', adobe: 'obras', canteria: 'obras', teja: 'obras', horno: 'obras', rueda: 'obras', carro: 'obras', hacha: 'obras', carbon: 'obras', cobre: 'obras',
   bronce: 'obras', hierro: 'obras', tela: 'obras', cuerda: 'obras', lasca: 'obras', fuego: 'obras', aguja: 'obras', ropa: 'obras',
-  nivelacion: 'obras', cantera: 'obras',
+  nivelacion: 'obras', cantera: 'obras', caminos: 'obras',
   escritura: 'saber', numeros: 'saber', pintura: 'saber', tambor: 'saber', medicina: 'saber', remedio: 'saber', comercio: 'saber', vela: 'saber',
 };
 
@@ -159,6 +159,7 @@ export const TECNICAS: Tecnica[] = [
   // Las grandes obras: transformar el terreno (se desbloquean acciones, no objetos: ver OBRAS_TIERRA).
   { id: 'nivelacion', titulo: 'la nivelación', nombre: 'Nivelación', cosa: 'niveles de agua', cosas: ['agua', 'canteria', 'cuerda'], verbo: 'observar', facilidad: 0.03, requiere: ['canteria', 'calendario'], efecto: 'Con un nivel de agua y cuerdas tensas se allana el suelo: explanadas para levantar plazas, templos y mercados en terreno abrupto.' },
   { id: 'cantera', titulo: 'las canteras', nombre: 'Canteras', cosa: 'canteras', cosas: ['canteria', 'cobre', 'madera'], verbo: 'golpear', facilidad: 0.03, requiere: ['canteria'], efecto: 'Cuñas de madera y picos de metal abren la roca de colinas y montañas: mucha más piedra, y el monte queda tallado.' },
+  { id: 'caminos', titulo: 'los caminos', nombre: 'Caminos', cosa: 'caminos', cosas: ['carro', 'tierra'], verbo: 'cavar', facilidad: 0.04, requiere: ['rueda'], efecto: 'Los senderos más pisados se convierten en caminos de tierra compactada (y, sabiendo labrar la piedra, empedrados): por ellos se viaja más deprisa.' },
   { id: 'comercio', titulo: 'el comercio', nombre: 'Comercio', cosa: 'mercancías', cosas: ['cobre', 'escritura'], verbo: 'marcar', facilidad: 0.012, efecto: 'Mercados: las aldeas intercambian comida y saberes.' },
 ];
 
@@ -296,7 +297,7 @@ export const VALOR_INSTINTO: Record<string, number> = {
 // aquí, y el motor la valida al arrancar.
 
 /** Lo que el motor sabe hacer con el terreno. */
-export const OPERACIONES = ['nivelar', 'excavar'] as const;
+export const OPERACIONES = ['nivelar', 'excavar', 'camino'] as const;
 export type Operacion = (typeof OPERACIONES)[number];
 
 export interface ObraTierra {
@@ -319,6 +320,11 @@ export interface ObraTierra {
   hondoBorde?: number;
   /** Lo que se saca por cada unidad de trabajo (a la despensa). */
   produce?: Record<string, number>;
+  /** Otras técnicas que hacen falta además de `requiere`. */
+  ademas?: string[];
+  /** Caminos: el nivel que quedan (2 tierra, 3 empedrado) y sobre qué nivel se hacen. El coste y el trabajo son por casilla. */
+  nivel?: number;
+  sobre?: number;
   efecto: string;
 }
 
@@ -349,6 +355,35 @@ export const OBRAS_TIERRA: ObraTierra[] = [
     hondoBorde: 6,
     produce: { piedra: 2.5 },
     efecto: 'Se abre la roca: mucha piedra mientras se trabaja y, después, una veta al descubierto junto a la aldea.',
+  },
+  {
+    id: 'camino',
+    nombre: 'Camino de tierra',
+    requiere: 'caminos',
+    operacion: 'camino',
+    terrenos: [ORILLA, PRADERA, BOSQUE, COLINA, MONTANA, PANTANO, ESTEPA, DESIERTO, TUNDRA],
+    radio: 0,
+    coste: { madera: 1 },
+    trabajo: 1.2,
+    trabajoPorAltura: 0,
+    nivel: 2,
+    sobre: 1,
+    efecto: 'Un sendero muy pisado se allana, se compacta y se bordea con estacas: por él se anda bastante más deprisa.',
+  },
+  {
+    id: 'empedrado',
+    nombre: 'Camino empedrado',
+    requiere: 'caminos',
+    ademas: ['canteria'],
+    operacion: 'camino',
+    terrenos: [ORILLA, PRADERA, BOSQUE, COLINA, MONTANA, PANTANO, ESTEPA, DESIERTO, TUNDRA],
+    radio: 0,
+    coste: { piedra: 4 },
+    trabajo: 2.5,
+    trabajoPorAltura: 0,
+    nivel: 3,
+    sobre: 2,
+    efecto: 'Un camino de tierra se empiedra: dura siempre y por él se va aún más deprisa.',
   },
 ];
 
@@ -392,6 +427,8 @@ export function validarCatalogo(): string[] {
   for (const o of OBRAS_TIERRA) {
     if (EDIFICIO[o.id]) out.push(`obra ${o.id}: choca con un edificio del mismo nombre`);
     if (!TECNICA[o.requiere]) out.push(`obra ${o.id}: requiere una técnica desconocida ${o.requiere}`);
+    for (const r of o.ademas ?? []) if (!TECNICA[r]) out.push(`obra ${o.id}: requiere una técnica desconocida ${r}`);
+    if (o.operacion === 'camino' && !(Number.isInteger(o.nivel) && o.nivel! >= 2 && o.nivel! <= 3 && Number.isInteger(o.sobre) && o.sobre === o.nivel! - 1)) out.push(`obra ${o.id}: nivel de camino imposible`);
     if (!OPERACIONES.includes(o.operacion)) out.push(`obra ${o.id}: operación desconocida ${o.operacion}`);
     if (!o.terrenos.length || o.terrenos.some((t) => t === AGUA || t === RIO || !(t >= 0 && t < TERRENOS.length))) out.push(`obra ${o.id}: terrenos imposibles`);
     if (!Number.isInteger(o.radio) || o.radio < 0 || o.radio > 2) out.push(`obra ${o.id}: radio fuera de límites (0 a 2)`);

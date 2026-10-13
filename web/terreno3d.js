@@ -50,6 +50,9 @@ const COLOR = {
   ceniza: c(0x3b3631),
   barro: c(0x6f6847),
   explanada: c(0xb3a37e),
+  sendero: c(0xa38a68),
+  camino: c(0x8f7a5c),
+  empedrado: c(0x9c968a),
   cantera: c(0xc9c2b2),
   removida: c(0x8a6d4a),
 };
@@ -239,7 +242,8 @@ export class Terreno3D {
     const W = this.W;
     const H = this.H;
     const obrasTierra = d.aldeas.flatMap((a) => a.obra?.tierra?.casillas ?? []);
-    const clave = `${d.estacion}|${d.cenizas.length}|${d.inundadas.length}|${d.cenizas.reduce((s, [i, a]) => s + i + Math.floor(a / 30), 0)}|${(d.labrado ?? []).length}|${obrasTierra.join(',')}`;
+    const clave = `${d.estacion}|${d.cenizas.length}|${d.inundadas.length}|${d.cenizas.reduce((s, [i, a]) => s + i + Math.floor(a / 30), 0)}|${(d.labrado ?? []).length}|${obrasTierra.join(',')}|${(d.caminos ?? []).length}|${(d.caminos ?? []).reduce((s, [i, v]) => s + i * v, 0)}`;
+    const caminos = new Map(d.caminos ?? []);
     const labrado = new Map(d.labrado ?? []);
     const removida = new Set(obrasTierra);
     if (clave === this.pintado) return;
@@ -305,8 +309,15 @@ export class Terreno3D {
       if (lab === 'explanada') col.lerp(COLOR.explanada, 0.7);
       else if (lab === 'cantera') col.lerp(COLOR.cantera, 0.85);
       if (removida.has(i)) col.lerp(COLOR.removida, 0.6);
+      // Senderos (tierra pisada), caminos de tierra compactada y empedrados.
+      const cam = caminos.get(i);
+      if (cam === 1) col.lerp(COLOR.sendero, 0.4);
+      else if (cam === 2) col.lerp(COLOR.camino, 0.7);
+      else if (cam === 3) col.lerp(COLOR.empedrado, 0.8);
       // En invierno nieva en el norte y en las tierras altas.
       if (invierno && t !== AGUA && t !== RIO && t !== DESIERTO) nieveCasilla[i] = acotar(1.1 - lat * 1.5, 0, 1) * (t === ORILLA ? 0.5 : 0.9);
+      // Por los caminos transitados la nieve no cuaja tanto (se pisa y se aparta).
+      if (cam) nieveCasilla[i] *= cam === 1 ? 0.45 : 0.15;
       r[i] = col.r;
       g[i] = col.g;
       b[i] = col.b;

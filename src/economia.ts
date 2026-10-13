@@ -39,7 +39,8 @@ import { experimentar, inspirarse, sabe } from './saber.ts';
 import { pericia, practicar, sesgo } from './individuo.ts';
 import { recordar } from './memoria.ts';
 import { caminarMudanza } from './migracion.ts';
-import { DESNIVEL_MAXIMO, GRANDES, acabarTierra, canteras, desnivel, labrada, moverTierra, planear } from './tierra.ts';
+import { DESNIVEL_MAXIMO, GRANDES, acabarTierra, canteras, desnivel, labrada, moverTierra, planear, planearCamino } from './tierra.ts';
+import { CAMINO, SENDERO, caminosDe, tramo } from './caminos.ts';
 import { caminarViaje } from './viajes.ts';
 
 /** Con qué se trabaja en cada oficio (de ahí salen las ideas al trabajar). */
@@ -827,7 +828,8 @@ function costeObra(a: Aldea): { coste: Record<string, number>; material?: string
   if (!a.obra) return null;
   const tipo = tipoObra(a.obra.tipo);
   // Un muro cuesta según lo largo que sea (el de siempre rodeaba unas 2,7 casillas de radio).
-  const f = rodea(a.obra.tipo) ? (a.obra.radio ?? 2.7) / 2.7 : 1;
+  // (y un camino, según las casillas que tenga).
+  const f = rodea(a.obra.tipo) ? (a.obra.radio ?? 2.7) / 2.7 : OBRA_TIERRA[a.obra.tipo]?.operacion === 'camino' ? (a.obra.tierra?.casillas.length ?? 1) : 1;
   const escala = (c: Record<string, number>) => Object.fromEntries(Object.entries(c).map(([k, v]) => [k, Math.ceil(v * f)]));
   const llega = (c: Record<string, number>) => Object.keys(c).every((k) => (a.despensa[k] ?? 0) >= c[k]);
   if (llega(escala(tipo.coste))) return { coste: escala(tipo.coste) };
@@ -1092,6 +1094,21 @@ export function planificar(m: Mundo, a: Aldea, gente: Persona[]): void {
   if (conoce(a, 'comercio') && !tiene(a, 'mercado')) opciones.push(['mercado', 0.4]);
   // Con canteras se abre la roca cuando la piedra escasea (las ciudades gastan mucha).
   if (conoce(a, 'cantera') && n >= 12 && (a.despensa.piedra ?? 0) < 150 && canteras(m, a) < 1 + Math.floor(n / 50)) opciones.push(['cantera', 0.62]);
+  // Caminos: se mejoran los senderos más pisados (cada aldea los suyos, según por dónde anda).
+  if (conoce(a, 'caminos') && n >= 12) {
+    const cam = caminosDe(m);
+    let senderos = 0;
+    let caminos = 0;
+    for (let y = Math.max(0, a.y - RADIO_CAMINOS); y <= Math.min(m.alto - 1, a.y + RADIO_CAMINOS); y++) {
+      for (let x = Math.max(0, a.x - RADIO_CAMINOS); x <= Math.min(m.ancho - 1, a.x + RADIO_CAMINOS); x++) {
+        const v = cam[y * m.ancho + x];
+        if (v === SENDERO) senderos++;
+        else if (v === CAMINO) caminos++;
+      }
+    }
+    if (senderos >= 4 && (a.despensa.madera ?? 0) >= 20) opciones.push(['camino', 0.5 + Math.min(0.2, senderos / 200)]);
+    if (conoce(a, 'canteria') && caminos >= 4 && n >= 25 && (a.despensa.piedra ?? 0) >= 80) opciones.push(['empedrado', 0.42]);
+  }
   opciones.sort((x, y) => y[1] - x[1]);
   for (const [tipo] of opciones) {
     if ((a.aparcadas?.[tipo] ?? 0) > m.t) continue;
@@ -1110,6 +1127,14 @@ export function planificar(m: Mundo, a: Aldea, gente: Persona[]): void {
       const t = sitioTorre(m, a);
       if (!t) continue;
       a.obra = { tipo, x: t.x, y: t.y, progreso: 0, pagada: false, desde: m.t, ang: t.ang };
+      return;
+    }
+    if (OBRA_TIERRA[tipo]?.operacion === 'camino') {
+      const ocupada = new Set(a.edificios.map((e) => e.y * m.ancho + e.x));
+      const t = tramo(m, a, OBRA_TIERRA[tipo].sobre!, RADIO_CAMINOS, 10, (i) => !ocupada.has(i));
+      const o = t.length >= 3 ? planearCamino(m, a, tipo, t) : null;
+      if (!o) continue;
+      a.obra = o;
       return;
     }
     const sitio = lugarPara(m, a, tipo);
@@ -1132,6 +1157,9 @@ export function planificar(m: Mundo, a: Aldea, gente: Persona[]): void {
     return;
   }
 }
+
+/** Hasta dónde mira una aldea sus senderos para mejorarlos. */
+const RADIO_CAMINOS = 16;
 
 /** Dónde va la siguiente torre: a los lados de la puerta primero, luego en los puntos cardinales. */
 const ANGULOS_TORRE = [Math.PI / 2 - 0.4, Math.PI / 2 + 0.4, -Math.PI / 2, 0, Math.PI, Math.PI / 4, (3 * Math.PI) / 4, -Math.PI / 4, (-3 * Math.PI) / 4];

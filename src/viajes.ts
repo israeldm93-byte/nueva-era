@@ -24,6 +24,7 @@ import { aldeasVivas, edad, estacionDe, type Indices } from './mundo.ts';
 import { convivir, relacion } from './politica.ts';
 import { conversar, visita } from './sociedad.ts';
 import { contarTierras, navegar, zarpar } from './exploracion.ts';
+import { diasEntre, pisar } from './caminos.ts';
 import type { Aldea, Mundo, Persona } from './tipos.ts';
 
 const r4 = (x: number) => Math.round(x * 10000) / 10000;
@@ -41,6 +42,14 @@ const emparentadas = (a: Aldea, b: Aldea) => a.origen === b.id || b.origen === a
 export function diasDeCamino(a: Aldea, d: number): number {
   return Math.max(3, Math.ceil(d / (aCaballo(a) ? 3 : 1.5)));
 }
+
+/** Lo mismo, de un sitio a otro del mapa, aprovechando los caminos que haya por medio. */
+export function diasDeViaje(m: Mundo, a: Aldea, desde: readonly number[], hasta: readonly number[]): number {
+  return Math.max(3, Math.ceil(diasEntre(m, desde, hasta, aCaballo(a) ? 3 : 1.5) - 1e-9));
+}
+
+/** Lo que pisa quien hace un viaje a pie (de ahí, con el tiempo, los senderos entre aldeas). */
+export const PISADA_VIAJE = 20;
 
 /** ¿Puede alguien de `a` ir a visitar `b`? (Lo bastante lejos, alcanzable y sin enemistad.) */
 export function destinoDeViaje(m: Mundo, a: Aldea, b: Aldea): boolean {
@@ -101,7 +110,8 @@ function puedeViajar(m: Mundo, p: Persona): boolean {
 
 /** Se pone en camino. */
 export function partir(m: Mundo, p: Persona, a: Aldea, b: Aldea, motivo: readonly [string, Persona] | null = null): void {
-  const dias = diasDeCamino(a, distancia(a.x - b.x, a.y - b.y));
+  const dias = diasDeViaje(m, a, [a.x, a.y], [b.x, b.y]);
+  pisar(m, a.x, a.y, b.x, b.y, PISADA_VIAJE);
   p.viaje = { a: b.id, fase: 'ida', desde: [a.x, a.y], hasta: [b.x, b.y], salida: m.t, dias, conocio: [] };
   if (aviso(m, `viaje-${a.id}-${b.id}`, DIAS_ANIO)) {
     const por = motivo ? `: quiere ver a ${motivo[0]} ${motivo[1].nombre}` : '';
@@ -153,7 +163,7 @@ function llegar(m: Mundo, p: Persona, casa: Aldea, dest: Aldea): void {
   // Lo que lleva a cuestas: un poco de lo que allí falta.
   regalar(casa, dest);
   if (aviso(m, `llega-${casa.id}-${dest.id}`, DIAS_ANIO)) {
-    anotar(m, 'viaje', `${p.nombre}, de ${casa.nombre}, llega a ${dest.nombre} tras ${diasDeCamino(casa, distancia(casa.x - dest.x, casa.y - dest.y))} días de camino${nueva ? ': es la primera noticia que tienen unos de otros en mucho tiempo' : ''}.`, dest.id);
+    anotar(m, 'viaje', `${p.nombre}, de ${casa.nombre}, llega a ${dest.nombre} tras ${diasDeViaje(m, casa, [casa.x, casa.y], [dest.x, dest.y])} días de camino${nueva ? ': es la primera noticia que tienen unos de otros en mucho tiempo' : ''}.`, dest.id);
   }
 }
 
@@ -210,7 +220,8 @@ function darLaVuelta(m: Mundo, p: Persona, casa: Aldea, desde: [number, number])
   v.desde = desde;
   v.hasta = [casa.x, casa.y];
   v.salida = m.t;
-  v.dias = diasDeCamino(casa, distancia(desde[0] - casa.x, desde[1] - casa.y));
+  v.dias = diasDeViaje(m, casa, desde, [casa.x, casa.y]);
+  pisar(m, desde[0], desde[1], casa.x, casa.y, PISADA_VIAJE);
 }
 
 /** De vuelta en casa: trae lo que aprendió y lo que le dieron. */
