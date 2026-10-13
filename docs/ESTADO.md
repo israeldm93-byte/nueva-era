@@ -346,3 +346,134 @@ ultramar; antes, 4. Las pruebas están en `test/movilidad.test.ts`.
 - Bienes elaborados (herramientas, metal fundido).
 - Moneda.
 - Influencia del comercio en la política.
+
+## Hito 4: diplomacia y primeras guerras
+
+Amplía lo que ya había (relaciones, rencor, alianzas, consejo y su guerra, armas, murallas,
+viajes). No sustituye nada.
+
+### Relaciones con memoria (`Relacion` en `src/tipos.ts`)
+
+- Además de `afinidad`, `rencor` y `alianza`, cada pareja de aldeas recuerda:
+  - `agravio`: muertos en combate. Se olvida muy despacio (×0,99 al mes) y no deja que el
+    rencor baje de la mitad de su valor.
+  - `disputa`: vecinas a menos de 16 casillas a las que les falta lo mismo de la tierra (comida,
+    madera, piedra) se disputan tierras y recursos. Crece cada mes que dura y se apaga si no.
+  - `comercio`: lo intercambiado por los mercaderes, que se va olvidando (×0,9 al mes).
+  - `peor`: el peor momento, para reconocer una reconciliación.
+- Lo que acerca: comerciar (+0,01 de afinidad por trato), ayudar en el hambre (+0,1 y menos
+  rencor), compartir comida entre aliadas (+0,03).
+- Lo que separa: asaltos, muertos, disputas, migraciones a una aldea que ya no tiene casas
+  ni comida para tantos, y aliados que no acuden a defender.
+- Estados que muestra la web: aliados, amistad, neutral, tensión, hostiles, guerra (`trato()`).
+
+### Motivos de conflicto (`quiereAsaltar`, `src/politica.ts`)
+
+- Motivos posibles: tierras (disputa), hambre, codicia, rencor, consejo belicoso y venganza.
+- Lo que frena una guerra:
+  - la afinidad;
+  - el comercio (pelear con un buen socio sale caro);
+  - las fuerzas del otro, con sus murallas y sus aliados cercanos;
+  - la tregua de 3 años tras una paz.
+- No hay un número de guerras fijado: sin motivo no hay guerra.
+
+### Incursiones (`src/guerra.ts`)
+
+- El consejo declara la guerra y salen los guerreros. Es un viaje de verdad (`p.viaje.incursion`
+  y `m.incursiones`):
+  - van el 30 % de los adultos aptos;
+  - cada uno se lleva 2 de madera para las armas (si no hay madera, van menos);
+  - llevan comida para ida y vuelta, que sale de la despensa.
+- Por el camino comen de sus víveres, y si se acaban pasan hambre.
+- Al llegar:
+  - si su fuerza es menor que el 45 % de la defensa (murallas, vigías, aliados), se retiran
+    sin pelear;
+  - si no, pelean (`combatir`). Cuentan los guerreros y su fuerza, las armas, los muros
+    (menos con catapultas), los vigías y hasta 3 defensores de cada aliado a menos de
+    25 casillas;
+  - hay muertos y heridos en los dos bandos (heridas en la salud y en la biografía).
+- El botín (35 % de la comida del vencido) viaja con ellos y no entra en su despensa hasta que
+  vuelven, junto con la comida que les sobre. Si su aldea desaparece, lo que llevan queda en
+  la más cercana. Nada se duplica ni se pierde sin causa.
+- Solo puede haber una incursión de A contra B a la vez.
+- Si se firma la paz mientras van, se dan la vuelta.
+
+### Paz (`repensarGuerra`)
+
+- Una guerra se acaba por cualquiera de estas causas:
+  - dos derrotas;
+  - cansancio acumulado (muertos, retiradas, combates);
+  - hambre en casa;
+  - la mediación de un aliado común;
+  - un rencor que se enfría sin asaltos;
+  - que el enemigo desaparezca.
+- La paz abre 3 años de tregua y deja volver a los mercaderes (en guerra no se comercia).
+- El rencor baja, pero el agravio deja poso.
+- Con años de trato, dos aldeas que fueron hostiles pueden reconciliarse y llegar a aliarse.
+
+### Observabilidad
+
+- La crónica (Política) cuenta:
+  - declaraciones con su motivo;
+  - asaltos con bajas, heridos, botín y aliados que acuden;
+  - retiradas;
+  - paces con su causa;
+  - reconciliaciones y alianzas.
+- La ficha de la aldea muestra:
+  - la guerra con su motivo, los guerreros en camino, las derrotas y el cansancio;
+  - para cada vecino, su estado y su memoria (agravios, disputas, comercio, tregua).
+- La ficha de un guerrero dice contra quién marcha, por qué y cómo le fue.
+- Se valida al cargar: una incursión ilegible o repetida se descarta, sus guerreros vuelven a
+  casa y lo que llevaban entra en su despensa (queda registrado en `reparaciones`).
+
+### Correcciones de paso
+
+- Una facción recién escindida que aún iba de camino (65 días) podía asaltar al instante a su
+  aldea de origen y llevarse miles de raciones. Ahora una aldea en marcha no lanza incursiones.
+- Cuando el consejo cambiaba de prioridad se rehacía sin su guerra, que desaparecía sin paz ni
+  crónica. Ahora la guerra se conserva hasta que se firma la paz.
+
+### Resultados
+
+20 años sobre una copia del mundo vivo (582 personas, día 17.043), comparados con la versión
+anterior (b2d3015):
+
+| | Antes | Ahora |
+| --- | --- | --- |
+| Personas al acabar | 928 | 928 |
+| Muertes (en combate / de hambre) | 223 (0 / 0) | 223 (0 / 0) |
+| Viajes de comercio | 351 | 351 |
+| Guerras | 0 | 0 |
+| Alianzas nuevas | 19 | 19 |
+| Invariantes rotas, anomalías | 0, 0 | 0, 0 |
+| ms por día | 61,9 | 62,1 |
+
+- Es un mundo próspero y aliado: sin motivo no hay guerra. La misma copia con el 85 % de la
+  comida perdida tampoco entra en guerra: se recupera comerciando y forma 9 alianzas más.
+- En mundos nuevos (semillas 11, 23, 37 y 59, de 60 a 100 años) no hay invariantes rotas ni
+  anomalías. Las diferencias de población vienen del asalto imposible corregido arriba.
+- Un conflicto provocado en el mundo vivo (Jihak contra Heno, por tierras) sigue su curso solo:
+  - año 163: se declara la guerra y los guerreros salen dos veces, pero ven las defensas de
+    Heno y se retiran sin pelear;
+  - año 165: Jihak hace las paces, con tregua;
+  - año 170: las dos aldeas se alían.
+
+### Pruebas
+
+`test/guerra.test.ts` (8 pruebas):
+
+- una disputa acaba en conflicto con su motivo;
+- sin motivo no hay guerra;
+- el combate depende de las fuerzas, las armas, las murallas y los aliados;
+- los recursos, el botín, los heridos y los muertos cuadran;
+- la derrota, el cansancio o la paz acaban el conflicto, y el comercio vuelve;
+- alianza y reconciliación;
+- guardar y cargar con incursiones en marcha;
+- décadas sin valores imposibles, sin incursiones repetidas y sin guerras eternas.
+
+### Pendiente
+
+- Campañas largas, asedios y conquista.
+- Guerra por mar.
+- Coaliciones de varias aldeas.
+- Tratados con condiciones (tributos, fronteras).

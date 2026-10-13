@@ -11,7 +11,8 @@ import { comidaTotal, necesidad } from './economia.ts';
 import { lexicoComun, parecido } from './lenguaje.ts';
 import { ACCIONES, PRUEBAS, entradas, pensar } from './mente.ts';
 import { aldeasVivas, edad, estacionDe, indexar } from './mundo.ts';
-import { FRASE } from './politica.ts';
+import { FRASE, MOTIVO } from './politica.ts';
+import { trato } from './guerra.ts';
 import { nombreOficio, oficio } from './individuo.ts';
 import { vivo } from './memoria.ts';
 import { OFICIO_SECTOR, sectores } from './mercaderes.ts';
@@ -29,6 +30,10 @@ export function fijarMotor(id: string): void {
 
 export function datosWeb(m: Mundo, ahora: Date) {
   const ix = indexar(m);
+  const incursionDe = (id: number) => {
+    const x = m.incursiones?.find((y) => y.id === id);
+    return x ? { contra: x.contra, nombre: m.aldeas.find((b) => b.id === x.contra)?.nombre ?? '¿?', motivo: MOTIVO[x.motivo] ?? x.motivo, fase: x.fase, resultado: x.resultado ?? null } : null;
+  };
   const vivas = aldeasVivas(m);
   const lexicos = new Map(vivas.map((a) => [a.id, lexicoComun(ix.porAldea.get(a.id) ?? [])]));
   const parecidos: [number, number, number][] = [];
@@ -176,7 +181,16 @@ export function datosWeb(m: Mundo, ahora: Date) {
               votos: a.consejo.votos,
               foco: focoDe(a),
               guerra: a.consejo.guerra
-                ? { contra: a.consejo.guerra.contra, nombre: m.aldeas.find((b) => b.id === a.consejo!.guerra!.contra)?.nombre ?? '¿?', desde: anioDe(a.consejo.guerra.desde), motivo: a.consejo.guerra.motivo }
+                ? {
+                    contra: a.consejo.guerra.contra,
+                    nombre: m.aldeas.find((b) => b.id === a.consejo!.guerra!.contra)?.nombre ?? '¿?',
+                    desde: anioDe(a.consejo.guerra.desde),
+                    motivo: MOTIVO[a.consejo.guerra.motivo] ?? a.consejo.guerra.motivo,
+                    derrotas: a.consejo.guerra.derrotas,
+                    cansancio: r2(Math.min(1, a.consejo.guerra.cansancio ?? 0)),
+                    // Sus guerreros en camino, si los hay.
+                    fuera: (m.incursiones ?? []).filter((x) => x.de === a.id).reduce((n, x) => n + x.gente.length, 0),
+                  }
                 : null,
             }
           : null,
@@ -189,7 +203,21 @@ export function datosWeb(m: Mundo, ahora: Date) {
       .map(([k, r]) => {
         const [a, b] = k.split('-').map(Number);
         const guerra = m.aldeas.some((x) => (x.id === a && x.consejo?.guerra?.contra === b) || (x.id === b && x.consejo?.guerra?.contra === a));
-        return { a, b, afinidad: r2(r.afinidad), rencor: r2(r.rencor), alianza: r.alianza, ...(guerra ? { guerra } : {}) };
+        const A = m.aldeas.find((x) => x.id === a);
+        const B = m.aldeas.find((x) => x.id === b);
+        return {
+          a,
+          b,
+          afinidad: r2(r.afinidad),
+          rencor: r2(r.rencor),
+          alianza: r.alianza,
+          ...(guerra ? { guerra } : {}),
+          trato: A && B ? trato(m, A, B) : 'neutral',
+          ...(r.agravio ? { agravio: r2(r.agravio) } : {}),
+          ...(r.disputa ? { disputa: r2(r.disputa) } : {}),
+          ...(r.comercio ? { comercio: Math.round(r.comercio) } : {}),
+          ...(r.paz !== undefined && m.t - r.paz < DIAS_ANIO * 3 ? { tregua: anioDe(r.paz + DIAS_ANIO * 3) } : {}),
+        };
       })
       .filter((r) => vivas.some((x) => x.id === r.a) && vivas.some((x) => x.id === r.b)),
     personas: m.personas.map((p) => {
@@ -259,6 +287,8 @@ export function datosWeb(m: Mundo, ahora: Date) {
                 ...(p.viaje.mar ? { mar: { rumbo: p.viaje.mar.rumbo, como: p.viaje.mar.como ?? null } } : {}),
                 // Un mercader, con lo que lleva.
                 ...(p.viaje.trato ? { comercio: true, carga: p.viaje.carga ?? {} } : {}),
+                // Un guerrero: contra quién va, por qué y cómo le fue.
+                ...(p.viaje.incursion !== undefined ? { incursion: incursionDe(p.viaje.incursion) } : {}),
               },
             }
           : {}),

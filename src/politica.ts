@@ -8,7 +8,7 @@
 // afinidad (bodas, comercio, origen común) o el rencor (asaltos); el hambre y la
 // agresividad de quienes mandan pueden llevar a asaltar al vecino.
 
-import { prob } from './azar.ts';
+import { azar, prob } from './azar.ts';
 import { DIAS_ANIO, EDAD_ADULTA } from './config.ts';
 import { ORDEN_COMER } from './catalogo.ts';
 import { anotar, listar } from './cronica.ts';
@@ -22,7 +22,7 @@ import { buscarSitio, direccion } from './mapa.ts';
 import { distancia } from './matematicas.ts';
 import { ACCIONES, ALINEADAS, PRIORIDADES, entradas, pensar } from './mente.ts';
 import { edad, nuevaAldea, type Indices } from './mundo.ts';
-import { limiteAldea, morir } from './sociedad.ts';
+import { danar, limiteAldea, morir } from './sociedad.ts';
 import type { Aldea, Faccion, Mundo, Persona, Relacion } from './tipos.ts';
 
 const r2 = (x: number) => Math.round(x * 100) / 100;
@@ -169,7 +169,8 @@ export function noche(m: Mundo, a: Aldea, gente: Persona[], c: Contexto): void {
     if (fuera.genes.ambicion > 0.55) ajustarLazo(fuera, ultimo.id, -0.08);
   }
   if (!a.consejo || a.consejo.prioridad !== gana) {
-    a.consejo = { prioridad: gana, desde: m.t, anunciado: a.consejo?.anunciado ?? -100000, anunciada: a.consejo?.anunciada ?? '', miembros: ids, votos };
+    // (La guerra sigue aunque cambie lo que el consejo pone por delante: solo la acaba una paz.)
+    a.consejo = { prioridad: gana, desde: m.t, anunciado: a.consejo?.anunciado ?? -100000, anunciada: a.consejo?.anunciada ?? '', miembros: ids, votos, guerra: a.consejo?.guerra ?? null };
   } else {
     a.consejo.miembros = ids;
     a.consejo.votos = votos;
@@ -352,17 +353,18 @@ function cisma(m: Mundo, a: Aldea, f: Faccion, miembros: Persona[], ix: Indices)
 }
 
 /** Lo que valen sus armas: el metal, la espada, el arco, el escudo y los caballos. */
-const armas = (a: Aldea) =>
+export const armas = (a: Aldea) =>
   (conoce(a, 'hierro') ? 2 : conoce(a, 'bronce') ? 1.6 : conoce(a, 'cobre') ? 1.3 : conoce(a, 'lanza') ? 1.15 : 1) *
   (conoce(a, 'espada') ? (conoce(a, 'hierro') ? 1.35 : 1.25) : 1) *
   (conoce(a, 'arco') ? 1.15 : 1) *
   (conoce(a, 'escudo') ? 1.1 : 1) *
   (aCaballo(a) ? 1.15 : 1);
 /** Lo que protegen sus muros. */
-const muros = (a: Aldea) =>
+export const muros = (a: Aldea) =>
   (tiene(a, 'muralla') ? 3 * (1 + 0.2 * ((a.edificios.find((e) => e.tipo === 'muralla')?.nivel ?? 1) - 1)) : tiene(a, 'empalizada') ? 1.8 : tiene(a, 'cerca') ? 1.2 : 1) * (1 + 0.1 * Math.min(4, a.edificios.filter((e) => e.tipo === 'torre').length));
 
-const MOTIVO: Record<string, string> = {
+export const MOTIVO: Record<string, string> = {
+  tierras: 'se disputan las mismas tierras y lo que dan',
   hambre: 'les falta comida',
   codicia: 'sus graneros están llenos y los propios vacíos',
   rencor: 'no olvidan lo que les hicieron',
@@ -388,19 +390,24 @@ export function quiereAsaltar(m: Mundo, A: Aldea, B: Aldea, ga: Persona[], gb: P
   const miembros = A.consejo.miembros.map((id) => porId.get(id)).filter((p): p is Persona => !!p);
   if (!miembros.length) return null;
   const agresividad = miembros.reduce((s, p) => s + p.genes.agresividad, 0) / miembros.length;
-  // Antes de atacar miran si pueden ganar: nadie sensato asalta una muralla sin catapultas.
+  // Antes de atacar miran si pueden ganar: nadie sensato asalta una muralla sin catapultas
+  // (ni a quien tiene aliados cerca dispuestos a defenderle).
   const muro = 1 + (muros(B) - 1) * (conoce(A, 'catapulta') ? 0.35 : 1);
-  const fuerza = (ga.length * armas(A)) / Math.max(1, gb.length * armas(B) * muro);
+  const apoyo = aliadosCerca(m, B, A).reduce((s, c) => s + 3 * armas(c), 0);
+  const fuerza = (ga.length * armas(A)) / Math.max(1, (gb.length * armas(B) + apoyo) * muro);
   // Los del consejo que quieren vengar a los suyos empujan contra esa aldea.
   const vengadores = miembros.filter((p) => p.meta?.tipo === 'vengar' && p.meta.ref === B.id).length;
   const motivos: [string, number][] = [
+    ['tierras', (rel.disputa ?? 0) * 0.8],
     ['hambre', escasezA * 0.9],
     ['codicia', codicia],
     ['rencor', rel.rencor * 1.2],
     ['belicosos', (agresividad - 0.5) * 0.6],
     ['venganza', (vengadores / miembros.length) * 0.9],
   ];
-  const ganas = motivos.reduce((s, [, v]) => s + v, 0) - rel.afinidad + (guerra ? 0.25 : 0) + Math.max(-0.5, Math.min(0.1, (fuerza - 1) * 0.35));
+  // Con quien se comercia mucho, pelear sale caro: se pierde lo que llega de allí.
+  const negocio = Math.min(0.4, (rel.comercio ?? 0) / 100);
+  const ganas = motivos.reduce((s, [, v]) => s + v, 0) - rel.afinidad - negocio + (guerra ? 0.25 : 0) + Math.max(-0.5, Math.min(0.1, (fuerza - 1) * 0.35));
   if (ganas < 0.3) return null;
   let si = 0;
   for (const p of miembros) if (ganas + (p.genes.agresividad - 0.5) * 0.8 > 0.6) si++;
@@ -408,8 +415,22 @@ export function quiereAsaltar(m: Mundo, A: Aldea, B: Aldea, ga: Persona[], gb: P
   return guerra ? A.consejo.guerra!.motivo : motivos.reduce((x, y) => (y[1] > x[1] ? y : x))[0];
 }
 
+/** Los aliados de B que están lo bastante cerca para acudir (y no son también aliados de A). */
+export function aliadosCerca(m: Mundo, B: Aldea, A: Aldea): Aldea[] {
+  const out: Aldea[] = [];
+  for (const c of m.aldeas) {
+    if (c === A || c === B || c.abandonada !== null || c.viaje) continue;
+    const r = m.relaciones[B.id < c.id ? `${B.id}-${c.id}` : `${c.id}-${B.id}`];
+    if (!r?.alianza || distancia(c.x - B.x, c.y - B.y) > 25) continue;
+    const ra = m.relaciones[A.id < c.id ? `${A.id}-${c.id}` : `${c.id}-${A.id}`];
+    if (ra?.alianza) continue;
+    out.push(c);
+  }
+  return out;
+}
+
 /** El consejo de A declara la guerra a B (o la mantiene). */
-function declarar(m: Mundo, A: Aldea, B: Aldea, motivo: string): void {
+export function declarar(m: Mundo, A: Aldea, B: Aldea, motivo: string): void {
   if (!A.consejo || enGuerra(A, B)) return;
   A.consejo.guerra = { contra: B.id, desde: m.t, motivo, derrotas: 0 };
   anotar(m, 'guerra', `El consejo de ${A.nombre} decide hacer la guerra a ${B.nombre}: ${MOTIVO[motivo] ?? motivo}.`, A.id);
@@ -421,66 +442,108 @@ export function repensarGuerra(m: Mundo, a: Aldea): void {
   if (!g) return;
   const B = m.aldeas.find((x) => x.id === g.contra);
   const rel = relacion(m, a.id, g.contra);
+  // Se acaba si ya no hay enemigo, tras dos derrotas, si están agotados, si el rencor se ha
+  // enfriado sin asaltos, si el hambre aprieta en casa o si un aliado de los dos media.
   const larga = m.t - rel.ultimoAsalto > DIAS_ANIO * 2 && rel.rencor < 0.45;
-  if (!B || B.abandonada !== null || g.derrotas >= 2 || larga) {
+  const cansados = (g.cansancio ?? 0) >= 1;
+  const hambre = a.consejo?.prioridad === 'comida' && m.t - g.desde > DIAS_ANIO && (a.memoria?.comida ?? 0) > 0.9;
+  const mediador = B && m.t - g.desde > DIAS_ANIO ? m.aldeas.find((c) => c !== a && c !== B && c.abandonada === null && relacion(m, a.id, c.id).alianza && relacion(m, B.id, c.id).alianza) : undefined;
+  if (!B || B.abandonada !== null || g.derrotas >= 2 || larga || cansados || hambre || (mediador && prob(0.3))) {
     a.consejo!.guerra = null;
     if (B && B.abandonada === null) {
-      rel.rencor = r2(rel.rencor * 0.6);
+      // La paz rebaja el rencor (pero los agravios graves dejan poso) y abre unos años de tregua.
+      rel.rencor = r2(Math.max((rel.agravio ?? 0) * 0.5, rel.rencor * 0.6));
       rel.paz = m.t;
       if (B.consejo?.guerra?.contra === a.id) B.consejo.guerra = null;
-      anotar(m, 'paz', `El consejo de ${a.nombre} hace las paces con ${B.nombre}${g.derrotas >= 2 ? ' tras dos derrotas' : ''}.`, a.id);
+      const porque = g.derrotas >= 2 ? ' tras dos derrotas' : cansados ? ', agotados por la guerra' : hambre ? ': en casa falta la comida' : mediador ? `, gracias a la mediación de ${mediador.nombre}` : '';
+      anotar(m, 'paz', `El consejo de ${a.nombre} hace las paces con ${B.nombre}${porque}. Habrá tregua unos años.`, a.id);
     }
   }
 }
 
-export function asaltar(m: Mundo, A: Aldea, B: Aldea, ga: Persona[], gb: Persona[], motivo = 'hambre'): void {
-  declarar(m, A, B, motivo);
-  const rel = relacion(m, A.id, B.id);
-  const aptos = ga.filter((p) => !p.muerto && edad(m, p) >= 16 && edad(m, p) <= 55 && p.salud > 0.4);
-  aptos.sort((x, y) => y.genes.fuerza - x.genes.fuerza || x.id - y.id);
-  const guerreros = aptos.slice(0, Math.max(2, Math.round(aptos.length * 0.3)));
-  const defensores = gb.filter((p) => !p.muerto && edad(m, p) >= 16 && edad(m, p) <= 60);
-  const vigias = defensores.filter((p) => p.actividad === 'vigilar').length;
+/** Lo que pesa cada bando en la pelea (con sus armas, sus muros y quien acude a ayudar). */
+export function fuerzas(m: Mundo, A: Aldea, B: Aldea, guerreros: Persona[], defensores: Persona[], ayuda: Persona[]): { fA: number; fB: number } {
   const fA = guerreros.reduce((s, p) => s + 0.5 + p.genes.fuerza, 0) * armas(A);
   // Las catapultas abren brecha en los muros; los arcos defienden mejor desde dentro.
   const muro = 1 + (muros(B) - 1) * (conoce(A, 'catapulta') ? 0.35 : 1);
-  const fB = (defensores.reduce((s, p) => s + 0.5 + p.genes.fuerza, 0) + vigias * 0.8) * armas(B) * muro * (conoce(B, 'arco') ? 1.1 : 1) * 1.2;
-  const gana = prob(fA / (fA + fB));
+  const vigias = defensores.filter((p) => p.actividad === 'vigilar').length;
+  const fAyuda = ayuda.reduce((s, p) => s + (0.5 + p.genes.fuerza) * armas(m.aldeas.find((c) => c.id === p.aldea) ?? B), 0);
+  const fB = ((defensores.reduce((s, p) => s + 0.5 + p.genes.fuerza, 0) + vigias * 0.8) * armas(B) + fAyuda) * muro * (conoce(B, 'arco') ? 1.1 : 1) * 1.2;
+  return { fA, fB };
+}
+
+/** Los que pueden defender una aldea ahora (los que están en ella, adultos y en pie). */
+export function defensoresDe(m: Mundo, gb: Persona[]): Persona[] {
+  return gb.filter((p) => !p.muerto && !p.viaje && !p.mudanza && edad(m, p) >= 16 && edad(m, p) <= 60 && p.salud > 0.3);
+}
+
+/**
+ * Los guerreros de A llegan a B y pelean. Cuentan cuántos son y su fuerza, sus armas, los
+ * muros y los vigías de B y los aliados de B que acuden. Hay muertos y heridos en los dos
+ * bandos; si ganan, se llevan comida (que cargan ellos: no llega a A hasta que vuelvan).
+ */
+export function combatir(m: Mundo, A: Aldea, B: Aldea, guerreros: Persona[], gb: Persona[], motivo: string): { gana: boolean; botin: Record<string, number>; muertosA: number; muertosB: number; heridos: number } {
+  const rel = relacion(m, A.id, B.id);
+  const defensores = defensoresDe(m, gb);
+  // Los aliados cercanos acuden (unos pocos cada uno); el que no puede, queda mal.
+  const ayuda: Persona[] = [];
+  const acuden: Aldea[] = [];
+  for (const c of aliadosCerca(m, B, A)) {
+    const rc = relacion(m, B.id, c.id);
+    if (c.consejo?.guerra) {
+      rc.afinidad = Math.max(0, r4(rc.afinidad - 0.05));
+      continue;
+    }
+    const suyos = defensoresDe(m, m.personas.filter((p) => p.aldea === c.id)).sort((x, y) => y.genes.fuerza - x.genes.fuerza || x.id - y.id).slice(0, 3);
+    if (!suyos.length) continue;
+    ayuda.push(...suyos);
+    acuden.push(c);
+    rc.afinidad = Math.min(1, r4(rc.afinidad + 0.05));
+    const ra = relacion(m, A.id, c.id);
+    ra.rencor = Math.min(1, r2(ra.rencor + 0.1));
+  }
+  const { fA, fB } = fuerzas(m, A, B, guerreros, defensores, ayuda);
+  const gana = prob(fA / Math.max(1e-9, fA + fB));
   let muertosA = 0;
   let muertosB = 0;
+  let heridos = 0;
+  const herir = (p: Persona, dano: number, donde: string) => {
+    danar(p, dano, 'herida');
+    hito(m, p, 'herido', donde);
+    heridos++;
+  };
   for (const p of guerreros) {
     p.actividad = 'asaltar';
-    p.x = B.x;
-    p.y = B.y;
     if (prob((gana ? 0.05 : 0.18) * (conoce(A, 'escudo') ? 0.7 : 1))) {
       morir(p, 'combate');
       p.porAldea = B.id;
       muertosA++;
-    }
+    } else if (prob(gana ? 0.15 : 0.3)) herir(p, 0.15 + 0.25 * azar(), `en el asalto a ${B.nombre}`);
   }
-  for (const p of defensores) {
+  for (const p of [...defensores, ...ayuda]) {
     p.actividad = 'defender';
-    if (prob((gana ? 0.1 : 0.03) * (conoce(B, 'escudo') ? 0.7 : 1))) {
+    const suya = m.aldeas.find((c) => c.id === p.aldea) ?? B;
+    if (prob((gana ? 0.1 : 0.03) * (conoce(suya, 'escudo') ? 0.7 : 1))) {
       morir(p, 'combate');
       p.porAldea = A.id;
-      muertosB++;
+      if (suya === B) muertosB++;
     } else {
       // Nadie olvida que le asaltaron; pelear juntos une.
       recordar(m, p, 'asalto', A.id, 0.6);
       if (!gana) afamar(p, 0.15);
+      if (prob(gana ? 0.2 : 0.08)) herir(p, 0.1 + 0.25 * azar(), `defendiendo ${B.nombre}`);
     }
   }
   for (let k = 1; k < Math.min(defensores.length, 6); k++) tratar(defensores[k - 1], defensores[k], 0.05);
   if (gana) for (const p of guerreros) if (!p.muerto) afamar(p, 0.2);
-  let botin = 0;
+  const botin: Record<string, number> = {};
   if (gana) {
     for (const mat of ORDEN_COMER) {
       const v = B.despensa[mat] ?? 0;
       const lleva = r2(v * 0.35);
       if (lleva <= 0) continue;
       apuntar(B, mat, v - lleva);
-      guardar(A, mat, lleva);
-      botin += lleva;
+      botin[mat] = lleva;
     }
   }
   // Con flechas encendidas prenden fuego a las casas.
@@ -490,24 +553,36 @@ export function asaltar(m: Mundo, A: Aldea, B: Aldea, ga: Persona[], gb: Persona
     if (!m.incendios.some(([j]) => j === i)) m.incendios.push([i, 3]);
     quema = true;
   }
-  if (!gana && A.consejo?.guerra) A.consejo.guerra.derrotas++;
+  const g = A.consejo?.guerra;
+  if (g && g.contra === B.id) {
+    if (!gana) g.derrotas++;
+    g.cansancio = r2((g.cansancio ?? 0) + 0.1 + 0.08 * muertosA);
+  }
+  const gB = B.consejo?.guerra;
+  if (gB && gB.contra === A.id) gB.cansancio = r2((gB.cansancio ?? 0) + 0.05 + 0.08 * muertosB);
   // Al asaltado le puede la sed de venganza (si quienes mandan son belicosos).
   if (B.consejo && !enGuerra(B, A) && rel.rencor > 0.6 && prob(0.25)) declarar(m, B, A, 'venganza');
   B.amenaza = Math.min(1, r2(B.amenaza + 0.6));
   A.amenaza = Math.min(1, r2(A.amenaza + 0.15));
   rel.rencor = Math.min(1, r2(rel.rencor + (gana ? 0.5 : 0.3)));
   rel.afinidad = Math.max(0, r2(rel.afinidad - 0.3));
+  // Los muertos son un agravio que dura años.
+  rel.agravio = Math.min(1, r2((rel.agravio ?? 0) + 0.05 + 0.04 * (muertosA + muertosB)));
+  rel.peor = Math.max(rel.peor ?? 0, rel.rencor);
   rel.ultimoAsalto = m.t;
   m.anual.asaltos++;
   const bajas = (n: number) => (n === 0 ? 'sin bajas' : n === 1 ? '1 muerto' : `${n} muertos`);
+  const conAyuda = acuden.length ? ` Acuden a defenderla sus aliados de ${listar(acuden.map((c) => c.nombre))}.` : '';
+  const comida = Object.values(botin).reduce((x, v) => x + v, 0);
   anotar(
     m,
     'asalto',
     gana
-      ? `${guerreros.length} guerreros de ${A.nombre} asaltan ${B.nombre} y se llevan ${Math.round(botin)} raciones de comida (${A.nombre}: ${bajas(muertosA)}; ${B.nombre}: ${bajas(muertosB)}).${quema ? ' Con flechas encendidas prenden fuego a sus casas.' : ''}`
-      : `${B.nombre} rechaza el asalto de ${guerreros.length} guerreros de ${A.nombre} (${A.nombre}: ${bajas(muertosA)}; ${B.nombre}: ${bajas(muertosB)}).${quema ? ' Aun así, sus flechas encendidas prenden algunas casas.' : ''}`,
+      ? `${guerreros.length} guerreros de ${A.nombre} (${MOTIVO[motivo] ?? motivo}) asaltan ${B.nombre} y cargan con ${Math.round(comida)} raciones de comida (${A.nombre}: ${bajas(muertosA)}; ${B.nombre}: ${bajas(muertosB)}; ${heridos} heridos).${conAyuda}${quema ? ' Con flechas encendidas prenden fuego a sus casas.' : ''}`
+      : `${B.nombre} rechaza el asalto de ${guerreros.length} guerreros de ${A.nombre} (${A.nombre}: ${bajas(muertosA)}; ${B.nombre}: ${bajas(muertosB)}; ${heridos} heridos).${conAyuda}${quema ? ' Aun así, sus flechas encendidas prenden algunas casas.' : ''}`,
     B.id,
   );
+  return { gana, botin, muertosA, muertosB, heridos };
 }
 
 /** Tras un encuentro pacífico la afinidad crece; el rencor se va olvidando; nacen y se rompen alianzas. */
@@ -516,7 +591,13 @@ export function convivir(m: Mundo, A: Aldea, B: Aldea, escasezA: number, escasez
   // Vecinos demasiado cerca y con hambre se disputan las mismas tierras.
   if (distancia(A.x - B.x, A.y - B.y) < 12 && escasezA > 0.4 && escasezB > 0.4) rel.rencor = Math.min(1, r2(rel.rencor + 0.03));
   rel.afinidad = Math.min(1, r4(rel.afinidad + 0.005 + (A.origen === B.id || B.origen === A.id ? 0.005 : 0)));
-  rel.rencor = Math.max(0, r2(rel.rencor - 0.02));
+  // El rencor se olvida, pero los agravios graves no dejan que baje del todo.
+  rel.rencor = Math.max(Math.min(rel.rencor, r2((rel.agravio ?? 0) * 0.5)), Math.max(0, r2(rel.rencor - 0.02)));
+  rel.peor = Math.max(rel.peor ?? 0, rel.rencor);
+  if ((rel.peor ?? 0) >= 0.5 && rel.rencor < 0.15 && !enGuerra(A, B) && !enGuerra(B, A)) {
+    rel.peor = rel.rencor;
+    anotar(m, 'paz', `${A.nombre} y ${B.nombre} se reconcilian: lo que pasó entre ellos ya no pesa tanto como lo que los une.`, A.id);
+  }
   if (!rel.alianza && rel.afinidad > 0.75 && rel.rencor < 0.1) {
     rel.alianza = true;
     anotar(m, 'alianza', `${A.nombre} y ${B.nombre} sellan una alianza: se ayudarán en tiempos de hambre.`, A.id);
@@ -535,6 +616,8 @@ export function convivir(m: Mundo, A: Aldea, B: Aldea, escasezA: number, escasez
         apuntar(rica, mat, v - pasa);
         guardar(pobre, mat, pasa);
       }
+      // Quien ayuda en el hambre no se olvida.
+      rel.afinidad = Math.min(1, r4(rel.afinidad + 0.03));
     }
   }
 }

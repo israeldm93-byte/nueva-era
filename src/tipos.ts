@@ -116,6 +116,8 @@ export interface Persona {
     carga?: Record<string, number>;
     /** Lo acordado: lo que traerá de vuelta; y si es ayuda (comida para quien pasa hambre). */
     trato?: { trae: Record<string, number>; ayuda?: boolean };
+    /** Un guerrero: la incursión en la que va. */
+    incursion?: number;
   };
   /** Solo durante el día en que muere en un asalto: la aldea que lo mató. */
   porAldea?: number;
@@ -308,6 +310,30 @@ export interface Guerra {
   desde: number;
   motivo: string;
   derrotas: number;
+  /** Lo cansados que están de la guerra (muertos, heridos, comida gastada): a partir de 1, quieren la paz. */
+  cansancio?: number;
+}
+
+/**
+ * Un grupo de guerreros que ha salido a asaltar otra aldea: quiénes van, lo que llevan para
+ * comer por el camino y, a la vuelta, el botín. Mientras dura, cada guerrero va de viaje.
+ */
+export interface Incursion {
+  id: number;
+  de: number;
+  contra: number;
+  gente: number[];
+  motivo: string;
+  fase: 'ida' | 'vuelta';
+  salida: number;
+  dias: number;
+  desde: [number, number];
+  hasta: [number, number];
+  /** La comida que llevan (unidades de despensa). */
+  viveres: Record<string, number>;
+  /** Lo que traen de vuelta. */
+  botin: Record<string, number>;
+  resultado?: 'victoria' | 'derrota' | 'retirada' | 'paz';
 }
 
 export interface Faccion {
@@ -331,6 +357,14 @@ export interface Relacion {
   alianza: boolean;
   /** Cuándo hicieron las paces (tras una paz hay unos años de tregua). */
   paz?: number;
+  /** Agravios graves (muertos, asaltos): se olvidan muy despacio y no dejan que el rencor baje del todo. */
+  agravio?: number;
+  /** Lo que han comerciado últimamente (se va olvidando): cuanto más, más caro les sale pelear. */
+  comercio?: number;
+  /** Lo que se disputan tierras y recursos (vecinas a las que les falta lo mismo). */
+  disputa?: number;
+  /** El peor rencor desde la última reconciliación (para contar cuándo se reconcilian de verdad). */
+  peor?: number;
 }
 
 export type TipoSuceso =
@@ -468,6 +502,8 @@ export interface Mundo {
   cenizas: [number, number][];
   /** Casillas anegadas por una crecida: [casilla, días que le quedan]. */
   inundadas: [number, number][];
+  /** Las incursiones de guerreros en marcha. */
+  incursiones?: Incursion[];
   /** Casillas labradas por la gente: [casilla, obra de tierra que se hizo allí]. */
   labrado?: [number, string][];
   /** Lo que se ha pisado cada casilla últimamente (de ahí salen los senderos). */

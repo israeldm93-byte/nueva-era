@@ -23,9 +23,11 @@ import { aCaballo, alimento, apuntar, comidaTotal, conoce, deTiro, guardar, nece
 import { aviso } from './fauna.ts';
 import { masas } from './mapa.ts';
 import { aldeasVivas, edad, estacionDe, type Indices } from './mundo.ts';
+import { enGuerra, relacion } from './politica.ts';
 import type { Aldea, Mundo, Persona } from './tipos.ts';
 
 const r2 = (x: number) => Math.round(x * 100) / 100;
+const r4 = (x: number) => Math.round(x * 10000) / 10000;
 
 /** Días de comida que una aldea quiere tener siempre (por debajo de la mitad, le falta). */
 export const RESERVA_COMIDA = 180;
@@ -141,6 +143,8 @@ export function tratar(m: Mundo, a: Aldea, ga: Persona[], b: Aldea, gb: Persona[
   if (masa[a.y * m.ancho + a.x] !== masa[b.y * m.ancho + b.x]) return null;
   const rel = m.relaciones[a.id < b.id ? `${a.id}-${b.id}` : `${b.id}-${a.id}`];
   if (rel && rel.rencor > 0.6) return null;
+  // En guerra no se comercia (con la paz, los mercaderes vuelven).
+  if (enGuerra(a, b) || enGuerra(b, a)) return null;
   const dias = Math.max(3, Math.ceil(diasEntre(m, [a.x, a.y], [b.x, b.y], aCaballo(a) ? 3 : 1.5) - 1e-9));
   if (dias > LEJOS * (conoce(a, 'comercio') ? 1.5 : 1)) return null;
   const cap = CARGA * (deTiro(a) ? 2.5 : aCaballo(a) ? 1.6 : 1);
@@ -289,6 +293,11 @@ export function entregar(m: Mundo, p: Persona, casa: Aldea, dest: Aldea, gente: 
     trae[k] = sale;
   }
   v.carga = trae;
+  // El trato deja memoria: comerciar bien acerca; ayudar en el hambre, mucho más.
+  const rel = relacion(m, casa.id, dest.id);
+  rel.comercio = r2((rel.comercio ?? 0) + valor(dest, lleva) + valor(casa, trae));
+  rel.afinidad = Math.min(1, r4(rel.afinidad + (v.trato?.ayuda && hambre > 0 ? 0.1 : 0.01)));
+  if (v.trato?.ayuda && hambre > 0) rel.rencor = Math.max(Math.min(rel.rencor, r2((rel.agravio ?? 0) * 0.5)), r2(rel.rencor - 0.05));
   // La crónica: rutas nuevas, la primera vez que una aldea vende algo y la comida que salva.
   if (Object.keys(lleva).length && aviso(m, `ruta-${Math.min(casa.id, dest.id)}-${Math.max(casa.id, dest.id)}`, 10 * DIAS_ANIO)) {
     anotar(m, 'comercio', `Se abre una ruta comercial entre ${casa.nombre} y ${dest.nombre}: ${p.nombre} llega con ${lista(lleva)}${Object.keys(trae).length ? ` y vuelve con ${lista(trae)}` : ''}.`, casa.id);

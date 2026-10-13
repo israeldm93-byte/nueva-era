@@ -140,6 +140,12 @@ function textoViaje(p) {
     return mar.como ? `Vuelve por mar con noticias: ha visto ${mar.como}.` : 'Vuelve por mar sin haber visto tierra.';
   }
   const destino = E.aldeas.get(p.viaje.a)?.nombre ?? 'otra aldea';
+  const inc = p.viaje.incursion;
+  if (inc) {
+    if (p.viaje.fase === 'ida') return `Marcha con los guerreros de su aldea contra ${inc.nombre}: ${inc.motivo}.`;
+    const como = { victoria: 'tras saquear la aldea', derrota: 'tras ser rechazados', retirada: 'sin pelear: vieron que no podían ganar', paz: 'porque se ha hecho la paz' }[inc.resultado] ?? '';
+    return `Vuelve con los guerreros de ${inc.nombre}${como ? `, ${como}` : ''}.`;
+  }
   if (p.viaje.comercio) return p.viaje.fase === 'ida' ? `Lleva mercancías a ${destino}.` : p.viaje.fase === 'estancia' ? `Está en ${destino}, comerciando.` : `Vuelve de ${destino} con lo que ha conseguido.`;
   if (p.viaje.fase === 'ida') return `Va de camino a ${destino}, de visita.`;
   if (p.viaje.fase === 'estancia') return `Está de visita en ${destino}.`;
@@ -508,6 +514,7 @@ function haciendoAhora(p, ahora) {
     return fase < 0.5 ? `Va a trabajar: hoy toca ${ACCION[p.act] ?? oficio}.` : 'Vuelve a casa.';
   }
   if (pose === 'cazar' && rebano) return `Acecha ${PRESA[rebano] ?? 'a la caza'}, agachado y contra el viento, con el arma lista.`;
+  if (p.viaje && (p.act === 'asaltar' || p.act === 'comerciar')) return textoViaje(p);
   if (p.act === 'viajar') return p.viaje ? textoViaje(p) : 'Va de camino a su nueva aldea con su familia.';
   if (pose === 'experimentar') return p.idea ? `Está probando a ${p.idea.verbo} ${listar(p.idea.cosas)}, a ver qué sale.` : 'Prueba cosas nuevas, a ver qué sale.';
   if (pose === 'pie') return fase < 0.12 ? 'Acaba de levantarse, a la puerta de su choza.' : fase > 0.8 ? 'Ya en casa, a la puerta de su choza.' : 'Parado, mirando a su alrededor.';
@@ -1117,7 +1124,20 @@ function fichaPersona(p) {
   return h('div', { class: 'tarjeta' }, hijos);
 }
 
+/** Lo que pesa entre dos aldeas, en una línea: agravios, disputas, comercio y tregua. */
+function memoriaRelacion(r) {
+  const t = [];
+  if (r.agravio >= 0.1) t.push(r.agravio >= 0.4 ? 'muertos que no se olvidan' : 'viejos agravios');
+  if (r.disputa >= 0.2) t.push('se disputan tierras y recursos');
+  if (r.comercio >= 5) t.push('comercian a menudo');
+  if (r.tregua) t.push(`tregua hasta el año ${r.tregua}`);
+  return t.length ? mayus(t.join('; ')) + '.' : '';
+}
+
+const TRATO = { guerra: ['En guerra', 'mal'], aliados: ['Aliados', 'bien'], hostiles: ['Hostiles', 'mal'], 'tensión': ['Tensión', 'mal'], amistad: ['Amistad', 'bien'], neutral: ['Trato normal', ''] };
+
 function relacionTexto(r) {
+  if (r.trato && TRATO[r.trato]) return TRATO[r.trato];
   if (r.guerra) return ['En guerra', 'mal'];
   if (r.alianza) return ['Aliados', 'bien'];
   if (r.rencor > 0.5) return ['Enemistad', 'mal'];
@@ -1221,7 +1241,16 @@ function fichaAldea(a) {
     hijos.push(
       h('h3', {}, 'El consejo'),
       h('p', { class: 'cita' }, `«${mayus(frase(c.prioridad))}»`),
-      c.guerra ? h('p', { class: 'aviso-guerra' }, `En guerra con ${c.guerra.nombre} desde el año ${c.guerra.desde}: ${c.guerra.motivo}.`) : null,
+      c.guerra
+        ? h(
+            'p',
+            { class: 'aviso-guerra' },
+            `En guerra con ${c.guerra.nombre} desde el año ${c.guerra.desde}: ${c.guerra.motivo}.`,
+            c.guerra.fuera ? ` Tienen ${c.guerra.fuera} guerreros en camino.` : '',
+            c.guerra.derrotas ? ` Llevan ${c.guerra.derrotas === 1 ? 'una derrota' : `${c.guerra.derrotas} derrotas`}.` : '',
+            c.guerra.cansancio >= 0.5 ? ' Empiezan a estar cansados de la guerra.' : '',
+          )
+        : null,
       c.foco ? h('p', { class: 'nota' }, `Encauzan las ideas hacia ${FOCOS[c.foco] ?? c.foco}: quien experimenta prueba antes eso.`) : null,
       h('p', { class: 'nota' }, `Lo deciden desde el año ${c.desde}. Se reúnen cada noche junto al fuego: `, c.miembros.flatMap((x, i) => [i ? (i === c.miembros.length - 1 ? ' y ' : ', ') : '', enlacePersona(x.id, x.nombre ?? '¿?')]), '.'),
       h(
@@ -1267,6 +1296,7 @@ function fichaAldea(a) {
               h('span', { class: `etiqueta ${clase}` }, t),
               h('div', { class: 'gen' }, h('span', {}, 'Amistad'), medidor(r.afinidad), h('span', {}, pct(r.afinidad))),
               h('div', { class: 'gen' }, h('span', {}, 'Rencor'), medidor(r.rencor, 'naranja'), h('span', {}, pct(r.rencor))),
+              memoriaRelacion(r) ? h('p', { class: 'nota' }, memoriaRelacion(r)) : null,
             );
           }),
       ),

@@ -16,7 +16,8 @@ import { lexicoComun, nombrar, parecido } from './lenguaje.ts';
 import { buscarSitio, direccion, masas, puntuarSitio } from './mapa.ts';
 import { distancia, exponencial } from './matematicas.ts';
 import { aldeasVivas, edad, nuevaAldea, nuevaPersona, type Indices } from './mundo.ts';
-import { asaltar, boda, convivir, enGuerra, persuadir, quiereAsaltar } from './politica.ts';
+import { boda, convivir, enGuerra, persuadir, quiereAsaltar } from './politica.ts';
+import { lanzarIncursion } from './guerra.ts';
 import { compartirIdea, ensenar, escribir, leer } from './saber.ts';
 import { acercarse } from './individuo.ts';
 import { afamar, hito, lazo, tratar } from './memoria.ts';
@@ -435,12 +436,12 @@ export function encuentros(m: Mundo, ix: Indices, escasez: Map<number, number>):
       const eb = escasez.get(b.id) ?? 0;
       const motivoA = quiereAsaltar(m, a, b, ga, gb, ea, ix.porId);
       if (motivoA) {
-        asaltar(m, a, b, ga, gb, motivoA);
+        lanzarIncursion(m, a, b, ga, motivoA);
         continue;
       }
       const motivoB = quiereAsaltar(m, b, a, gb, ga, eb, ix.porId);
       if (motivoB) {
-        asaltar(m, b, a, gb, ga, motivoB);
+        lanzarIncursion(m, b, a, gb, motivoB);
         continue;
       }
       const clave = `${Math.min(a.id, b.id)}-${Math.max(a.id, b.id)}`;

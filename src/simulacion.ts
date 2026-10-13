@@ -14,6 +14,7 @@ import { nombreOficio, oficio, vidas } from './individuo.ts';
 import { hito, recordar } from './memoria.ts';
 import { mudanzas } from './migracion.ts';
 import { viajes } from './viajes.ts';
+import { diplomacia, guerrear } from './guerra.ts';
 import { asentarAprendizaje, comer, contexto, jornada, mantener, planificar, radioMuro, rodea } from './economia.ts';
 import { fauna } from './fauna.ts';
 import { lexicoComun, parecido } from './lenguaje.ts';
@@ -73,8 +74,8 @@ function paso(m: Mundo): void {
   for (const a of vivas) {
     const encendida = mantener(m, a, est, dia);
     if (encendida) encendidas.add(a.id);
-    // (Los que exploran el mar comen de lo que llevan a bordo.)
-    comer(m, a, gente(a.id).filter((p) => !p.viaje?.mar));
+    // (Los que exploran el mar comen de lo que llevan a bordo; los guerreros, de sus víveres.)
+    comer(m, a, gente(a.id).filter((p) => !p.viaje?.mar && !p.viaje?.incursion));
     salud(m, a, gente(a.id), est, encendida);
     peligros(m, a, gente(a.id), dia);
   }
@@ -86,8 +87,12 @@ function paso(m: Mundo): void {
   mudanzas(m, ix);
   // Visitas a aldeas lejanas emparentadas: quien va, quien está allí y quien vuelve.
   viajes(m, ix);
+  // Guerreros en camino: avanzan, pelean o se retiran, y vuelven con lo que traigan.
+  guerrear(m, ix);
   // Una vez al mes: comercio entre aldeas (lo que sobra a una y falta a otra).
   if (m.t % 30 === 25) mercados(m, ix);
+  // Y lo que se juegan unas con otras (disputas, comercio y agravios que se olvidan).
+  if (m.t % 30 === 26) diplomacia(m, ix);
   for (const a of vivas) {
     const c = ctx.get(a.id);
     if (c) noche(m, a, gente(a.id), c);

@@ -70,6 +70,7 @@ export function comprobar(m: Mundo): string[] {
     if (p.viaje && (![p.viaje.dias, p.viaje.salida, ...p.viaje.desde, ...p.viaje.hasta].every(Number.isFinite) || !m.aldeas.some((a) => a.id === p.viaje!.a))) out.push(`${p.nombre}: viaje inválido`);
     if (p.viaje?.mar && (![p.viaje.mar.viveres, p.viaje.mar.ida, p.viaje.mar.zarpo].every(Number.isFinite) || p.viaje.mar.viveres < 0)) out.push(`${p.nombre}: travesía inválida`);
     for (const [k, v] of Object.entries(p.viaje?.carga ?? {})) if (!Number.isFinite(v) || v < 0) out.push(`${p.nombre}: carga de ${k} = ${v}`);
+    if (p.viaje?.incursion !== undefined && !p.muerto && !m.incursiones?.some((x) => x.id === p.viaje!.incursion && x.gente.includes(p.id))) out.push(`${p.nombre}: guerrero de una incursión que no existe`);
     if (p.muerto) out.push(`${p.nombre}: muerto sin enterrar`);
     if (out.length > 40) break;
   }
@@ -81,6 +82,24 @@ export function comprobar(m: Mundo): string[] {
       }
     }
   }
-  for (const [k, r] of Object.entries(m.relaciones)) if (!Number.isFinite(r.afinidad) || !Number.isFinite(r.rencor)) out.push(`relación ${k} rota`);
+  for (const [k, r] of Object.entries(m.relaciones)) {
+    if (!Number.isFinite(r.afinidad) || !Number.isFinite(r.rencor)) out.push(`relación ${k} rota`);
+    for (const c of ['afinidad', 'rencor', 'agravio', 'disputa', 'peor'] as const) if (r[c] !== undefined && !(r[c]! >= 0 && r[c]! <= 1)) out.push(`relación ${k}: ${c} = ${r[c]}`);
+    if (r.comercio !== undefined && !(r.comercio >= 0 && Number.isFinite(r.comercio))) out.push(`relación ${k}: comercio = ${r.comercio}`);
+  }
+  // Incursiones: una sola por pareja de aldeas, de aldeas que existen, con lo que llevan en orden.
+  const parejas = new Set<string>();
+  for (const x of m.incursiones ?? []) {
+    const k = `${x.de}-${x.contra}`;
+    if (parejas.has(k)) out.push(`incursión repetida de ${x.de} contra ${x.contra}`);
+    parejas.add(k);
+    if (!m.aldeas.some((a) => a.id === x.de) || !m.aldeas.some((a) => a.id === x.contra)) out.push(`incursión ${x.id}: aldea inexistente`);
+    if (![x.salida, x.dias].every(Number.isFinite) || x.dias <= 0) out.push(`incursión ${x.id}: fechas rotas`);
+    for (const [k2, v] of [...Object.entries(x.viveres), ...Object.entries(x.botin)]) if (!Number.isFinite(v) || v < 0) out.push(`incursión ${x.id}: ${k2} = ${v}`);
+  }
+  for (const a of m.aldeas) {
+    const g = a.consejo?.guerra;
+    if (g && (g.contra === a.id || (g.cansancio !== undefined && !(g.cansancio >= 0 && Number.isFinite(g.cansancio))))) out.push(`${a.nombre}: guerra imposible`);
+  }
   return out;
 }

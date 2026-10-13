@@ -190,7 +190,37 @@ export function reparar(m: Mundo): Reparacion[] {
     }
     if (a.obra) a.obra.progreso = acotado(`${a.nombre}.obra.progreso`, a.obra.progreso, 0, 1, () => null, 0, 'la obra vuelve a empezar');
     a.amenaza = acotado(`${a.nombre}.amenaza`, a.amenaza, 0, 1, () => null, 0, 'se recalcula cada día');
+    const g = a.consejo?.guerra;
+    if (g && g.cansancio !== undefined) g.cansancio = acotado(`${a.nombre}.consejo.guerra.cansancio`, g.cansancio, 0, 2, () => null, 0, 'sin cansancio');
   }
+
+  // Incursiones en marcha: con datos completos, entre aldeas que existen, una sola por pareja
+  // de aldeas. Si una no se puede leer, sus guerreros vuelven a casa y lo que llevaban (si se
+  // puede leer) entra en su despensa: ni se pierde ni se duplica.
+  if (m.incursiones !== undefined) {
+    const lista = Array.isArray(m.incursiones) ? m.incursiones : [];
+    const vistas = new Set<string>();
+    const ids = new Set<number>();
+    m.incursiones = lista.filter((x, i) => {
+      const ok =
+        !!x && typeof x === 'object' && Number.isInteger(x.id) && !ids.has(x.id) &&
+        m.aldeas.some((a) => a.id === x.de && a.abandonada === null) && m.aldeas.some((a) => a.id === x.contra) && x.de !== x.contra &&
+        !vistas.has(`${x.de}-${x.contra}`) && Array.isArray(x.gente) && x.gente.every((id) => Number.isInteger(id)) &&
+        (x.fase === 'ida' || x.fase === 'vuelta') && [x.salida, x.dias].every(finito) && x.dias > 0 &&
+        dentroDelMapa(x.desde, m) && dentroDelMapa(x.hasta, m) && bienesValidos(x.viveres) && bienesValidos(x.botin) && typeof x.motivo === 'string' &&
+        (x.resultado === undefined || ['victoria', 'derrota', 'retirada', 'paz'].includes(x.resultado));
+      if (ok) {
+        ids.add(x.id);
+        vistas.add(`${x.de}-${x.contra}`);
+        return true;
+      }
+      const casa = x && m.aldeas.find((a) => a.id === x.de && a.abandonada === null);
+      if (casa) for (const c of [x.viveres, x.botin]) if (bienesValidos(c)) for (const [k, n] of Object.entries(c)) casa.despensa[k] = (casa.despensa[k] ?? 0) + n;
+      apuntar(`incursiones[${i}]`, x, null, 'incursión ilegible o repetida: los guerreros vuelven a casa con lo que llevaban', false);
+      return false;
+    });
+  }
+  const incursion = (id: number) => m.incursiones?.find((x) => x.id === id);
 
   for (const p of m.personas) {
     const vecinos = (porAldea.get(p.aldea) ?? []).filter((q) => q !== p);
@@ -229,7 +259,7 @@ export function reparar(m: Mundo): Reparacion[] {
       p.aldea = cerca.id;
     }
     // Un viaje con datos rotos o hacia una aldea que no existe: se da por terminado (está en casa).
-    if (p.viaje && (![p.viaje.dias, p.viaje.salida, ...(p.viaje.desde ?? []), ...(p.viaje.hasta ?? [])].every(finito) || !Array.isArray(p.viaje.conocio) || !m.aldeas.some((a) => a.id === p.viaje!.a) || (p.viaje.mar !== undefined && !travesiaValida(p.viaje.mar, m)) || (p.viaje.carga !== undefined && !bienesValidos(p.viaje.carga)) || (p.viaje.trato !== undefined && !bienesValidos(p.viaje.trato?.trae)))) {
+    if (p.viaje && (![p.viaje.dias, p.viaje.salida, ...(p.viaje.desde ?? []), ...(p.viaje.hasta ?? [])].every(finito) || !Array.isArray(p.viaje.conocio) || !m.aldeas.some((a) => a.id === p.viaje!.a) || (p.viaje.mar !== undefined && !travesiaValida(p.viaje.mar, m)) || (p.viaje.carga !== undefined && !bienesValidos(p.viaje.carga)) || (p.viaje.trato !== undefined && !bienesValidos(p.viaje.trato?.trae)) || (p.viaje.incursion !== undefined && !incursion(p.viaje.incursion)?.gente.includes(p.id)))) {
       apuntar(`${ruta}.viaje`, p.viaje, null, 'viaje ilegible o a una aldea que no existe: vuelve a estar en su aldea', false);
       const casa = m.aldeas.find((a) => a.id === p.aldea);
       if (casa) {
@@ -295,6 +325,8 @@ export function reparar(m: Mundo): Reparacion[] {
   for (const [k, r] of Object.entries(m.relaciones)) {
     r.afinidad = acotado(`relaciones.${k}.afinidad`, r.afinidad, 0, 1, () => null, 0.2, 'trato neutro');
     r.rencor = acotado(`relaciones.${k}.rencor`, r.rencor, 0, 1, () => null, 0, 'sin rencor');
+    for (const c of ['agravio', 'disputa', 'peor'] as const) if (r[c] !== undefined) r[c] = acotado(`relaciones.${k}.${c}`, r[c], 0, 1, () => null, 0, 'se olvida');
+    if (r.comercio !== undefined) r.comercio = cantidad(`relaciones.${k}.comercio`, r.comercio);
   }
 
   if (hechas.length) {

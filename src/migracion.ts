@@ -146,7 +146,13 @@ export function mudar(m: Mundo, ix: Indices, p: Persona, a: Aldea, b: Aldea): Pe
   // Lo que solo sabían ellos se va con ellos (salvo que esté escrito).
   a.conocidos = a.conocidos.filter((s) => origen.some((q) => q.saberes.includes(s)) || a.archivo.includes(s));
   const rel = relacion(m, a.id, b.id);
-  rel.afinidad = r2(Math.min(1, rel.afinidad + 0.03));
+  // Llegar a una aldea que ya no tiene casas ni comida para tantos crea roces (y si sobra
+  // de todo, se recibe bien y une a las dos aldeas).
+  const alli = (ix.porAldea.get(b.id) ?? []).length;
+  if (alli > plazas(b) || comidaTotal(b) / Math.max(1, alli) < 60) {
+    rel.rencor = Math.min(1, r2(rel.rencor + Math.min(0.03, 0.01 * familia.size)));
+    rel.peor = Math.max(rel.peor ?? 0, rel.rencor);
+  } else rel.afinidad = r2(Math.min(1, rel.afinidad + 0.03));
   m.anual.migrantes = (m.anual.migrantes ?? 0) + familia.size;
   const otros = familia.size - 1;
   if (aviso(m, `migra-${a.id}-${b.id}`, DIAS_ANIO)) {

@@ -65,7 +65,7 @@ export function destinoDeViaje(m: Mundo, a: Aldea, b: Aldea): boolean {
 
 /** Cada día: los que están de viaje siguen su camino; y quizá alguien emprende uno. */
 export function viajes(m: Mundo, ix: Indices): void {
-  for (const p of m.personas) if (p.viaje && !p.viaje.mar && !p.muerto) seguir(m, p, ix);
+  for (const p of m.personas) if (p.viaje && !p.viaje.mar && !p.viaje.incursion && !p.muerto) seguir(m, p, ix);
   // Los que exploran el mar, en su barca.
   navegar(m, ix, estacionDe(m.t) === 3);
   // En invierno nadie se echa a los caminos (ni al mar).
@@ -268,7 +268,7 @@ function regalar(de: Aldea, a: Aldea): void {
 export function caminarViaje(m: Mundo, p: Persona): void {
   const v = p.viaje;
   if (!v) return;
-  p.actividad = v.trato ? 'comerciar' : 'viajar';
+  p.actividad = v.incursion !== undefined ? 'asaltar' : v.trato ? 'comerciar' : 'viajar';
   const f = Math.min(1, (m.t - v.salida) / v.dias);
   p.x = Math.round(v.desde[0] + (v.hasta[0] - v.desde[0]) * f);
   p.y = Math.round(v.desde[1] + (v.hasta[1] - v.desde[1]) * f);
