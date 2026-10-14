@@ -3,6 +3,7 @@
 // en una aldea que no existe y las parejas tienen que corresponderse.
 
 import { MAX_LAZOS, MAX_RECUERDOS, MAX_VIDA } from './memoria.ts';
+import { comprobarPlano } from './urbe.ts';
 import type { Mundo } from './tipos.ts';
 
 /** Busca números inválidos (NaN, infinitos o null donde debería haber un número) en cualquier parte. */
@@ -33,6 +34,8 @@ export function comprobar(m: Mundo): string[] {
       if (e.animales !== undefined && (!Number.isInteger(e.animales) || e.animales < 0)) out.push(`${a.nombre}: ${e.tipo} con ${e.animales} animales (deben ser enteros y no negativos)`);
     }
     if (a.obra) numerosRotos(a.obra, `${a.nombre}.obra`, out);
+    if (a.abandonada === null) out.push(...comprobarPlano(m, a));
+    if (a.obra?.mejora && !a.edificios.some((e) => e.x === a.obra!.x && e.y === a.obra!.y && e.tipo === a.obra!.tipo)) out.push(`${a.nombre}: mejora de un edificio que no existe`);
     for (const [x, y] of a.tierras ?? []) if (!Number.isInteger(x) || !Number.isInteger(y) || x < 0 || y < 0 || x >= m.ancho || y >= m.alto) out.push(`${a.nombre}: tierra conocida fuera del mapa (${x},${y})`);
   }
   if (m.caminos && (m.caminos.length !== m.ancho * m.alto || m.caminos.some((v) => !(v >= 0 && v <= 3)))) out.push('caminos con valores imposibles');

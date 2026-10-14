@@ -3,7 +3,8 @@
 // descubrir no aparecen (nada de destripes).
 
 import { ALTO, ANCHO, DIAS_ANIO, ESTACIONES } from './config.ts';
-import { BASICOS, COMIDAS, CONCEPTOS_VIDA, EDADES, EDIFICIOS, MATERIALES, NOMBRE_CONCEPTO, OBRAS_TIERRA, TECNICA, TECNICAS } from './catalogo.ts';
+import { BASICOS, COMIDAS, CONCEPTOS_VIDA, EDADES, EDIFICIOS, MATERIALES, MEJORAS, NOMBRE_CONCEPTO, OBRAS_TIERRA, TECNICA, TECNICAS, mejoraDe } from './catalogo.ts';
+import { callesEnUso, resumenPlano, solaresLibres, tramosEnUso } from './urbe.ts';
 import { edadSegun, faltaPara } from './edades.ts';
 import { LEMA } from './exodo.ts';
 import { anioDe, fecha } from './cronica.ts';
@@ -93,6 +94,8 @@ export function datosWeb(m: Mundo, ahora: Date) {
     nombres,
     comestibles: COMIDAS.map((x) => x.id),
     nombresEdades: EDADES.map((e) => e.nombre),
+    // Las mejoras posibles (para las fichas): qué son, qué piden y qué dan.
+    mejoras: MEJORAS.map((x) => ({ tipo: x.tipo, nivel: x.nivel, nombre: x.nombre, coste: x.coste, efecto: x.efecto })),
     obras: Object.fromEntries([
       ...EDIFICIOS.map((e) => [e.id, { nombre: e.nombre, coste: e.coste, ...(e.alternativa ? { alternativa: e.alternativa.coste } : {}) }]),
       ...OBRAS_TIERRA.map((o) => [o.id, { nombre: o.nombre, coste: o.coste, tierra: true }]),
@@ -127,6 +130,7 @@ export function datosWeb(m: Mundo, ahora: Date) {
           ...(e.radio ? { radio: e.radio } : {}),
           ...(e.ang !== undefined ? { ang: e.ang } : {}),
           ...(e.nivel ? { nivel: e.nivel } : {}),
+          ...(e.frente ? { frente: e.frente } : {}),
           // Cómo va el cultivo (de 0, recién sembrado, a 1, listo para segar) o si queda rastrojo.
           ...(e.tipo === 'campo' && e.fase === 1 ? { crece: r2(Math.min(1, (m.t - (e.sembrado ?? m.t - 40)) / 70)) } : {}),
           ...(e.tipo === 'campo' && e.fase !== 1 && e.cosechado !== undefined && m.t - e.cosechado < 45 ? { rastrojo: true } : {}),
@@ -145,6 +149,9 @@ export function datosWeb(m: Mundo, ahora: Date) {
               ...(a.obra.reforma ? { reforma: a.obra.reforma } : {}),
               ...(a.obra.ang !== undefined ? { ang: a.obra.ang } : {}),
               ...(a.obra.alza ? { alza: true } : {}),
+              ...(a.obra.mejora ? { mejora: a.obra.mejora, nombreMejora: mejoraDe(a.obra.tipo, a.obra.mejora)?.nombre ?? '' } : {}),
+              ...(a.obra.viejo ? { viejo: a.obra.viejo } : {}),
+              ...(a.obra.frente ? { frente: a.obra.frente } : {}),
               ...(a.obra.tierra ? { tierra: { casillas: a.obra.tierra.casillas, ...(a.obra.tierra.para ? { para: a.obra.tierra.para } : {}) } } : {}),
             }
           : null,
@@ -154,6 +161,8 @@ export function datosWeb(m: Mundo, ahora: Date) {
         edades: (a.edades ?? []).map((t) => (t === undefined || t === null ? null : anioDe(t))),
         faltaEdad: (a.edad ?? edadSegun(a)) + 1 < EDADES.length ? faltaPara(a, (a.edad ?? edadSegun(a)) + 1).map((id) => TECNICA[id]?.nombre ?? id) : [],
         rango: a.rango ?? 'aldea',
+        // Su plano: calles, solares (ocupados y reservados) y barrios.
+        ...(a.urbe ? { plano: resumenPlano(m, a), calles: [...callesEnUso(m, a)], tramos: tramosEnUso(m, a), solares: solaresLibres(m, a) } : {}),
         ...(a.valor ? { valor: a.valor, lema: LEMA[a.valor] } : {}),
         ...(a.tierras?.length ? { tierras: a.tierras.length } : {}),
         // Su economía: a qué dedica sus jornadas, qué vende y qué compra (lo de los últimos años).

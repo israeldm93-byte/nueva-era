@@ -183,9 +183,12 @@ test('años de comercio sin valores rotos, sin ir y venir con lo mismo y sin pas
   a.despensa.malaquita = 200;
   olvidarAnomalias();
   fijarAzar(3);
+  // (La balanza se va olvidando: se mira el comercio de todos estos años, no solo el del final.)
+  let comerciado = 0;
   for (let mes = 0; mes < 36; mes++) {
     avanzar(m, 30);
     if (mes % 6 === 0) mercados(m, indexar(m));
+    comerciado = Math.max(comerciado, (a.balanza?.exporta.malaquita ?? 0) + (a.balanza?.exporta.piedra ?? 0) + (b.balanza?.exporta.madera ?? 0));
   }
   assert.deepEqual(comprobar(m), []);
   assert.deepEqual(anomalias(), []);
@@ -194,5 +197,5 @@ test('años de comercio sin valores rotos, sin ir y venir con lo mismo y sin pas
     const c = gente(m, x).reduce((s, p) => s + necesidad(m, p), 0);
     assert.ok(comidaTotal(x) / Math.max(1, c) > 60, `${x.nombre} sigue bien de comida`);
   }
-  assert.ok((a.balanza?.exporta.malaquita ?? 0) + (a.balanza?.exporta.piedra ?? 0) + (b.balanza?.exporta.madera ?? 0) > 0, 'ha habido comercio');
+  assert.ok(comerciado > 0, 'ha habido comercio');
 });

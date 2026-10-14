@@ -467,8 +467,8 @@ export class Gente3D {
         const [ex, ez] = this.terreno.aMundo(e.x, e.y);
         obst.push([ex, ez, r]);
         if (VIVIENDAS.has(e.tipo)) {
-          // La puerta mira al centro de la aldea (como la dibuja el edificio).
-          const mira = Math.atan2(ax - ex, az - ez) + (azar(e.x * 7 + e.y * 13) - 0.5) * 0.3;
+          // La puerta mira a su calle (o, en el casco viejo, al centro), como la dibuja el edificio.
+          const mira = e.frente ? Math.atan2(e.frente[0], e.frente[1]) : Math.atan2(ax - ex, az - ez) + (azar(e.x * 7 + e.y * 13) - 0.5) * 0.3;
           puertas.push([ex + Math.sin(mira) * (r + 0.3), ez + Math.cos(mira) * (r + 0.3), Math.sin(mira), Math.cos(mira)]);
         }
       }

@@ -28,9 +28,13 @@ import {
   PESCABLE,
   PRADERA,
   RIO,
+  USO_URBANO,
+  mejoraDe,
   type TipoEdificio,
 } from './catalogo.ts';
+import { RADIO_URBE, enPlaza, frenteDe, ocuparSolar, solarLibre, solarPara, suelo } from './urbe.ts';
 import { anotar } from './cronica.ts';
+import { aviso } from './fauna.ts';
 import { alcanzable, anillo, hayCerca, mejorCasilla, orilla } from './mapa.ts';
 import { distancia as distanciaXY } from './matematicas.ts';
 import { edad } from './mundo.ts';
@@ -167,7 +171,8 @@ export function tiene(a: Aldea, tipo: string): boolean {
 /** Cuánta gente cabe bajo techo en la aldea. */
 export function plazas(a: Aldea): number {
   let n = 0;
-  for (const e of a.edificios) n += EDIFICIO[e.tipo]?.aloja ?? 0;
+  // Una casa con planta alta aloja más (ver MEJORAS).
+  for (const e of a.edificios) n += Math.round((EDIFICIO[e.tipo]?.aloja ?? 0) * ((e.nivel ?? 1) >= 2 ? (mejoraDe(e.tipo, 2)?.efecto.aloja ?? 1) : 1));
   return n;
 }
 
@@ -857,6 +862,12 @@ export function tipoObra(id: string): { nombre: string; coste: Record<string, nu
 /** Con qué se paga la obra: lo de siempre o, si no llega, la alternativa (o nada). */
 function costeObra(a: Aldea): { coste: Record<string, number>; material?: string } | null {
   if (!a.obra) return null;
+  // Mejorar un edificio que ya está en pie cuesta lo que diga la mejora.
+  if (a.obra.mejora) {
+    const mj = mejoraDe(a.obra.tipo, a.obra.mejora);
+    if (!mj) return null;
+    return Object.keys(mj.coste).every((k) => (a.despensa[k] ?? 0) >= mj.coste[k]) ? { coste: mj.coste } : null;
+  }
   const tipo = tipoObra(a.obra.tipo);
   // Un muro cuesta según lo largo que sea (el de siempre rodeaba unas 2,7 casillas de radio).
   // (y un camino, según las casillas que tenga).
@@ -888,7 +899,7 @@ export function construir(m: Mundo, p: Persona, c: Contexto): number {
   p.x = obra.x;
   p.y = obra.y;
   const ritmo = (0.6 + 0.4 * p.genes.fuerza) * (sabe(p, 'hacha') ? 1.2 : 1) * c.herramienta * (conoce(a, 'numeros') ? 1.15 : 1);
-  obra.progreso = r4(obra.progreso + ritmo / (obra.tierra?.esfuerzo ?? tipo.trabajo));
+  obra.progreso = r4(obra.progreso + ritmo / (obra.tierra?.esfuerzo ?? (obra.mejora ? (mejoraDe(obra.tipo, obra.mejora)?.trabajo ?? tipo.trabajo) : tipo.trabajo)));
   if (obra.tierra) {
     // Una obra de tierra: el terreno cambia según avanza, y lo que se saca va a la despensa.
     moverTierra(m, obra);
@@ -907,7 +918,24 @@ function terminarObra(m: Mundo, a: Aldea): void {
   const obra = a.obra;
   if (!obra) return;
   a.obra = null;
-  const e: Aldea['edificios'][number] = { tipo: obra.tipo, x: obra.x, y: obra.y, ...(obra.material ? { material: obra.material } : {}), ...(obra.radio ? { radio: obra.radio } : {}), ...(obra.ang !== undefined ? { ang: obra.ang } : {}) };
+  // Una mejora no levanta otro edificio: cambia el que hay (su nivel, su aspecto, lo que da).
+  if (obra.mejora) {
+    const e = a.edificios.find((x) => x.x === obra.x && x.y === obra.y && x.tipo === obra.tipo);
+    const mj = mejoraDe(obra.tipo, obra.mejora);
+    if (!e || !mj) return;
+    e.nivel = obra.mejora;
+    if (aviso(m, `mejora-${a.id}-${mj.nombre}`, 1e9)) anotar(m, 'edificio', `${a.nombre} ${mj.texto}.`, a.id);
+    return;
+  }
+  const e: Aldea['edificios'][number] = {
+    tipo: obra.tipo,
+    x: obra.x,
+    y: obra.y,
+    ...(obra.material ? { material: obra.material } : {}),
+    ...(obra.radio ? { radio: obra.radio } : {}),
+    ...(obra.ang !== undefined ? { ang: obra.ang } : {}),
+    ...(obra.frente ? { frente: obra.frente } : {}),
+  };
   // Un muro nuevo más grande sustituye al viejo.
   const viejo = rodea(obra.tipo) ? a.edificios.find((x) => x.tipo === obra.tipo) : undefined;
   const ampliado = !!viejo;
@@ -926,8 +954,12 @@ function terminarObra(m: Mundo, a: Aldea): void {
     }
   }
   if (obra.reforma) {
-    const k = a.edificios.findIndex((x) => x.x === obra.x && x.y === obra.y && x.tipo === obra.reforma);
+    // La casa vieja se derriba: en su sitio, o donde estaba si la nueva se hizo en un solar de
+    // las calles nuevas (y entonces lo que queda es un patio abierto).
+    const [vx, vy] = obra.viejo ?? [obra.x, obra.y];
+    const k = a.edificios.findIndex((x) => x.x === vx && x.y === vy && x.tipo === obra.reforma);
     if (k >= 0) a.edificios.splice(k, 1);
+    if (obra.viejo && a.urbe && k >= 0) a.urbe.patios.push(vy * m.ancho + vx);
     // La primera vez que una aldea rehace sus casas al modo nuevo, se cuenta.
     if (!a.edificios.some((x) => x.tipo === obra.tipo) && m.construidos.includes(obra.tipo)) {
       anotar(m, 'edificio', `En ${a.nombre} empiezan a cambiar ${PLURAL[obra.reforma] ?? 'las casas viejas'} por ${PLURAL[obra.tipo].replace(/^las /, '')}.`, a.id);
@@ -1064,7 +1096,7 @@ export function planificar(m: Mundo, a: Aldea, gente: Persona[]): void {
     // Si lleva mucho esperando materiales, se deja para más adelante y se hace otra cosa.
     a.obra.desde ??= m.t;
     if (a.obra.pagada || m.t - a.obra.desde < 45) return;
-    (a.aparcadas ??= {})[a.obra.tipo] = m.t + 120;
+    (a.aparcadas ??= {})[a.obra.mejora ? `mejora-${a.obra.tipo}` : a.obra.tipo] = m.t + 120;
     a.obra = null;
   }
   // De camino a su nueva tierra no se levanta nada.
@@ -1080,13 +1112,32 @@ export function planificar(m: Mundo, a: Aldea, gente: Persona[]): void {
   // Rehacer las casas viejas al modo nuevo, sobre todo si sobran los materiales.
   let vieja: Aldea['edificios'][number] | null = null;
   if (casa && n >= 4) {
-    for (const e of a.edificios) if (NIVEL_CASA[e.tipo] && NIVEL_CASA[e.tipo] < NIVEL_CASA[casa] && (!vieja || NIVEL_CASA[e.tipo] < NIVEL_CASA[vieja.tipo])) vieja = e;
+    for (const e of a.edificios) if (NIVEL_CASA[e.tipo] && NIVEL_CASA[e.tipo] < NIVEL_CASA[casa] && (e.nivel ?? 1) < 2 && (!vieja || NIVEL_CASA[e.tipo] < NIVEL_CASA[vieja.tipo])) vieja = e;
     if (vieja) {
       const coste = EDIFICIO[casa].coste;
       const sobra = Object.keys(coste).every((k) => (a.despensa[k] ?? 0) >= coste[k] * 2);
       opciones.push(['reforma', sobra ? 0.8 : 0.5]);
     }
   }
+  // Ampliar lo que ya está en pie (ver MEJORAS): una planta alta en las casas cuando hace falta
+  // sitio y el plano ya no da solares buenos cerca (o la aldea está amurallada); un almacén
+  // grande cuando se guarda mucha comida.
+  const ampliable = (tipo: string) => {
+    const mj = mejoraDe(tipo, 2);
+    return !!mj && conoce(a, mj.requiere) && (a.aparcadas?.[`mejora-${tipo}`] ?? 0) <= m.t;
+  };
+  const casaAmpliable = a.edificios.find((e) => NIVEL_CASA[e.tipo] && (e.nivel ?? 1) < 2 && ampliable(e.tipo) && !(a.obra?.reforma && a.obra.viejo?.[0] === e.x && a.obra.viejo?.[1] === e.y));
+  if (casaAmpliable && capacidad < n && n >= 12) {
+    // Se sube en altura cuando ya no hay solar: dentro del muro, si lo hay (una aldea
+    // amurallada no se sale de él mientras quepa dentro); si no, en todo el plano. Si quedan
+    // solares, se prefiere casa nueva.
+    const muro = muroDe(a);
+    const s = suelo(m);
+    const quedan = a.urbe ? a.urbe.parcelas.filter((p) => p.uso !== 'publico' && solarLibre(m, a, p, s, lineasMuro(a)) && (!muro || Math.hypot((p.i % m.ancho) - a.x, Math.floor(p.i / m.ancho) - a.y) < radioMuro(muro) - 0.75)).length : 1;
+    opciones.push(['ampliar', quedan === 0 && (!!muro || a.urbe!.calles.every((c) => c.cerrada)) ? 0.95 : 0.6]);
+  }
+  const almacen = a.edificios.find((e) => e.tipo === 'almacen' && (e.nivel ?? 1) < 2);
+  if (almacen && ampliable('almacen') && comidaTotal(a) / Math.max(1, n) > 150) opciones.push(['ampliarAlmacen', 0.5]);
   // Campos mientras haga falta grano: con los graneros llenos para años, no se abren más.
   const sobraGrano = grano > n * 300;
   if (conoce(a, 'campo') && cuantos(a, 'campo') < Math.ceil(n * 0.6) + 2 && grano >= 4 && !sobraGrano) opciones.push(['campo', 0.85]);
@@ -1144,9 +1195,20 @@ export function planificar(m: Mundo, a: Aldea, gente: Persona[]): void {
   for (const [tipo] of opciones) {
     if ((a.aparcadas?.[tipo] ?? 0) > m.t) continue;
     if (tipo === 'reforma') {
-      // Se deshace la vieja y se levanta la nueva en el mismo sitio.
       if (!casa || !vieja || (a.aparcadas?.[casa] ?? 0) > m.t) continue;
-      a.obra = { tipo: casa, x: vieja.x, y: vieja.y, progreso: 0, pagada: false, desde: m.t, reforma: vieja.tipo };
+      // Una casa del casco viejo (sin calle) se rehace en un solar de las calles nuevas y la
+      // vieja se derriba al acabar; una que ya da a su calle, en el mismo sitio.
+      const sol = !vieja.frente ? solarPara(m, a, casa, lineasMuro(a)) : null;
+      if (sol) {
+        ocuparSolar(m, a, sol);
+        a.obra = { tipo: casa, x: sol.i % m.ancho, y: Math.floor(sol.i / m.ancho), progreso: 0, pagada: false, desde: m.t, reforma: vieja.tipo, viejo: [vieja.x, vieja.y], frente: frenteDe(m, sol) };
+      } else a.obra = { tipo: casa, x: vieja.x, y: vieja.y, progreso: 0, pagada: false, desde: m.t, reforma: vieja.tipo, ...(vieja.frente ? { frente: vieja.frente } : {}) };
+      return;
+    }
+    if (tipo === 'ampliar' || tipo === 'ampliarAlmacen') {
+      const e = tipo === 'ampliar' ? casaAmpliable : almacen;
+      if (!e) continue;
+      a.obra = { tipo: e.tipo, x: e.x, y: e.y, progreso: 0, pagada: false, desde: m.t, mejora: 2 };
       return;
     }
     if (tipo === 'alzar') {
@@ -1168,7 +1230,10 @@ export function planificar(m: Mundo, a: Aldea, gente: Persona[]): void {
       a.obra = o;
       return;
     }
-    const sitio = lugarPara(m, a, tipo);
+    // Lo que va en un solar del plano (casas, talleres, corrales, templo...): el que le toca
+    // según su uso; si en el plano no hay manera, donde se pueda (como antes).
+    const sol = USO_URBANO[tipo] ? solarPara(m, a, tipo, lineasMuro(a)) : null;
+    const sitio = sol ? sol.i : lugarPara(m, a, tipo);
     if (sitio < 0) continue;
     if (OBRA_TIERRA[tipo]) {
       const o = planear(m, a, tipo, sitio);
@@ -1180,11 +1245,13 @@ export function planificar(m: Mundo, a: Aldea, gente: Persona[]): void {
     if (GRANDES.has(tipo) && conoce(a, 'nivelacion') && labrada(m, sitio) !== 'explanada' && desnivel(m, sitio) > DESNIVEL_MAXIMO && (a.aparcadas?.explanada ?? 0) <= m.t) {
       const o = planear(m, a, 'explanada', sitio, tipo);
       if (o) {
+        if (sol) ocuparSolar(m, a, sol);
         a.obra = o;
         return;
       }
     }
-    a.obra = { tipo, x: sitio % m.ancho, y: Math.floor(sitio / m.ancho), progreso: 0, pagada: false, desde: m.t, ...(rodea(tipo) ? { radio: radioNecesario(a) } : {}) };
+    if (sol) ocuparSolar(m, a, sol);
+    a.obra = { tipo, x: sitio % m.ancho, y: Math.floor(sitio / m.ancho), progreso: 0, pagada: false, desde: m.t, ...(rodea(tipo) ? { radio: radioNecesario(a) } : {}), ...(sol ? { frente: frenteDe(m, sol) } : {}) };
     return;
   }
 }
@@ -1209,11 +1276,25 @@ function puntoMuro(a: Aldea, r: number, ang: number): { x: number; y: number } {
   return { x: Math.round(a.x + Math.cos(ang) * r), y: Math.round(a.y + Math.sin(ang) * r) };
 }
 
+/** Los radios de los muros de la aldea (el que hay y el que se está levantando): nada encima. */
+function lineasMuro(a: Aldea): number[] {
+  return [...a.edificios.filter((e) => rodea(e.tipo)).map(radioMuro), ...(a.obra && rodea(a.obra.tipo) ? [a.obra.radio ?? 2.7] : [])];
+}
+
+/** Hasta dónde llega lo construido del plano (para sembrar los campos más afuera). */
+function radioPlano(m: Mundo, a: Aldea): number {
+  if (!a.urbe) return 0;
+  const hay = new Set(a.edificios.map((e) => e.y * m.ancho + e.x));
+  let r = 0;
+  for (const p of a.urbe.parcelas) if (hay.has(p.i)) r = Math.max(r, Math.hypot((p.i % m.ancho) - a.x, Math.floor(p.i / m.ancho) - a.y));
+  return Math.min(RADIO_URBE, r);
+}
+
 function lugarPara(m: Mundo, a: Aldea, tipo: string): number {
   // Los muros rodean la aldea: se apuntan en su centro.
   if (centrado(tipo)) return a.y * m.ancho + a.x;
   // Nada encima de la línea del muro (ni del que se está levantando).
-  const lineas = [...a.edificios.filter((e) => rodea(e.tipo)).map(radioMuro), ...(a.obra && rodea(a.obra.tipo) ? [a.obra.radio ?? 2.7] : [])];
+  const lineas = lineasMuro(a);
   const sobreMuro = (i: number) => {
     const d = Math.hypot((i % m.ancho) - a.x, Math.floor(i / m.ancho) - a.y);
     return lineas.some((r) => Math.abs(d - r) < 0.75);
@@ -1249,24 +1330,28 @@ function lugarPara(m: Mundo, a: Aldea, tipo: string): number {
   }
   // La aldea se extiende a medida que crece: los campos y las casas nuevas van más afuera.
   const extension = Math.min(4, Math.floor(a.edificios.length / 12));
+  // Las calles, los solares, los patios y la plaza del plano no se siembran ni se excavan.
+  const plano = suelo(m).plano;
+  const delPlano = (i: number) => plano.has(i) || enPlaza(m, a, i);
   if (tipo === 'cantera') {
     // En la roca de una colina o una montaña cercana, que aún no sea cantera.
     return mejorCasilla(m, a.x, a.y, 6, (i, d) => {
       const t = m.terreno[i];
-      if ((t !== COLINA && t !== MONTANA) || d < 2 || ocupadas.has(i) || sobreMuro(i) || labrada(m, i) === 'cantera' || !alcanzable(m, a, i, false)) return 0;
+      if ((t !== COLINA && t !== MONTANA) || d < 2 || ocupadas.has(i) || sobreMuro(i) || delPlano(i) || labrada(m, i) === 'cantera' || !alcanzable(m, a, i, false)) return 0;
       return (t === MONTANA ? 1.2 : 1) / (1 + d);
     });
   }
   if (tipo === 'campo') {
-    return mejorCasilla(m, a.x, a.y, 4 + extension, (i, d) => {
-      if (ocupadas.has(i) || d < 1 || sobreMuro(i) || !alcanzable(m, a, i, false)) return 0;
+    // Los campos, alrededor de lo construido: con plano, más allá de sus calles.
+    return mejorCasilla(m, a.x, a.y, Math.min(14, Math.max(4 + extension, Math.ceil(radioPlano(m, a)) + 3)), (i, d) => {
+      if (ocupadas.has(i) || d < 1 || sobreMuro(i) || delPlano(i) || !alcanzable(m, a, i, false)) return 0;
       const t = m.terreno[i];
       const apto = t === PRADERA ? 3 : t === ESTEPA ? 2 : t === BOSQUE ? 1.5 : t === ORILLA ? 1 : t === PANTANO ? 0.5 : 0;
       return apto / (1 + d * 0.2);
     });
   }
   return mejorCasilla(m, a.x, a.y, 3 + extension, (i, d) => {
-    if (ocupadas.has(i) || sobreMuro(i) || !alcanzable(m, a, i, false)) return 0;
+    if (ocupadas.has(i) || sobreMuro(i) || (tipo !== 'hoguera' && delPlano(i)) || !alcanzable(m, a, i, false)) return 0;
     const t = m.terreno[i];
     if (t === AGUA || t === MONTANA || t === RIO) return 0;
     if (tipo === 'hoguera') return 2 / (1 + d);
@@ -1293,7 +1378,9 @@ export function criar(e: Edificio, fraccion: number): void {
 
 /** La comida se estropea, los animales crían y la hoguera quema leña. */
 export function mantener(m: Mundo, a: Aldea, est: number, diaDelAnio: number): boolean {
-  const conserva = (tiene(a, 'almacen') ? 0.4 : 1) * (conoce(a, 'numeros') ? 0.8 : 1);
+  // Un almacén grande (mejorado) conserva aún mejor.
+  const almacen = a.edificios.some((e) => e.tipo === 'almacen' && (e.nivel ?? 1) >= 2) ? (mejoraDe('almacen', 2)?.efecto.conserva ?? 0.4) : tiene(a, 'almacen') ? 0.4 : 1;
+  const conserva = almacen * (conoce(a, 'numeros') ? 0.8 : 1);
   for (const mat of ORDEN_COMER) {
     const v = a.despensa[mat];
     if (v) apuntar(a, mat, v - v * (MATERIAL[mat].pudre ?? 0) * conserva);

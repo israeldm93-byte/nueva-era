@@ -5,6 +5,7 @@
 
 import * as THREE from 'three';
 import { AGUA, B, C, Co, Do, Es, RIO, T, azar, cerrar, colocar, fundir, instancias } from './util3d.js?v=__MOTOR__';
+import { RECETAS, VARIANTES, andamio, faseObra, geometrias } from './modulos3d.js?v=__MOTOR__';
 
 function modelos() {
   const madera = 0x7a5534;
@@ -394,7 +395,15 @@ function modelos() {
   };
 }
 
-const TIPOS = ['choza', 'casa', 'casapiedra', 'casatejas', 'hoguera', 'campo', 'corral', 'gallinero', 'granja', 'puente', 'almacen', 'horno', 'archivo', 'mercado', 'establo', 'taller', 'templo', 'plaza', 'ruina', 'obra'];
+const TIPOS = ['choza', 'casa', 'casapiedra', 'casatejas', 'hoguera', 'campo', 'corral', 'gallinero', 'granja', 'puente', 'almacen', 'horno', 'archivo', 'mercado', 'establo', 'taller', 'templo', 'plaza', 'ruina', 'obra', 'andamio', ...Object.keys(RECETAS)];
+
+/** Hacia dónde mira un edificio: a su calle si la tiene; si no (el casco viejo), al centro. */
+export function miraDe(tr, a, e) {
+  if (e.frente) return Math.atan2(e.frente[0], e.frente[1]);
+  const [ax, az] = tr.aMundo(a.x, a.y);
+  const [ex, ez] = tr.aMundo(e.x, e.y);
+  return Math.atan2(ax - ex, az - ez) + (azar(e.x * 7 + e.y * 13) - 0.5) * 0.3;
+}
 
 const suaveP = (u) => u * u * (3 - 2 * u);
 
@@ -402,7 +411,11 @@ export class Edificios3D {
   constructor(escena, terreno) {
     this.escena = escena;
     this.terreno = terreno;
-    this.geo = modelos();
+    // Los modelos de siempre y los de la biblioteca modular (mejoras y fases de obra).
+    this.geo = { ...modelos(), ...geometrias(), andamio: fundir(andamio(1.5, 1.2, 2.3)), calle: fundir([{ geo: B(1, 0.04, 1), color: 0xffffff, y: 0.02 }]) };
+    this.matriz = new THREE.Matrix4();
+    this.giro = new THREE.Quaternion();
+    this.eje = new THREE.Vector3(0, 1, 0);
     this.mat = new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.85 });
     this.matLlama = new THREE.MeshBasicMaterial({ vertexColors: true, color: 0xffa13a });
     this.matHumo = new THREE.MeshStandardMaterial({ color: 0x9a9a9a, transparent: true, opacity: 0.45, roughness: 1, depthWrite: false });
@@ -433,6 +446,10 @@ export class Edificios3D {
     const vigiasPiedra = instancias(this.escena, im, 'torresPiedra', this.geo.torrePiedra, this.mat, 200);
     const hojas = instancias(this.escena, im, 'hojas', this.geo.hoja, this.mat, 300);
     const adoquines = instancias(this.escena, im, 'adoquines', this.geo.adoquin, this.mat, 8000);
+    // Las calles del plano de cada aldea (bandas de firme).
+    const calles = instancias(this.escena, im, 'calles', this.geo.calle, this.mat, 12000, { sombra: false });
+    let nCalle = 0;
+    this.nivelCamino = new Map((d.caminos ?? []).map(([i, v]) => [i, v]));
     let nVigia = 0;
     let nVigiaP = 0;
     let nAdoq = 0;
@@ -553,11 +570,11 @@ export class Edificios3D {
           this.ponerPlaza(e, n, im, adoquines, nAdoq, color, (k) => (nAdoq = k));
           continue;
         }
-        // Las casas miran hacia el centro de la aldea.
-        const [ax, az] = tr.aMundo(a.x, a.y);
-        const [ex, ez] = tr.aMundo(e.x, e.y);
-        const mira = tipo === 'campo' ? 0 : Math.atan2(ax - ex, az - ez) + (azar(e.x * 7 + e.y * 13) - 0.5) * 0.3;
-        const pos = ponerEd(tipo, e, mira);
+        // Cada edificio mira a su calle (los del casco viejo, al centro). Uno mejorado se ve
+        // con su modelo de nivel (más alto, más grande) si la biblioteca lo tiene.
+        const mira = tipo === 'campo' ? 0 : miraDe(tr, a, e);
+        const variante = !ruina && (e.nivel ?? 1) >= 2 && VARIANTES.has(`${tipo}-${e.nivel}`) ? `${tipo}-${e.nivel}` : tipo;
+        const pos = ponerEd(variante, e, mira);
         if (!pos) continue;
         if (tipo === 'hoguera' && !ruina) this.hogueras.push(pos);
         if (tipo === 'horno' && !ruina) this.hornos.push(pos);
@@ -608,7 +625,8 @@ export class Edificios3D {
       // Calles empedradas: de la plaza a cada casa, taller o templo, y a la puerta del muro.
       if (!ruina && a.edificios.some((e) => e.tipo === 'calzada')) {
         const [cx, cz] = tr.aMundo(a.x, a.y);
-        const destinos = a.edificios.filter((e) => !['campo', 'cerca', 'empalizada', 'muralla', 'torre', 'calzada', 'plaza', 'puente', 'hoguera'].includes(e.tipo)).map((e) => [...tr.aMundo(e.x, e.y), 1.05]);
+        // (Solo en el casco viejo: lo que da a una calle del plano ya tiene su calle.)
+        const destinos = a.edificios.filter((e) => !e.frente && !['campo', 'cerca', 'empalizada', 'muralla', 'torre', 'calzada', 'plaza', 'puente', 'hoguera'].includes(e.tipo)).map((e) => [...tr.aMundo(e.x, e.y), 1.05]);
         if (muro) destinos.push([cx, cz + T * radioDe(muro) + 0.6, 0]);
         for (const [ex, ez, margen] of destinos) {
           const l = Math.hypot(ex - cx, ez - cz);
@@ -621,6 +639,25 @@ export class Edificios3D {
             const z = cz + uz * s;
             colocar(adoquines, nAdoq, x, tr.alturaEn(x, z) - 0.005, z, ry);
             adoquines.setColorAt(nAdoq++, color.setRGB(0.62, 0.59, 0.53).multiplyScalar(0.9 + azar(nAdoq * 7) * 0.2));
+          }
+        }
+      }
+      // Las calles del plano: una banda continua de casilla en casilla (en dos mitades, para
+      // seguir el relieve), del color de su firme: tierra pisada, compactada o empedrado.
+      if (!ruina && a.tramos?.length) {
+        const nivel = this.nivelCamino;
+        for (const [i, j] of a.tramos) {
+          const [x0, z0] = tr.aMundo(i % d.ancho, Math.floor(i / d.ancho));
+          const [x1, z1] = tr.aMundo(j % d.ancho, Math.floor(j / d.ancho));
+          const v = Math.max(nivel.get(i) ?? 1, 1);
+          const largo = Math.hypot(x1 - x0, z1 - z0) / 2 + 0.25;
+          const ry = Math.atan2(-(z1 - z0), x1 - x0);
+          for (const f of [0.25, 0.75]) {
+            if (nCalle >= 12000) break;
+            const x = x0 + (x1 - x0) * f;
+            const z = z0 + (z1 - z0) * f;
+            this.ponerCalle(calles, nCalle, x, tr.alturaEn(x, z) + 0.012, z, ry, largo, v === 3 ? 1.05 : v === 2 ? 0.95 : 0.8);
+            calles.setColorAt(nCalle++, color.set(v === 3 ? 0x958d80 : v === 2 ? 0xb39a70 : 0x9a7b55).multiplyScalar(0.94 + azar(i * 3 + j) * 0.1));
           }
         }
       }
@@ -653,7 +690,22 @@ export class Edificios3D {
           quedan--;
         }
       }
-      if (a.obra && !ruina && !obraMuro && !a.obra.tierra) ponerEd('obra', a.obra, 0, Math.max(0.15, a.obra.progreso) * 1.4);
+      // Una obra se ve según va: el solar marcado con estacas mientras esperan los materiales,
+      // los cimientos, el armazón con andamios y, al final, el edificio con los andamios aún
+      // puestos. Una mejora: el edificio de siempre, rodeado de andamios.
+      if (a.obra && !ruina && !obraMuro && !a.obra.tierra) {
+        const o = a.obra;
+        const mira = miraDe(tr, a, o);
+        if (o.mejora) ponerEd('andamio', o, mira, 0.6 + 0.5 * Math.max(0, o.progreso));
+        else if (!TIPOS.includes(o.tipo) || o.tipo === 'campo' || o.tipo === 'plaza' || o.tipo === 'puente') ponerEd('obra', o, 0, Math.max(0.15, o.progreso) * 1.4);
+        else {
+          const fase = faseObra(o);
+          if (fase === 'remate') {
+            ponerEd(o.tipo, o, mira);
+            ponerEd('andamio', o, mira, 0.85);
+          } else ponerEd(fase, o, mira);
+        }
+      }
     }
     this.cementerios(d);
     for (const k of TIPOS) cerrar(im[`ed-${k}`], n[k]);
@@ -668,6 +720,7 @@ export class Edificios3D {
     cerrar(vigias, nVigia);
     cerrar(vigiasPiedra, nVigiaP);
     cerrar(adoquines, nAdoq);
+    cerrar(calles, nCalle);
     this.apertura ??= new Map();
     cerrar(catapultas, nCata);
     // Incendios forestales: varias llamas por casilla que arde.
@@ -677,6 +730,13 @@ export class Edificios3D {
     });
     instancias(this.escena, im, 'llamas', this.geo.llama, this.matLlama, Math.max(64, this.hogueras.length + this.fuegos.length * 4 + 16), { sombra: false });
     instancias(this.escena, im, 'humo', this.geo.humo, this.matHumo, Math.max(64, this.hornos.length * 4 + this.fuegos.length * 3 + 16), { sombra: false });
+  }
+
+  /** Un trozo de calle: largo a lo largo de su dirección y ancho a lo través. */
+  ponerCalle(im, k, x, y, z, ry, largo, ancho) {
+    this.giro.setFromAxisAngle(this.eje, ry);
+    this.matriz.compose(new THREE.Vector3(x, y, z), this.giro, new THREE.Vector3(largo, 1, ancho));
+    im.setMatrixAt(k, this.matriz);
   }
 
   /** El puente cruza el río de través, a la altura de las orillas. */

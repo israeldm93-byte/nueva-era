@@ -389,10 +389,15 @@ function fichaEdificio(e) {
   const a = E.aldeas.get(e.aldea);
   const nombre = e.tipo === 'cerca' && e.material === 'piedra' ? 'Cerca de piedra seca' : (d.obras?.[e.tipo]?.nombre ?? EDIFICIOS[e.tipo] ?? e.tipo);
   const lineas = [];
+  const mejora = (n) => (d.mejoras ?? []).find((x) => x.tipo === e.tipo && x.nivel === n);
   if (e.obra) {
-    lineas.push(`${a?.nombre ?? 'La aldea'} la está levantando: va por el ${Math.round((e.progreso ?? 0) * 100)} %.`);
+    lineas.push(
+      e.mejora
+        ? `${a?.nombre ?? 'La aldea'} le está haciendo ${mejora(e.mejora)?.nombre ?? 'una mejora'}: va por el ${Math.round((e.progreso ?? 0) * 100)} %.`
+        : `${a?.nombre ?? 'La aldea'} la está levantando: va por el ${Math.round((e.progreso ?? 0) * 100)} %${e.pagada ? (e.progreso < 0.35 ? ' (los cimientos)' : e.progreso < 0.8 ? ' (el armazón)' : ' (el remate)') : ''}.`,
+    );
     if (!e.pagada) {
-      const coste = d.obras?.[e.tipo];
+      const coste = e.mejora ? { coste: mejora(e.mejora)?.coste } : d.obras?.[e.tipo];
       const falta = (c) => Object.entries(c ?? {}).map(([k, v]) => `${NUM.format(v)} de ${d.nombres[k] ?? k} (tienen ${NUM.format(Math.floor(a?.despensa[k] ?? 0))})`).join(' y ');
       if (coste) lineas.push(`Esperan a tener ${falta(coste.coste)}${coste.alternativa ? `, o si no, ${falta(coste.alternativa)}` : ''}.`);
       lineas.push('Si tardan mucho en reunirlo, la dejan para más adelante y hacen otra cosa.');
@@ -405,7 +410,12 @@ function fichaEdificio(e) {
   if (e.tipo === 'muralla' && !e.obra && (e.nivel ?? 1) > 1) lineas.push(`La han alzado ${e.nivel === 2 ? 'una vez' : 'dos veces'}: es más alta que al principio.`);
   if (e.obra && e.alza) lineas.push('Están alzando la muralla: la hacen más alta, hilada a hilada.');
   if (e.tipo === 'torre') lineas.push(a?.conocidos?.includes('arco') ? 'Arriba hay arqueros: si los lobos se acercan, los reciben a flechazos.' : 'Cuando sepan hacer arcos, dispararán desde arriba.');
-  if (e.obra && e.reforma) lineas.push(`Están rehaciendo ${UNA[e.reforma] ?? 'una casa vieja'} al modo nuevo, en el mismo sitio.`);
+  if (e.obra && e.reforma) lineas.push(e.viejo ? `Sustituye a ${UNA[e.reforma] ?? 'una casa vieja'} del casco viejo: la levantan en un solar de las calles nuevas y la vieja se derribará al acabar.` : `Están rehaciendo ${UNA[e.reforma] ?? 'una casa vieja'} al modo nuevo, en el mismo sitio.`);
+  if (!e.obra && (e.nivel ?? 1) >= 2 && mejora(e.nivel)) {
+    const mj = mejora(e.nivel);
+    lineas.push(`Mejorada: ${mj.nombre}${mj.efecto.aloja ? ` (caben ${Math.round((mj.efecto.aloja - 1) * 100)} % más personas)` : mj.efecto.conserva ? ' (la comida se conserva aún mejor)' : ''}.`);
+  } else if (!e.obra && mejora(2) && (e.nivel ?? 1) < 2) lineas.push(`Se le puede hacer ${mejora(2).nombre}.`);
+  if (e.frente && !e.obra) lineas.push('Da a una calle del plano de la aldea.');
   if (['cerca', 'empalizada', 'muralla'].includes(e.tipo) && !e.obra) lineas.push('La puerta se cierra al anochecer y cuando hay peligro; de día queda abierta para salir a trabajar.');
   if (a) lineas.push(`De ${a.nombre}.`);
   return [mayus(e.obra ? `Obra: ${nombre.toLowerCase()}` : nombre), lineas];
@@ -1216,7 +1226,15 @@ function fichaAldea(a) {
       { class: 'datos' },
       h('div', {}, h('dt', {}, 'Habitantes'), h('dd', {}, `${a.poblacion} (máximo ${a.poblacionMax})`)),
       h('div', {}, h('dt', {}, 'Comida guardada'), h('dd', {}, ruina ? '—' : `${a.diasComida} días`)),
-      h('div', {}, h('dt', {}, 'Construyendo'), h('dd', {}, a.obra ? `${EDIFICIOS[a.obra.tipo] || a.obra.tipo} (${pct(a.obra.progreso)})` : 'nada')),
+      h('div', {}, h('dt', {}, 'Construyendo'), h('dd', {}, a.obra ? `${a.obra.mejora ? `${a.obra.nombreMejora} (${(EDIFICIOS[a.obra.tipo] || a.obra.tipo).toLowerCase()})` : EDIFICIOS[a.obra.tipo] || a.obra.tipo} (${pct(a.obra.progreso)})` : 'nada')),
+      a.plano && !ruina
+        ? h(
+            'div',
+            {},
+            h('dt', {}, 'Plano'),
+            h('dd', {}, `${a.plano.calles} ${a.plano.calles === 1 ? 'calle' : 'calles'}, ${a.plano.solares} solares (${a.plano.ocupados} construidos), ${a.plano.barrios} ${a.plano.barrios === 1 ? 'barrio' : 'barrios'}`),
+          )
+        : null,
       h('div', {}, h('dt', {}, 'Sensación de peligro'), h('dd', {}, a.amenaza > 0.3 ? 'alta' : a.amenaza > 0.1 ? 'algo' : 'tranquilos')),
       ruina ? null : h('div', {}, h('dt', {}, 'Fieras cerca'), h('dd', {}, fierasCerca(a, m))),
       h('div', {}, h('dt', {}, 'Cementerio'), h('dd', {}, a.enterrados ? `${a.enterrados} ${a.enterrados === 1 ? 'tumba' : 'tumbas'}` : 'nadie enterrado aún')),

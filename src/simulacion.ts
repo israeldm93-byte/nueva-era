@@ -15,6 +15,7 @@ import { hito, recordar } from './memoria.ts';
 import { mudanzas } from './migracion.ts';
 import { viajes } from './viajes.ts';
 import { diplomacia, guerrear } from './guerra.ts';
+import { pisarCalles, suelo } from './urbe.ts';
 import { asentarAprendizaje, comer, contexto, jornada, mantener, planificar, radioMuro, rodea } from './economia.ts';
 import { fauna } from './fauna.ts';
 import { lexicoComun, parecido } from './lenguaje.ts';
@@ -64,6 +65,8 @@ function paso(m: Mundo): void {
     const a = ctx.get(p.aldea)?.a;
     if (a && Math.abs(p.x - a.x) + Math.abs(p.y - a.y) >= 3) pisar(m, a.x, a.y, p.x, p.y, 3, 2);
   }
+  // Cada mes, la gente pasa por las calles que usa (antes de ver qué senderos quedan).
+  if (m.t % 30 === 19) pisarCalles(m, (id) => gente(id).length);
   if (m.t % 30 === 20) senderos(m);
   // A qué dedica cada aldea sus jornadas (su perfil económico).
   for (const p of m.personas) {
@@ -126,6 +129,8 @@ const VECINAS = [
 function lugarCementerio(m: Mundo, a: Aldea): { x: number; y: number } | null {
   const ocupadas = new Set<number>();
   for (const b of m.aldeas) for (const e of b.edificios) ocupadas.add(e.y * m.ancho + e.x);
+  // Ni en las calles ni en los solares del plano.
+  for (const i of suelo(m).plano) ocupadas.add(i);
   // Fuera de los muros (los que hay y el que se esté levantando) y nunca sobre su línea.
   const radios = a.edificios.filter((e) => rodea(e.tipo)).map(radioMuro);
   if (a.obra && rodea(a.obra.tipo)) radios.push(a.obra.radio ?? 2.7);

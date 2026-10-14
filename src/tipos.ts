@@ -171,8 +171,13 @@ export interface Edificio {
   radio?: number;
   /** Torres: en qué punto del muro están (ángulo desde el centro de la aldea). */
   ang?: number;
-  /** Murallas: cuántas veces la han alzado (1 la de siempre, hasta 3). */
+  /**
+   * Murallas: cuántas veces la han alzado (1 la de siempre, hasta 3). Viviendas y almacenes:
+   * su nivel de mejora (2: ampliado; ver MEJORAS en el catálogo).
+   */
   nivel?: number;
+  /** Hacia dónde mira su puerta: la casilla vecina de su calle ([dx, dy], de -1 a 1). */
+  frente?: [number, number];
   /** Campos: el día en que se sembraron y en que se cosecharon. */
   sembrado?: number;
   cosechado?: number;
@@ -212,6 +217,58 @@ export interface Obra {
   alza?: boolean;
   /** Si es una obra de tierra (explanada, cantera...). */
   tierra?: TrabajoTierra;
+  /** Si mejora un edificio que ya está en pie (en x, y): el nivel al que llegará. */
+  mejora?: number;
+  /** Una casa que se rehace en otro solar: dónde está la vieja (se derriba al acabar la nueva). */
+  viejo?: [number, number];
+  /** Hacia dónde mirará su puerta (la casilla de su calle). */
+  frente?: [number, number];
+}
+
+/**
+ * Una calle del plan de una aldea: las casillas por donde va, en orden desde donde nace (la
+ * plaza, o una casilla de otra calle), hacia dónde sale y para qué se trazó.
+ */
+export interface Calle {
+  id: number;
+  /** 'principal' (la que lleva a los caminos), 'oficios' (hacia los recursos) o 'viviendas'. */
+  uso: 'principal' | 'oficios' | 'viviendas';
+  /** La calle de la que nace (-1: de la plaza) y en qué casilla de ella. */
+  padre: number;
+  nace: number;
+  casillas: number[];
+  /** En qué posiciones de esta calle nacen ya ramales (cada 4 casillas). */
+  ramas: number[];
+  /** Si ya no se puede alargar (agua, montaña, otra aldea...). */
+  cerrada?: boolean;
+}
+
+/** Un solar del plan: junto a una calle (su acceso), con la separación debida. */
+export interface Parcela {
+  i: number;
+  /** La casilla de calle por la que se entra (siempre vecina). */
+  acceso: number;
+  calle: number;
+  /** 'publico' (junto a la plaza, para templo, mercado o archivo) o 'comun'. */
+  uso: 'publico' | 'comun';
+}
+
+/** Un barrio: una calle y su distancia al centro (de 6 en 6 casillas). */
+export interface Barrio {
+  clave: string;
+  desde: number;
+}
+
+/**
+ * El plano de una aldea: sus calles, sus solares (ocupados o reservados para crecer) y lo que
+ * se deja abierto (la plaza y los patios que quedan al rehacer las casas viejas en otro sitio).
+ */
+export interface Urbe {
+  calles: Calle[];
+  parcelas: Parcela[];
+  patios: number[];
+  barrios: Barrio[];
+  sigCalle: number;
 }
 
 export interface Aldea {
@@ -245,6 +302,8 @@ export interface Aldea {
   maderaLejos?: boolean;
   /** Obras que se dejaron por falta de materiales, y hasta cuándo no se retoman. */
   aparcadas?: Record<string, number>;
+  /** Su plano: calles, solares y espacios abiertos (ver `src/urbe.ts`). */
+  urbe?: Urbe;
   id: number;
   nombre: string;
   x: number;

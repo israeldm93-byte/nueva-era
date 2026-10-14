@@ -477,3 +477,131 @@ anterior (b2d3015):
 - Guerra por mar.
 - Coaliciones de varias aldeas.
 - Tratados con condiciones (tributos, fronteras).
+
+## Nueva etapa: civilizaciones constructoras
+
+Objetivo de la etapa: que las aldeas se conviertan en ciudades extensas y coherentes
+construidas por sus habitantes, con artefactos y técnicas nuevas, infraestructuras que cambian
+el mapa y guerras que transforman el paisaje. Se hace por hitos independientes, cada uno con
+una función demostrable, pruebas propias y conservación del mundo anterior.
+
+| Hito | Contenido | Estado |
+| --- | --- | --- |
+| 1 | Planificación urbana y construcción modular | hecho (este) |
+| 2 | Costumbres como programas: cada comunidad aprende, prueba y transmite sus propias reglas de decisión | pendiente |
+| 3 | Inventos combinatorios: materiales con propiedades y operaciones de fabricación que producen objetos con efectos reales | pendiente |
+| 4 | Puentes e ingeniería: obras que cambian la movilidad del mapa | pendiente |
+| 5 | Asedios y destrucción persistente: armas de asedio, murallas por tramos con daño, brechas y reparación | pendiente |
+
+## Hito ciudades 1: planificación urbana y construcción modular
+
+### El plano de cada aldea (`src/urbe.ts`)
+
+El plano es estado del mundo (`Aldea.urbe`): calles, solares, patios y barrios. Se traza la
+primera vez que la aldea necesita un solar.
+
+- **Calles principales.** Salen de la plaza dos calles, en direcciones distintas:
+  - la «principal», hacia los caminos y las aldeas cercanas;
+  - la de los «oficios», hacia lo que da de vivir según su perfil: la costa si pesca, las
+    colinas si saca piedra, el bosque si corta leña, el campo abierto si cultiva o pastorea.
+- **Trazado.** Cada calle sigue el terreno: va recta si puede y tuerce un poco si hay agua,
+  montaña, una cuesta de más de 10 entre casillas o un edificio. No entra en la tierra de otra
+  aldea.
+- **Solares.**
+  - Hay uno de cada dos casillas, a los dos lados de la calle, con al menos una casilla libre
+    entre solares y entre un solar y cualquier otro edificio.
+  - Nunca en la plaza (el centro y su anillo), en el agua, en la montaña ni en un desnivel de
+    más de 18.
+  - Los que dan a la plaza se reservan para lo público.
+- **Ramales.** Cada 6 casillas nace un ramal a cada lado. Entre ramales quedan manzanas con un
+  patio en medio.
+- **Crecimiento.**
+  - Si no queda un buen solar, la aldea alarga una calle o abre un ramal: prefiere lo que da
+    más solares cerca del centro. Las aldeas amenazadas o en guerra crecen más apretadas.
+  - Si queda poco sitio, crece ya, para dejar solares reservados.
+  - Si todo está cerrado, abre otra calle desde la plaza.
+  - El primer edificio de un barrio nuevo lo anota la crónica.
+- **Elección de solar** según el uso del edificio (`USO_URBANO` en el catálogo):
+  - las viviendas, cerca del centro y entre casas, lejos de los corrales;
+  - los talleres, hornos y almacenes, en la calle de los oficios y juntos (el almacén, junto a
+    los talleres);
+  - el ganado, al final de las calles;
+  - templo, archivo y mercado, en los solares de la plaza;
+  - un edificio grande prefiere un solar ya allanado; si no lo hay, se allana antes, como ya
+    se hacía.
+- **Calles visibles.** Cada mes, la gente pisa las calles que usa: las que llevan de la plaza
+  a la puerta de lo construido.
+  - Así quedan como senderos y, con la técnica de los caminos, se compactan y se empiedran con
+    las obras de camino que ya había.
+  - Un campo que se quedó en medio de una calle se deja y se volverá a sembrar más afuera.
+  - Los campos nuevos y el cementerio ya no se ponen en calles, solares ni patios.
+- **Casco viejo.**
+  - Lo que estaba construido antes del plano se queda donde está. Las calles nuevas lo rodean.
+  - Cuando una casa vieja sin calle se rehace al modo nuevo, la nueva se levanta en un solar
+    del plano y la vieja se derriba al acabar. Donde estaba queda un patio.
+- **Puertas.** Cada edificio en un solar guarda hacia dónde mira su puerta (`frente`), y la web
+  la orienta a su calle.
+
+### Construcción por fases y mejoras
+
+- **Fases.** Las obras siguen el sistema de siempre: materiales al empezar y trabajo diario de
+  los que construyen. La web lo muestra por fases:
+  - solar marcado con estacas mientras esperan los materiales;
+  - cimientos con el material al lado;
+  - armazón con andamios;
+  - el edificio con los andamios aún puestos.
+- **Mejoras** (`MEJORAS` en el catálogo). No levantan otro edificio al lado: cambian el que hay
+  (su `nivel`), su aspecto y lo que da. Piden un saber, materiales y trabajo.
+  - **Planta alta** (casa de adobe, de piedra o de tejas; requiere cantería): un 60 % más de
+    plazas. Una aldea amurallada sube en altura cuando ya no le quedan solares dentro del muro;
+    las demás, cuando su plano no puede crecer más. Mientras haya solares, se prefiere casa
+    nueva.
+  - **Almacén grande** (requiere números): la comida se estropea aún menos (0,25 en vez de 0,4).
+- Guardar y cargar conserva el plano, los niveles y las obras a medias, también una mejora. Se
+  valida al cargar: un plano ilegible se olvida y se traza otro; una mejora de un edificio que
+  no está se deja.
+- Los invariantes comprueban, para cada aldea:
+  - cada solar junto a su calle;
+  - solares separados;
+  - calles continuas;
+  - nada encima ni en la entrada de lo construido.
+
+### Biblioteca modular 3D (`web/modulos3d.js`)
+
+- Piezas: cimiento, muro con o sin hiladas, entramado de madera, tejado de paja o de tejas,
+  hastiales, puerta, ventanas, chimenea, balcón, andamio, estacas y pilas de troncos y piedras.
+  Usan la paleta y el modelado low-poly de los edificios que ya había.
+- Recetas: las variantes por nivel (`casa-2`, `casapiedra-2`, `casatejas-2`, `almacen-2`) y las
+  fases de obra (`solar`, `cimientos`, `armazon`). Cada receta se funde en una geometría y se
+  dibuja con instancias.
+- Las calles del plano se dibujan como bandas continuas del color de su firme. Las calles en uso
+  y los solares reservados quedan despejados de árboles.
+- No se ha incorporado ningún modelo externo: ver `docs/ASSETS.md`, con la evaluación de
+  Kenney y 0 A.D.
+
+### Cómo conecta con los hitos siguientes
+
+- **Costumbres como programas.** Las decisiones del planificador ya son puntuaciones explícitas
+  y separadas: `valorSolar` (qué solar para cada uso), `crecer` (alargar, abrir un ramal o una
+  calle nueva, con su peso de compacidad) y las opciones de `planificar` (casa nueva o planta
+  alta, almacén grande). Una costumbre podrá ajustar esos pesos (por ejemplo, «los almacenes
+  junto a los talleres» o «crecer apretados si hay tensión») sin tocar el motor.
+- **Inventos combinatorios.** Las mejoras son datos (`MEJORAS`) y los modelos, recetas de
+  piezas. Un material o un componente nuevo podrá añadir mejoras con efectos calculados y
+  variantes visuales con las mismas piezas.
+- **Puentes e ingeniería.** Las calles del plano son casillas del mapa de caminos: un puente
+  podrá entrar como una casilla de calle sobre el río que conecta dos barrios o dos aldeas, y
+  `diasEntre` ya lo aprovecharía.
+- **Asedios.** Las murallas ya tienen radio y nivel. El paso siguiente es dividir el anillo en
+  tramos con integridad (intacto, dañado, derrumbado, reparado) y hacer las puertas en los
+  cruces con las calles principales del plano.
+
+### Pendiente en este frente
+
+- **Casco viejo de las aldeas grandes.** Las aldeas que ya eran grandes no se reordenan: solo
+  crecen por barrios cuando lo necesitan, y las casas viejas se mudan a solares nuevos cuando se
+  rehacen.
+- **Puertas de las murallas.** Las calles pueden cruzar la línea de la muralla sin puerta
+  propia; hoy la puerta sigue estando al sur.
+- **Edificios de varias casillas.** Ningún edificio ocupa más de una casilla; un patio cerrado
+  o un templo grande lo harían.

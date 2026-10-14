@@ -217,6 +217,8 @@ export class Vegetacion3D {
       // La tierra que se está moviendo, sin plantas.
       for (const i of a.obra?.tierra?.casillas ?? []) ocupadas.add(i);
       for (const [x, y] of a.tumbas ?? []) ocupadas.add(y * W + x);
+      // Las calles del plano y sus solares reservados: suelo despejado, sin árboles.
+      if (a.abandonada === null) for (const i of [...(a.calles ?? []), ...(a.solares ?? [])]) ocupadas.add(i);
       const r = a.abandonada !== null ? 0 : a.poblacion > 40 ? 3 : a.poblacion > 12 ? 2 : 1;
       for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) if (dx * dx + dy * dy <= r * r + 1) ocupadas.add((a.y + dy) * W + a.x + dx);
     }

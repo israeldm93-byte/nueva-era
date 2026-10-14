@@ -237,6 +237,80 @@ export const EDIFICIOS: TipoEdificio[] = [
 
 export const EDIFICIO: Record<string, TipoEdificio> = Object.fromEntries(EDIFICIOS.map((e) => [e.id, e]));
 
+/**
+ * Dónde va cada edificio en el plano de la aldea (`src/urbe.ts`): en un solar junto a una
+ * calle, según su uso. Lo que no está aquí no ocupa solar (campos, muros, torres, puentes,
+ * la hoguera, la plaza y las calles empedradas, que tienen su propio sitio).
+ *
+ * - vivienda: cerca del centro y entre otras casas, lejos de los corrales.
+ * - oficio: en la calle que lleva a los recursos, juntos (el almacén, junto a los talleres).
+ * - afueras: al final de las calles, lejos de las casas (el ganado).
+ * - publico: en los solares que dan a la plaza.
+ */
+export const USO_URBANO: Record<string, 'vivienda' | 'oficio' | 'afueras' | 'publico'> = {
+  choza: 'vivienda',
+  casa: 'vivienda',
+  casapiedra: 'vivienda',
+  casatejas: 'vivienda',
+  taller: 'oficio',
+  horno: 'oficio',
+  almacen: 'oficio',
+  corral: 'afueras',
+  gallinero: 'afueras',
+  granja: 'afueras',
+  establo: 'afueras',
+  templo: 'publico',
+  archivo: 'publico',
+  mercado: 'publico',
+};
+
+/**
+ * Mejoras de un edificio que ya está en pie: no se levanta otro al lado, se amplía el mismo
+ * (cambia su nivel, su aspecto y lo que da). Cada una pide saber, materiales y trabajo.
+ */
+export interface Mejora {
+  tipo: string;
+  nivel: number;
+  nombre: string;
+  requiere: string;
+  coste: Record<string, number>;
+  trabajo: number;
+  /** Lo que da: más plazas (multiplica las de la vivienda) o conservar mejor la comida. */
+  efecto: { aloja?: number; conserva?: number };
+  /** Cómo lo cuenta la crónica la primera vez que se hace en una aldea. */
+  texto: string;
+}
+
+const PLANTA_ALTA = (tipo: string): Mejora => ({
+  tipo,
+  nivel: 2,
+  nombre: 'planta alta',
+  requiere: 'canteria',
+  coste: { madera: 14, piedra: 10 },
+  trabajo: 8,
+  efecto: { aloja: 1.6 },
+  texto: 'levanta una planta alta sobre sus casas: caben más familias sin ocupar más suelo',
+});
+
+export const MEJORAS: Mejora[] = [
+  PLANTA_ALTA('casa'),
+  PLANTA_ALTA('casapiedra'),
+  PLANTA_ALTA('casatejas'),
+  {
+    tipo: 'almacen',
+    nivel: 2,
+    nombre: 'almacén grande',
+    requiere: 'numeros',
+    coste: { piedra: 20, madera: 12, arcilla: 10 },
+    trabajo: 9,
+    efecto: { conserva: 0.25 },
+    texto: 'amplía su almacén con muros de piedra y estantes contados: la comida se pierde aún menos',
+  },
+];
+
+/** La mejora que lleva un edificio de este tipo al nivel `nivel` (o nada). */
+export const mejoraDe = (tipo: string, nivel: number): Mejora | undefined => MEJORAS.find((x) => x.tipo === tipo && x.nivel === nivel);
+
 /** Las viviendas, de peor a mejor (las de adobe y las de piedra van a la par). */
 export const CASAS = ['choza', 'casa', 'casapiedra', 'casatejas'];
 export const NIVEL_CASA: Record<string, number> = { choza: 1, casa: 2, casapiedra: 2, casatejas: 3 };
@@ -423,6 +497,16 @@ export function validarCatalogo(): string[] {
   for (const e of EDIFICIOS) {
     if (!TECNICA[e.requiere]) out.push(`edificio ${e.id}: requiere una técnica desconocida ${e.requiere}`);
     if (!(e.trabajo > 0) || !Object.values(e.coste).every(finito)) out.push(`edificio ${e.id}: cantidades imposibles`);
+  }
+  for (const [k, v] of Object.entries(USO_URBANO)) if (!EDIFICIO[k] || !['vivienda', 'oficio', 'afueras', 'publico'].includes(v)) out.push(`uso urbano imposible: ${k}`);
+  for (const x of MEJORAS) {
+    if (!EDIFICIO[x.tipo]) out.push(`mejora de un edificio desconocido: ${x.tipo}`);
+    if (!TECNICA[x.requiere]) out.push(`mejora de ${x.tipo}: requiere una técnica desconocida ${x.requiere}`);
+    if (!(Number.isInteger(x.nivel) && x.nivel >= 2 && x.nivel <= 3)) out.push(`mejora de ${x.tipo}: nivel imposible`);
+    if (!(x.trabajo > 0) || !Object.values(x.coste).every(finito) || Object.keys(x.coste).some((k) => !MATERIAL[k])) out.push(`mejora de ${x.tipo}: cantidades imposibles`);
+    if (x.efecto.aloja !== undefined && !(x.efecto.aloja > 1 && x.efecto.aloja <= 2)) out.push(`mejora de ${x.tipo}: plazas fuera de límites`);
+    if (x.efecto.conserva !== undefined && !(x.efecto.conserva > 0 && x.efecto.conserva < 1)) out.push(`mejora de ${x.tipo}: conservación fuera de límites`);
+    if (MEJORAS.filter((y) => y.tipo === x.tipo && y.nivel === x.nivel).length > 1) out.push(`mejora repetida: ${x.tipo} ${x.nivel}`);
   }
   for (const o of OBRAS_TIERRA) {
     if (EDIFICIO[o.id]) out.push(`obra ${o.id}: choca con un edificio del mismo nombre`);

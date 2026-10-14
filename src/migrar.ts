@@ -1,7 +1,7 @@
 // Pone al día mundos guardados con versiones anteriores del motor, sin reiniciarlos.
 
 import { azar, estadoAzar, fijarAzar } from './azar.ts';
-import { AGUA, EDIFICIO, MATERIAL, MONTANA, OBRA_TIERRA, RIO } from './catalogo.ts';
+import { AGUA, EDIFICIO, MATERIAL, MONTANA, OBRA_TIERRA, RIO, mejoraDe } from './catalogo.ts';
 import { tierraValida } from './tierra.ts';
 import { ALTO, ANCHO, MUNDO_ALTO, MUNDO_ANCHO, VERSION_ESTADO } from './config.ts';
 import { ampliarMapa, crearUltramar } from './ultramar.ts';
@@ -9,7 +9,7 @@ import { poblarFauna } from './fauna.ts';
 import { anillo, generarTerreno, masas, puntuarSitio } from './mapa.ts';
 import { distancia } from './matematicas.ts';
 import { ESCALA, menteNueva } from './mente.ts';
-import type { Aldea, Mundo, Reparacion, Travesia } from './tipos.ts';
+import type { Aldea, Mundo, Reparacion, Travesia, Urbe } from './tipos.ts';
 import { anomalia } from './anomalias.ts';
 import { comprobar } from './invariantes.ts';
 
@@ -189,6 +189,28 @@ export function reparar(m: Mundo): Reparacion[] {
       a.obra = null;
     }
     if (a.obra) a.obra.progreso = acotado(`${a.nombre}.obra.progreso`, a.obra.progreso, 0, 1, () => null, 0, 'la obra vuelve a empezar');
+    // Una mejora de un edificio que no está (o que no existe en el catálogo), o una casa que
+    // se rehace en otro solar sin saber dónde estaba la vieja: no se puede seguir.
+    const o = a.obra;
+    if (o && ((o.mejora !== undefined && (!mejoraDe(o.tipo, o.mejora) || !a.edificios.some((e) => e.x === o.x && e.y === o.y && e.tipo === o.tipo))) || (o.viejo !== undefined && (!dentroDelMapa(o.viejo, m) || !o.reforma)))) {
+      apuntar(`${a.nombre}.obra`, `${o.tipo}${o.mejora ? ` (mejora ${o.mejora})` : ''}`, null, 'mejora de un edificio que no está, o casa nueva sin saber cuál sustituye: se deja (lo pagado se pierde)', false);
+      a.obra = null;
+    }
+    if (a.obra?.frente !== undefined && !frenteValido(a.obra.frente)) {
+      apuntar(`${a.nombre}.obra.frente`, a.obra.frente, null, 'puerta mirando a ninguna parte: mirará al centro', true);
+      delete a.obra.frente;
+    }
+    for (const [j, e] of a.edificios.entries()) {
+      if (e.frente !== undefined && !frenteValido(e.frente)) {
+        apuntar(`${a.nombre}.edificios[${j}](${e.tipo}).frente`, e.frente, null, 'puerta mirando a ninguna parte: mirará al centro', true);
+        delete e.frente;
+      }
+    }
+    // El plano: si no se puede leer entero, se olvida (se trazará otro con lo que hay construido).
+    if (a.urbe !== undefined && !urbeValida(a.urbe, m)) {
+      apuntar(`${a.nombre}.urbe`, 'plano ilegible', null, 'plano de calles y solares ilegible: se trazará de nuevo alrededor de lo construido', true);
+      delete a.urbe;
+    }
     a.amenaza = acotado(`${a.nombre}.amenaza`, a.amenaza, 0, 1, () => null, 0, 'se recalcula cada día');
     const g = a.consejo?.guerra;
     if (g && g.cansancio !== undefined) g.cansancio = acotado(`${a.nombre}.consejo.guerra.cansancio`, g.cansancio, 0, 2, () => null, 0, 'sin cansancio');
@@ -432,6 +454,34 @@ function mapaNuevo(m: Mundo): void {
 /** Un punto [x, y] entero dentro del mapa. */
 function dentroDelMapa(t: unknown, m: Mundo): boolean {
   return Array.isArray(t) && t.length === 2 && t.every((v) => Number.isInteger(v)) && t[0] >= 0 && t[1] >= 0 && t[0] < m.ancho && t[1] < m.alto;
+}
+
+/** Hacia dónde mira una puerta: [dx, dy] enteros de -1 a 1, no los dos 0. */
+function frenteValido(f: unknown): boolean {
+  return Array.isArray(f) && f.length === 2 && f.every((v) => Number.isInteger(v) && Math.abs(v) <= 1) && (f[0] !== 0 || f[1] !== 0);
+}
+
+/** Un plano de calles y solares con todos sus datos en orden (y coherente: cada solar junto a su calle). */
+function urbeValida(u: Urbe, m: Mundo): boolean {
+  if (!u || typeof u !== 'object') return false;
+  const n = m.ancho * m.alto;
+  const casilla = (v: unknown) => Number.isInteger(v) && (v as number) >= 0 && (v as number) < n;
+  if (![u.calles, u.parcelas, u.patios, u.barrios].every(Array.isArray) || !Number.isInteger(u.sigCalle)) return false;
+  const ids = new Set<number>();
+  for (const c of u.calles) {
+    if (!c || !Number.isInteger(c.id) || ids.has(c.id) || c.id >= u.sigCalle || !['principal', 'oficios', 'viviendas'].includes(c.uso)) return false;
+    if (!Number.isInteger(c.padre) || !Number.isInteger(c.nace) || c.nace < 0) return false;
+    if (!Array.isArray(c.casillas) || !c.casillas.length || !c.casillas.every(casilla) || !Array.isArray(c.ramas) || !c.ramas.every((k) => Number.isInteger(k) && k >= 0)) return false;
+    if (c.cerrada !== undefined && typeof c.cerrada !== 'boolean') return false;
+    ids.add(c.id);
+  }
+  for (const c of u.calles) if (c.padre >= 0 && !ids.has(c.padre)) return false;
+  for (const p of u.parcelas) {
+    if (!p || !casilla(p.i) || !casilla(p.acceso) || !ids.has(p.calle) || !['publico', 'comun'].includes(p.uso)) return false;
+    if (!u.calles.find((c) => c.id === p.calle)!.casillas.includes(p.acceso)) return false;
+  }
+  if (!u.patios.every(casilla)) return false;
+  return u.barrios.every((b) => b && typeof b.clave === 'string' && Number.isFinite(b.desde));
 }
 
 /** Una expedición por mar con todos sus datos en orden. */
