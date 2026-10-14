@@ -579,6 +579,57 @@ primera vez que la aldea necesita un solar.
 - No se ha incorporado ningún modelo externo: ver `docs/ASSETS.md`, con la evaluación de
   Kenney y 0 A.D.
 
+### Resultados
+
+20 años sobre una copia del mundo vivo (día 21.000, 1.409 personas), versión publicada
+(178d348) frente a la nueva, una tras otra en la misma máquina:
+
+| | Antes | Ahora |
+| --- | --- | --- |
+| Personas al acabar | 2.379 | 2.369 |
+| Aldeas | 53 | 56 |
+| Muertes de hambre | 0 | 0 |
+| Viajes de comercio | 478 | 571 |
+| Invariantes rotas, anomalías | 0, 0 | 0, 0 |
+| ms por día | 134,7 | 143,1 (+6 %) |
+
+Trazado de las aldeas fundadas en esos 20 años:
+
+| | Antes | Ahora |
+| --- | --- | --- |
+| Aldeas | 24 | 27 |
+| Edificios pegados a otro | 92 % | 19 % |
+| Edificios que dan a una calle | 0 % | 79 % |
+| Radio medio de lo construido | 3,5 casillas | 8,4 casillas |
+
+- En todo el mundo, en esos 20 años: 164 calles, 117 barrios y 90 edificios mejorados.
+- Web:
+  - Sin errores.
+  - Mismo número de llamadas de dibujo (unas 130-150) y un 5 % más de triángulos (el mundo
+    tiene más gente).
+  - Unos 32 KB más de JavaScript.
+  - Las calles y los solares se aprecian con la cámara habitual (enfocar una aldea).
+- Pruebas: `test/urbe.test.ts` (11 pruebas):
+  - nada se solapa ni tapa una entrada;
+  - terreno, cuestas y separación;
+  - calles continuas desde la plaza;
+  - crecimiento por barrios;
+  - cada uso en su sitio;
+  - pago y trabajo de obras y mejoras;
+  - efecto del almacén grande;
+  - casas viejas rehechas en solares nuevos;
+  - guardar y cargar;
+  - modelos 3D.
+
+### Detectado de paso (sin corregir: no es de este hito)
+
+En `repensarGuerra` (src/politica.ts), una guerra se da por «enfriada» si hace más de dos
+años del último asalto entre las dos aldeas y el rencor es menor de 0,45. Pero se cuenta
+desde el último asalto, no desde que empezó la guerra. Una guerra nueva entre aldeas que
+nunca se asaltaron se apaga en el primer repaso mensual y sus guerreros se dan la vuelta.
+Hay que contar desde `max(ultimoAsalto, guerra.desde)`. Conviene arreglarlo al empezar el
+hito de asedios: hoy hace que las guerras espontáneas duren aún menos.
+
 ### Cómo conecta con los hitos siguientes
 
 - **Costumbres como programas.** Las decisiones del planificador ya son puntuaciones explícitas
