@@ -444,7 +444,9 @@ export function repensarGuerra(m: Mundo, a: Aldea): void {
   const rel = relacion(m, a.id, g.contra);
   // Se acaba si ya no hay enemigo, tras dos derrotas, si están agotados, si el rencor se ha
   // enfriado sin asaltos, si el hambre aprieta en casa o si un aliado de los dos media.
-  const larga = m.t - rel.ultimoAsalto > DIAS_ANIO * 2 && rel.rencor < 0.45;
+  // (Se cuenta desde el último asalto o desde que empezó la guerra, lo que sea más reciente:
+  // una guerra recién declarada no está «enfriada» solo porque aún no haya habido asaltos.)
+  const larga = m.t - Math.max(rel.ultimoAsalto, g.desde) > DIAS_ANIO * 2 && rel.rencor < 0.45;
   const cansados = (g.cansancio ?? 0) >= 1;
   const hambre = a.consejo?.prioridad === 'comida' && m.t - g.desde > DIAS_ANIO && (a.memoria?.comida ?? 0) > 0.9;
   const mediador = B && m.t - g.desde > DIAS_ANIO ? m.aldeas.find((c) => c !== a && c !== B && c.abandonada === null && relacion(m, a.id, c.id).alianza && relacion(m, B.id, c.id).alianza) : undefined;

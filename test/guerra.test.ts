@@ -280,6 +280,29 @@ test('la derrota, el cansancio o un cambio de circunstancias acaban la guerra (y
   }
 });
 
+test('una guerra recién declarada no se da por enfriada solo porque aún no haya habido asaltos', () => {
+  const { m, a, b } = dosAldeas();
+  consejo(m, a, 0.8);
+  // Nunca se han asaltado (sin «último asalto») y el rencor es moderado: declaran la guerra.
+  const rel = relacion(m, a.id, b.id);
+  rel.rencor = 0.3;
+  a.consejo!.guerra = { contra: b.id, desde: m.t, motivo: 'rencor', derrotas: 0 };
+  // Pasan todos los repasos mensuales de sus dos primeros años: la guerra sigue (antes se apagaba
+  // en el primero, porque contaba desde un «último asalto» que nunca hubo).
+  const desde = m.t;
+  for (let mes = 1; m.t + 30 - desde <= DIAS_ANIO * 2; mes++) {
+    m.t += 30;
+    repensarGuerra(m, a);
+    assert.equal(a.consejo!.guerra?.contra, b.id, `sigue en guerra al mes ${mes}`);
+  }
+  assert.ok(!m.cronica.some((c) => c.tipo === 'paz'), 'sin paces prematuras');
+  // Pero si pasan dos años desde que empezó sin asaltos y el rencor sigue bajo, se enfría como siempre.
+  m.t = a.consejo!.guerra!.desde + DIAS_ANIO * 2 + 30;
+  repensarGuerra(m, a);
+  assert.equal(a.consejo!.guerra, null, 'tras dos años sin asaltos, la paz');
+  assert.ok(m.cronica.some((c) => c.tipo === 'paz' && c.texto.includes(b.nombre)));
+});
+
 test('la alianza y la reconciliación cambian las relaciones con coherencia', () => {
   const { m, a, b } = dosAldeas();
   const rel = relacion(m, a.id, b.id);

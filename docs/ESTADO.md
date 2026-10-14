@@ -621,14 +621,17 @@ Trazado de las aldeas fundadas en esos 20 años:
   - guardar y cargar;
   - modelos 3D.
 
-### Detectado de paso (sin corregir: no es de este hito)
+### Detectado de paso (corregido después, en una corrección aparte)
 
 En `repensarGuerra` (src/politica.ts), una guerra se da por «enfriada» si hace más de dos
 años del último asalto entre las dos aldeas y el rencor es menor de 0,45. Pero se cuenta
 desde el último asalto, no desde que empezó la guerra. Una guerra nueva entre aldeas que
 nunca se asaltaron se apaga en el primer repaso mensual y sus guerreros se dan la vuelta.
-Hay que contar desde `max(ultimoAsalto, guerra.desde)`. Conviene arreglarlo al empezar el
-hito de asedios: hoy hace que las guerras espontáneas duren aún menos.
+**Corregido:** ahora se cuenta desde `max(ultimoAsalto, guerra.desde)`. El resto de las reglas
+de paz y agotamiento no cambia. Prueba: «una guerra recién declarada no se da por enfriada
+solo porque aún no haya habido asaltos» (`test/guerra.test.ts`). Antes de la corrección, la
+guerra se apagaba en el primer repaso mensual; ahora dura sus dos años y solo entonces se
+enfría, si sigue sin asaltos y con poco rencor.
 
 ### Cómo conecta con los hitos siguientes
 
